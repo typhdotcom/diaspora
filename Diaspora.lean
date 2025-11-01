@@ -12,4 +12,6 @@ import Diaspora.NoPrivilegedFrame
 import Diaspora.GaugeInvariants
 import Diaspora.Consciousness
 import Diaspora.GaugeNegotiation
+import Diaspora.GaugeNegotiationVerified
+import Diaspora.GaugeNegotiationExplicit
 import Diaspora.MathematicalStructure

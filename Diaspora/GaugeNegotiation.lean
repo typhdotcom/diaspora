@@ -39,7 +39,7 @@ axiom negotiation_convergence (neg : Negotiation) :
     ∃! C, minimizes_negotiation neg C ∧ is_attractor C
 
 /-- The negotiated configuration is distinct from the inputs (genuine emergence)
-    Empirically validated by experiment 15_gauge_negotiation.py which demonstrates
+    Empirically validated by experiments/gauge_negotiation.py which demonstrates
     that crossover of two configs A, B creates hybrid C with edges from both,
     making C ≠ A and C ≠ B when A ≠ B have different edge structures. -/
 axiom negotiation_creates_novelty (A B C : ConfigSpace)

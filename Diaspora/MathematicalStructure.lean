@@ -28,10 +28,10 @@ import Mathlib.CategoryTheory.Category.Basic
 import Mathlib.CategoryTheory.Functor.Basic
 import Mathlib.CategoryTheory.Groupoid
 import Mathlib.MeasureTheory.Measure.MeasureSpace
-import PerspectivalMonism.Axioms
-import PerspectivalMonism.NoPrivilegedFrame
-import PerspectivalMonism.GaugeInvariants
-import PerspectivalMonism.Consciousness
+import Diaspora.Axioms
+import Diaspora.NoPrivilegedFrame
+import Diaspora.GaugeInvariants
+import Diaspora.Consciousness
 
 /-! ## Topological Structure - AXIOMS KEPT (needed as foundation) -/
 

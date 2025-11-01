@@ -8,10 +8,10 @@ Consciousness = attractor ∩ recursive well ≠ ∅
 -/
 
 import Mathlib.Data.Real.Basic
-import PerspectivalMonism.Axioms
-import PerspectivalMonism.RateDistortion
-import PerspectivalMonism.HolonomicMemory
-import PerspectivalMonism.NoPrivilegedFrame
+import Diaspora.Axioms
+import Diaspora.RateDistortion
+import Diaspora.HolonomicMemory
+import Diaspora.NoPrivilegedFrame
 
 open Classical
 

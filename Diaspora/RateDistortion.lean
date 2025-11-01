@@ -7,8 +7,8 @@ Formalizes "Perspective = Translation Cost" (Primitive 6)
 import Mathlib.Data.Real.Basic
 import Mathlib.Order.MinMax
 import Mathlib.Order.ConditionallyCompleteLattice.Basic
-import PerspectivalMonism.Axioms
-import PerspectivalMonism.Task
+import Diaspora.Axioms
+import Diaspora.Task
 
 /-! ## Definitions -/
 

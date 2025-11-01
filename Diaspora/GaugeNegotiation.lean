@@ -10,10 +10,10 @@ This is the formal proof that reality is negotiated, not discovered.
 import Mathlib.Data.Real.Basic
 import Mathlib.Topology.Basic
 import Mathlib.Topology.MetricSpace.Basic
-import PerspectivalMonism.Axioms
-import PerspectivalMonism.NoPrivilegedFrame
-import PerspectivalMonism.GaugeInvariants
-import PerspectivalMonism.Consciousness
+import Diaspora.Axioms
+import Diaspora.NoPrivilegedFrame
+import Diaspora.GaugeInvariants
+import Diaspora.Consciousness
 
 /-! ## Negotiation Dynamics -/
 

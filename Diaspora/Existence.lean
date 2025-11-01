@@ -12,7 +12,7 @@ Strategy:
 This is where abstract structure becomes concrete reality.
 -/
 
-import PerspectivalMonism.Concrete
+import Diaspora.Concrete
 import Mathlib.Topology.MetricSpace.Basic
 
 open Concrete

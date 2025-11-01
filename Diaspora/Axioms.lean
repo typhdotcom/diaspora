@@ -2,7 +2,7 @@
 # Core Axioms: The Computational Substrate
 
 Formalization of the configuration space and cost functions
-from the Perspectival Monism experiments.
+from the Diaspora experiments.
 -/
 
 import Mathlib.Data.Real.Basic

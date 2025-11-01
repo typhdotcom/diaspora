@@ -13,8 +13,8 @@ Strategy:
 This eliminates axioms by showing they're theorems about concrete structures.
 -/
 
-import PerspectivalMonism.Axioms
-import PerspectivalMonism.Concrete
+import Diaspora.Axioms
+import Diaspora.Concrete
 
 namespace ConcreteModel
 

@@ -6,8 +6,8 @@ Shows that incompatible structural requirements force bounded product of errors
 
 import Mathlib.Data.Real.Basic
 import Mathlib.Tactic.NormNum
-import PerspectivalMonism.Axioms
-import PerspectivalMonism.Task
+import Diaspora.Axioms
+import Diaspora.Task
 
 open Classical
 

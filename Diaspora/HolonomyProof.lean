@@ -22,8 +22,8 @@ but the fundamental result is now proven from first principles.
 
 import Mathlib.Data.Real.Basic
 import Mathlib.Tactic.NormNum
-import PerspectivalMonism.Axioms
-import PerspectivalMonism.Task
+import Diaspora.Axioms
+import Diaspora.Task
 
 /-! ## Numeric Helper -/
 

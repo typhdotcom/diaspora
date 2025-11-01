@@ -9,8 +9,8 @@ perspectives, not a single privileged view.
 -/
 
 import Mathlib.Data.Real.Basic
-import PerspectivalMonism.Axioms
-import PerspectivalMonism.UncertaintyProof
+import Diaspora.Axioms
+import Diaspora.UncertaintyProof
 
 /-! ## Gauge Transformations -/
 

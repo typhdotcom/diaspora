@@ -10,8 +10,8 @@ Everything else is perspective-relative.
 
 import Mathlib.Data.Real.Basic
 import Mathlib.Data.Set.Basic
-import PerspectivalMonism.Axioms
-import PerspectivalMonism.NoPrivilegedFrame
+import Diaspora.Axioms
+import Diaspora.NoPrivilegedFrame
 
 /-! ## Gauge Invariants -/
 

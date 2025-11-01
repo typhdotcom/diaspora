@@ -1,12 +1,12 @@
-name = "PerspectivalMonism"
+name = "Diaspora"
 version = "0.1.0"
-defaultTargets = ["PerspectivalMonism"]
+defaultTargets = ["Diaspora"]
 
 [[lean_lib]]
-name = "PerspectivalMonism"
+name = "Diaspora"
 
 [[lean_exe]]
-name = "perspectivalmonism"
+name = "diaspora"
 root = "Main"
 
 [[require]]

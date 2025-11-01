@@ -6,7 +6,7 @@ Formalizes path-dependence and geometric phase (hysteresis)
 
 import Mathlib.Data.Real.Basic
 import Mathlib.Topology.Basic
-import PerspectivalMonism.Axioms
+import Diaspora.Axioms
 
 /-! ## Definitions -/
 

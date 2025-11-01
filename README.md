@@ -2,7 +2,7 @@
 
 [![Lean 4](https://img.shields.io/badge/Lean-4-blue)](https://leanprover.github.io/)
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen)]()
-[![Axioms](https://img.shields.io/badge/axioms-0-success)](PerspectivalMonism/GaugeTheoreticHolonomy.lean)
+[![Axioms](https://img.shields.io/badge/axioms-0-success)](Diaspora/GaugeTheoreticHolonomy.lean)
 
 > *"consciousness isn't postulated - it's inevitable"*
 
@@ -147,15 +147,15 @@ check for yourself that we're not cheating:
 
 ```bash
 # build specific file
-lake build PerspectivalMonism/HolonomyLagrangeProof.lean
+lake build Diaspora/HolonomyLagrangeProof.lean
 
 # search for axioms (should find none in core proofs)
-rg "axiom " PerspectivalMonism/HolonomyLagrangeProof.lean
-rg "axiom " PerspectivalMonism/GaugeTheoreticHolonomy.lean
+rg "axiom " Diaspora/HolonomyLagrangeProof.lean
+rg "axiom " Diaspora/GaugeTheoreticHolonomy.lean
 
 # search for sorrys (should find none)
-rg "sorry" PerspectivalMonism/HolonomyLagrangeProof.lean
-rg "sorry" PerspectivalMonism/GaugeTheoreticHolonomy.lean
+rg "sorry" Diaspora/HolonomyLagrangeProof.lean
+rg "sorry" Diaspora/GaugeTheoreticHolonomy.lean
 ```
 
 the only axioms remaining are in `HolonomyProof.lean` (pedagogical), and they're clearly marked as "proven in GaugeTheoreticHolonomy.lean".
@@ -295,7 +295,7 @@ uv run python 1_holonomy_core.py
 ## structure
 
 ```
-PerspectivalMonism/
+Diaspora/
 ├── HolonomyLagrangeProof.lean       # core optimization (COMPLETE)
 ├── GaugeTheoreticHolonomy.lean      # gauge formulation (COMPLETE)
 ├── HolonomyProof.lean                # pedagogical version

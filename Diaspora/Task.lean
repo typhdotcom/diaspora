@@ -6,7 +6,7 @@ Defines specific external constraints that require graph structure
 
 import Mathlib.Data.Real.Basic
 import Mathlib.Combinatorics.SimpleGraph.Basic
-import PerspectivalMonism.Axioms
+import Diaspora.Axioms
 
 /-! ## External ExternalTask Structure -/
 

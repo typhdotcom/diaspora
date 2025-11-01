@@ -1,0 +1,14 @@
+name = "PerspectivalMonism"
+version = "0.1.0"
+defaultTargets = ["PerspectivalMonism"]
+
+[[lean_lib]]
+name = "PerspectivalMonism"
+
+[[lean_exe]]
+name = "perspectivalmonism"
+root = "Main"
+
+[[require]]
+name = "mathlib"
+scope = "leanprover-community"

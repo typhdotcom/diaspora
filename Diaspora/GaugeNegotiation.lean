@@ -39,15 +39,23 @@ axiom negotiation_convergence (neg : Negotiation) :
     ∃! C, minimizes_negotiation neg C ∧ is_attractor C
 
 /-- The negotiated configuration is distinct from the inputs (genuine emergence)
-    Empirically validated by experiments/gauge_negotiation.py which demonstrates
-    that crossover of two configs A, B creates hybrid C with edges from both,
-    making C ≠ A and C ≠ B when A ≠ B have different edge structures. -/
+
+    AXIOM STATUS: Validated by concrete proof in GaugeNegotiationProofs.lean
+    - 8-node case proves G_N ≠ G_A and G_N ≠ G_B (zero axioms, zero sorries)
+    - Empirically validated by experiments/gauge_negotiation.py
+
+    TODO: Either prove for all ConfigSpace or weaken to existence claim -/
 axiom negotiation_creates_novelty (A B C : ConfigSpace)
     (lam : ℝ) (h_pos : 0 < lam) (h_diff : A ≠ B)
     (h_min : minimizes_negotiation ⟨A, B, lam, h_pos⟩ C) :
     C ≠ A ∧ C ≠ B
 
-/-- Negotiation produces intermediate complexity -/
+/-- Negotiation produces intermediate complexity
+
+    AXIOM STATUS: Validated by concrete proof in GaugeNegotiationProofs.lean
+    - 8-node case proves min(20, 37) = 20 ≤ 34 ≤ 57 (zero axioms, zero sorries)
+
+    TODO: Prove for all ConfigSpace or weaken to existence claim -/
 axiom negotiation_intermediate_complexity (A B C : ConfigSpace)
     (lam : ℝ) (h_pos : 0 < lam)
     (h_min : minimizes_negotiation ⟨A, B, lam, h_pos⟩ C) :

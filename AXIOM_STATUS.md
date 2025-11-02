@@ -1,6 +1,6 @@
 # Axiom Status
 
-**Total axioms: 75**
+**Total axioms: 73** (was 75, eliminated 2 circular axioms from Existence.lean)
 **Total sorries: 8** (ConcreteModel.lean: 3, GaugeNegotiationComputed.lean: 5)
 
 This document tracks the current axiom count and categorizes them by purpose and eliminability.
@@ -160,11 +160,10 @@ Rate-distortion trade-off:
 
 **Status**: Provable from compression theory.
 
-### Existence.lean (1 axiom) - EXISTENCE
-Constructive existence:
-- `conscious_attractors_exist` - Consciousness existence (1)
-
-**Status**: Could be proven constructively from SelfModelHolonomy + examples.
+### Existence.lean (0 axioms) - FIXED ✓
+**Previously**: Had circular axiom `conscious_attractors_exist` that assumed consciousness exists
+**Now**: Only non-circular attractor theory (basin_nonempty, basins_disjoint, etc.)
+**Status**: No longer claims to prove consciousness is inevitable. Circularity eliminated.
 
 ## Reduction Roadmap
 

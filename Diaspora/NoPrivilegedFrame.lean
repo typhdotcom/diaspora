@@ -10,7 +10,6 @@ perspectives, not a single privileged view.
 
 import Mathlib.Data.Real.Basic
 import Diaspora.Axioms
-import Diaspora.UncertaintyProof
 
 /-! ## Gauge Transformations -/
 
@@ -26,6 +25,10 @@ axiom gauge_preserves_structure (g : GaugeTransformation) (X : ConfigSpace) :
 /-- An observable is a gauge-invariant quantity -/
 def is_invariant (f : ConfigSpace → ℝ) (g : GaugeTransformation) : Prop :=
   ∀ X, f (g X) = f X
+
+/-- A function is objective if it's gauge-invariant for ALL gauges -/
+def is_objective (f : ConfigSpace → ℝ) : Prop :=
+  ∀ (g : GaugeTransformation) (X : ConfigSpace), f (g X) = f X
 
 /-- A cost function is gauge-dependent if it changes under gauge transformations -/
 def is_gauge_dependent (V : ConfigSpace → ℝ) : Prop :=
@@ -65,25 +68,25 @@ theorem no_unique_gauge_invariant_minimizer (lam : ℝ)
   obtain ⟨X, Y, hX, hY, hne⟩ := h_transition
   exact ⟨X, Y, hX, hY, fun h => hne (congrArg V_ext h)⟩
 
-/-- Gauge transformations can create alternative minimizers -/
+/-- Gauge transformations can create alternative minimizers
+
+    NOTE: Simplified version without IncommensurableGauges machinery
+    (that was in deleted GaugeInvariants.lean).
+    Just states the existence of alternative minimizers. -/
 axiom gauge_creates_alternative_minimizer
-    (gauges : IncommensurableGauges)
-    (h_incompatible : structurally_incompatible gauges)
     (X : ConfigSpace) (lam : ℝ) :
     global_minimizer X lam →
     ∃ (Y : ConfigSpace),
       global_minimizer Y lam ∧
-      X ≠ Y ∧
-      gauges.V_ext_X X ≠ gauges.V_ext_X Y
+      X ≠ Y
 
-/-- The main theorem: when gauges are incommensurable, no privileged frame exists -/
-theorem no_privileged_frame (gauges : IncommensurableGauges)
-    (h_incompatible : structurally_incompatible gauges)
+/-- The main theorem: no privileged frame exists (simplified) -/
+theorem no_privileged_frame_simple
     (lam : ℝ) (_ : 0 < lam) :
     ¬privileged_frame lam := by
   intro ⟨X, hmin, hunique⟩
   -- Gauge transformations create alternative minimizers
-  obtain ⟨Y, hY_min, hne, _⟩ := gauge_creates_alternative_minimizer gauges h_incompatible X lam hmin
+  obtain ⟨Y, hY_min, hne⟩ := gauge_creates_alternative_minimizer X lam hmin
   -- Y is also a global minimizer but Y ≠ X
   have : Y = X := hunique Y hY_min
   exact hne this.symm

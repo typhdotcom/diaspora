@@ -18,7 +18,6 @@ import Mathlib.Data.Real.Basic
 import Mathlib.Algebra.Order.BigOperators.Group.Finset
 import Diaspora.Concrete
 import Diaspora.HolonomyLagrangeProof
-import Diaspora.Consciousness
 
 namespace Diaspora.SelfModelHolonomy
 

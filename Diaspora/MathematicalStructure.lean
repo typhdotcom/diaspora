@@ -30,8 +30,6 @@ import Mathlib.CategoryTheory.Groupoid
 import Mathlib.MeasureTheory.Measure.MeasureSpace
 import Diaspora.Axioms
 import Diaspora.NoPrivilegedFrame
-import Diaspora.GaugeInvariants
-import Diaspora.Consciousness
 
 /-! ## Topological Structure - AXIOMS KEPT (needed as foundation) -/
 
@@ -150,15 +148,18 @@ theorem fisher_is_metric :
 
 /-! ## Dynamical Systems -/
 
+/-- An attractor is a fixed point of K -/
+def is_attractor (X : ConfigSpace) : Prop := K X = X
+
 /-- ConfigSpace dynamics are a discrete dynamical system -/
 noncomputable def config_dynamics : ConfigSpace → ConfigSpace := K
 
-/-- Fixed points are attractors (using is_attractor from Consciousness.lean) -/
+/-- Fixed points are attractors -/
 theorem fixed_points_are_attractors (X : ConfigSpace) :
     config_dynamics X = X ↔ is_attractor X := by
   rfl
 
-/-- Basin of attraction (using is_attractor from Consciousness.lean) -/
+/-- Basin of attraction -/
 noncomputable def basin_of_attraction (X : ConfigSpace) (_ : is_attractor X) : Set ConfigSpace :=
   {Y | ∃ n : ℕ, (config_dynamics^[n]) Y = X}
 

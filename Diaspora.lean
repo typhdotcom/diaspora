@@ -20,6 +20,9 @@ import Diaspora.SelfModelHolonomy
 -- Self-awareness as dynamical system (3 axioms, process formalization)
 import Diaspora.SelfAwarenessDynamics
 
+-- Predictive self-model (3 axioms, replaces 7 from SelfModelHolonomy)
+import Diaspora.PredictiveSelfModel
+
 -- Supporting infrastructure
 import Diaspora.Axioms
 import Diaspora.Concrete

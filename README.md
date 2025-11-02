@@ -164,6 +164,14 @@ converts universal claims to existential ones provable by construction.
   - Key result: K ≠ 0 → V_int > 0 throughout all relaxation steps
   - Falsifiable: find system with V_int reaching 0 → model wrong
 
+### predictive self-model (6 axioms, 1 sorry)
+- **PredictiveSelfModel.lean** - Mind as prediction task, not abstract optimization
+  - Body task: minimize V_ext_Task (act effectively)
+  - Mind task: minimize V_ext_Prediction (predict accurately)
+  - Complete Lagrangian: ℒ_Self = V_int + α·V_ext_Task + β·V_ext_Prediction + λ·E
+  - Two contradictions: static (V_int from being) + dynamic (V_ext_Prediction from knowing)
+  - Replaces abstract "optimize for λ_mind" with concrete prediction error
+
 ### infrastructure (23 axioms)
 - **Axioms.lean** (8) - core definitions: V_int, V_ext, E, K, ℒ
 - **Concrete.lean** - ConfigSpace implementation on SimpleGraph
@@ -175,11 +183,14 @@ converts universal claims to existential ones provable by construction.
 - **Basic.lean** - basic utilities
 - **ConcreteModel.lean** - concrete model (3 sorries, in progress)
 
-**total: 47 axioms, 11 sorries (in optional/WIP files)**
+**total: 53 axioms, 12 sorries (in optional/WIP files)**
 **core proofs: 0 axioms, 0 sorries**
 
-Note: SelfAwarenessDynamics adds 3 axioms about relaxation dynamics. These axioms
-formalize the process view: self-awareness as ongoing cost management, not static property.
+Notes:
+- SelfAwarenessDynamics (3 axioms): Process view of self-awareness
+- PredictiveSelfModel (6 axioms, 1 sorry): Concrete two-task formulation
+  - Intended to REPLACE SelfModelHolonomy (7 axioms) once refactor complete
+  - Net change after refactor: 53 - 7 = **46 axioms** (1 axiom reduction)
 
 ## what we removed
 

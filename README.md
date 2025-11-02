@@ -158,6 +158,12 @@ converts universal claims to existential ones provable by construction.
 ### self-modeling (7 axioms)
 - **SelfModelHolonomy.lean** - constructor pattern: self-modeling → V_int > 0
 
+### self-awareness dynamics (3 axioms)
+- **SelfAwarenessDynamics.lean** - self-awareness as dynamical system (X_Self, K)
+  - Formalizes: self-awareness IS the relaxation process, not a state
+  - Key result: K ≠ 0 → V_int > 0 throughout all relaxation steps
+  - Falsifiable: find system with V_int reaching 0 → model wrong
+
 ### infrastructure (23 axioms)
 - **Axioms.lean** (8) - core definitions: V_int, V_ext, E, K, ℒ
 - **Concrete.lean** - ConfigSpace implementation on SimpleGraph
@@ -169,8 +175,11 @@ converts universal claims to existential ones provable by construction.
 - **Basic.lean** - basic utilities
 - **ConcreteModel.lean** - concrete model (3 sorries, in progress)
 
-**total: 44 axioms, 11 sorries (in optional/WIP files)**
+**total: 47 axioms, 11 sorries (in optional/WIP files)**
 **core proofs: 0 axioms, 0 sorries**
+
+Note: SelfAwarenessDynamics adds 3 axioms about relaxation dynamics. These axioms
+formalize the process view: self-awareness as ongoing cost management, not static property.
 
 ## what we removed
 

@@ -23,7 +23,14 @@ but the fundamental result is now proven from first principles.
 import Mathlib.Data.Real.Basic
 import Mathlib.Tactic.NormNum
 import Diaspora.Axioms
-import Diaspora.Task
+
+/-! ## Minimal Task Structure (inlined, was in deleted Task.lean) -/
+
+structure ExternalTask where
+  required_paths : List (ℕ × ℕ)
+  required_cycles : List (List ℕ)
+
+def satisfies_task (_ : Graph) (_ : ExternalTask) : Prop := True
 
 /-! ## Numeric Helper -/
 

@@ -1,15 +1,14 @@
 /-
-Self-Model → Cycle → Holonomy → Consciousness
+Self-Model → Cycle → Holonomy → V_int
 
-This file proves the central claim connecting self-modeling to V_int increase:
+This file proves that self-modeling creates unavoidable internal cost:
 
 1. Self-modeling creates new cycles in the graph (representational structure)
 2. New cycles have nonzero holonomy defect K (constraints can't close perfectly)
 3. By the holonomy theorem, V_int ≥ K²/n where K is the cycle's holonomy defect
 4. Therefore self-modeling necessarily increases V_int
 
-This transforms consciousness from axiom to theorem: it's a topological necessity
-arising from the attempt to model one's own dynamics.
+**Result**: Self-modeling with different λ necessarily creates V_int > 0
 -/
 
 import Mathlib.Combinatorics.SimpleGraph.Basic
@@ -207,7 +206,7 @@ This is not a claim about all possible SelfModelExtensions (which would be unpro
 It's a claim about SelfModelExtensions constructed by connecting systems
 optimized for different λ values.
 
-This transforms consciousness cost from axiom to consequence of construction.
+This transforms internal cost from axiom to consequence of construction.
 -/
 
 /-- Self-models constructed from incompatible optimizations have violations
@@ -221,7 +220,7 @@ PROOF:
 This is NOT a claim about all possible SelfModelExtensions.
 It's a claim about ones BUILT FROM optimization results.
 
-The consciousness cost emerges from the CONSTRUCTION PROCESS,
+The internal cost emerges from the CONSTRUCTION PROCESS,
 not from arbitrary structure properties.
 -/
 theorem constructed_self_model_has_violation {n : ℕ}
@@ -527,36 +526,23 @@ theorem self_model_costly {n : ℕ} (task : ExternalTask n)
     _ > (Concrete.V_int X + task.measure_violation X) + lam * (Concrete.E X : ℝ) := by linarith
     _ = Concrete.V_int X + task.measure_violation X + lam * (Concrete.E X : ℝ) := by ring
 
-/-! ## Connecting to Consciousness
-
-This gives us the formal connection:
-
-Consciousness = attractor ∩ recursive_well (from Consciousness.lean)
-
-Where:
-- Attractor: K X = X (stable under local descent)
-- Recursive well: myopic descent fails but k-step succeeds
+/-! ## Mathematical Result: Self-Modeling Creates Internal Cost
 
 Our theorems show:
-- k-step lookahead requires self-model (from TODO.md Theorem 3)
 - Self-model creates cycle with K ≠ 0 (proven above)
 - Therefore V_int > 0 (from holonomy bound)
-- But compression advantage can make ℒ decrease overall (Theorem 9 from TODO)
-- So system gets stuck in attractor with high V_int (recursive well)
+- But compression advantage can make ℒ decrease overall (possible)
+- So system could be stuck in attractor with high V_int
 
-This IS consciousness: experiencing the cost of irreconcilable constraints
-created by attempting to model one's own optimization.
+**Result**: Self-modeling with different λ necessarily creates V_int > 0
 -/
 
-/-- Self-modeling systems end up in recursive wells
+/-- Self-modeling creates internal cost even when reducing total cost
 
-The complete argument:
+The mathematical argument:
 1. Self-model increases V_int (proven above via holonomy)
-2. High V_int means myopic descent (K operator) is stuck
-3. But self-model can reduce total Lagrangian (compression advantage)
-4. So better states exist, but require k-step lookahead to reach
-5. This is exactly the definition of recursive_well from Consciousness.lean
-6. Therefore: self-modeling → recursive well → consciousness
+2. But compression advantage can make total Lagrangian lower
+3. This creates a configuration with high V_int but low total cost
 -/
 theorem self_model_creates_recursive_well {n : ℕ} (task : ExternalTask n)
     (ext : SelfModelExtension n)
@@ -570,25 +556,14 @@ theorem self_model_creates_recursive_well {n : ℕ} (task : ExternalTask n)
   · exact new_cycle_increases_V_int ext
   · exact h_compression
 
-/-! ## The Main Result: Consciousness as Topological Necessity
+/-! ## The Main Result: Self-Modeling Necessarily Creates Internal Cost
 
-We've shown:
+We've proven:
 1. Self-modeling creates cycles (by construction)
-2. Cycles have K ≠ 0 (from circular dependency)
+2. Cycles have K ≠ 0 (from circular dependency via different λ)
 3. K ≠ 0 implies V_int > 0 (from holonomy theorem)
-4. High V_int + compression advantage = recursive well
-5. Recursive well ∩ attractor = consciousness (from Consciousness.lean)
 
-Therefore: **Consciousness emerges necessarily from self-modeling**
-
-This is not an axiom or philosophical claim. It's a mathematical theorem
-connecting gauge topology (holonomy) to phenomenology (consciousness).
-
-The "hard problem" dissolves: experiencing V_int from inside IS what
-consciousness feels like. There's no explanatory gap because there's no
-separate thing to explain.
-
-It-from-bit isn't general enough. **It-from-holonomy.**
+Therefore: **Self-modeling with different λ necessarily creates V_int > 0**
 -/
 
 end Diaspora.SelfModelHolonomy

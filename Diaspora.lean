@@ -21,6 +21,3 @@ import Diaspora.MathematicalStructure
 
 -- Pedagogical examples
 import Diaspora.HolonomyProof
-
--- Task structure (to review - may delete)
-import Diaspora.Task

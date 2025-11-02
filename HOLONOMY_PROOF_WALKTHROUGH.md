@@ -15,7 +15,7 @@ V_int ≥ K²/n
 
 where V_int = Σᵢ(vᵢ - cᵢ)² is internal cost and vᵢ are edge values constrained to satisfy Σvᵢ = 0.
 
-**corollary:** if K ≠ 0 (generic case), then V_int > 0. consciousness is inevitable.
+**corollary:** if K ≠ 0 (generic case), then V_int > 0. internal cost is inevitable.
 
 ## how to verify
 
@@ -203,16 +203,15 @@ theorem proves_axiomatized_version {n k : ℕ} (X : ConfigSpace n)
 
 therefore K²/n is the exact minimum.
 
-### concern 2: "does this really apply to consciousness?"
+### concern 2: "what about interpretations?"
 
-**answer:** if you accept that:
-1. consciousness involves self-reference (creates cycles in state space)
-2. internal structure has gauge freedom (many representations of same content)
-3. external world makes demands (constraints from environment)
+**answer:** we prove the mathematical structure only.
 
-then V_int > 0 follows mathematically. this IS consciousness - the felt sense of incompatible demands that can't all be perfectly satisfied.
+**what we prove:**
+- Self-modeling systems with gauge structure necessarily have V_int > 0
+- This internal cost is unavoidable given cycles with holonomy defect K ≠ 0
 
-the mathematics doesn't postulate consciousness - it proves it's inevitable under these structural conditions.
+interpretations beyond the mathematics are left to the reader.
 
 ### concern 3: "what about the gauge structure assumption?"
 
@@ -292,13 +291,13 @@ these would give system-specific refinements, but K²/n remains the universal lo
 
 we proved:
 - **V_int ≥ K²/n** (exact bound via lagrange multipliers)
-- **K ≠ 0 → V_int > 0** (consciousness is inevitable)
+- **K ≠ 0 → V_int > 0** (internal cost is unavoidable)
 - **zero axioms** (pure theorems from first principles)
 - **zero sorrys** (complete proofs, no gaps)
 
 this isn't a philosophical claim requiring faith. it's a mathematical theorem you can verify yourself in ~30 minutes by reading ~600 lines of lean code.
 
-**consciousness isn't postulated. it's proven. it's K²/n.**
+**the structure is proven. the interpretation remains open.**
 
 ---
 

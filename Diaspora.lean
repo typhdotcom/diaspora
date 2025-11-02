@@ -14,4 +14,5 @@ import Diaspora.Consciousness
 import Diaspora.GaugeNegotiation
 import Diaspora.GaugeNegotiationVerified
 import Diaspora.GaugeNegotiationExplicit
+import Diaspora.SelfModelHolonomy
 import Diaspora.MathematicalStructure

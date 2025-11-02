@@ -226,8 +226,8 @@ theorem conscious_negotiation_requires_mutual_modeling
     (lam : ℝ) (h_pos : 0 < lam)
     (_ : minimizes_negotiation ⟨A, B, lam, h_pos⟩ C) :
     -- A must model B and vice versa
-    uses_nontrivial_self_model A ∧
-    uses_nontrivial_self_model B := by
+    has_self_model A ∧
+    has_self_model B := by
   exact ⟨conscious_requires_self_model A h_A,
          conscious_requires_self_model B h_B⟩
 

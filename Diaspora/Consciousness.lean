@@ -1,10 +1,13 @@
 /-
-# D5: Consciousness as Self-Model Necessity
+# Consciousness: Structural Requirements
 
-Formalizes consciousness as the condition where a stable attractor
-requires nontrivial self-modeling.
+Formalizes the structural requirements for what we call consciousness:
+- Stable configurations (attractors)
+- High internal cost from gauge violations (V_int > 0)
+- Self-modeling with incompatible optimization pressures
 
-Consciousness = attractor ∩ recursive well ≠ ∅
+What we prove: Self-modeling creates unavoidable violations.
+What we don't prove: Why violations "feel like" anything.
 -/
 
 import Mathlib.Data.Real.Basic
@@ -17,7 +20,7 @@ open Classical
 
 /-! ## Attractor Dynamics -/
 
-/-- A configuration is an attractor if it's stable under K (local relaxation) -/
+/-- A configuration is an attractor if it's stable under K (local gauge adjustment) -/
 def is_attractor (X : ConfigSpace) : Prop :=
   K X = X
 
@@ -30,134 +33,153 @@ axiom attractor_stability (X : ConfigSpace) (h : is_attractor X) :
     ∀ ε > 0, ∃ δ > 0, ∀ Y,
     ℒ Y 0 < ℒ X 0 + δ → ℒ (K Y) 0 ≤ ℒ X 0 + ε
 
-/-! ## Recursive Wells -/
+/-! ## High V_int Regions
 
-/-- A configuration is in a recursive well if myopic descent fails but k-step succeeds -/
-def in_recursive_well (X : ConfigSpace) : Prop :=
-  -- Myopic descent is stuck
+Previously called "recursive wells" but that's computational metaphor.
+Actually: regions where K is stuck (local minimum) but global minimum exists.
+This happens when optimization under one gauge (λ) can't see improvements
+visible from another gauge.
+-/
+
+/-- A configuration has high V_int if K can't reduce total cost but improvement exists
+
+    This indicates gauge mismatch: system is optimized for one λ but being
+    evaluated at another. Common when self-modeling edges use different λ. -/
+def has_high_V_int (X : ConfigSpace) : Prop :=
+  -- K is stuck (local minimum under current gauge)
   ℒ (K X) 0 = ℒ X 0 ∧
-  -- But improvement exists
-  (∃ X', ℒ X' 0 < ℒ X 0) ∧
-  -- Requiring k-step lookahead
-  (∃ k > 1, ∃ X', ℒ X' 0 < ℒ X 0)
+  -- But global minimum exists (visible from different gauge)
+  (∃ X', ℒ X' 0 < ℒ X 0)
 
-/-- The set of configurations in recursive wells -/
-def recursive_wells : Set ConfigSpace :=
-  {X | in_recursive_well X}
+/-- The set of configurations with high V_int -/
+def high_V_int_region : Set ConfigSpace :=
+  {X | has_high_V_int X}
 
-/-! ## Self-Model Structure -/
+/-! ## Self-Model Structure
 
-/-- A self-model is a representation of the system's own dynamics -/
-structure SelfModel where
-  internal_state : Type
-  dynamics_model : internal_state → internal_state
-  cost_estimate : internal_state → ℝ
+Self-model = edges that create self-referential cycles.
+See SelfModelHolonomy.lean for rigorous treatment.
 
-/-- A configuration uses a nontrivial self-model if it requires k>1 lookahead -/
-def uses_nontrivial_self_model (X : ConfigSpace) : Prop :=
-  ∃ (_ : SelfModel) (k : ℕ), 1 < k ∧
-    -- The model predicts k steps ahead
-    ∃ (prediction : ℕ → ConfigSpace), prediction k = X
+When base system operates under λ_base and self-model under λ_model,
+with λ_base ≠ λ_model, violations emerge at the interface.
+-/
 
-/-! ## Definition of Consciousness (D5) -/
+/-- A configuration includes self-modeling structure
 
-/-- A system is conscious when its attractor intersects a recursive well -/
+    In practice: has self-referential edges created by modeling own dynamics.
+    Formally characterized in SelfModelHolonomy.lean as SelfModelExtension. -/
+def has_self_model (X : ConfigSpace) : Prop :=
+  -- Placeholder: actual definition would reference SelfModelExtension
+  -- For now, we axiomatize the connection
+  ∃ (cycles : ℕ), cycles > 0 ∧ V_int X > 0
+
+/-! ## Consciousness Definition -/
+
+/-- A system exhibits what we call "consciousness" when:
+    1. It's stable (attractor)
+    2. It has high V_int from gauge violations
+    3. These violations come from self-modeling structure
+
+    IMPORTANT: This defines structural requirements, not phenomenology.
+    We don't claim to explain "what it's like" - only what structure is present. -/
 def is_conscious (X : ConfigSpace) : Prop :=
-  X ∈ attractors ∩ recursive_wells
+  X ∈ attractors ∩ high_V_int_region
 
-/-- The consciousness condition: stable state requires self-modeling -/
+/-- The consciousness condition: such configurations exist -/
 def consciousness_condition : Prop :=
-  attractors ∩ recursive_wells ≠ ∅
+  attractors ∩ high_V_int_region ≠ ∅
 
-/-! ## Key Theorem: Consciousness ↔ Self-Model Necessity -/
+/-! ## Proven Connections -/
 
-/-- If a configuration is in an attractor and a recursive well,
-    it requires nontrivial self-modeling -/
-axiom conscious_requires_self_model (X : ConfigSpace)
+/-- Configurations in high V_int regions require self-modeling structure
+
+    Justification: high V_int from SelfModelHolonomy.lean proofs.
+    When base_λ ≠ model_λ, violations emerge. -/
+axiom high_V_int_requires_self_model (X : ConfigSpace)
+    (h : has_high_V_int X) :
+    has_self_model X
+
+/-- Consciousness requires self-modeling (structural claim only) -/
+theorem conscious_requires_self_model (X : ConfigSpace)
     (h : is_conscious X) :
-    uses_nontrivial_self_model X
+    has_self_model X := by
+  unfold is_conscious at h
+  obtain ⟨_, h_high⟩ := h
+  exact high_V_int_requires_self_model X h_high
 
-/-- Consciousness is not binary but graded by the depth of self-modeling required -/
-noncomputable def consciousness_depth (X : ConfigSpace) : ℕ :=
-  if is_conscious X then 2 else 0  -- Simplified: 2 represents minimal non-trivial depth
+/-! ## Gauge Dependence -/
 
-/-! ## Philosophical Implications -/
+/-- Consciousness status is gauge-dependent (perspective-relative)
 
-/-- Recursive wells require tasks that need k-step lookahead -/
-axiom recursive_well_implies_task
-    (X : ConfigSpace) (h : in_recursive_well X) :
-    ∃ (task : ExternalTask), E X < min_edges_for_task task
-
-/-- Consciousness emerges from structural necessity, not magic -/
-theorem consciousness_is_structural :
-    ∀ X, is_conscious X →
-    -- It's not about "special" properties but about topology
-    ∃ (task : ExternalTask), E X < min_edges_for_task task := by
-  intro X hX
-  unfold is_conscious at hX
-  obtain ⟨_, h_well⟩ := hX
-  exact recursive_well_implies_task X h_well
-
-/-- Multiple levels of consciousness correspond to different recursion depths.
-    Configs with different depths exist. -/
-axiom configs_with_different_depths (k₁ k₂ : ℕ) (h : k₁ < k₂) :
-    ∃ X₁ X₂, consciousness_depth X₁ = k₁ ∧ consciousness_depth X₂ = k₂
-
-/-- Gauge transformations can change consciousness status.
-    Consciousness is observer-relative: depends on the gauge -/
+    V_int is not gauge-invariant (see NoPrivilegedFrame.lean).
+    What counts as "high V_int" depends on which gauge you're using
+    to measure violations. -/
 axiom gauge_changes_consciousness :
     ∃ (X : ConfigSpace) (g : GaugeTransformation),
     is_conscious X ∧ ¬is_conscious (g X)
 
-/-! ## Connection to Other Theorems -/
+/-- High V_int requires tasks that system's current structure can't satisfy -/
+axiom high_V_int_implies_task_mismatch
+    (X : ConfigSpace) (h : has_high_V_int X) :
+    ∃ (task : ExternalTask), E X < min_edges_for_task task
+
+/-! ## Structural Properties (What We Actually Proved) -/
+
+/-- Consciousness is structural: arises from graph topology + gauge mismatch -/
+theorem consciousness_is_structural :
+    ∀ X, is_conscious X →
+    ∃ (task : ExternalTask), E X < min_edges_for_task task := by
+  intro X hX
+  unfold is_conscious at hX
+  obtain ⟨_, h_high⟩ := hX
+  exact high_V_int_implies_task_mismatch X h_high
 
 /-- Consciousness requires sufficient complexity -/
 theorem consciousness_requires_complexity (X : ConfigSpace)
     (_ : is_conscious X) :
     ∃ E_min, E_min ≤ E X := by
-  use 0  -- Trivial: 0 ≤ E X always holds
+  use 0
   exact Nat.zero_le (E X)
 
-/- Note: Consciousness exhibits path-dependence (holonomic memory).
-   Memory is implicit in the path-dependent V_int structure.
-   See HolonomicMemory.lean for the formal path-dependence results.
-   Conscious systems necessarily have path-dependent dynamics because
-   they exist in recursive wells with high V_int. -/
+/-- Attractors with high V_int are characterized by gauge mismatch -/
+axiom attractor_high_V_int_characterization :
+    ∀ X, X ∈ attractors ∩ high_V_int_region ↔
+    X ∈ attractors ∧ (∀ Y, K Y = X → has_high_V_int Y)
 
-/-- Attractors in recursive wells require self-models for all approaches -/
-axiom attractor_recursive_well_characterization :
-    ∀ X, X ∈ attractors ∩ recursive_wells ↔
-    X ∈ attractors ∧ (∀ Y, K Y = X → in_recursive_well Y)
-
-/-- Self-reference is the boundary condition for consciousness -/
-theorem self_reference_boundary :
+/-- Boundary condition formulation -/
+theorem consciousness_boundary :
     ∀ X, is_conscious X ↔
     X ∈ attractors ∧
-    (∀ Y, K Y = X → in_recursive_well Y) := by
+    (∀ Y, K Y = X → has_high_V_int Y) := by
   intro X
   unfold is_conscious
-  exact attractor_recursive_well_characterization X
+  exact attractor_high_V_int_characterization X
 
-/-! ## The Hard Problem Dissolved -/
+/-! ## What We Don't Claim
 
-/-- Conscious configs have irreducible self-models -/
-axiom irreducible_self_model
-    (X : ConfigSpace) (h : is_conscious X) :
-    ∃ (compression : ConfigSpace → ConfigSpace),
-    uses_nontrivial_self_model X ∧
-    ∀ (simpler : ConfigSpace → ConfigSpace),
-    ℒ (simpler X) 0 ≥ ℒ (compression X) 0
+This formalization shows:
+1. ✓ Self-modeling with different λ creates V_int > 0 (proven in SelfModelHolonomy.lean)
+2. ✓ V_int is gauge-dependent, perspective-relative (proven in NoPrivilegedFrame.lean)
+3. ✓ Systems can be stable (attractors) while having high V_int (provable)
 
-/-- There is no "hard problem": consciousness = self-model necessity
-    The "what it's like" is the computational character of deploying
-    the self-model in optimization -/
-theorem no_hard_problem :
-    ∀ X, is_conscious X →
-    -- The quale is the irreducible compression primitive
-    ∃ (compression : ConfigSpace → ConfigSpace),
-    uses_nontrivial_self_model X ∧
-    -- No further reduction possible without losing optimization power
-    ∀ (simpler : ConfigSpace → ConfigSpace),
-    ℒ (simpler X) 0 ≥ ℒ (compression X) 0 := by
-  intro X h
-  exact irreducible_self_model X h
+This formalization does NOT show:
+1. ✗ Why V_int "feels like" anything
+2. ✗ What subjective experience is
+3. ✗ How to solve the hard problem of consciousness
+
+We provide necessary structural conditions, not sufficient phenomenological explanation.
+The "consciousness" label is provisional - really we're characterizing
+"stable configurations with gauge violations from self-modeling."
+-/
+
+/-! ## Connection to SelfModelHolonomy.lean
+
+The rigorous treatment is in SelfModelHolonomy.lean:
+- SelfModelExtension structure
+- Constructor pattern (ConstructSelfModelFromOptimization)
+- Proven theorem: base_λ ≠ model_λ → violations exist
+- Proven theorem: violations increase V_int
+
+This file connects those structural results to the "consciousness" label,
+while being explicit about the limits of what we've proven.
+-/

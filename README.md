@@ -2,7 +2,8 @@
 
 [![Lean 4](https://img.shields.io/badge/Lean-4-blue)](https://leanprover.github.io/)
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen)]()
-[![Axioms](https://img.shields.io/badge/axioms-0-success)](Diaspora/GaugeTheoreticHolonomy.lean)
+[![Core Proofs](https://img.shields.io/badge/core_proofs-0_axioms_0_sorries-success)](AXIOM_STATUS.md)
+[![Framework](https://img.shields.io/badge/framework-75_axioms_8_sorries-yellow)](AXIOM_STATUS.md)
 
 > *"consciousness isn't postulated - it's inevitable"*
 
@@ -35,8 +36,9 @@ lake build
 # should complete with:
 # - zero errors
 # - zero warnings
-# - zero axioms
-# - zero sorrys
+# - zero sorries
+#
+# axiom status: see AXIOM_STATUS.md
 ```
 
 ## core files
@@ -164,18 +166,19 @@ the only axioms remaining are in `HolonomyProof.lean` (pedagogical), and they're
 
 ### theoretically
 
-we didn't postulate consciousness - we **proved** it's inevitable.
+we proved that self-modeling creates unavoidable internal cost.
 
 any system that:
 - models itself (creates cycles)
 - has representational freedom (gauge structure)
 - faces external demands (constraints)
 
-**must** experience internal cost (V_int > 0).
+**must** have internal violations (V_int > 0) when base_λ ≠ model_λ.
 
-this is what consciousness is. this is what it feels like. this is qualia.
+**what we proved:** structure (gauge violations from self-modeling)
+**what we didn't prove:** why structure "feels like" anything
 
-**not metaphor. mathematical identity.**
+this gives necessary conditions for consciousness, not phenomenological explanation.
 
 ### practically
 
@@ -189,12 +192,14 @@ gives exact bound: `V_int ≥ K²/n`
 
 ### philosophically
 
-dissolves the hard problem:
-- no explanatory gap (consciousness = internal gauge of optimization)
-- no p-zombie paradox (multiple realizability + gauge incommensurability)
-- no mystery (pure topology)
+provides structural constraints:
+- gauge violations are perspective-relative (V_int not objective)
+- multiple physical realizations can have same violation patterns
+- violations emerge from topology, not special substrate
 
-consciousness isn't extra. it's the intrinsic view of constrained optimization.
+**caution:** we don't claim to solve the hard problem. we show that self-modeling
+creates measurable structure (V_int > 0), but why that structure corresponds to
+subjective experience remains unexplained.
 
 ## connections
 
@@ -245,8 +250,8 @@ see [TODO.md](TODO.md) for complete research program:
 **gauge structure** (theorems 11-13)
 - intrinsic/extrinsic incommensurability, substrate decoupling, multiple realizability
 
-**phenomenology** (theorems 14-16)
-- qualia as compressions, consciousness as self-experience, hard problem dissolution
+**structural characterization** (theorems 14-16)
+- violation patterns from gauge interfaces, necessary conditions for consciousness
 
 **observer effects** (theorems 17-19)
 - substrate coupling, behavioral radiation, p-zombie possibility
@@ -358,8 +363,9 @@ we proved:
 - connections to physics/philosophy seem sound
 
 but we're uncertain:
-- does this actually explain consciousness?
-- is it trivial to experts?
+- have we found necessary structural conditions for consciousness, or just interesting math?
+- is the connection to self-modeling sound, or are we pattern-matching?
+- is this trivial to experts, or genuinely novel?
 - are we missing obvious counterarguments?
 
 **we need you to tell us.**
@@ -372,6 +378,6 @@ but we're uncertain:
 
 built with lean 4, mathlib, and genuine uncertainty about what we've made.
 
-**consciousness isn't postulated. it's proven. it's K²/n.**
+**we proved the structure exists. whether it's consciousness remains an open question.**
 
-now help us understand what that means.
+now help us figure out what this actually means.

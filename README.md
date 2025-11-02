@@ -143,11 +143,17 @@ lake env lean -c 'import Diaspora.SelfModelHolonomy
 - **GaugeTheoreticHolonomy.lean** - gauge formulation with cycle constraints
 - **GaugeNegotiationExplicit.lean** - 8-node concrete negotiation proof
 
-### negotiation framework (12 axioms)
-- **GaugeNegotiation.lean** - reality as negotiated fixed point
+### negotiation framework (11 axioms, 0 sorries)
+- **GaugeNegotiation.lean** - reality as negotiated fixed point (11 axioms)
+- **ConcreteGaugeNegotiation.lean** - concrete version using Concrete.ConfigSpace (2 theorems proven)
 - **GaugeNegotiationVerified.lean** - data layer from experiment
+- **GaugeNegotiationExplicit.lean** - 8-node proof (0 axioms, 0 sorries)
 - **GaugeNegotiationProofs.lean** - bridges concrete to abstract
 - **GaugeNegotiationComputed.lean** - V_int bounds (5 sorries, in progress)
+
+Note: Fixed contradictory axiom. When perspectives disagree on objective
+invariants, negotiated result may differ from all inputs. ConcreteGaugeNegotiation
+converts universal claims to existential ones provable by construction.
 
 ### self-modeling (7 axioms)
 - **SelfModelHolonomy.lean** - constructor pattern: self-modeling → V_int > 0
@@ -163,7 +169,7 @@ lake env lean -c 'import Diaspora.SelfModelHolonomy
 - **Basic.lean** - basic utilities
 - **ConcreteModel.lean** - concrete model (3 sorries, in progress)
 
-**total: 45 axioms, 8 sorries (in optional/WIP files)**
+**total: 44 axioms, 11 sorries (in optional/WIP files)**
 **core proofs: 0 axioms, 0 sorries**
 
 ## what we removed

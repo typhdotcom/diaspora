@@ -33,7 +33,21 @@ noncomputable def negotiation_cost (neg : Negotiation) (X : ConfigSpace) : ℝ :
 def minimizes_negotiation (neg : Negotiation) (C : ConfigSpace) : Prop :=
   ∀ Y, negotiation_cost neg C ≤ negotiation_cost neg Y
 
-/-- Negotiation dynamics converge to a unique attractor -/
+/-- Negotiation dynamics converge to a unique attractor
+
+    NOTE: This is the hardest axiom to prove. It requires showing:
+    1. Existence: A global minimizer of negotiation_cost exists
+    2. Uniqueness: The minimizer is unique
+
+    Challenge: ConfigSpace is essentially ℝ^k (continuous edge values), which
+    is not compact. Existence requires either:
+    - Restricting to a compact subdomain, OR
+    - Proving coercivity: negotiation_cost(X) → ∞ as ||X|| → ∞
+
+    The 8-node concrete proof (GaugeNegotiationExplicit) shows G_N beats
+    specific alternatives but doesn't prove global optimality.
+
+    TODO: Either prove coercivity or weaken to existence-only claim. -/
 axiom negotiation_convergence (neg : Negotiation) :
     ∃! C, minimizes_negotiation neg C ∧ is_attractor C
 
@@ -237,38 +251,28 @@ axiom multi_negotiation_preserves_invariants
     (∀ P ∈ perspectives, ∀ Q ∈ perspectives, f P = f Q) →
     ∀ P ∈ perspectives, f P = f C
 
-/-- Negotiation respects individual gauge-invariant values -/
-axiom negotiation_respects_gauge_orbits
-    (perspectives : List ConfigSpace) (lam : ℝ)
-    (h_pos : 0 < lam) (h_nonempty : perspectives ≠ [])
-    (C : ConfigSpace)
-    (h_min : ∀ Y, multi_negotiation_cost ⟨perspectives, lam, h_pos, h_nonempty⟩ C ≤
-                  multi_negotiation_cost ⟨perspectives, lam, h_pos, h_nonempty⟩ Y)
-    (f : ConfigSpace → ℝ) (h_obj : is_objective f)
-    (P : ConfigSpace) (h_P : P ∈ perspectives) :
-    f P = f C
+/-- When perspectives agree on gauge invariants, negotiation preserves them
 
-/-- "Objective reality" = stable negotiated agreement across perspectives
-    Not a pre-existing fact, but an emergent equilibrium -/
-theorem objectivity_is_negotiated_equilibrium
+    NOTE: This is the only valid statement we can make. When perspectives
+    disagree on an objective invariant f (i.e., f(A) ≠ f(B)), the negotiated
+    result C may have f(C) different from both f(A) and f(B). The previous
+    axiom `negotiation_respects_gauge_orbits` claimed f(P) = f(C) even when
+    perspectives disagree, which is contradictory. -/
+theorem objectivity_requires_agreement
     (perspectives : List ConfigSpace) (lam : ℝ)
     (h_pos : 0 < lam) (h_nonempty : perspectives ≠ []) :
     ∃ C,
     -- C is the negotiated fixed point
     (∀ Y, multi_negotiation_cost ⟨perspectives, lam, h_pos, h_nonempty⟩ C ≤
           multi_negotiation_cost ⟨perspectives, lam, h_pos, h_nonempty⟩ Y) ∧
-    -- All gauge-invariant properties are preserved
+    -- Gauge-invariant properties preserved ONLY when perspectives agree
     (∀ f : ConfigSpace → ℝ, is_objective f →
+      (∀ P ∈ perspectives, ∀ Q ∈ perspectives, f P = f Q) →
       ∀ P ∈ perspectives, f P = f C) := by
   obtain ⟨C, hmin, _⟩ := multi_negotiation_convergence ⟨perspectives, lam, h_pos, h_nonempty⟩
   use C
   constructor
   · exact hmin
-  · intro f h_obj P h_P
-    -- By gauge invariance, all configs reached by gauge transforms agree
-    -- The negotiated config preserves gauge-invariant values
-    by_cases h_agree : ∀ P' ∈ perspectives, ∀ Q ∈ perspectives, f P' = f Q
-    · -- All perspectives already agree, so C must match
-      exact multi_negotiation_preserves_invariants perspectives lam h_pos h_nonempty C hmin f h_obj h_agree P h_P
-    · -- Even if perspectives disagree, gauge-invariant values are respected
-      exact negotiation_respects_gauge_orbits perspectives lam h_pos h_nonempty C hmin f h_obj P h_P
+  · intro f h_obj h_agree P h_P
+    -- When all perspectives agree, C must match
+    exact multi_negotiation_preserves_invariants perspectives lam h_pos h_nonempty C hmin f h_obj h_agree P h_P

@@ -138,19 +138,32 @@ lake env lean -c 'import Diaspora.SelfModelHolonomy
 
 ## structure
 
-```
-Diaspora/
-├── HolonomyLagrangeProof.lean       # K²/n proof (COMPLETE)
-├── GaugeTheoreticHolonomy.lean      # gauge formulation (COMPLETE)
-├── GaugeNegotiationExplicit.lean    # 8-node verified (COMPLETE)
-├── SelfModelHolonomy.lean           # self-modeling → V_int (7 axioms)
-├── Axioms.lean                      # core definitions (8 axioms)
-├── Concrete.lean                    # implementation
-├── NoPrivilegedFrame.lean           # gauge structure (5 axioms)
-└── MathematicalStructure.lean       # infrastructure (10 axioms)
-```
+### core proofs (0 axioms, 0 sorries)
+- **HolonomyLagrangeProof.lean** - V_int ≥ K²/n via Lagrange multipliers
+- **GaugeTheoreticHolonomy.lean** - gauge formulation with cycle constraints
+- **GaugeNegotiationExplicit.lean** - 8-node concrete negotiation proof
 
-**total: 33 axioms, 0 sorries in framework**
+### negotiation framework (12 axioms)
+- **GaugeNegotiation.lean** - reality as negotiated fixed point
+- **GaugeNegotiationVerified.lean** - data layer from experiment
+- **GaugeNegotiationProofs.lean** - bridges concrete to abstract
+- **GaugeNegotiationComputed.lean** - V_int bounds (5 sorries, in progress)
+
+### self-modeling (7 axioms)
+- **SelfModelHolonomy.lean** - constructor pattern: self-modeling → V_int > 0
+
+### infrastructure (23 axioms)
+- **Axioms.lean** (8) - core definitions: V_int, V_ext, E, K, ℒ
+- **Concrete.lean** - ConfigSpace implementation on SimpleGraph
+- **NoPrivilegedFrame.lean** (5) - gauge structure, frame independence
+- **MathematicalStructure.lean** (10) - topology, measure, dynamics
+
+### supporting
+- **HolonomyProof.lean** (3 axioms) - pedagogical triangle example
+- **Basic.lean** - basic utilities
+- **ConcreteModel.lean** - concrete model (3 sorries, in progress)
+
+**total: 45 axioms, 8 sorries (in optional/WIP files)**
 **core proofs: 0 axioms, 0 sorries**
 
 ## what we removed

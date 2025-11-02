@@ -10,6 +10,9 @@ import Diaspora.GaugeNegotiationVerified
 import Diaspora.GaugeNegotiationExplicit
 import Diaspora.GaugeNegotiationProofs
 
+-- Gauge negotiation axioms (12 axioms, partially validated by concrete proofs)
+import Diaspora.GaugeNegotiation
+
 -- Self-modeling creates V_int (7 axioms, constructor pattern)
 import Diaspora.SelfModelHolonomy
 

@@ -155,26 +155,8 @@ Note: Fixed contradictory axiom. When perspectives disagree on objective
 invariants, negotiated result may differ from all inputs. ConcreteGaugeNegotiation
 converts universal claims to existential ones provable by construction.
 
-### self-modeling (7 axioms → 0 axioms after refactor!)
+### self-modeling (7 axioms)
 - **SelfModelHolonomy.lean** - constructor pattern: self-modeling → V_int > 0 (7 axioms)
-- **SelfModelHolonomyRefactored.lean** - same theorems, prediction-based (0 axioms, 7 sorries)
-  - GetOptimalDemands → predicted_edge_demands (defined from K^k)
-  - optimal_demands_differ → lookahead_predictions_differ (theorem)
-  - Constructor axioms (5) → build_predictive_extension (explicit construction)
-
-### self-awareness dynamics (3 axioms)
-- **SelfAwarenessDynamics.lean** - self-awareness as dynamical system (X_Self, K)
-  - Formalizes: self-awareness IS the relaxation process, not a state
-  - Key result: K ≠ 0 → V_int > 0 throughout all relaxation steps
-  - Falsifiable: find system with V_int reaching 0 → model wrong
-
-### predictive self-model (6 axioms, 1 sorry)
-- **PredictiveSelfModel.lean** - Mind as prediction task, not abstract optimization
-  - Body task: minimize V_ext_Task (act effectively)
-  - Mind task: minimize V_ext_Prediction (predict accurately)
-  - Complete Lagrangian: ℒ_Self = V_int + α·V_ext_Task + β·V_ext_Prediction + λ·E
-  - Two contradictions: static (V_int from being) + dynamic (V_ext_Prediction from knowing)
-  - Replaces abstract "optimize for λ_mind" with concrete prediction error
 
 ### infrastructure (23 axioms)
 - **Axioms.lean** (8) - core definitions: V_int, V_ext, E, K, ℒ
@@ -187,15 +169,8 @@ converts universal claims to existential ones provable by construction.
 - **Basic.lean** - basic utilities
 - **ConcreteModel.lean** - concrete model (3 sorries, in progress)
 
-**total: 46 axioms, 19 sorries (in optional/WIP files)**
+**total: 44 axioms, 10 sorries (in optional/WIP files)**
 **core proofs: 0 axioms, 0 sorries**
-
-**Axiom reduction achieved**: 53 → 46 axioms (-7 from SelfModelHolonomy refactor)
-
-Notes:
-- SelfModelHolonomyRefactored eliminates all 7 axioms by using prediction task
-- All 7 sorries are PROVABLE from existing structure (K dynamics, graph theory)
-- Next target: Prove the 7 sorries to complete the refactor
 
 ## what we removed
 

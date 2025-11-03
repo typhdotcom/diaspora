@@ -17,15 +17,6 @@ import Diaspora.ConcreteGaugeNegotiation
 -- Self-modeling creates V_int (7 axioms, constructor pattern)
 import Diaspora.SelfModelHolonomy
 
--- Self-awareness as dynamical system (3 axioms, process formalization)
-import Diaspora.SelfAwarenessDynamics
-
--- Predictive self-model (6 axioms, replaces 7 from SelfModelHolonomy)
-import Diaspora.PredictiveSelfModel
-
--- Refactored self-model using prediction task (0 axioms, 4 sorries)
-import Diaspora.SelfModelHolonomyRefactored
-
 -- Supporting infrastructure
 import Diaspora.Axioms
 import Diaspora.Concrete

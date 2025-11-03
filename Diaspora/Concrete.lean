@@ -1,17 +1,7 @@
 /-
 # Concrete Definitions
-# check abs_add
 
-Defines ConfigSpace and all primitives as concrete mathematical structures
-instead of axiomatized types. This eliminates ~30-40 axioms.
-
-Strategy:
-- ConfigSpace = finite graph + constraint functions
-- E = edge count (from graph structure)
-- V_int = constraint violation (computable from graph + constraints)
-- V_ext = external task cost (parameterized by task)
-- K = local optimization step (gradient descent)
-- ℒ = Lagrangian (weighted sum)
+Concrete implementation of ConfigSpace and associated structures.
 -/
 
 import Mathlib.Combinatorics.SimpleGraph.Basic
@@ -117,13 +107,13 @@ noncomputable def K {n : ℕ} (_ : ExternalTask n) (X : ConfigSpace n) : ConfigS
 
 /-! ## Key Properties -/
 
-/-- K doesn't change graph structure -/
+/-- K preserves graph structure -/
 theorem K_preserves_E {n : ℕ} (task : ExternalTask n) (X : ConfigSpace n) :
     E (K task X) = E X := by
   unfold E K
   simp
 
-/-- Moving toward target by step_size reduces squared error -/
+/-- Step toward target reduces squared error -/
 theorem adjust_reduces_squared_error (current target : ℝ) :
     let α := step_size
     let new := current + α * (target - current)
@@ -168,7 +158,7 @@ theorem K_reduces_V_int {n : ℕ} (task : ExternalTask n) (X : ConfigSpace n) :
       _ = (v - c)^2 := by ring
   · simp [h]
 
-/-! ## Mathematical Structure Instances -/
+/-! ## Metric Structure -/
 
 /-- Distance between configurations: sum of edge value differences -/
 noncomputable def config_dist {n : ℕ} (X Y : ConfigSpace n) : ℝ :=
@@ -277,45 +267,6 @@ noncomputable instance configTopologicalSpace {n : ℕ} : TopologicalSpace (Conf
 
 /-- ConfigSpace has measurable structure -/
 noncomputable instance configMeasurableSpace {n : ℕ} : MeasurableSpace (ConfigSpace n) :=
-  ⊤  -- Discrete measurable space
-
-/-! ## Axioms Eliminated
-
-By making ConfigSpace concrete and defining operations, we've transformed:
-
-**From axioms to definitions:**
-- `ConfigSpace` : Type → **structure definition** (graph + constraints + values)
-- `E` : ConfigSpace → ℕ → **def** (graph.edgeSet.ncard)
-- `V_int` : ConfigSpace → ℝ → **def** (sum of squared violations)
-- `V_ext` : ConfigSpace → ℝ → **def** (via ExternalTask structure)
-- `K` : ConfigSpace → ConfigSpace → **def** (gradient descent step)
-- `ℒ` : Lagrangian → **def** (V_int + V_ext + λ*E)
-
-**From axioms to theorems:**
-- `E_nonneg` → **theorem** (trivial from Nat.zero_le)
-- `V_ext_nonneg` → **theorem** (from ExternalTask.violation_nonneg)
-- `V_int_nonneg` → **theorem** (sum of squares ≥ 0)
-- `K_preserves_E` → **theorem** (proved)
-- `K_reduces_V_int` → **theorem** (gradient descent reduces error)
-- `adjust_reduces_squared_error` → **theorem** (proved)
-- `config_dist_comm` → **theorem** (symmetry of abs)
-- `config_dist_triangle` → **theorem** (proved via 8-case analysis)
-
-**Mathematical structure instances added:**
-- `PseudoMetricSpace (ConfigSpace n)` - distance from edge values
-- `TopologicalSpace (ConfigSpace n)` - derived from metric
-- `MeasurableSpace (ConfigSpace n)` - discrete
-
-**Remaining axioms:** ZERO in Concrete.lean!
-
-**Net reduction: 14+ axioms in Concrete.lean → 0 axioms**
-
-All structural axioms eliminated through:
-- Concrete definitions (ConfigSpace, E, V_int, V_ext, K, ℒ)
-- Proven theorems (8 theorems)
-- Mathematical structure instances (3 instances)
-
-The bootstrapping strategy succeeded: concrete definitions enabled complete theorem proving.
--/
+  ⊤
 
 end Concrete

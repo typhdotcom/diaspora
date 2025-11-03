@@ -1,8 +1,7 @@
 /-
-# Core Axioms: The Computational Substrate
+# Core Axioms
 
-Formalization of the configuration space and cost functions
-from the Diaspora experiments.
+Configuration space and cost functions for the Diaspora formalization.
 -/
 
 import Mathlib.Data.Real.Basic
@@ -31,8 +30,7 @@ structure ConfigSpace where
 /-- Internal (intrinsic) cost: residual error from holonomy (axiomatized) -/
 axiom V_int : ConfigSpace → ℝ
 
-/-- External (extrinsic) cost: job/task error (axiomatized)
-    Note: Task-dependent. Concrete instantiations via Task.lean's satisfies_task -/
+/-- External (extrinsic) cost: task-dependent error (axiomatized) -/
 axiom V_ext : ConfigSpace → ℝ
 
 /-- Complexity measure: number of edges (axiomatized) -/
@@ -54,10 +52,9 @@ axiom K : ConfigSpace → ConfigSpace
 /-- The relaxation operator reduces internal cost -/
 axiom K_reduces_V_int (X : ConfigSpace) : V_int (K X) ≤ V_int X
 
-/-! ## Self-Reference Boundary (Primitive 5: The Recursive Well) -/
+/-! ## Self-Reference Boundary -/
 
-/-- Myopic descent failure: defines high-curvature regions requiring recursive modeling
-    When total cost can be reduced but K fails to find it, non-myopic search is required -/
+/-- Myopic descent failure: when K fails to reduce cost that could be reduced, multi-step lookahead is required -/
 axiom myopic_descent_failure (X : ConfigSpace) :
     (∃ X', ℒ X' 0 < ℒ X 0) →  -- Total cost can be reduced
     (ℒ (K X) 0 = ℒ X 0) →      -- But K fails to reduce it

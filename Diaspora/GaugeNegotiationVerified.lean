@@ -1,13 +1,7 @@
 /-
 Gauge Negotiation: Verified Data Layer
 
-This file provides the foundational data for gauge negotiation verification:
-1. Graph structures (G_A, G_B, G_N, G_Union) from Python output
-2. Constraint matrix C_initial from Python (seed=42)
-3. Optimal phases from Python's frame optimization
-4. External violation costs V_ext from Python
-
-This is pure data (no axioms, no sorries) used by GaugeNegotiationExplicit.lean
+Data for gauge negotiation verification: graphs, constraints, optimal phases, and costs.
 -/
 
 import Mathlib.Data.Real.Basic
@@ -85,7 +79,7 @@ def G_Union : DiGraph where
 /-- Negotiation complexity parameter -/
 def lam_N : ℝ := 1.0
 
-/-! ## Constraint Matrix from Python (seed=42) -/
+/-! ## Constraint Matrix -/
 
 def C_initial (i j : Fin 8) : ℝ :=
   match (i.val, j.val) with
@@ -189,18 +183,10 @@ def phases_G_Union : Fin 8 → ℝ
   | 6 => -2.333557954758622
   | 7 => -1.8789022754841405
 
-/-! ## Job Definitions
-
-Python uses np.pi which is approximately 3.141592653589793
-For verification, we use the same float approximation:
-- π/2 ≈ 1.5707963267948966
-- π/4 ≈ 0.7853981633974483
--/
+/-! ## Job Definitions -/
 
 def pi_over_2 : ℝ := 1.5707963267948966
 def pi_over_4 : ℝ := 0.7853981633974483
-
--- Explicitly expand V_ext computation matching Python's formula
 def V_ext (φ : Fin 8 → ℝ) : ℝ :=
   50.0 * (φ 7 - φ 0 - pi_over_2)^2 + 50.0 * (φ 7 - φ 1 - pi_over_4)^2
 

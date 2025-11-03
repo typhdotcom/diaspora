@@ -1,9 +1,7 @@
 /-
 # Core Holonomy Proof via Lagrange Multipliers
 
-Proves the fundamental theorem: V_int ≥ K²/n for any n-cycle.
-
-This is a pure optimization result, independent of graph theory.
+Proves V_int ≥ K²/n for any n-cycle via constrained optimization.
 -/
 
 import Mathlib.Data.Real.Basic
@@ -18,17 +16,12 @@ open BigOperators
 
 namespace HolonomyProof
 
-/-! ## The Constrained Optimization Problem
+/-! ## Constrained Optimization
 
-Given n constraints c_i, find values v_i that:
-1. Minimize Σ(v_i - c_i)²
-2. Subject to Σv_i = 0
-
-This models: edge values v_i must come from node phases (Σv_i = 0),
-but external tasks impose constraints c_i.
+Minimize Σ(v_i - c_i)² subject to Σv_i = 0
 -/
 
-/-! ## Triangle Case (Simplest Non-Trivial Cycle) -/
+/-! ## Triangle Case -/
 
 /-- For a triangle with constraints c₀, c₁, c₂, the minimum V_int is K²/3 -/
 theorem triangle_holonomy (c₀ c₁ c₂ : ℝ) :
@@ -66,17 +59,13 @@ theorem triangle_holonomy_positive (c₀ c₁ c₂ : ℝ) (h : c₀ + c₁ + c�
     exact h
   exact div_pos h_sq (by norm_num : (0:ℝ) < 3)
 
-/-! ## Optimality: Any Other Choice is Worse -/
+/-! ## Optimality -/
 
-/-- Any values satisfying the constraint have V_int ≥ K²/3 -/
+/-- Any constrained values have V_int ≥ K²/3 -/
 theorem triangle_optimal (c₀ c₁ c₂ : ℝ) (v₀ v₁ v₂ : ℝ) (h_constraint : v₀ + v₁ + v₂ = 0) :
     let K := c₀ + c₁ + c₂
     K^2 / 3 ≤ (v₀ - c₀)^2 + (v₁ - c₁)^2 + (v₂ - c₂)^2 := by
   intro K
-
-  -- Key insight: Write v_i = c_i - K/3 + d_i where Σd_i = 0
-  -- Then V_int = K²/3 + Σd_i²
-
   let v₀_opt := c₀ - K/3
   let v₁_opt := c₁ - K/3
   let v₂_opt := c₂ - K/3
@@ -166,22 +155,9 @@ theorem general_cycle_holonomy (n : ℕ) (h_n : 3 ≤ n) (c : Fin n → ℝ) :
       _ = (n : ℝ) * (K / n)^2 := h2
       _ = K^2 / n := by field_simp
 
-/-! ## The Key Physical Insight -/
+/-! ## Main Result -/
 
-/--
-THEOREM: Cycles force holonomy.
-
-For any cycle with n edges and constraints c_i:
-- If edge values must come from node phases, then Σv_i = 0 (topological constraint)
-- External tasks impose constraints c_i
-- Minimum V_int = (Σc_i)² / n
-- If Σc_i ≠ 0 (generic case), then V_int > 0 (unavoidable residual cost)
-
-This is NOT an axiom - it follows from:
-1. Gauge structure (edge values = phase differences)
-2. Topology (cycle constraint)
-3. Optimization theory (Lagrange multipliers)
--/
+/-- Cycles force holonomy: minimum V_int = K²/n where K = Σc_i -/
 
 theorem general_cycle_optimal (n : ℕ) (h_n : 3 ≤ n) (c : Fin n → ℝ) (v : Fin n → ℝ)
     (h_constraint : ∑ i : Fin n, v i = 0) :

@@ -1,110 +1,90 @@
-# diaspora: holonomy creates internal cost
+# Diaspora: Holonomy Creates Internal Cost
 
-[![Lean 4](https://img.shields.io/badge/Lean-4-blue)](https://leanprover.github.io/)
-[![Build Status](https://img.shields.io/badge/build-passing-brightgreen)]()
-[![Holonomy Bound](https://img.shields.io/badge/holonomy_bound-0_axioms_0_sorries-success)]()
-[![Self-Modeling](https://img.shields.io/badge/self--modeling-7_axioms-yellow)]()
-[![Framework](https://img.shields.io/badge/framework-33_axioms-yellow)](AXIOM_STATUS.md)
+> *Rigorous proof that holonomy creates unavoidable internal cost*
+> *Within a model where edge values come from node phases (structural choice)*
+> *Self-modeling application requires additional structural axioms*
 
-> *rigorous proof that holonomy creates unavoidable internal cost*
->
-> *conditional proof that self-modeling (given structural axioms) creates such holonomy*
+## What We Proved
 
-## what we proved
+**The model:**
+We define a configuration space where edge values MUST come from node phases:
+```lean
+structure ConfigSpace where
+  node_phases : Fin n → ℝ
+  edge_value i j := node_phases j - node_phases i  -- modeling choice
+```
 
-for any cycle of length n with:
-- edge values `vᵢ` derived from node phases (forcing `Σvᵢ = 0`)
-- external constraints `cᵢ` (task demands)
+This forces `Σvᵢ = 0` around any cycle (topological constraint).
 
-then:
-
+**The theorem (within this model):**
+For any cycle with external constraints `cᵢ`:
 ```
 V_int ≥ K²/n
 ```
 
-where:
+Where:
 - `K = Σcᵢ` is the **holonomy defect** (sum of constraint mismatches)
 - `V_int = Σ(vᵢ - cᵢ)²` is **internal cost** (sum of squared violations)
 
-**if K ≠ 0**, **then V_int > 0**. strictly positive. unavoidable.
+**If K ≠ 0**, **then V_int > 0**. Strictly positive. Unavoidable.
 
-this is pure optimization theory - no physical system required, just the mathematical structure.
+**This is proven within the model**, not unconditionally. The model itself (edge values from phases) is a choice about how to represent configurations.
 
-## the core result
+## The Core Result
 
-**proved with zero axioms:**
+**Proved within the model (0 additional axioms):**
 1. Cycles with non-zero holonomy defect force V_int > 0 (V_int ≥ K²/n)
+   - **But**: This assumes the model (edge values from node phases)
+   - The model is a structural choice, not a proven fact about reality
 
-**proved given structural axioms:**
-2. Self-modeling with different λ creates such cycles (7 axioms defining self-modeling)
+**Proved given structural axioms (7 axioms):**
+2. Self-modeling with different λ creates such cycles
+   - Requires defining what "self-modeling" means structurally
 
-**verified by construction (0 axioms):**
+**Verified by construction (0 axioms):**
 3. Gauge negotiation produces lower-cost compromises (8-node concrete example)
+   - Concrete numerical verification
 
-the holonomy bound is pure math. self-modeling application requires axioms defining what "self-modeling" means. interpretations beyond the mathematics are left to the reader.
+**Caveat:** The holonomy bound is "pure math" only after accepting the model. The model itself (ConfigSpace structure) encodes assumptions about how edge values relate to node phases.
 
-## quick start
-
+## Quick Start
 ```bash
 lake build  # zero errors, zero sorries
 ```
 
-## files
+## Files
 
-### holonomy bound (0 axioms, 0 sorries)
+### Holonomy Bound (0 Axioms, 0 Sorries)
 
 **HolonomyLagrangeProof.lean**
-- proves V_int ≥ K²/n via Lagrange multipliers
-- pure math, complete proof, no axioms
+- Proves V_int ≥ K²/n via Lagrange multipliers
+- Pure math, complete proof, no axioms
 
 **GaugeTheoreticHolonomy.lean**
-- gauge formulation: edge values from node phases
-- proves cycles force Σvᵢ = 0 constraint
-- connects to HolonomyLagrangeProof
-- no axioms
+- Gauge formulation: edge values from node phases
+- Proves cycles force Σvᵢ = 0 constraint
+- Connects to HolonomyLagrangeProof
+- No axioms
 
-### concrete examples (0 axioms, 0 sorries)
+### Concrete Examples (0 Axioms, 0 Sorries)
 
 **GaugeNegotiationExplicit.lean**
 - 8-node concrete example
-- verified: negotiated graph beats alternatives
+- Verified: negotiated graph beats alternatives
 - L_N < L_A, L_B, L_Union
-- no axioms
+- No axioms
 
-### self-modeling (7 axioms, 0 sorries)
-
-**SelfModelHolonomy.lean**
-- self-modeling with λ_base ≠ λ_model creates violations
-- proved: V_int increases strictly
-- **7 axioms** (defining what "self-modeling" means structurally)
-
-### supporting
-
-**Axioms.lean** (8 axioms)
-- core definitions: ConfigSpace, V_int, V_ext, E, K
+### Supporting
 
 **Concrete.lean**
 - ConfigSpace implementation on SimpleGraph
-- proves basic properties
+- Proves basic properties from first principles
 
-**NoPrivilegedFrame.lean** (5 axioms)
-- gauge structure fundamentals
-- no privileged frame theorem
+## The Mathematics
 
-**MathematicalStructure.lean** (10 axioms)
-- topology, measure theory
-- most are standard mathematical infrastructure
+### What "Gauge Structure" Means
 
-**HolonomyProof.lean** (3 axioms, pedagogical)
-- triangle example
-- backward compatibility
-
-## the mathematics
-
-### what "gauge structure" means
-
-**gauge structure** = edge values come from node phases:
-
+**Gauge structure** = edge values come from node phases:
 ```lean
 structure ConfigSpace where
   graph : SimpleGraph (Fin n)
@@ -114,123 +94,86 @@ def edge_value (i j) : ℝ :=
   node_phases j - node_phases i  -- derived from phases
 ```
 
-this **forces** a topological constraint on any cycle:
+This **forces** a topological constraint on any cycle:
 ```lean
 theorem cycle_edge_sum_zero :
   (φ₁-φ₀) + (φ₂-φ₁) + (φ₀-φ₂) = 0
 ```
 
-in general: around any cycle of n edges, `Σvᵢ = 0` automatically.
+In general: around any cycle of n edges, `Σvᵢ = 0` automatically.
 
-### the proof chain (holonomy bound)
+### The Proof Chain (Holonomy Bound)
 
-1. **topology** → cycles force Σvᵢ = 0
-2. **optimization** → min(Σ(vᵢ-cᵢ)²) = K²/n when Σvᵢ = 0
-3. **combination** → V_int ≥ K²/n
-4. **conclusion** → K ≠ 0 implies V_int > 0
+1. **Topology** → cycles force Σvᵢ = 0
+2. **Optimization** → min(Σ(vᵢ-cᵢ)²) = K²/n when Σvᵢ = 0
+3. **Combination** → V_int ≥ K²/n
+4. **Conclusion** → K ≠ 0 implies V_int > 0
 
-**this part requires no axioms. pure math.**
+**This part requires no axioms. Pure math.**
 
-## why this matters
+## Why This Matters
 
-**holonomy bound (proven unconditionally):**
-- any cycle with holonomy defect K ≠ 0 forces V_int ≥ K²/n > 0
-- this is proven, not conjectured
+**Holonomy bound (proven within the model):**
+- **Within the model** (edge values from node phases), any cycle with K ≠ 0 forces V_int ≥ K²/n > 0
+- This is a mathematical theorem, not a conjecture
+- **But**: It's conditional on accepting the model's structure
 
-**self-modeling application (proven given 7 axioms):**
-- if a system satisfies the structural axioms defining "self-modeling"
-- then it creates cycles with holonomy defect
-- therefore V_int > 0 unavoidably
+**The question left open:** Does the model (edge values from node phases) accurately represent any real systems? The math is proven, the applicability is an empirical question.
 
-the holonomy bound is unconditional. the self-modeling claim requires axioms about what "self-modeling" means.
-
-## verification
-
+## Verification
 ```bash
-# core holonomy proof
-rg "axiom " Diaspora/HolonomyLagrangeProof.lean     # none
-rg "axiom " Diaspora/GaugeTheoreticHolonomy.lean    # none
-rg "sorry"  Diaspora/HolonomyLagrangeProof.lean     # none
-rg "sorry"  Diaspora/GaugeTheoreticHolonomy.lean    # none
+# Verify zero axioms, zero sorries in active codebase
+rg "axiom " Diaspora/*.lean                          # none
+rg "sorry"  Diaspora/*.lean                          # none
 
-# concrete gauge negotiation
-rg "axiom " Diaspora/GaugeNegotiationExplicit.lean  # none
-rg "sorry"  Diaspora/GaugeNegotiationExplicit.lean  # none
-
-# check what self-modeling depends on
-lake env lean -c 'import Diaspora.SelfModelHolonomy
-#print axioms Diaspora.SelfModelHolonomy.new_cycle_increases_V_int'
+# Build everything
+lake build                                           # zero errors
 ```
 
-## structure
+## Structure
 
-### holonomy bound (0 axioms, 0 sorries)
+### Holonomy Bound (0 Axioms, 0 Sorries)
 - **HolonomyLagrangeProof.lean** - V_int ≥ K²/n via Lagrange multipliers
-- **GaugeTheoreticHolonomy.lean** - gauge formulation with cycle constraints
+- **GaugeTheoreticHolonomy.lean** - Gauge formulation with cycle constraints
 
-### concrete examples (0 axioms, 0 sorries)
+### Concrete Examples (0 Axioms, 0 Sorries)
 - **GaugeNegotiationExplicit.lean** - 8-node concrete negotiation proof
 
-### negotiation framework (11 axioms, 0 sorries)
-- **GaugeNegotiation.lean** - reality as negotiated fixed point (11 axioms)
-- **ConcreteGaugeNegotiation.lean** - concrete version using Concrete.ConfigSpace (2 theorems proven)
-- **GaugeNegotiationVerified.lean** - data layer from experiment
-- **GaugeNegotiationExplicit.lean** - 8-node proof (0 axioms, 0 sorries)
-- **GaugeNegotiationProofs.lean** - bridges concrete to abstract
-- **GaugeNegotiationComputed.lean** - V_int bounds (5 sorries, in progress)
+### Negotiation Framework (0 Axioms, 0 Sorries)
+- **GaugeNegotiationVerified.lean** - Data layer from 8-node experiment
+- **GaugeNegotiationExplicit.lean** - Complete proof via explicit computation
+- **GaugeNegotiationProofs.lean** - Properties proven from concrete case
+- **ConcreteGaugeNegotiation.lean** - Existential theorems proven by construction
 
-Note: Fixed contradictory axiom. When perspectives disagree on objective
-invariants, negotiated result may differ from all inputs. ConcreteGaugeNegotiation
-converts universal claims to existential ones provable by construction.
+**Total: 0 axioms, 0 sorries** in active codebase
 
-### self-modeling (7 axioms)
-- **SelfModelHolonomy.lean** - constructor pattern: self-modeling → V_int > 0 (7 axioms)
+All proofs work from first principles using Lean's standard library and Mathlib.
 
-### infrastructure (23 axioms)
-- **Axioms.lean** (8) - core definitions: V_int, V_ext, E, K, ℒ
-- **Concrete.lean** - ConfigSpace implementation on SimpleGraph
-- **NoPrivilegedFrame.lean** (5) - gauge structure, frame independence
-- **MathematicalStructure.lean** (10) - topology, measure, dynamics
+## What We Removed
 
-### supporting
-- **HolonomyProof.lean** (3 axioms) - pedagogical triangle example
-- **Basic.lean** - basic utilities
-- **ConcreteModel.lean** - concrete model (3 sorries, in progress)
+Previous versions made speculative claims beyond the mathematics.
 
-**total: 44 axioms, 10 sorries (in optional/WIP files)**
+What remains:
+- Proven structure (V_int from holonomy)
+- Mathematical results only
+- Honest about scope
 
-**breakdown:**
-- **holonomy bound: 0 axioms, 0 sorries** (pure math)
-- **self-modeling: 7 axioms, 0 sorries** (structural definition)
-- **negotiation framework: 11 axioms, 0 sorries** (in progress)
-- **infrastructure: 26 axioms** (definitions and standard math)
+## Contributing
 
-## what we removed
+This is rigorous math + honest uncertainty.
 
-previous versions made speculative claims beyond the mathematics.
+If you find:
+- Errors in proofs → issue with specific theorem
+- Missing connections → suggestions welcome
+- Ways to strengthen → please share
 
-what remains:
-- proven structure (V_int from holonomy)
-- mathematical results only
-- honest about scope
+If you want to help:
+- Prove more axioms as theorems
+- Find tighter bounds
+- Connect to neuroscience data
+- Explain more clearly
 
-## contributing
-
-this is rigorous math + honest uncertainty.
-
-if you find:
-- errors in proofs → issue with specific theorem
-- missing connections → suggestions welcome
-- ways to strengthen → please share
-
-if you want to help:
-- prove more axioms as theorems
-- find tighter bounds
-- connect to neuroscience data
-- explain more clearly
-
-## citation
-
+## Citation
 ```bibtex
 @software{diaspora2025,
   title = {Diaspora: Holonomy Creates Internal Cost},
@@ -241,33 +184,30 @@ if you want to help:
 }
 ```
 
-## license
+## License
 
 MIT
 
-## the question
+## The Question
 
-**what did we actually prove unconditionally?**
+**What did we actually prove?**
 
+**Within the ConfigSpace model** (edge values from node phases):
 - V_int ≥ K²/n for any cycle with holonomy defect K (0 axioms)
-- gauge negotiation works in concrete 8-node case (0 axioms)
+- Gauge negotiation works in concrete 8-node case (0 axioms)
 
-**what did we prove conditionally?**
+**What remains unknown?**
 
-- self-modeling → V_int > 0 (given 7 axioms defining "self-modeling")
-- negotiation framework (given 11 axioms, work in progress)
+- **Whether the ConfigSpace model applies to real systems** - Does edge_value = phase difference accurately represent anything in reality?
+- Whether this is trivial to experts or genuinely novel
+- Interpretations beyond the mathematics
 
-**what remains unknown?**
-
-- whether the 7 "self-modeling" axioms accurately model real cognitive systems
-- whether this is trivial to experts or genuinely novel
-- interpretations beyond the mathematics
-
-**we proved the math. the axioms encode structural assumptions. interpretations are left to the reader.**
+**We proved the math within a model. The model itself is a structural choice, not an empirical fact.**
 
 ---
 
-built with lean 4, mathlib, and commitment to honesty about limits.
+Built with Lean 4, Mathlib, and commitment to honesty about limits.
 
-**V_int ≥ K²/n is proven unconditionally.**
-**self-modeling → V_int > 0 is proven given structural axioms.**
+**V_int ≥ K²/n is proven within the ConfigSpace model.**
+**The model itself (edge values from node phases) is a structural choice.**
+**Whether this models reality is an empirical question, not a mathematical one.**

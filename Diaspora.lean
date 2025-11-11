@@ -1,13 +1,10 @@
 -- Root module for the Diaspora library
 
--- Core holonomy proof
+-- Core holonomy proof via Lagrange multipliers
 import Diaspora.HolonomyLagrangeProof
+
+-- Gauge-theoretic model: holonomy + negotiation framework
 import Diaspora.GaugeTheoreticHolonomy
 
--- Concrete gauge negotiation proof
-import Diaspora.GaugeNegotiationVerified
-import Diaspora.GaugeNegotiationExplicit
-import Diaspora.GaugeNegotiationProofs
-
--- Supporting infrastructure
-import Diaspora.Concrete
+-- Structural consequences of negotiation (proven by construction)
+import Diaspora.GaugeNegotiation

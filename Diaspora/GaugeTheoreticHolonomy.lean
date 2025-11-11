@@ -7,6 +7,7 @@ Proves that cycles create holonomy via gauge structure: edge values derived from
 import Mathlib.Combinatorics.SimpleGraph.Basic
 import Mathlib.Data.Finset.Basic
 import Mathlib.Data.Real.Basic
+import Mathlib.Data.Set.Card
 import Mathlib.Algebra.BigOperators.Group.Finset.Basic
 import Mathlib.Algebra.Order.BigOperators.Group.Finset
 import Mathlib.Analysis.Calculus.Deriv.Basic
@@ -35,7 +36,11 @@ structure ConfigSpace (n : ℕ) where
 def edge_value {n : ℕ} (X : ConfigSpace n) (i j : Fin n) (_h : X.graph.Adj i j) : ℝ :=
   X.node_phases j - X.node_phases i
 
-/-! ## Cost Function -/
+/-! ## Cost Functions -/
+
+/-- Number of edges in configuration -/
+noncomputable def E {n : ℕ} (X : ConfigSpace n) : ℕ :=
+  X.graph.edgeSet.ncard
 
 /-- Internal cost: sum of squared constraint violations -/
 noncomputable def V_int {n : ℕ} (X : ConfigSpace n) : ℝ :=
@@ -57,6 +62,26 @@ theorem V_int_nonneg {n : ℕ} (X : ConfigSpace n) : 0 ≤ V_int X := by
   · simp [h]
     exact sq_nonneg _
   · simp [h]
+
+/-- External task structure -/
+structure ExternalTask (n : ℕ) where
+  /-- Measure how well a configuration satisfies the task -/
+  measure_violation : ConfigSpace n → ℝ
+  /-- Tasks have non-negative violation -/
+  violation_nonneg : ∀ X, 0 ≤ measure_violation X
+
+/-- External cost: task violation -/
+noncomputable def V_ext {n : ℕ} (task : ExternalTask n) (X : ConfigSpace n) : ℝ :=
+  task.measure_violation X
+
+/-- V_ext is non-negative -/
+theorem V_ext_nonneg {n : ℕ} (task : ExternalTask n) (X : ConfigSpace n) :
+    0 ≤ V_ext task X :=
+  task.violation_nonneg X
+
+/-- Lagrangian: weighted combination of costs -/
+noncomputable def ℒ {n : ℕ} (task : ExternalTask n) (X : ConfigSpace n) (lam : ℝ) : ℝ :=
+  V_int X + V_ext task X + lam * (E X : ℝ)
 
 /-! ## Cycles and Holonomy -/
 
@@ -187,29 +212,10 @@ theorem V_int_lower_bound {n k : ℕ} (X : ConfigSpace n) (c : Cycle n X.graph k
               rw [Finset.sum_image h_inj]
     _ ≥ K^2 / k := h_cycle_cost
 
-/-! ## Generic Tasks -/
-
-/-- External task structure -/
-structure ExternalTask (n : ℕ) where
-  /-- Required edges (pairs that must be connected) -/
-  required_edges : List (Fin n × Fin n)
-  /-- Constraint values for required edges -/
-  edge_constraints : ∀ (e : Fin n × Fin n), e ∈ required_edges → ℝ
-  /-- Non-triviality: at least one constraint is non-zero -/
-  nontrivial : ∃ (e : Fin n × Fin n) (h : e ∈ required_edges),
-    edge_constraints e h ≠ 0
-
-/-- A configuration satisfies a task if it has all required edges with given constraints -/
-def satisfies_task {n : ℕ} (X : ConfigSpace n) (task : ExternalTask n) : Prop :=
-  ∀ (e : Fin n × Fin n) (h : e ∈ task.required_edges),
-    ∃ (h_adj : X.graph.Adj e.1 e.2),
-      X.constraints e.1 e.2 h_adj = task.edge_constraints e h
-
 /-! ## Main Theorem -/
 
 /-- Configurations with cycles have positive V_int -/
 theorem cycle_creates_holonomy {n k : ℕ} (X : ConfigSpace n)
-    (_task : ExternalTask n) (_h_sat : satisfies_task X _task)
     (c : Cycle n X.graph k) (h_k : 3 ≤ k)
     (h_generic : cycle_holonomy X c ≠ 0) :
     0 < V_int X := by
@@ -231,7 +237,6 @@ theorem cycle_creates_holonomy {n k : ℕ} (X : ConfigSpace n)
 
 /-- Existential form of holonomy theorem -/
 theorem proves_axiomatized_version {n k : ℕ} (X : ConfigSpace n)
-    (_task : ExternalTask n) (_h_sat : satisfies_task X _task)
     (c : Cycle n X.graph k) (h_k : 3 ≤ k)
     (h_generic : cycle_holonomy X c ≠ 0) :
     ∃ ε > 0, ε ≤ V_int X := by
@@ -246,5 +251,88 @@ theorem proves_axiomatized_version {n k : ℕ} (X : ConfigSpace n)
       exact Nat.cast_pos.mpr (Nat.lt_of_lt_of_le this h_k)
     exact div_pos h_sq_pos h_k_pos
   · exact V_int_lower_bound X c h_k
+
+/-! ## Graph Union and Negotiation -/
+
+/-- Union of two graphs -/
+def graph_union {n : ℕ} (G1 G2 : SimpleGraph (Fin n)) : SimpleGraph (Fin n) where
+  Adj i j := G1.Adj i j ∨ G2.Adj i j
+  symm i j h := by
+    cases h with
+    | inl h1 => exact Or.inl (G1.symm h1)
+    | inr h2 => exact Or.inr (G2.symm h2)
+  loopless i h := by
+    cases h with
+    | inl h1 => exact G1.loopless i h1
+    | inr h2 => exact G2.loopless i h2
+
+/-- Decidability for union graph adjacency -/
+instance {n : ℕ} (G1 G2 : SimpleGraph (Fin n))
+    [DecidableRel G1.Adj] [DecidableRel G2.Adj] :
+    DecidableRel (graph_union G1 G2).Adj :=
+  fun _ _ => instDecidableOr
+
+/-- Merge constraints: for overlapping edges, take the average -/
+noncomputable def merge_constraints {n : ℕ}
+    (G1 G2 : SimpleGraph (Fin n))
+    [DecidableRel G1.Adj] [DecidableRel G2.Adj]
+    (c1 : ∀ (i j : Fin n), G1.Adj i j → ℝ)
+    (c2 : ∀ (i j : Fin n), G2.Adj i j → ℝ)
+    (i j : Fin n) (_h : (graph_union G1 G2).Adj i j) : ℝ :=
+  if h1 : G1.Adj i j then
+    if h2 : G2.Adj i j then
+      (c1 i j h1 + c2 i j h2) / 2  -- Both: average
+    else
+      c1 i j h1                     -- Only G1
+  else
+    if h2 : G2.Adj i j then
+      c2 i j h2                     -- Only G2
+    else
+      0                             -- Neither (impossible given _h)
+
+/-- A negotiation problem: find optimal node_phases for the union graph -/
+structure NegotiationProblem (n : ℕ) where
+  /-- First configuration -/
+  X_A : ConfigSpace n
+  /-- Second configuration -/
+  X_B : ConfigSpace n
+  /-- External task both are solving -/
+  task : ExternalTask n
+  /-- Negotiation parameter (complexity cost weight) -/
+  lam : ℝ
+  /-- Parameter must be positive -/
+  h_lam_pos : 0 < lam
+
+/-- The union configuration for a negotiation problem -/
+noncomputable def union_config {n : ℕ} (prob : NegotiationProblem n) : ConfigSpace n :=
+  haveI : DecidableRel prob.X_A.graph.Adj := prob.X_A.adj_decidable
+  haveI : DecidableRel prob.X_B.graph.Adj := prob.X_B.adj_decidable
+  { graph := graph_union prob.X_A.graph prob.X_B.graph
+    adj_decidable := inferInstance
+    node_phases := prob.X_A.node_phases  -- Initial phases (to be optimized)
+    constraints := merge_constraints prob.X_A.graph prob.X_B.graph prob.X_A.constraints prob.X_B.constraints }
+
+/-- A negotiated solution: configuration with optimized phases on the union graph -/
+def is_negotiated_solution {n : ℕ} (prob : NegotiationProblem n) (X_N : ConfigSpace n) : Prop :=
+  haveI : DecidableRel prob.X_A.graph.Adj := prob.X_A.adj_decidable
+  haveI : DecidableRel prob.X_B.graph.Adj := prob.X_B.adj_decidable
+  -- Must use the union graph structure with merged constraints
+  (∃ (h_graph : X_N.graph = graph_union prob.X_A.graph prob.X_B.graph),
+    ∀ (i j : Fin n) (h_adj : X_N.graph.Adj i j),
+      X_N.constraints i j h_adj = merge_constraints prob.X_A.graph prob.X_B.graph
+        prob.X_A.constraints prob.X_B.constraints i j (h_graph ▸ h_adj)) ∧
+  -- Phases minimize the Lagrangian among all possible phase assignments
+  ∀ (phases : Fin n → ℝ),
+    let X_test : ConfigSpace n := { X_N with node_phases := phases }
+    ℒ prob.task X_N prob.lam ≤ ℒ prob.task X_test prob.lam
+
+/-! ## Properties of Negotiation -/
+
+/-- The negotiation framework is well-defined: we can construct union configurations -/
+theorem negotiation_framework_defined {n : ℕ} (prob : NegotiationProblem n) :
+    ∃ (X_union : ConfigSpace n),
+      X_union.graph = graph_union prob.X_A.graph prob.X_B.graph := by
+  use union_config prob
+  rfl
 
 end GaugeTheoretic

@@ -1,53 +1,29 @@
-# Diaspora: A Formal Model of Configuration Spaces and Negotiation
+# Diaspora: A Formal Model of Configuration Spaces and Holonomy
 
-This project, written in the Lean 4 proof assistant, formally models complex systems as **Configuration Spaces**. It explores two primary concepts:
+This project, written in the Lean 4 proof assistant, formally models complex systems as **Configuration Spaces** using a gauge-theoretic framework. It explores two primary concepts:
 
-1.  **Gauge Negotiation:** How two different systems ("perspectives") can "negotiate" to find a novel, third system that is better than either of the originals or their simple combination.
-2.  **Gauge-Theoretic Holonomy:** How "frustration" or "incompatibility" in a system's constraints (a property called holonomy) creates a fundamental, unavoidable, and provably non-zero cost.
+1.  **Gauge-Theoretic Holonomy:** How "frustration" or "incompatibility" in a system's constraints (a property called holonomy) creates a fundamental, unavoidable, and provably non-zero cost.
+2.  **Gauge Negotiation:** How merging two different systems ("perspectives") can create or resolve holonomy, with structural consequences proven by construction.
 
 The entire project is **formally verified**, meaning all definitions are mathematically precise, and all theorems are proven with logical certainty.
 
 ---
 
-## 🚀 Key Concept 1: Concrete Gauge Negotiation
+## 🌀 Key Concept 1: Gauge-Theoretic Holonomy
 
-This part of the project models a "negotiation" between two different configurations, `perspective_A` and `perspective_B`.
-
-* **What is a Configuration?** A configuration (`ConfigSpace`) is a graph where each edge has a "target value" (a **constraint**) and a "current value."
+* **What is a Configuration?** A configuration (`ConfigSpace`) is a graph where:
+    * Each node has a **phase** (a potential value)
+    * Each edge `(i, j)` has a **current value** = `phase[j] - phase[i]`
+    * Each edge has a **target constraint**
 * **What is Cost?** A configuration has three types of costs:
-    1.  **Internal Cost (`V_int`):** How far the "current values" are from their "target values" (a sum of squared errors). Lower is better.
+    1.  **Internal Cost (`V_int`):** Sum of squared differences between current values and constraints. Lower is better.
     2.  **External Cost (`V_ext`):** How well the configuration solves an "external task." Lower is better.
     3.  **Complexity Cost (`E`):** The number of edges in the graph. Lower is simpler.
-* **What is Negotiation?** Negotiation is a process that tries to find a *new* configuration, `X`, that minimizes a total cost function, the **Lagrangian (`ℒ`)**. This function balances the internal cost, external cost, and complexity cost (weighted by a parameter `lam`).
-
-### 🎯 The Main Result: Negotiation Creates Novelty
-
-The project provides a **concrete, 8-node example** to prove that this negotiation process works. It defines:
-* `G_A`: A "rigid" configuration with 20 edges.
-* `G_B`: An "adaptive" configuration with 37 edges.
-* `G_N`: The **negotiated** configuration with 34 edges.
-* `G_Union`: The simple combination of A and B, with 43 edges.
-
-Using explicit, hard-coded values, the project *numerically verifies* in Lean that the total cost of the negotiated solution `G_N` is **lower than all the alternatives**:
-
-* `Cost(G_N) < Cost(G_A)`
-* `Cost(G_N) < Cost(G_B)`
-* `Cost(G_N) < Cost(G_Union)`
-
-This proves by construction that negotiation can produce a **novel solution (`G_N` is not `G_A` or `G_B`)** that is **more efficient (lower cost)** than either starting point or their simple union.
-
----
-
-## 🌀 Key Concept 2: Gauge-Theoretic Holonomy
-
-This part of the project explores a deeper, "gauge-theoretic" model to understand the fundamental limits of a system.
-
-* **What's the New Model?** Instead of letting each "current edge value" be arbitrary, this model defines them based on "potentials" at each node (called **`node_phases`**). The value of an edge `(i, j)` is simply `phase[j] - phase[i]`.
-* **The "Cycle" Property:** A key consequence of this model is that if you sum these edge values around any closed loop (a "cycle"), the "phases" cancel out, and the total sum is **exactly zero**. (This is a "telescoping sum").
-* **What is Holonomy?** Holonomy (or "frustration") occurs when the *target constraints* for that same cycle **do not** sum to zero.
-    * **System says:** "The sum of values on this path *must* be 0."
-    * **Task says:** "The sum of targets for this path *must* be 5.0."
-* **The Mismatch:** The system is fundamentally "frustrated." It is *impossible* for the edge values (which must sum to 0) to equal the edge constraints (which sum to 5.0).
+* **The "Cycle" Property:** If you sum edge values around any closed loop (a "cycle"), the phases cancel out via telescoping, and the total sum is **exactly zero**.
+* **What is Holonomy?** Holonomy (or "frustration") occurs when the *target constraints* around a cycle **do not** sum to zero.
+    * **System constraint:** "The sum of values on this cycle *must* be 0."
+    * **Task constraint:** "The sum of targets for this cycle should be K ≠ 0."
+* **The Mismatch:** The system is fundamentally "frustrated." It is *impossible* for the edge values (which must sum to 0) to equal the edge constraints (which sum to K).
 
 ### 🎯 The Main Result: Holonomy Creates Unavoidable Cost
 
@@ -63,35 +39,57 @@ This theorem (`cycle_creates_holonomy`) formally proves that if a system has *an
 
 ---
 
+## 🚀 Key Concept 2: Gauge Negotiation
+
+This part proves structural theorems about what happens when two configurations are merged.
+
+* **What is Merging?** Given two configurations `X_A` and `X_B`:
+    * Create union graph: edges from either graph
+    * Merge constraints: average when both have an edge, otherwise keep the unique constraint
+    * Find optimal node phases for the merged system
+* **What is Negotiation?** The process of finding node phases that minimize the **Lagrangian (`ℒ`)**, which balances internal cost, external cost, and complexity cost (weighted by parameter `lam`).
+
+### 🎯 The Main Results: Structural Consequences
+
+The project proves two theorems by explicit construction:
+
+**Theorem 1: Merging Can Create Holonomy**
+* Start with `X_A` (path 0→1→2) and `X_B` (path 2→3→0), both holonomy-free
+* Union creates 4-cycle: 0→1→2→3→0
+* Each edge has constraint 5.0, so cycle holonomy K = 20.0
+* Proven: `negotiation_creates_holonomy` and `negotiation_creates_cost`
+
+**Theorem 2: Merging Can Resolve Holonomy**
+* Start with `X_C` (frustrated triangle, holonomy = 30.0)
+* Merge with `X_D` (single edge with opposite constraint on shared edge)
+* Shared edge averages to 0.0, other edges remain 10.0 each
+* Result: cycle holonomy reduced from 30.0 to 20.0
+* Proven: `negotiation_resolves_holonomy` and `negotiation_reduces_holonomy_value`
+
+---
+
 ## 📁 File Breakdown
 
-* **`Diaspora/Concrete.lean`**
-    * Defines the basic `ConfigSpace` (a graph with constraints and values).
-    * Defines the internal cost (`V_int`), external cost (`V_ext`), and Lagrangian (`ℒ`).
-    * Defines a `K` operator (a "local relaxation" step) and proves it reduces the internal cost.
-* **`Diaspora/ConcreteGaugeNegotiation.lean`**
-    * Defines the `ConcreteNegotiation` structure and the `concrete_negotiation_cost`.
-    * Proves the *abstract* theorems that negotiation can create novelty and intermediate complexity, using the 8-node example as evidence.
-* **`Diaspora/GaugeNegotiationVerified.lean`**
-    * The "data" file. Contains all the hard-coded numbers (graphs, phases, constraints, costs) for the 8-node example.
-* **`Diaspora/GaugeNegotiationExplicit.lean`**
-    * Performs the explicit arithmetic for the 8-node example.
-    * This is where the proofs `L_N_explicit < L_A_explicit`, etc., live, which are verified by Lean's `norm_num` tactic (a numerical calculator).
-* **`Diaspora/GaugeNegotiationProofs.lean`**
-    * A helper file that bridges the explicit data (like `G_A_edge_count = 20`) to the abstract theorems in `ConcreteGaugeNegotiation.lean`.
-* **`Diaspora/GaugeTheoreticHolonomy.lean`**
-    * Defines the "gauge-theoretic" `ConfigSpace` where edge values come from `node_phases`.
-    * Defines `Cycle` and `cycle_holonomy`.
-    * Proves the main theorem: if holonomy `K ≠ 0`, then the internal cost `V_int` must be greater than `0`.
 * **`Diaspora/HolonomyLagrangeProof.lean`**
     * The core mathematical engine for the holonomy proof.
     * Proves (using the solution from Lagrange multipliers) that the minimum value for `V_int` on a cycle is exactly `K² / n`.
+* **`Diaspora/GaugeTheoreticHolonomy.lean`**
+    * Defines the gauge-theoretic `ConfigSpace` where edge values come from `node_phases`.
+    * Defines `Cycle` and `cycle_holonomy`.
+    * Defines cost functions (`V_int`, `V_ext`, `E`, `ℒ`).
+    * Defines graph union and constraint merging operations.
+    * Proves the main theorem: if holonomy `K ≠ 0`, then the internal cost `V_int` must be greater than `0`.
+* **`Diaspora/GaugeNegotiation.lean`**
+    * Proves Theorem 1: merging two holonomy-free systems can create holonomy (4-node example).
+    * Proves Theorem 2: merging a frustrated system with counter-perspective can reduce holonomy (3-node example).
+    * All proofs use explicit finite examples with verified arithmetic.
 
 ## ✅ Verification
 
-  All proofs are complete with zero axioms and zero sorries:
+All proofs are complete with zero axioms and zero sorries:
 
-  ```bash
-  lake build          # Clean build, 3007 jobs
-  rg "axiom " Diaspora/*.lean  # 0 matches
-  rg "sorry" Diaspora/*.lean   # 0 matches
+```bash
+lake build                    # Clean build, 1786 jobs
+rg "axiom " Diaspora/*.lean   # 0 matches
+rg "sorry" Diaspora/*.lean    # 0 matches
+```

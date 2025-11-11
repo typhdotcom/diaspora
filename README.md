@@ -126,6 +126,28 @@ This proves that optimized phase structure persists when constraints are average
 
 ---
 
+## ✂️ Key Concept 6: Rational Secession
+
+This proves that there exists a tipping point where disconnection becomes optimal - formalizing divorce, forgetting, neural pruning, and organizational schism.
+
+* **The Setup:** Figure-eight graph with two triangular cycles sharing node 0
+    * **Cycle A** (nodes 0, 1, 2): all constraints 10.0
+    * **Cycle B** (nodes 0, 3, 4): all constraints 10.0
+* **The Conflict:** External task pulls phase[1] = 5.0 AND wants global coordination (all phases sum to 10.0)
+    * Task only directly affects Cycle A, but spillover contaminates innocent Cycle B
+* **Two Configurations:**
+    * **Coupled:** Full figure-eight (6 edges) - both cycles frustrated via spillover
+        - V_int = 1302, V_ext = 100, E = 6
+    * **Severed:** Delete edges (0,3) and (0,4), making two separate paths (4 edges)
+        - V_int = 652, V_ext = 6400, E = 4 (no more spillover, but task violated)
+* **The Tipping Point:** λ* = 2825.0
+    * Below λ*: Stay coupled (coordination worth the spillover cost)
+    * Above λ*: Sever connection (complexity cost exceeds benefit)
+* Proven: `secession_tipping_point`
+* **Key insight:** There exists a rational threshold where it becomes optimal to sever a connection to an "innocent but contaminated" subsystem rather than continue paying the cost of frustration spillover.
+
+---
+
 ## 📁 File Breakdown
 
 * **`Diaspora/HolonomyLagrangeProof.lean`**
@@ -154,11 +176,18 @@ This proves that optimized phase structure persists when constraints are average
     * External task targeting Cycle A causes Cycle B to also become more frustrated.
     * 24 manual adjacency proofs for spillover analysis across both cycles.
     * Shows impossibility of quarantining local stress in interconnected systems.
-* **`Diaspora/PurposeSurvival.lean`**
+* **`Diaspora/Experiments/PurposeSurvival.lean`**
     * Tests whether optimized phase structure survives constraint averaging.
     * Merges purposeful (constraints 10.0) with opposed (constraints 0.0) systems.
     * Proves adapted configuration outperforms naive baseline in merged 5.0-constraint world.
     * Demonstrates that optimization structure persists through consensus mechanisms.
+* **`Diaspora/Experiments/RationalSecession.lean`**
+    * Proves that there exists a tipping point where disconnection becomes optimal.
+    * Figure-eight graph (5 nodes, two cycles sharing node 0).
+    * Compares coupled (6 edges) vs severed (4 edges) configurations.
+    * 20 manual adjacency lemmas to enable zero-axiom arithmetic proofs.
+    * Proves λ* = 2825 where preference flips from coupled to severed.
+    * Formalizes divorce, forgetting, neural pruning, and organizational schism.
 
 ## ✅ Verification
 

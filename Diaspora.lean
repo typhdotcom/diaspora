@@ -9,14 +9,8 @@ import Diaspora.GaugeTheoreticHolonomy
 -- Structural consequences of negotiation (proven by construction)
 import Diaspora.GaugeNegotiation
 
--- Purposeful frustration: when higher V_int serves external goals
-import Diaspora.PurposefulFrustration
-
--- Iterated negotiation: damping via frustration cancellation
-import Diaspora.IteratedNegotiation
-
--- Localized frustration: frustration spillover in coupled systems
-import Diaspora.LocalizedFrustration
-
--- Purpose survival: can purpose survive consensus?
-import Diaspora.PurposeSurvival
+-- Experiments exploring consequences of the framework
+import Diaspora.Experiments.PurposefulFrustration
+import Diaspora.Experiments.IteratedNegotiation
+import Diaspora.Experiments.LocalizedFrustration
+import Diaspora.Experiments.PurposeSurvival

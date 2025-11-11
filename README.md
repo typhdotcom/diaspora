@@ -66,6 +66,50 @@ The project proves two theorems by explicit construction:
 * Result: cycle holonomy reduced from 30.0 to 20.0
 * Proven: `negotiation_resolves_holonomy` and `negotiation_reduces_holonomy_value`
 
+**Theorem 3: Merging Can Eliminate Holonomy**
+* Start with `X_Frustrated` (triangle with all constraints +10.0, holonomy = +30.0)
+* Merge with `X_Opposed` (triangle with all constraints -10.0, holonomy = -30.0)
+* All edges average to 0.0
+* Result: cycle holonomy K_final = 0.0 (complete cancellation)
+* Proven: `negotiation_damps_holonomy` and `consensus_reduces_cost_bound`
+* **Key insight:** merge_constraints acts as a frustration-canceling mechanism, not just an aggregator
+
+---
+
+## 🎯 Key Concept 3: Purposeful Frustration
+
+This proves that a system may rationally accept *higher* internal frustration to achieve external goals.
+
+* **The Setup:** A triangle with holonomy K = 30 (all constraints = 10.0)
+* **The Conflict:** An external task wants edge (0,1) to equal 5.0, but internal constraints want it to equal 10.0
+* **Two Strategies:**
+    * **Calm:** Minimize V_int only → V_int = 600, V_ext = 25, ℒ = 625
+    * **Purposeful:** Optimize total ℒ → V_int = 612 (higher!), V_ext = 9 (much lower), ℒ = 621 (better!)
+* Proven: `purposeful_beats_calm`
+* **Key insight:** Purposeful self-contradiction is rationally optimal when internal incoherence serves external purpose
+
+---
+
+## 🔗 Key Concept 4: Localized Frustration Spillover
+
+This proves that in coupled systems, **local stress becomes global frustration** - you cannot quarantine the cost of a local conflict.
+
+* **The Setup:** A "figure-eight" graph with two triangular cycles sharing node 0
+    * **Cycle A** (nodes 0, 1, 2): K_A = 30.0
+    * **Cycle B** (nodes 0, 3, 4): K_B = 30.0
+* **The Conflict:** External task pulls phase[1] to 5.0 (100× penalty weight)
+    * This task **only** conflicts with Cycle A (which contains node 1)
+    * Cycle B has **nothing to do** with the external task
+* **Two States:**
+    * **Calm:** Minimize V_int only
+        - V_int_A = 600, V_int_B = 600, V_ext = 2500, ℒ = 3700
+    * **Purposeful:** Optimize total ℒ
+        - V_int_A = 652 (↑ as expected, task conflicts with Cycle A)
+        - V_int_B = 612 (↑ contaminated! even though "innocent")
+        - V_ext = 0, ℒ = 1264 (much better overall)
+* Proven: `frustration_spillover` - Both cycles become more frustrated despite only one being targeted
+* **Key insight:** The stress propagates through shared node 0. In coupled systems, **there is no such thing as a local problem** - tight coupling creates frustration transmission channels that make every local stress a global concern.
+
 ---
 
 ## 📁 File Breakdown
@@ -83,13 +127,26 @@ The project proves two theorems by explicit construction:
     * Proves Theorem 1: merging two holonomy-free systems can create holonomy (4-node example).
     * Proves Theorem 2: merging a frustrated system with counter-perspective can reduce holonomy (3-node example).
     * All proofs use explicit finite examples with verified arithmetic.
+* **`Diaspora/PurposefulFrustration.lean`**
+    * Proves that accepting higher internal frustration can be globally optimal.
+    * Triangle construction with competing internal/external constraints on same edge.
+    * Shows V_int can rationally increase when it reduces total Lagrangian.
+* **`Diaspora/IteratedNegotiation.lean`**
+    * Proves that merge_constraints can completely eliminate holonomy through cancellation.
+    * Two opposingly frustrated triangles (+30 and -30 holonomy) merge to zero holonomy.
+    * Demonstrates frustration-damping property of consensus mechanisms.
+* **`Diaspora/LocalizedFrustration.lean`**
+    * Proves frustration spillover in coupled systems (figure-eight graph).
+    * External task targeting Cycle A causes Cycle B to also become more frustrated.
+    * 24 manual adjacency proofs for spillover analysis across both cycles.
+    * Shows impossibility of quarantining local stress in interconnected systems.
 
 ## ✅ Verification
 
 All proofs are complete with zero axioms and zero sorries:
 
 ```bash
-lake build                    # Clean build, 1786 jobs
+lake build                    # Clean build, 1789 jobs
 rg "axiom " Diaspora/*.lean   # 0 matches
 rg "sorry" Diaspora/*.lean    # 0 matches
 ```

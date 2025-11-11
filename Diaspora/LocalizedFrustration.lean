@@ -1,34 +1,26 @@
 /-
-# Localized Purposeful Frustration: Frustration Spillover in Coupled Systems
+# Frustration Spillover in Coupled Systems
 
-Proves that in a coupled system, local stress becomes global frustration.
-When an external task conflicts with one part of a coupled system, the
-frustration cannot be "quarantined" - it must spill over and raise the
-cost of the entire interconnected system, even in parts that have nothing
-to do with the external task.
+Proves that in a coupled system, optimizing for an external task that affects
+one cycle causes V_int to increase in both the targeted cycle and other cycles
+connected through shared nodes.
 
-## The Construction
+## Construction
 
-A "figure-eight" graph with two triangular cycles sharing a common node:
+Figure-eight graph with two triangular cycles sharing node 0:
 - Cycle A (nodes 0, 1, 2): K_A = 30.0
 - Cycle B (nodes 0, 3, 4): K_B = 30.0
-- Shared node: 0
 
-External task: Pulls phase[1] to 5.0 (conflicts only with Cycle A)
+External task: Minimizes (phase[1] - 5.0)² with 100× weight (affects only Cycle A)
 
-## The Result
+## Result
 
 Two states:
-1. **Calm**: Minimizes V_int only
-   - V_int_A = 300, V_int_B = 300, V_ext = 25, ℒ = 625
+1. Calm (minimizes V_int only): V_int_A = 600, V_int_B = 600, V_ext = 2500, ℒ = 3700
+2. Purposeful (optimizes ℒ): V_int_A = 652, V_int_B = 612, V_ext = 0, ℒ = 1264
 
-2. **Purposeful**: Optimizes total ℒ
-   - V_int_A > 300 (Cycle A more frustrated, as expected)
-   - V_int_B > 300 (Cycle B contaminated, even though "innocent"!)
-   - ℒ < 625 (Still optimal overall)
-
-This proves frustration spillover: you cannot isolate the cost of a local
-conflict in a coupled system.
+Both cycles have higher V_int in the purposeful state, despite the external task
+only involving nodes in Cycle A. This proves frustration spillover through shared nodes.
 -/
 
 import Diaspora.GaugeTheoreticHolonomy
@@ -283,10 +275,8 @@ theorem purposeful_V_int_B :
   norm_num
 
 /--
-Frustration spillover: The stress from the external task on Cycle A
-propagates through the shared node 0 and contaminates the "innocent"
-Cycle B, raising its internal cost even though the task has nothing
-to do with Cycle B.
+Both Cycle A and Cycle B have higher V_int in the purposeful state than
+in the calm state, despite the external task only involving Cycle A nodes.
 -/
 theorem frustration_spillover : (600.0 : ℝ) < 652.0 ∧ (600.0 : ℝ) < 612.0 := by
   have h_A := calm_V_int_A

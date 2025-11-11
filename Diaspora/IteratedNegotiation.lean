@@ -1,32 +1,23 @@
 /-
-# Iterated Negotiation: The Damping Theorem
+# Holonomy Elimination via Constraint Cancellation
 
-Proves that merge_constraints (averaging) acts as a frustration-canceling mechanism.
+Proves that merge_constraints can completely eliminate holonomy when merging
+systems with opposing frustration.
 
-## The Question
+## Construction
 
-We've proven:
-- Theorem 1: Merging can CREATE holonomy (0 + 0 → 20)
-- Theorem 2: Merging can REDUCE holonomy (30 → 20)
-
-But what happens when we merge two *opposingly* frustrated systems?
-
-## This Construction
-
-Two 3-node triangles with equal and opposite frustration:
+Two 3-node triangles with equal and opposite holonomy:
 - X_Frustrated: All constraints = +10.0, holonomy K = +30.0
 - X_Opposed: All constraints = -10.0, holonomy K = -30.0
 
-When merged via averaging:
+Merged system:
 - All constraints become (10 + (-10))/2 = 0.0
 - Final holonomy K_final = 0.0
 
-## The Result
+## Result
 
-This proves merge_constraints doesn't just average frustration—it can
-**completely eliminate** it through cancellation. This is a fundamental
-damping property showing that consensus-seeking actively resolves
-systemic frustration.
+Proves merge_constraints can completely eliminate holonomy through cancellation,
+and that the merged system has lower cost bound than either parent system.
 -/
 
 import Diaspora.GaugeNegotiation
@@ -185,10 +176,8 @@ theorem K_opposed : cycle_holonomy X_Opposed cycle_3_opposed = -30.0 := by
 -- No helper lemmas needed - we'll compute directly
 
 /--
-Theorem 3: Iterated negotiation can perfectly cancel opposing holonomies.
-
-Merging two systems with equal and opposite frustration results in a
-consensus system that is holonomy-free.
+Merging two systems with equal and opposite holonomy results in
+zero holonomy in the merged system.
 -/
 theorem negotiation_damps_holonomy :
     cycle_holonomy (union_config prob_damp) cycle_damp = 0.0 := by
@@ -199,11 +188,7 @@ theorem negotiation_damps_holonomy :
   norm_num
 
 /--
-The unavoidable cost bound of the consensus system (K_final² / n) is
-provably less than the cost bound of *either* parent system.
-
-This proves merge_constraints doesn't just average frustration—it actively
-eliminates it through cancellation.
+The merged system's cost bound (K² / n) is lower than either parent system's.
 -/
 theorem consensus_reduces_cost_bound :
     (cycle_holonomy (union_config prob_damp) cycle_damp)^2 / 3 <
@@ -213,10 +198,7 @@ theorem consensus_reduces_cost_bound :
   rw [negotiation_damps_holonomy, K_frustrated, K_opposed]
   norm_num
 
-/--
-Corollary: The consensus is fundamentally less frustrated than either input.
-Both parent systems have minimum V_int ≥ 300, but consensus has minimum V_int = 0.
--/
+/-- The merged system has zero holonomy. -/
 theorem consensus_is_holonomy_free :
     cycle_holonomy (union_config prob_damp) cycle_damp = 0.0 := by
   exact negotiation_damps_holonomy

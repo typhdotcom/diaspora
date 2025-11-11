@@ -1,12 +1,9 @@
 /-
 # Purposeful Frustration: When Internal Cost Serves External Goals
 
-Proves that a system can accept *higher* internal frustration (V_int)
-to achieve better external task performance (V_ext), resulting in a lower
-total Lagrangian ℒ = V_int + V_ext.
-
-This formalizes "purposeful self-contradiction" - an agent may maintain
-an internally inconsistent model if that inconsistency serves an external purpose.
+Proves that a configuration with *higher* internal cost (V_int) can achieve
+lower total Lagrangian ℒ = V_int + V_ext when it sufficiently reduces
+external cost (V_ext).
 
 ## The Construction
 
@@ -197,24 +194,19 @@ theorem purposeful_lagrangian : ℒ task_conflict X_purposeful 0.0 = 621.0 := by
   rw [purposeful_V_int, purposeful_V_ext]
   norm_num
 
-/-! ## Main Result: Purposeful Self-Contradiction -/
+/-! ## Main Result -/
 
 /--
-The purposeful state has a better (lower) total Lagrangian than the calm state,
-despite having higher internal frustration.
-
-This proves that a system may "choose" internal incoherence (higher V_int)
-if it helps achieve an external goal (lower V_ext), resulting in better
-overall performance (lower ℒ).
+The purposeful state achieves lower total Lagrangian than the calm state,
+despite having higher V_int. Accepting higher internal cost can be optimal
+when it sufficiently reduces V_ext.
 -/
 theorem purposeful_beats_calm :
     ℒ task_conflict X_purposeful 0.0 < ℒ task_conflict X_calm 0.0 := by
   rw [purposeful_lagrangian, calm_lagrangian]
   norm_num
 
-/--
-Corollary: The purposeful state accepts higher internal cost
--/
+/-- The purposeful state has higher V_int than the calm state. -/
 theorem purposeful_more_frustrated :
     V_int X_calm < V_int X_purposeful := by
   rw [calm_V_int, purposeful_V_int]

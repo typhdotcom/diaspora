@@ -17,3 +17,6 @@ import Diaspora.IteratedNegotiation
 
 -- Localized frustration: frustration spillover in coupled systems
 import Diaspora.LocalizedFrustration
+
+-- Purpose survival: can purpose survive consensus?
+import Diaspora.PurposeSurvival

@@ -23,3 +23,4 @@ import Diaspora.Experiments.PurposefulFrustration
 import Diaspora.Experiments.IteratedNegotiation
 import Diaspora.Experiments.LocalizedFrustration
 import Diaspora.Experiments.PurposeSurvival
+import Diaspora.Experiments.BlackHoleInformation

@@ -223,14 +223,23 @@ This proves that inheriting historically-optimized structure beats starting from
     * Proves `cost_equals_closure_work`: for cycles achieving optimal V_int = K²/k, cost of purpose = K²/k - baseline.
     * Proves `inheritance_is_path_closure`: cost of purpose in inheritance equals K²/k - Σc² when original is optimal.
     * Establishes that work to optimally distribute holonomy equals the "cost of purpose" metric.
+* **`Diaspora/Experiments/BlackHoleInformation.lean`**
+    * Formalizes black hole formation→radiation pipeline for information preservation.
+    * Structures: `MatterState` (pre-collapse), `HorizonFormation` (horizon with conservation), `RadiationState` (Hawking radiation).
+    * `horizon_encodes_history`: Formation work K²/k encoded in horizon phase structure.
+    * Axiom `radiation_inherits_phases`: Radiation inherits horizon phases via vacuum-horizon merging.
+    * Axiom `different_formation_different_radiation`: Different formation histories → different radiation statistics.
+    * Connects to Schwarzschild via `formation_work_is_ground_energy`.
+    * Key prediction: Same mass M but different internal structure → measurably different radiation correlations.
 
 ## ✅ Verification
 
 All proofs are complete with zero sorrys. Core framework has zero axioms. Experiments use axioms only for physics bridge (Schwarzschild derivation):
 
 ```bash
-lake build                                           # Clean build, 1791 jobs
+lake build                                           # Clean build
 rg "^axiom " Diaspora/*.lean                         # 0 matches (core framework)
-rg "^axiom " Diaspora/Experiments/*.lean | wc -l     # 4 matches (Schwarzschild bridge axioms only)
-rg "^sorry" Diaspora/*.lean Diaspora/Experiments/*.lean  # 0 matches
+rg "^axiom " Diaspora/Experiments/*.lean | wc -l     # 7 matches (physics bridge axioms)
+rg "sorry" Diaspora/*.lean                           # 0 matches (core proofs complete)
+rg "sorry" Diaspora/Experiments/*.lean               # 0 matches (all proofs complete)
 ```

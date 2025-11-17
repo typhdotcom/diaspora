@@ -1,11 +1,15 @@
 # Diaspora: A Formal Model of Configuration Spaces and Holonomy
 
-This project, written in the Lean 4 proof assistant, formally models complex systems as **Configuration Spaces** using a gauge-theoretic framework. It explores two primary concepts:
+This project, written in the Lean 4 proof assistant, formally models complex systems as **Configuration Spaces** using a gauge-theoretic framework. It explores several interconnected concepts:
 
 1.  **Gauge-Theoretic Holonomy:** How "frustration" or "incompatibility" in a system's constraints (a property called holonomy) creates a fundamental, unavoidable, and provably non-zero cost.
 2.  **Gauge Negotiation:** How merging two different systems ("perspectives") can create or resolve holonomy, with structural consequences proven by construction.
+3.  **Purposeful Frustration:** How systems rationally accept higher internal frustration to achieve external goals.
+4.  **Frustration Spillover:** How local stress propagates globally through coupled systems.
+5.  **Conservation Laws:** How holonomy behaves under path merging and constraint averaging.
+6.  **Historical Optimization:** How optimized structure from one system survives and provides value when transplanted to new constraint environments.
 
-The entire project is **formally verified**, meaning all definitions are mathematically precise, and all theorems are proven with logical certainty.
+The entire project is **formally verified**, meaning all definitions are mathematically precise, and all theorems are proven with logical certainty (zero axioms in core framework, zero sorrys throughout).
 
 ---
 
@@ -147,6 +151,24 @@ This proves that optimized phase structure persists when constraints are average
 
 ---
 
+## 🧬 Key Concept 7: The Inheritance Theorem
+
+This proves that inheriting historically-optimized structure beats starting from scratch when merging systems.
+
+* **The Setup:** Compare two strategies when merging a frustrated system into a new constraint world
+    * **Calm Strategy:** Start with all phases at 0 (minimizes V_int only)
+    * **Inheritance Strategy:** Scale down the original optimized phases by 1/2
+* **The Physical Trade-Off:** Define two quantities:
+    * **Cost of Purpose:** `V_int(original) - Σ(c_A)²` - the internal cost penalty paid to satisfy the external task
+    * **Inheritance Payoff:** `3 × lam_ext × ext_target²` - the weighted external cost advantage from inheritance
+* **Main Result:** When Cost of Purpose < Inheritance Payoff, inheritance beats calm
+    * Proven: `inheritance_beats_calm`
+    * The theorem does NOT assume the result - it assumes only the physical trade-off condition
+    * V_int scaling proven from first principles: halving phases and constraints → V_int scales by 1/4
+* **Key insight:** Historical optimization has value that survives system merging. When a system paid internal cost to achieve external purpose, that optimization structure remains valuable even when transplanted to a new constraint environment (at half-scale).
+
+---
+
 ## 📁 File Breakdown
 
 * **`Diaspora/HolonomyLagrangeProof.lean`**
@@ -188,14 +210,20 @@ This proves that optimized phase structure persists when constraints are average
     * Merges purposeful (constraints 10.0) with opposed (constraints 0.0) systems.
     * Proves adapted configuration outperforms naive baseline in merged 5.0-constraint world.
     * Demonstrates that optimization structure persists through consensus mechanisms.
+* **`Diaspora/InheritanceTheorem.lean`**
+    * Proves the Inheritance Theorem: historical optimization beats starting from scratch.
+    * Defines inheritance scenario: original optimized system merged at half-scale vs calm baseline.
+    * Proves V_int scaling lemmas from first principles (halving phases/constraints → V_int scales by 1/4).
+    * Main theorem `inheritance_beats_calm` assumes only physical trade-off: Cost of Purpose < Inheritance Payoff.
+    * Complete proof with zero sorrys, using distributive law for nested sums with dependent types.
 
 ## ✅ Verification
 
-Core framework proofs are complete with zero axioms and zero sorries. Experiments currently use axioms for computational theorems:
+All proofs are complete with zero sorrys. Core framework has zero axioms. Experiments use axioms only for physics bridge (Schwarzschild derivation):
 
 ```bash
 lake build                                           # Clean build, 1791 jobs
 rg "^axiom " Diaspora/*.lean                         # 0 matches (core framework)
-rg "^axiom " Diaspora/Experiments/*.lean | wc -l     # 0 matches
+rg "^axiom " Diaspora/Experiments/*.lean | wc -l     # 4 matches (Schwarzschild bridge axioms only)
 rg "^sorry" Diaspora/*.lean Diaspora/Experiments/*.lean  # 0 matches
 ```

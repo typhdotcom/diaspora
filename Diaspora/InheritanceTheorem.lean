@@ -199,22 +199,22 @@ lemma sum_sum_dite_mul {α β : Type*} [Fintype α] [Fintype β]
   ext a
   congr 1
   ext b
-  by_cases h : p a b <;> simp [h, mul_comm]
+  by_cases h : p a b <;> simp [h]
 
 /-- V_int of calm config (all phases = 0, constraints = c_A/2) -/
 lemma V_int_calm_from_constraints {n k : ℕ} (scen : InheritanceScenario n k)
     (h_calm_origin : ∀ i, scen.phases_calm i = 0) :
     V_int (calm_config scen) = (1/4) * sum_squared_constraints scen := by
   unfold V_int calm_config sum_squared_constraints edge_value
-  haveI : DecidableRel scen.graph.Adj := scen.adj_dec
   simp only
+  letI : DecidableRel scen.graph.Adj := scen.adj_dec
   trans (∑ i, ∑ j, if h : scen.graph.Adj i j then (1/4) * (scen.constraints_A i j h)^2 else 0)
   · apply Finset.sum_congr rfl
     intro i _
     apply Finset.sum_congr rfl
     intro j _
     by_cases h_adj : scen.graph.Adj i j
-    · simp only [h_adj, ↓reduceIte]
+    · simp only [h_adj]
       have h_i := h_calm_origin i
       have h_j := h_calm_origin j
       calc (scen.phases_calm j - scen.phases_calm i - scen.constraints_A i j h_adj / 2)^2
@@ -222,27 +222,27 @@ lemma V_int_calm_from_constraints {n k : ℕ} (scen : InheritanceScenario n k)
         _ = (scen.constraints_A i j h_adj / 2)^2 := by ring
         _ = (1/4) * (scen.constraints_A i j h_adj)^2 := by ring
     · simp [h_adj]
-  · exact @sum_sum_dite_mul (Fin n) (Fin n) _ _ scen.graph.Adj _ (fun i j h => scen.constraints_A i j h ^ 2) (1/4)
+  · exact @sum_sum_dite_mul (Fin n) (Fin n) _ _ scen.graph.Adj scen.adj_dec (fun i j h => scen.constraints_A i j h ^ 2) (1/4)
 
 /-- V_int of inherited config equals (1/4) * V_int of original config -/
 lemma V_int_inherited_scales {n k : ℕ} (scen : InheritanceScenario n k) :
     V_int (inherited_config scen) = (1/4) * V_int (original_config scen) := by
   unfold V_int inherited_config original_config edge_value
-  haveI : DecidableRel scen.graph.Adj := scen.adj_dec
   simp only
+  letI : DecidableRel scen.graph.Adj := scen.adj_dec
   trans (∑ i, ∑ j, if h : scen.graph.Adj i j then (1/4) * (scen.phases_A j - scen.phases_A i - scen.constraints_A i j h)^2 else 0)
   · apply Finset.sum_congr rfl
     intro i _
     apply Finset.sum_congr rfl
     intro j _
     by_cases h_adj : scen.graph.Adj i j
-    · simp only [h_adj, ↓reduceIte]
+    · simp only [h_adj]
       calc (scen.phases_A j / 2 - scen.phases_A i / 2 - scen.constraints_A i j h_adj / 2)^2
         _ = ((scen.phases_A j - scen.phases_A i) / 2 - scen.constraints_A i j h_adj / 2)^2 := by ring
         _ = ((scen.phases_A j - scen.phases_A i - scen.constraints_A i j h_adj) / 2)^2 := by ring
         _ = (1/4) * (scen.phases_A j - scen.phases_A i - scen.constraints_A i j h_adj)^2 := by ring
     · simp [h_adj]
-  · exact sum_sum_dite_mul _ _ _
+  · exact @sum_sum_dite_mul (Fin n) (Fin n) _ _ scen.graph.Adj scen.adj_dec (fun i j h => (scen.phases_A j - scen.phases_A i - scen.constraints_A i j h)^2) (1/4)
 
 /-! ## Part 7: Main Theorem
 
@@ -318,5 +318,39 @@ theorem inheritance_beats_calm {n k : ℕ} (scen : InheritanceScenario n k)
   -- Multiply by 4: V_int(orig) - Σc² < 3*lam*T²
   -- This follows directly from h_cost_of_purpose
   linarith [h_cost_of_purpose]
+
+/-! ## Part 8: Cost of Purpose
+
+The physical trade-off condition reveals a deep connection to holonomy closure work.
+-/
+
+/-- The baseline cost: V_int when all phases are at origin -/
+noncomputable def baseline_cost {n k : ℕ} (scen : InheritanceScenario n k) : ℝ :=
+  sum_squared_constraints scen
+
+/-- The cost of purpose: work paid beyond baseline to achieve optimization -/
+noncomputable def cost_of_purpose {n k : ℕ} (scen : InheritanceScenario n k) : ℝ :=
+  V_int (original_config scen) - baseline_cost scen
+
+/-- The inheritance payoff: V_ext advantage from inherited structure -/
+noncomputable def inheritance_payoff {n k : ℕ} (scen : InheritanceScenario n k) : ℝ :=
+  3 * scen.lam_ext * scen.ext_target^2
+
+/-- Reformulation of inheritance theorem using cost of purpose -/
+theorem cost_of_purpose_determines_inheritance {n k : ℕ} (scen : InheritanceScenario n k)
+    (h_perfect : edge_value (original_config scen)
+      (scen.cycle.nodes scen.ext_edge.castSucc)
+      (scen.cycle.nodes scen.ext_edge.succ)
+      (scen.cycle.adjacent scen.ext_edge) = scen.ext_target)
+    (h_calm_origin : ∀ i, scen.phases_calm i = 0)
+    (h_advantage : cost_of_purpose scen < inheritance_payoff scen) :
+    let c_inh : Cycle n (inherited_config scen).graph k :=
+      ⟨scen.cycle.nodes, scen.cycle.closes, scen.cycle.adjacent, scen.cycle.distinct_edges⟩
+    let c_calm : Cycle n (calm_config scen).graph k :=
+      ⟨scen.cycle.nodes, scen.cycle.closes, scen.cycle.adjacent, scen.cycle.distinct_edges⟩
+    lagrangian_with_cycle scen (inherited_config scen) c_inh <
+    lagrangian_with_cycle scen (calm_config scen) c_calm := by
+  unfold cost_of_purpose baseline_cost inheritance_payoff at h_advantage
+  exact inheritance_beats_calm scen h_perfect h_calm_origin h_advantage
 
 end InheritanceTheorem

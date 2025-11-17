@@ -380,7 +380,7 @@ theorem generic_spillover_contrapositive
     (c_purp : Cycle n X_purposeful.graph k)
     (h_calm_phases : ∀ i, X_calm.node_phases i = 0)
     (h_same_nodes : ∀ i, c_calm.nodes i = c_purp.nodes i)
-    (h_same_constraints : ∀ i, X_calm.constraints (c_calm.nodes i.castSucc) (c_calm.nodes i.succ) (c_calm.adjacent i) =
+    (_h_same_constraints : ∀ i, X_calm.constraints (c_calm.nodes i.castSucc) (c_calm.nodes i.succ) (c_calm.adjacent i) =
                                 X_purposeful.constraints (c_purp.nodes i.castSucc) (c_purp.nodes i.succ) (c_purp.adjacent i))
     (h_no_spillover : V_int_on_cycle X_calm c_calm = V_int_on_cycle X_purposeful c_purp)
     : ∑ i : Fin k, (edge_value X_purposeful (c_purp.nodes i.castSucc) (c_purp.nodes i.succ) (c_purp.adjacent i) -
@@ -391,7 +391,7 @@ theorem generic_spillover_contrapositive
   congr 1
   funext i
   unfold edge_value
-  simp [h_same_nodes, h_calm_phases, h_same_constraints]
+  simp [h_same_nodes, h_calm_phases]
 
 /-! ## Note on Existence
 

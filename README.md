@@ -215,7 +215,14 @@ This proves that inheriting historically-optimized structure beats starting from
     * Defines inheritance scenario: original optimized system merged at half-scale vs calm baseline.
     * Proves V_int scaling lemmas from first principles (halving phases/constraints → V_int scales by 1/4).
     * Main theorem `inheritance_beats_calm` assumes only physical trade-off: Cost of Purpose < Inheritance Payoff.
+    * Defines `cost_of_purpose`, `baseline_cost`, and `inheritance_payoff` as primary interface.
     * Complete proof with zero sorrys, using distributive law for nested sums with dependent types.
+* **`Diaspora/CostOfPurpose.lean`**
+    * Connects the inheritance theorem to holonomy closure work.
+    * Proves `optimal_beats_baseline_when_dispersed`: optimal redistribution beats baseline when K² < k·Σc².
+    * Proves `cost_equals_closure_work`: for cycles achieving optimal V_int = K²/k, cost of purpose = K²/k - baseline.
+    * Proves `inheritance_is_path_closure`: cost of purpose in inheritance equals K²/k - Σc² when original is optimal.
+    * Establishes that work to optimally distribute holonomy equals the "cost of purpose" metric.
 
 ## ✅ Verification
 

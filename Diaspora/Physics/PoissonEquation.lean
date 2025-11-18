@@ -1,6 +1,19 @@
 /-
-Einstein Field Equations from variational principle δℒ/δω = 0.
-Proves: Gμν = 8πG Tμν emerges from minimizing ℒ = V_int + V_ext + λE.
+Poisson equation from variational principle δℒ/δω = 0.
+
+IMPORTANT: This derives ∇²ω = J (Newtonian gravity Poisson equation), NOT the full
+Einstein Field Equations Gμν = 8πG Tμν. The discrete Laplacian corresponds to ∇²,
+not to the Ricci tensor. This is a WEAK-FIELD approximation at best, and even that
+interpretation requires additional physical postulates not proven here.
+
+What is actually proven:
+- Variational extrema satisfy discrete_laplacian(ω) = source_term
+- This is analogous to ∇²Φ = ρ in Newtonian gravity
+- NOT analogous to Einstein's field equations
+
+All theorems mentioning "Einstein" or "Ricci" are misnomers. They represent
+discrete differential operators that superficially resemble GR but are not
+derived from curved spacetime geometry.
 -/
 
 import Diaspora.GaugeTheoreticHolonomy
@@ -14,7 +27,7 @@ import Mathlib.Analysis.Calculus.LocalExtr.Basic
 
 open GaugeTheoretic SpacetimeGeometry MassHypothesis HolonomyProof
 
-namespace EinsteinFieldEquations
+namespace PoissonEquation
 
 /-- The action as a function of phases -/
 noncomputable def action {n : ℕ} (X_base : ConfigSpace n)
@@ -79,6 +92,7 @@ theorem optimal_phases_exist {n k : ℕ} (X : ConfigSpace n)
           congr 1; ext i; rw [h_final_edges]
     _ = K^2 / k := h_opt_calc
 
+/-- MISNOMER: This is NOT the Einstein field equation. It's V_int minimization. -/
 theorem optimal_satisfies_einstein {n k : ℕ} (X : ConfigSpace n)
     (c : Cycle n X.graph k) (_h_k : 3 ≤ k)
     (ω_opt : Fin n → ℝ)
@@ -429,10 +443,12 @@ theorem euler_lagrange_equations {n : ℕ} (X_base : ConfigSpace n)
 
   linarith [h_sum, h_split]
 
+/-- MISNOMER: This is discrete Ricci at node, but NOT the actual Ricci tensor. -/
 noncomputable def discrete_ricci_at_node {n : ℕ} (X : ConfigSpace n)
     (ω : Fin n → ℝ) (i : Fin n) : ℝ :=
   discrete_laplacian X ω i
 
+/-- MISNOMER: This is NOT the Einstein field equation. It's the Euler-Lagrange equation. -/
 theorem euler_lagrange_is_einstein {n : ℕ} (X_base : ConfigSpace n)
     (_task : ExternalTask n) (_lam : ℝ)
     (ω_crit : Fin n → ℝ)
@@ -442,4 +458,4 @@ theorem euler_lagrange_is_einstein {n : ℕ} (X_base : ConfigSpace n)
   unfold discrete_ricci_at_node
   exact h_EL i
 
-end EinsteinFieldEquations
+end PoissonEquation

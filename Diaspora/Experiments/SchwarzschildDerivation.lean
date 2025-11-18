@@ -3,10 +3,10 @@ Schwarzschild radius M ∝ R from model theorems + known physics.
 Uses: E_0 = K² (proven), M = K (defined), S ∝ E_0 (proven), S ∝ A ∝ R² (known physics).
 -/
 
-import Diaspora.Physics.MassDefinition
+import Diaspora.Physics.MassHypothesis
 import Diaspora.Physics.StatisticalEntropy
 
-open GaugeTheoretic MassDefinition StatisticalEntropy
+open GaugeTheoretic MassHypothesis StatisticalEntropy
 
 namespace SchwarzschildDerivation
 
@@ -22,10 +22,16 @@ theorem entropy_mass_squared_law (S M K E_0 : ℝ)
   · exact h_α_pos
   · rw [h_S_eq, h_E, h_M]
 
-/-- Bekenstein-Hawking: S ∝ A (known physics) -/
+/-- Physical postulate: Bekenstein-Hawking entropy S ∝ A (from standard physics).
+
+    This is a well-established result in black hole thermodynamics, not proven here.
+-/
 axiom bekenstein_hawking (S A : ℝ) : ∃ κ > 0, S = κ * A
 
-/-- Spherical geometry: A ∝ R² (known physics) -/
+/-- Physical postulate: Spherical geometry A ∝ R² (from standard geometry).
+
+    Basic geometric fact about sphere surface area, assumed not proven.
+-/
 axiom spherical_geometry (A R : ℝ) : ∃ π_factor > 0, A = π_factor * R^2
 
 /-- M ∝ R: Schwarzschild relationship -/
@@ -66,7 +72,7 @@ theorem diaspora_predicts_schwarzschild
     (h_geom : ∃ π > 0, A = π * R^2) :
     ∃ δ > 0, mass X c = δ * R := by
   have h_energy_theorem : E_ground_state X c = (cycle_holonomy X c)^2 :=
-    MassDefinition.ground_state_energy_law X c h_k
+    MassHypothesis.ground_state_energy_law X c h_k
   have h_S_M_law : ∃ γ > 0, S = γ * (mass X c)^2 :=
     entropy_mass_squared_law S (mass X c) (cycle_holonomy X c) (E_ground_state X c)
       h_entropy rfl h_energy_theorem

@@ -19,10 +19,11 @@ import Diaspora.InheritanceTheorem
 import Diaspora.CostOfPurpose
 
 -- Physics bridge: speculative applications to GR and black holes
-import Diaspora.Physics.MassDefinition
+-- WARNING: These are conjectural connections, not proven physics
+import Diaspora.Physics.MassHypothesis
 import Diaspora.Physics.StatisticalEntropy
 import Diaspora.Physics.SpacetimeGeometry
-import Diaspora.Physics.EinsteinFieldEquations
+import Diaspora.Physics.PoissonEquation
 import Diaspora.Physics.BlackHoleInformationPreservation
 
 -- Experiments exploring consequences of the framework

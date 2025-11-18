@@ -22,7 +22,7 @@ providing a mechanism for information preservation.
 import Diaspora.InheritanceTheorem
 import Diaspora.CostOfPurpose
 import Diaspora.ConservationOfHolonomy
-import Diaspora.Physics.MassDefinition
+import Diaspora.Physics.MassHypothesis
 
 open GaugeTheoretic InheritanceTheorem CostOfPurpose ConservationOfHolonomy
 
@@ -97,12 +97,14 @@ structure RadiationState (n k : ℕ) where
   /-- Cycle structure for radiation -/
   cycle : Cycle n graph k
 
-/-- Axiom: Radiation inherits horizon phase structure via constraint averaging.
+/-- Physical postulate (not proven): Radiation inherits horizon phase structure via constraint averaging.
 
     Physical justification: Hawking radiation arises from vacuum fluctuations
     near the horizon. When particle pairs form, one escapes (radiation) while
     the other falls in. This process is a "merging" of vacuum (zero constraints)
     with horizon structure (non-zero constraints), exactly the inheritance scenario.
+
+    WARNING: This is a CONJECTURE, not a proven theorem.
 -/
 axiom radiation_inherits_phases {n k : ℕ} (formation : HorizonFormation n k)
     (radiation : RadiationState n k) :
@@ -128,13 +130,15 @@ noncomputable def radiation_lagrangian {n k : ℕ} (radiation : RadiationState n
     (thermal_reference : ℝ) (lam_detector : ℝ) : ℝ :=
   V_int radiation.config + lam_detector * (cycle_holonomy radiation.config (radiation.h_graph ▸ radiation.cycle) - thermal_reference)^2
 
-/-- **Main Prediction**: Different formation histories produce measurably different radiation.
+/-- **Physical postulate (not proven)**: Different formation histories produce measurably different radiation.
 
     Even with identical mass M (same K_latent), black holes with different matter
     structure will emit radiation with different statistical properties.
 
     Observable: Correlations in radiation spectrum/angular momentum depend on
     formation history's cost of purpose.
+
+    WARNING: This is a CONJECTURE about physical predictions, not a proven theorem.
 -/
 axiom different_formation_different_radiation {n k : ℕ}
     (comparison : ComparableBlackHoles n k)
@@ -155,9 +159,12 @@ The formation work K²/k connects to the Schwarzschild derivation via
 the ground state energy theorem.
 -/
 
-/-- Formation work equals ground state energy -/
+/-- Physical postulate (not proven): Formation work equals ground state energy.
+
+    WARNING: This is a CONJECTURE connecting the ConfigSpace framework to black hole physics.
+-/
 axiom formation_work_is_ground_energy {n k : ℕ} (formation : HorizonFormation n k) :
-  V_int formation.horizon_config = MassDefinition.E_ground_state
+  V_int formation.horizon_config = MassHypothesis.E_ground_state
     formation.horizon_config (formation.h_graph ▸ formation.horizon)
 
 /-! ## Complete Picture: Formation → Encoding → Inheritance → Observation

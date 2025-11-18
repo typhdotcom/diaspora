@@ -3,11 +3,11 @@ Spacetime geometry from ConfigSpace: correspondence with Riemannian geometry.
 -/
 
 import Diaspora.GaugeTheoreticHolonomy
-import Diaspora.Physics.MassDefinition
+import Diaspora.Physics.MassHypothesis
 import Mathlib.Geometry.Manifold.VectorBundle.Basic
 import Mathlib.Geometry.Manifold.Instances.Real
 
-open GaugeTheoretic MassDefinition
+open GaugeTheoretic MassHypothesis
 
 namespace SpacetimeGeometry
 

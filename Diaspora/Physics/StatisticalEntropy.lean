@@ -1,13 +1,14 @@
 /-
-Entropy from statistical mechanics: deriving S from microstate counting.
+Entropy from microstate counting with exponential scaling (area law for black holes).
+NOTE: Uses Ω ∝ exp(β·E), not polynomial Ω ∝ E^f. This gives S ∝ E (area law).
 -/
 
 import Diaspora.GaugeTheoreticHolonomy
-import Diaspora.Physics.MassDefinition
+import Diaspora.Physics.MassHypothesis
 import Mathlib.Analysis.SpecialFunctions.Log.Basic
 import Mathlib.MeasureTheory.Measure.Lebesgue.Basic
 
-open GaugeTheoretic MassDefinition Real
+open GaugeTheoretic MassHypothesis Real
 
 namespace StatisticalEntropy
 
@@ -75,68 +76,67 @@ theorem gauge_equiv_same_V_int {n : ℕ} (X : ConfigSpace n)
     ring
   · simp only [h_adj, dite_false]
 
-/-- Microstate count (axiomatized). -/
+/-- Physical postulate: Microstate count function.
+
+    WARNING: This is AXIOMATIZED, not derived from the ConfigSpace framework.
+-/
 axiom microstate_count {n k : ℕ} (X : ConfigSpace n) (c : Cycle n X.graph k)
     (E : ℝ) : ℝ
 
-/-- Microstate count is positive. -/
+/-- Physical postulate: Microstate count is positive.
+
+    WARNING: This is AXIOMATIZED, not proven.
+-/
 axiom microstate_count_pos {n k : ℕ} (X : ConfigSpace n) (c : Cycle n X.graph k)
     (E : ℝ) (h_E : 0 < E) : 0 < microstate_count X c E
 
-/-- Microstate count grows polynomially with energy. -/
+/-- Physical postulate: Microstate count grows exponentially with energy (area law for black holes).
+
+    Ω = C·exp(β·E) gives S = log Ω = β·E + const, matching Bekenstein-Hawking S ∝ A ∝ M².
+
+    WARNING: This is a POSTULATE about black hole thermodynamics, not proven from first principles.
+-/
 axiom microstate_scaling {n k : ℕ} (X : ConfigSpace n) (c : Cycle n X.graph k)
     (h_k : 3 ≤ k) :
-    ∃ (f : ℝ) (C : ℝ), 0 < f ∧ 0 < C ∧
-      ∀ E : ℝ, 0 < E → microstate_count X c E = C * E^f
+    ∃ (β : ℝ) (C : ℝ), 0 < β ∧ 0 < C ∧
+      ∀ E : ℝ, 0 < E → microstate_count X c E = C * exp (β * E)
 
 /-- Boltzmann entropy: S = log Ω. -/
 noncomputable def boltzmann_entropy {n k : ℕ} (X : ConfigSpace n)
     (c : Cycle n X.graph k) (E : ℝ) : ℝ :=
   log (microstate_count X c E)
 
-/-- Entropy depends logarithmically on energy: S = f·log E₀ + const. -/
+/-- Entropy depends linearly on energy: S = β·E₀ + const (area law). -/
 theorem entropy_energy_theorem {n k : ℕ} (X : ConfigSpace n)
     (c : Cycle n X.graph k) (h_k : 3 ≤ k)
     (E₀ : ℝ) (h_E₀ : 0 < E₀) :
-    ∃ (f C : ℝ), 0 < f ∧ 0 < C ∧
-      boltzmann_entropy X c E₀ = log C + f * log E₀ := by
-  obtain ⟨f, C, h_f_pos, h_C_pos, h_scaling⟩ := microstate_scaling X c h_k
-  use f, C
-  constructor; exact h_f_pos
+    ∃ (β C : ℝ), 0 < β ∧ 0 < C ∧
+      boltzmann_entropy X c E₀ = log C + β * E₀ := by
+  obtain ⟨β, C, h_β_pos, h_C_pos, h_scaling⟩ := microstate_scaling X c h_k
+  use β, C
+  constructor; exact h_β_pos
   constructor; exact h_C_pos
   unfold boltzmann_entropy
   rw [h_scaling E₀ h_E₀]
-  rw [log_mul (ne_of_gt h_C_pos) (by apply ne_of_gt; apply rpow_pos_of_pos h_E₀)]
-  rw [log_rpow h_E₀]
+  rw [log_mul (ne_of_gt h_C_pos) (by apply ne_of_gt; apply exp_pos)]
+  rw [log_exp (β * E₀)]
 
-/-- Linear approximation: S ≤ α·E₀ + const. -/
-theorem entropy_energy_linear_regime {n k : ℕ} (X : ConfigSpace n)
+/-- Entropy is exactly linear (not just bounded): S = β·E₀ + const. -/
+theorem entropy_energy_linear {n k : ℕ} (X : ConfigSpace n)
     (c : Cycle n X.graph k) (h_k : 3 ≤ k) :
-    ∃ α : ℝ, 0 < α ∧
+    ∃ (β : ℝ) (const : ℝ), 0 < β ∧
       ∀ E₀ : ℝ, 0 < E₀ →
-        boltzmann_entropy X c E₀ ≤ α * E₀ + log (microstate_count X c 1) := by
-  obtain ⟨f, C, h_f_pos, h_C_pos, h_scaling⟩ := microstate_scaling X c h_k
-
-  use f
+        boltzmann_entropy X c E₀ = β * E₀ + const := by
+  obtain ⟨β, C, h_β_pos, h_C_pos, h_scaling⟩ := microstate_scaling X c h_k
+  use β, log C
   constructor
-  · exact h_f_pos
+  · exact h_β_pos
   · intro E₀ h_E₀
     unfold boltzmann_entropy
     rw [h_scaling E₀ h_E₀]
-    rw [log_mul (ne_of_gt h_C_pos) (by apply ne_of_gt; apply rpow_pos_of_pos h_E₀)]
-    rw [log_rpow h_E₀]
-
-    have h_log_bound : log E₀ ≤ E₀ - 1 := log_le_sub_one_of_pos h_E₀
-
-    calc log C + f * log E₀
-        ≤ log C + f * (E₀ - 1) := by linarith [mul_le_mul_of_nonneg_left h_log_bound (le_of_lt h_f_pos)]
-      _ = log C + f * E₀ - f := by ring
-      _ ≤ f * E₀ + (log C - f) := by linarith
-      _ ≤ f * E₀ + log (microstate_count X c 1) := by
-          have h_at_one : microstate_count X c 1 = C * 1^f := h_scaling 1 (by norm_num)
-          simp at h_at_one
-          rw [h_at_one]
-          linarith [h_f_pos]
+    rw [log_mul (ne_of_gt h_C_pos) (by apply ne_of_gt; apply exp_pos)]
+    rw [log_exp (β * E₀)]
+    ring
 
 /-- Black hole entropy equals Boltzmann entropy at E₀ = M². -/
 theorem black_hole_entropy_exact {n k : ℕ} (X : ConfigSpace n)
@@ -146,7 +146,7 @@ theorem black_hole_entropy_exact {n k : ℕ} (X : ConfigSpace n)
     boltzmann_entropy X c ((mass X c)^2) =
       boltzmann_entropy X c (E_ground_state X c) := by
   have h_E : E_ground_state X c = (mass X c)^2 :=
-    MassDefinition.mass_energy_relation X c h_k
+    MassHypothesis.mass_energy_relation X c h_k
   rw [← h_E]
 
 end StatisticalEntropy

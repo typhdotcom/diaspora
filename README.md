@@ -234,13 +234,16 @@ This proves that inheriting historically-optimized structure beats starting from
 
 ### Physics Bridge (`Diaspora/Physics/`)
 
-Experimental applications mapping the core framework to GR/QM. These remain speculative:
+**WARNING: These are CONJECTURAL connections, not proven physics.** The physics bridge uses axioms to connect the ConfigSpace framework to standard physics. What's proven are mathematical consequences of those axioms, not the axioms themselves.
 
-* **`MassDefinition.lean`** - defines mass as holonomy (M = K)
-* **`SpacetimeGeometry.lean`** - maps ConfigSpace to Riemannian geometry
-* **`StatisticalEntropy.lean`** - derives entropy from microstate counting
-* **`EinsteinFieldEquations.lean`** - proves field equations from variational principle
-* **`BlackHoleInformationPreservation.lean`** - information preservation via inheritance
+* **`MassHypothesis.lean`** - POSTULATES mass as holonomy (M = K is definitional, not derived)
+* **`SpacetimeGeometry.lean`** - maps ConfigSpace to Riemannian geometry (correspondence unproven)
+* **`StatisticalEntropy.lean`** - AXIOMATIZES microstate counting (exponential scaling assumed, not derived)
+* **`PoissonEquation.lean`** - derives discrete Poisson equation ∇²ω = J (NOT Einstein equations Gμν = 8πG Tμν)
+* **`BlackHoleInformationPreservation.lean`** - CONJECTURES information preservation via inheritance
+
+**What's actually proven:** Mathematical theorems following from the axioms above.
+**What's NOT proven:** That ConfigSpace describes physical reality, or that the axioms are physically correct.
 
 ## ✅ Verification
 

@@ -3,7 +3,7 @@ Entropy from statistical mechanics: deriving S from microstate counting.
 -/
 
 import Diaspora.GaugeTheoreticHolonomy
-import Diaspora.MassDefinition
+import Diaspora.Physics.MassDefinition
 import Mathlib.Analysis.SpecialFunctions.Log.Basic
 import Mathlib.MeasureTheory.Measure.Lebesgue.Basic
 

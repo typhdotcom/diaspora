@@ -18,12 +18,12 @@ import Diaspora.InheritanceTheorem
 -- Cost of purpose connection to holonomy closure work
 import Diaspora.CostOfPurpose
 
--- Physics bridge: eliminating axioms
-import Diaspora.MassDefinition
-import Diaspora.StatisticalEntropy
-import Diaspora.SpacetimeGeometry
-import Diaspora.EinsteinFieldEquations
-import Diaspora.BlackHoleInformationPreservation
+-- Physics bridge: speculative applications to GR and black holes
+import Diaspora.Physics.MassDefinition
+import Diaspora.Physics.StatisticalEntropy
+import Diaspora.Physics.SpacetimeGeometry
+import Diaspora.Physics.EinsteinFieldEquations
+import Diaspora.Physics.BlackHoleInformationPreservation
 
 -- Experiments exploring consequences of the framework
 import Diaspora.Experiments.PurposefulFrustration

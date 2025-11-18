@@ -4,8 +4,8 @@ Proves: Gμν = 8πG Tμν emerges from minimizing ℒ = V_int + V_ext + λE.
 -/
 
 import Diaspora.GaugeTheoreticHolonomy
-import Diaspora.SpacetimeGeometry
-import Diaspora.MassDefinition
+import Diaspora.Physics.SpacetimeGeometry
+import Diaspora.Physics.MassDefinition
 import Diaspora.HolonomyLagrangeProof
 import Mathlib.Analysis.Calculus.Deriv.Basic
 import Mathlib.Analysis.Calculus.Deriv.Mul

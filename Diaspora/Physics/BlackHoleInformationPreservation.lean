@@ -6,10 +6,10 @@ Proves Hawking radiation inherits horizon phase structure through gauge negotiat
 import Diaspora.InheritanceTheorem
 import Diaspora.ConservationOfHolonomy
 import Diaspora.Experiments.BlackHoleInformation
-import Diaspora.EinsteinFieldEquations
+import Diaspora.Physics.EinsteinFieldEquations
 import Diaspora.GaugeNegotiation
-import Diaspora.MassDefinition
-import Diaspora.StatisticalEntropy
+import Diaspora.Physics.MassDefinition
+import Diaspora.Physics.StatisticalEntropy
 
 open GaugeTheoretic InheritanceTheorem ConservationOfHolonomy BlackHoleInformation MassDefinition StatisticalEntropy
 

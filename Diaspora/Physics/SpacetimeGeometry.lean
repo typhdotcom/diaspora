@@ -3,7 +3,7 @@ Spacetime geometry from ConfigSpace: correspondence with Riemannian geometry.
 -/
 
 import Diaspora.GaugeTheoreticHolonomy
-import Diaspora.MassDefinition
+import Diaspora.Physics.MassDefinition
 import Mathlib.Geometry.Manifold.VectorBundle.Basic
 import Mathlib.Geometry.Manifold.Instances.Real
 

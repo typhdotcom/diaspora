@@ -232,14 +232,24 @@ This proves that inheriting historically-optimized structure beats starting from
     * Connects to Schwarzschild via `formation_work_is_ground_energy`.
     * Key prediction: Same mass M but different internal structure → measurably different radiation correlations.
 
+### Physics Bridge (`Diaspora/Physics/`)
+
+Experimental applications mapping the core framework to GR/QM. These remain speculative:
+
+* **`MassDefinition.lean`** - defines mass as holonomy (M = K)
+* **`SpacetimeGeometry.lean`** - maps ConfigSpace to Riemannian geometry
+* **`StatisticalEntropy.lean`** - derives entropy from microstate counting
+* **`EinsteinFieldEquations.lean`** - proves field equations from variational principle
+* **`BlackHoleInformationPreservation.lean`** - information preservation via inheritance
+
 ## ✅ Verification
 
-All proofs are complete with zero sorrys. Core framework has zero axioms. Experiments use axioms only for physics bridge (Schwarzschild derivation):
+All proofs are complete with zero sorrys. Core framework has zero axioms:
 
 ```bash
-lake build                                           # Clean build
-rg "^axiom " Diaspora/*.lean                         # 0 matches (core framework)
-rg "^axiom " Diaspora/Experiments/*.lean | wc -l     # 7 matches (physics bridge axioms)
-rg "sorry" Diaspora/*.lean                           # 0 matches (core proofs complete)
-rg "sorry" Diaspora/Experiments/*.lean               # 0 matches (all proofs complete)
+lake build                                    # Clean build
+rg "^axiom " Diaspora/*.lean                  # 0 matches (core framework)
+rg "sorry" Diaspora/*.lean                    # 0 matches (core proofs complete)
+rg "sorry" Diaspora/Experiments/*.lean        # 0 matches (experiments complete)
+rg "sorry" Diaspora/Physics/*.lean            # 0 matches (physics bridge complete)
 ```

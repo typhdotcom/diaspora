@@ -144,8 +144,8 @@ theorem black_hole_entropy_exact {n k : ℕ} (X : ConfigSpace n)
     (A : ℝ) (_h_A : 0 < A)
     (_h_BH : ∃ κ > 0, boltzmann_entropy X c ((mass X c)^2) = κ * A) :
     boltzmann_entropy X c ((mass X c)^2) =
-      boltzmann_entropy X c (SchwarzschildDerivation.E_ground_state X c) := by
-  have h_E : SchwarzschildDerivation.E_ground_state X c = (mass X c)^2 :=
+      boltzmann_entropy X c (E_ground_state X c) := by
+  have h_E : E_ground_state X c = (mass X c)^2 :=
     MassDefinition.mass_energy_relation X c h_k
   rw [← h_E]
 

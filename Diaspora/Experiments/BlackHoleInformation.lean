@@ -22,7 +22,7 @@ providing a mechanism for information preservation.
 import Diaspora.InheritanceTheorem
 import Diaspora.CostOfPurpose
 import Diaspora.ConservationOfHolonomy
-import Diaspora.Experiments.SchwarzschildDerivation
+import Diaspora.Physics.MassDefinition
 
 open GaugeTheoretic InheritanceTheorem CostOfPurpose ConservationOfHolonomy
 
@@ -157,7 +157,7 @@ the ground state energy theorem.
 
 /-- Formation work equals ground state energy -/
 axiom formation_work_is_ground_energy {n k : ℕ} (formation : HorizonFormation n k) :
-  V_int formation.horizon_config = SchwarzschildDerivation.E_ground_state
+  V_int formation.horizon_config = MassDefinition.E_ground_state
     formation.horizon_config (formation.h_graph ▸ formation.horizon)
 
 /-! ## Complete Picture: Formation → Encoding → Inheritance → Observation

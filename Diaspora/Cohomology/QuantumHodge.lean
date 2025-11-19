@@ -12,18 +12,7 @@ complex-valued phases (wavefunctions) instead of real-valued phases (classical f
 4. **Time Evolution** is unitary: ψ(t) = e^(-iĤt) ψ(0)
 5. **Berry Phase** is quantum holonomy around cycles in parameter space
 
-## Key Differences from Classical
-
-- **Superposition**: |ψ⟩ = α|ψ₁⟩ + β|ψ₂⟩ with α, β ∈ ℂ
-- **Interference**: Phase differences create observable effects
-- **Hermiticity**: Observables must be self-adjoint
-- **Unitarity**: Time evolution preserves probability
-- **Born Rule**: Measurement probabilities from |ψᵢ|²
-
-## Philosophy
-
-The classical theory (DiscreteHodge.lean) is the ℝ-restriction of this quantum theory.
-All classical theorems extend naturally to ℂ because the Laplacian structure is preserved.
+Classical theory is the ℝ-restriction of this quantum theory.
 -/
 
 import Mathlib.Data.Complex.Basic
@@ -212,14 +201,7 @@ theorem quantum_laplacian_extends_classical {n : ℕ} [Fintype (Fin n)] (φ : Di
 
 /-! ## Part 7: Time Evolution and Connection to Massive Propagation -/
 
-/-- The Schrödinger equation: i ∂ψ/∂t = Ĥψ
-
-    For Hamiltonian Ĥ = -Δ + V, this becomes:
-    i ∂ψ/∂t = -Δψ + Vψ
-
-    This is the quantum version of the Klein-Gordon equation from
-    MassivePropagation.lean, where the mass term emerges from holonomy.
--/
+/-- i ∂ψ/∂t = Ĥψ where Ĥ = -Δ + V -/
 def SchrodingerEvolution {n : ℕ} [Fintype (Fin n)]
     (ψ : ℝ → QC0 n) (V : QC0 n) : Prop :=
   ∀ (t : ℝ) (i : Fin n),
@@ -227,152 +209,25 @@ def SchrodingerEvolution {n : ℕ} [Fintype (Fin n)]
 
 /-! ## Part 8: Berry Phase (Quantum Holonomy in Parameter Space) -/
 
-/-- A parameter-dependent quantum state
-    R parameterizes the system (e.g., constraint values, graph topology)
--/
+/-- Parameter-dependent quantum state -/
 def ParametricState (n : ℕ) (m : ℕ) := Fin m → QC0 n
 
-/-- A parametric state is normalized at each R -/
 def IsNormalized {n m : ℕ} [Fintype (Fin n)] (ψ : ParametricState n m) : Prop :=
   ∀ R : Fin m, norm_sq_QC0 (ψ R) = 1
 
-/-- Discrete Berry connection on parameter space edges
-
-    For discrete parameter space with edges R₁ → R₂, the Berry connection is:
-    A(R₁, R₂) = I * ⟨ψ(R₁)|ψ(R₂)⟩
-
-    This measures the "geometric phase" picked up when moving from one
-    parameter value to another. It's the quantum analogue of your gauge
-    connection σ on graph edges.
--/
+/-- A(R₁, R₂) = I * ⟨ψ(R₁)|ψ(R₂)⟩ -/
 noncomputable def DiscreteBerryConnection {n m : ℕ} [Fintype (Fin n)]
     (ψ : ParametricState n m) (R₁ R₂ : Fin m) : ℂ :=
   I * inner_QC0 (ψ R₁) (ψ R₂)
 
-/-- Berry phase around a closed path in parameter space
-
-    γ_Berry = ∮_C A·dR
-
-    For discrete parameter space, this is a sum over edges in the cycle:
-    γ_Berry = Σ_{edges (i,j) in cycle} coeff(i,j) * A(i,j)
-
-    This is **exactly your holonomy** ∮_γ σ, but in parameter space!
--/
+/-- γ_Berry = (1/2) Σᵢⱼ coeff(i,j) * A(i,j) -/
 noncomputable def BerryPhase {n m : ℕ} [Fintype (Fin n)] [Fintype (Fin m)]
     (ψ : ParametricState n m) (cycle : DiscreteHodge.Chain1 m) : ℂ :=
   (1/2) * ∑ i : Fin m, ∑ j : Fin m,
     (cycle.coeff i j : ℂ) * DiscreteBerryConnection ψ i j
 
-/-- Gauge transformation: ψ(R) → e^(iθ(R)) ψ(R)
-
-    A local phase rotation at each parameter value.
--/
+/-- ψ(R) → e^(iθ(R)) ψ(R) -/
 noncomputable def GaugeTransform {n m : ℕ} (ψ : ParametricState n m) (θ : Fin m → ℝ) : ParametricState n m :=
   fun R i => Complex.exp (I * θ R) * ψ R i
-
-/-
-## Note on Gauge Invariance
-
-Berry phase on cycles is gauge-invariant by the same telescoping principle as
-classical holonomy. Under ψ(R) → e^(iθ(R))ψ(R), the Berry connection transforms as:
-
-  A'(i,j) = A(i,j) + i(θⱼ - θᵢ)
-
-The added term i(θⱼ - θᵢ) is the "parameter-space gradient" of θ - an exact form
-in the cohomological sense. By the same argument as quantum_exact_vanishes_on_cycles,
-this exact contribution sums to zero around closed cycles, leaving Berry phase
-invariant.
-
-This is mathematically identical to your classical result: adding dϕ to σ doesn't
-change ∮ σ because exact forms vanish on cycles. The proof technique is the same
-telescoping argument already proven in quantum_exact_vanishes_on_cycles.
--/
-
-/-
-## The Deep Connection: Classical Holonomy = Quantum Berry Phase
-
-When you vary the constraints σ adiabatically (slowly changing parameter R),
-the quantum ground state ψ(R) follows along. The phase it accumulates is:
-
-    γ_Berry = ∮_C ⟨ψ(R)|i∇_R|ψ(R)⟩·dR
-
-But from your Hodge decomposition, σ = dϕ + γ where γ is harmonic.
-The harmonic part γ is what creates the holonomy ∮_cycle σ = ∮_cycle γ.
-
-**They're the same thing!**
-
-- **Classical holonomy**: Non-zero ∮_γ σ around cycles in the *graph*
-- **Berry phase**: Non-zero ∮_C A(R) around cycles in *parameter space*
-
-Your mass hypothesis M = K connects them:
-- K = ∮ σ is the classical holonomy (cycle frustration)
-- γ_Berry is the quantum phase from varying K
-- Both measure the "non-trivial topology" of the system
-
-This is why your black hole information preservation works: the quantum state
-picks up geometric phase (Berry phase) that encodes the formation history,
-exactly because the formation process traces a path in parameter space.
--/
-
-/-
-## Interpretation and Future Directions
-
-This minimal quantum extension preserves all the structure of classical Hodge theory:
-
-1. **Laplacian is Hermitian** → Observable energy operator
-2. **Stokes' theorem holds** → Holonomy is gauge-invariant
-3. **Classical limit** → Setting Im(ψ) = 0 recovers real theory
-
-### Connection to Massive Propagation
-
-Your Klein-Gordon equation `∂²ψ₋/∂t² = ∇²ψ₋ - 2(ψ₋ - K)` from MassivePropagation.lean
-is the **real-valued classical limit** of the Schrödinger equation:
-
-- **Classical (real ψ)**: Second-order in time, Klein-Gordon
-- **Quantum (complex ψ)**: First-order in time, Schrödinger
-- **Same Hamiltonian**: Ĥ = -Δ + V where V = K (holonomy)
-
-The mass term `-2(ψ₋ - K)` in your equation comes from rung frustration.
-In the quantum picture, this is the **potential energy from holonomy**.
-
-### What Mass Means
-
-In both formulations:
-- **Topology (cycles) creates frustration** → potential V
-- **Frustration creates inertia** → mass m² ~ K
-- **Mass = Holonomy squared** → M ∝ K (your mass hypothesis)
-
-The antisymmetric mode ψ₋ (matter) has mass because it feels the rung constraints.
-The symmetric mode ψ₊ (light) is massless because it propagates freely on rails.
-
-### What We've Proven
-
-**Zero axioms, one sorry (gauge invariance proof sketch):**
-
-1. ✓ Quantum Laplacian is Hermitian (valid Hamiltonian)
-2. ✓ Quantum Stokes' theorem (holonomy gauge-invariant)
-3. ✓ Classical embedding (real → complex natural)
-4. ✓ Schrödinger evolution definition (proper, not vacuous)
-5. ✓ Berry phase definition (discrete parameter space)
-6. ⊙ Berry phase gauge-invariance (proof outlined, requires telescoping lemma)
-
-### Future Work
-
-- **Complete Berry phase proof**: Show phase differences telescope on cycles
-- **Time evolution operator**: Implement e^(-iĤt) via spectral decomposition
-- **Adiabatic theorem**: Prove ground state follows parameters slowly
-- **Entanglement**: Non-separable states on disconnected components
-- **Measurement**: Born rule and wavefunction collapse
-- **Quantum corrections**: How does mass change with ℏ?
-
-The key insight: The quantum extension is **structurally inevitable** because
-the Laplacian was already Hermitian. Topology creates mass in both classical
-and quantum pictures.
-
-**Classical holonomy** (∮ σ on graph cycles) and **Berry phase** (∮ A(R) on
-parameter cycles) are the same phenomenon in different spaces. Your mass
-hypothesis M = K connects them: holonomy in position space becomes geometric
-phase in parameter space.
--/
 
 end QuantumHodge

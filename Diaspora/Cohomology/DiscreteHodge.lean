@@ -79,14 +79,7 @@ lemma inner_product_C1_comm {n : ℕ} [Fintype (Fin n)] (σ τ : C1 n) :
   rw [σ.skew, τ.skew]
   ring
 
-/--
-  **Theorem: V_int is the distance to exactness**
-
-  V_int(X) = || d⁰ϕ - σ ||²
-
-  This recasts your internal cost as the failure of the constraints (σ)
-  to be the gradient of some scalar field (ϕ).
--/
+/-- V_int(X) = || d⁰ϕ - σ ||² -/
 theorem V_int_is_cohomological_distance {n : ℕ} [Fintype (Fin n)] (ϕ : C0 n) (σ : C1 n) :
   norm_sq { val := fun i j => (d0 ϕ).val i j - σ.val i j,
             skew := by intro i j; simp [d0]; rw [σ.skew]; ring }
@@ -102,14 +95,7 @@ theorem V_int_is_cohomological_distance {n : ℕ} [Fintype (Fin n)] (ϕ : C0 n) 
 
 /-! ## Part 3: Hodge Decomposition -/
 
-/--
-  The Space of Harmonic Forms:
-  In graph theory, these are cycle flows.
-  They represent the non-trivial cohomology H¹(G, ℝ).
-
-  A form is Harmonic if it is "divergence free" (Kirchhoff's Law) at every node.
-  (Note: This is technically the dual, but on graphs H₁ ≅ H¹).
--/
+/-- Harmonic forms: divergence-free at every node -/
 def IsHarmonic {n : ℕ} [Fintype (Fin n)] (σ : C1 n) : Prop :=
   ∀ i : Fin n, ∑ j : Fin n, σ.val i j = 0
 
@@ -293,12 +279,7 @@ theorem euler_lagrange {n : ℕ} [Fintype (Fin n)] (σ : C1 n) (ϕ : C0 n) :
   · intro hk
     exact absurd (Finset.mem_univ k) hk
 
-/--
-  **The Hodge Decomposition Theorem**
-
-  Any 1-cochain σ decomposes uniquely as σ = d⁰ϕ + γ where d⁰ϕ is exact,
-  γ is harmonic, and d⁰ϕ ⊥ γ.
--/
+/-- σ = d⁰ϕ + γ where d⁰ϕ is exact, γ is harmonic, and d⁰ϕ ⊥ γ -/
 theorem hodge_decomposition {n : ℕ} [Fintype (Fin n)] (σ : C1 n) :
   ∃ (ϕ : C0 n) (γ : C1 n),
     (∀ i j, σ.val i j = (d0 ϕ).val i j + γ.val i j) ∧
@@ -401,16 +382,7 @@ theorem hodge_decomposition {n : ℕ} [Fintype (Fin n)] (σ : C1 n) :
 
 /-! ## Part 4: Recasting the Main Theorems -/
 
-/--
-  **Recast: "V_int Lower Bound"**
-
-  Original: V_int ≥ K²/k
-  Hodge: The minimum energy is the norm of the Harmonic component.
-
-  Min || d⁰ϕ - σ ||² = || γ ||²
-
-  Proof: Since σ = d⁰ϕ_opt + γ, and we subtract d⁰ϕ, we are left with γ.
--/
+/-- Min || d⁰ϕ - σ ||² = || γ ||² -/
 theorem minimum_V_int_is_harmonic_norm {n : ℕ} [Fintype (Fin n)] (σ : C1 n) :
   ∃ ϕ_opt : C0 n,
     let resid : C1 n := { val := fun i j => (d0 ϕ_opt).val i j - σ.val i j,
@@ -438,14 +410,7 @@ theorem minimum_V_int_is_harmonic_norm {n : ℕ} [Fintype (Fin n)] (σ : C1 n) :
   rw [h1, h2]
   ring
 
-/--
-  **Recast: "Conservation of Holonomy"**
-
-  Original: K_new = (K1 + K2)/2
-  Hodge: The Harmonic projection is a Linear Operator.
-
-  Harmonic(α·σ₁ + β·σ₂) = α·Harmonic(σ₁) + β·Harmonic(σ₂)
--/
+/-- Harmonic(α·σ₁ + β·σ₂) = α·Harmonic(σ₁) + β·Harmonic(σ₂) -/
 theorem harmonic_projection_is_linear {n : ℕ} [Fintype (Fin n)] (σ₁ σ₂ : C1 n) (α β : ℝ) :
   ∃ (γ₁ γ₂ γ_sum : C1 n),
     (∃ ϕ₁ : C0 n, ∀ i j, σ₁.val i j = (d0 ϕ₁).val i j + γ₁.val i j) ∧
@@ -476,7 +441,6 @@ theorem harmonic_projection_is_linear {n : ℕ} [Fintype (Fin n)] (σ₁ σ₂ :
     simp only [d0]
     have h1 := h_decomp₁ i j
     have h2 := h_decomp₂ i j
-    -- α·σ₁ + β·σ₂ = α·(dϕ₁ + γ₁) + β·(dϕ₂ + γ₂) = d(α·ϕ₁ + β·ϕ₂) + (α·γ₁ + β·γ₂)
     calc σ_sum.val i j
         = α * σ₁.val i j + β * σ₂.val i j := rfl
       _ = α * ((d0 ϕ₁).val i j + γ₁.val i j) + β * ((d0 ϕ₂).val i j + γ₂.val i j) := by rw [h1, h2]
@@ -495,35 +459,17 @@ theorem harmonic_projection_is_linear {n : ℕ} [Fintype (Fin n)] (σ₁ σ₂ :
   · intro i j
     rfl
 
-/--
-  **Recast: "Inheritance Beats Calm"**
-
-  Original: Scaling optimized phases beats starting from 0.
-  Hodge: Because the decomposition is orthogonal, scaling the Exact component
-  linearly scales the solution.
-
-  If σ decomposes to (Exact + Harmonic), and we scale constraints by 1/2,
-  the new optimal solution is exactly 1/2 of the old Exact component.
-
-  "Calm" resets the Exact component to 0.
-  "Inheritance" keeps the Exact component (scaled).
-
-  Since ||Exact||² > 0 usually, keeping it is better than regenerating it
-  against an external task.
--/
+/-- Scaling constraints linearly scales the exact component of the solution -/
 theorem inheritance_is_linearity {n : ℕ} [Fintype (Fin n)] (σ : C1 n) :
   ∃ (ϕ_opt : C0 n) (γ : C1 n),
-    -- Hodge decomposition of σ
     (∀ i j, σ.val i j = (d0 ϕ_opt).val i j + γ.val i j) ∧
     IsHarmonic γ ∧
-    -- When we scale σ by α, the optimal phases scale by α
     (∀ α : ℝ,
       let σ_scaled : C1 n := { val := fun i j => α * σ.val i j,
                                 skew := by intro i j; rw [σ.skew]; ring }
       let ϕ_scaled : C0 n := fun i => α * ϕ_opt i
       let γ_scaled : C1 n := { val := fun i j => α * γ.val i j,
                                 skew := by intro i j; rw [γ.skew]; ring }
-      -- The scaled decomposition holds
       (∀ i j, σ_scaled.val i j = (d0 ϕ_scaled).val i j + γ_scaled.val i j) ∧
       IsHarmonic γ_scaled) := by
   obtain ⟨ϕ_opt, γ, h_decomp, h_harm, h_orth⟩ := hodge_decomposition σ
@@ -548,12 +494,7 @@ theorem inheritance_is_linearity {n : ℕ} [Fintype (Fin n)] (σ : C1 n) :
         _ = α * 0 := by rw [h_harm i]
         _ = 0 := by ring
 
-/--
-  **Theorem: Orthogonality gives Pythagorean decomposition**
-
-  At the optimal ϕ_opt, σ = dϕ_opt + γ with ⟨dϕ_opt, γ⟩ = 0, so:
-  ||σ||² = ||dϕ_opt||² + ||γ||² (Pythagorean theorem)
--/
+/-- ||σ||² = ||dϕ_opt||² + ||γ||² -/
 theorem pythagorean_from_orthogonality {n : ℕ} [Fintype (Fin n)] (σ : C1 n) :
   ∃ (ϕ γ : C1 n),
     (∀ i j, σ.val i j = ϕ.val i j + γ.val i j) ∧
@@ -563,7 +504,6 @@ theorem pythagorean_from_orthogonality {n : ℕ} [Fintype (Fin n)] (σ : C1 n) :
   let ϕ_cochain : C1 n := d0 ϕ_opt
   use ϕ_cochain, γ
   refine ⟨h_decomp, h_orth, ?_⟩
-  -- σ = ϕ + γ and ⟨ϕ,γ⟩ = 0, so ||σ||² = ||ϕ+γ||² = ||ϕ||² + 2⟨ϕ,γ⟩ + ||γ||² = ||ϕ||² + ||γ||²
   have h_sigma_as_sum : ({ val := fun i j => ϕ_cochain.val i j + γ.val i j,
                             skew := by intro i j; rw [ϕ_cochain.skew, γ.skew]; ring } : C1 n) =
                         ({ val := σ.val, skew := σ.skew } : C1 n) := by
@@ -611,20 +551,10 @@ def Chain1.add {n : ℕ} (c₁ c₂ : Chain1 n) : Chain1 n := {
 def Chain1.IsCycle {n : ℕ} [Fintype (Fin n)] (c : Chain1 n) : Prop :=
   ∀ i : Fin n, ∑ j : Fin n, c.coeff i j = 0
 
-/--
-  **The Fundamental Pairing: Evaluating a 1-cochain on a 1-chain**
-
-  This is the integration of a differential form over a chain.
-  ⟨σ, c⟩ = ∑ᵢⱼ σ(i,j) · c(i,j)
-
-  The factor of 1/2 accounts for antisymmetry (each edge counted twice in double sum).
--/
+/-- ⟨σ, c⟩ = (1/2) ∑ᵢⱼ σ(i,j) · c(i,j) -/
 noncomputable def eval {n : ℕ} [Fintype (Fin n)] (σ : C1 n) (c : Chain1 n) : ℝ :=
   (1/2) * ∑ i : Fin n, ∑ j : Fin n, σ.val i j * (c.coeff i j : ℝ)
 
-/--
-  Evaluation is linear in the cochain
--/
 lemma eval_add_cochain {n : ℕ} [Fintype (Fin n)] (σ₁ σ₂ : C1 n) (c : Chain1 n) :
   eval { val := fun i j => σ₁.val i j + σ₂.val i j,
          skew := by intro i j; rw [σ₁.skew, σ₂.skew]; ring } c =
@@ -633,47 +563,27 @@ lemma eval_add_cochain {n : ℕ} [Fintype (Fin n)] (σ₁ σ₂ : C1 n) (c : Cha
   simp only [add_mul, Finset.sum_add_distrib]
   ring
 
-/--
-  Evaluation is linear in the chain
--/
 lemma eval_add_chain {n : ℕ} [Fintype (Fin n)] (σ : C1 n) (c₁ c₂ : Chain1 n) :
   eval σ (Chain1.add c₁ c₂) = eval σ c₁ + eval σ c₂ := by
   unfold eval Chain1.add
   simp only [Int.cast_add, mul_add, Finset.sum_add_distrib]
 
-/--
-  **The Fundamental Theorem: Exact forms evaluate to zero on cycles**
-
-  If σ = dϕ (exact form) and c is a cycle (boundary = 0), then ⟨dϕ, c⟩ = 0.
-
-  This is the discrete version of Stokes' theorem: ∫_c dϕ = ∫_∂c ϕ = 0 (since ∂c = 0).
-
-  This is WHY phase differences telescope around cycles.
--/
+/-- Stokes' theorem: ⟨dϕ, c⟩ = 0 for cycles c -/
 theorem exact_form_vanishes_on_cycles {n : ℕ} [Fintype (Fin n)] (ϕ : C0 n) (c : Chain1 n)
     (h_cycle : Chain1.IsCycle c) :
   eval (d0 ϕ) c = 0 := by
   unfold eval d0
   simp only
-  -- ⟨dϕ, c⟩ = (1/2) ∑ᵢⱼ (ϕ(j) - ϕ(i)) · c(i,j)
-  --         = (1/2) ∑ᵢⱼ ϕ(j)·c(i,j) - (1/2) ∑ᵢⱼ ϕ(i)·c(i,j)
-  --         = (1/2) ∑ⱼ ϕ(j)·(∑ᵢ c(i,j)) - (1/2) ∑ᵢ ϕ(i)·(∑ⱼ c(i,j))
-  --         = 0 - 0  (by IsCycle condition)
-
   have h_expand : ∑ i : Fin n, ∑ j : Fin n, (ϕ j - ϕ i) * (c.coeff i j : ℝ) =
                   ∑ i : Fin n, ∑ j : Fin n, ϕ j * (c.coeff i j : ℝ) -
                   ∑ i : Fin n, ∑ j : Fin n, ϕ i * (c.coeff i j : ℝ) := by
     simp only [sub_mul, Finset.sum_sub_distrib]
 
   rw [h_expand]
-
-  -- Swap summation order in first term
   conv_lhs =>
     arg 2
     arg 1
     rw [Finset.sum_comm]
-
-  -- Factor out ϕ values
   have h_first : ∑ j : Fin n, ∑ i : Fin n, ϕ j * (c.coeff i j : ℝ) =
                  ∑ j : Fin n, ϕ j * (∑ i : Fin n, (c.coeff i j : ℝ)) := by
     congr 1
@@ -687,14 +597,10 @@ theorem exact_form_vanishes_on_cycles {n : ℕ} [Fintype (Fin n)] (ϕ : C0 n) (c
     rw [Finset.mul_sum]
 
   rw [h_first, h_second]
-
-  -- Apply cycle condition: ∑ⱼ c(i,j) = 0 for all i
   have h_cycle_cond : ∀ i : Fin n, (∑ j : Fin n, (c.coeff i j : ℝ)) = 0 := by
     intro i
     have h := h_cycle i
     simp only [←Int.cast_sum, h, Int.cast_zero]
-
-  -- Also: ∑ᵢ c(i,j) = -∑ᵢ c(j,i) = -0 = 0 (by antisymmetry and cycle condition)
   have h_cycle_cond_swap : ∀ j : Fin n, (∑ i : Fin n, (c.coeff i j : ℝ)) = 0 := by
     intro j
     calc ∑ i : Fin n, (c.coeff i j : ℝ)
@@ -703,118 +609,32 @@ theorem exact_form_vanishes_on_cycles {n : ℕ} [Fintype (Fin n)] (ϕ : C0 n) (c
       _ = -(∑ i : Fin n, (c.coeff j i : ℝ)) := by rw [Finset.sum_neg_distrib]
       _ = -0 := by rw [h_cycle_cond j]
       _ = 0 := by ring
-
-  -- Now both terms vanish
   simp only [h_cycle_cond, h_cycle_cond_swap]
   ring
 
-/-
-  **Key Insight: Why mass is topological**
-
-  The norm ||γ||² of a harmonic form γ is a **topological invariant**.
-
-  Here's why:
-
-  1. **Harmonic forms are cohomology representatives**: The space of harmonic
-     1-forms is isomorphic to H¹(G, ℝ) = (exact forms)⊥ / (exact forms).
-
-  2. **Exact forms vanish on cycles**: We proved ⟨dϕ, c⟩ = 0 for any cycle c.
-     This means harmonic forms (orthogonal to exact forms) are the only
-     components that "see" cycles.
-
-  3. **Orthogonal decomposition**: σ = dϕ + γ with ⟨dϕ, γ⟩ = 0 means:
-     - dϕ is "pure gauge" (can be relaxed away by changing phases)
-     - γ captures the topological obstruction (irreducible holonomy)
-     - ||σ||² = ||dϕ||² + ||γ||² (Pythagorean)
-
-  4. **Topology determines dimension**: The dimension of the space of harmonic
-     forms equals the first Betti number b₁(G) = rank(H₁(G, ℤ)), which counts
-     independent cycles in the graph.
-
-  Therefore: ||γ||² measures holonomy as a topological invariant. Two systems
-  with the same graph topology but different phase configurations have the
-  same mass ||γ||² - only the exact part ||dϕ||² varies with gauge choice.
-
-  This is why we can meaningfully talk about "the mass of a system" without
-  specifying phases: mass lives in topology, not geometry.
--/
-
 /-! ## Part 6: Spectral Theory of the Laplacian -/
 
-/--
-  A 0-cochain ϕ is an eigenvector of the Laplacian with eigenvalue lam if:
-  Δϕ = lam·ϕ
-
-  Equivalently: d*(dϕ) = lam·ϕ
--/
+/-- Δϕ = lam·ϕ -/
 def IsEigenvector {n : ℕ} [Fintype (Fin n)] (ϕ : C0 n) (lam : ℝ) : Prop :=
   ∀ i : Fin n, graph_laplacian ϕ i = lam * ϕ i
 
-/--
-  **Theorem: lam = 0 is always an eigenvalue**
-
-  The constant function (all nodes have the same phase) is always an eigenvector
-  with eigenvalue 0. This represents **gauge freedom** - constant phases don't
-  change edge values.
-
-  Proof: Δ(constant) = d*(d(constant)) = d*(0) = 0
--/
+/-- Constant functions are zero-eigenvalue eigenvectors -/
 theorem zero_is_eigenvalue {n : ℕ} [Fintype (Fin n)] (c : ℝ) :
   IsEigenvector (fun _ : Fin n => c) 0 := by
   unfold IsEigenvector
   intro i
   unfold graph_laplacian divergence d0
   simp only
-  -- (Δϕ)ᵢ = -∑ⱼ (ϕⱼ - ϕᵢ) = -∑ⱼ (c - c) = 0
   have h_const_sum : ∑ j : Fin n, (c - c) = 0 := by
     simp only [sub_self, Finset.sum_const_zero]
   rw [h_const_sum]
   ring
 
-/--
-  **Corollary: Gauge transformations are in the kernel**
-
-  Adding a constant to all phases doesn't change the gradient (edge values).
-  This is the 0-eigenspace of the Laplacian.
--/
 lemma constant_in_kernel {n : ℕ} [Fintype (Fin n)] (c : ℝ) :
   ∀ i j, (d0 (fun _ : Fin n => c)).val i j = 0 := by
   intro i j
   unfold d0
   simp only
   ring
-
-/-
-  **Note on Spectral Gap**
-
-  The spectral gap lam₁ is the smallest positive eigenvalue of the Laplacian.
-  It measures how "well-connected" the graph is and determines relaxation rates.
-
-  Physical interpretation:
-  - lam₁ large: Graph is "well-mixed", frustration dissipates quickly
-  - lam₁ small: Graph has "bottlenecks", frustration gets trapped
-  - lam₁ = 0 (multiplicity > 1): Disconnected components, infinite relaxation time
-
-  The spectral gap answers: **"How hard is it to relax a frustrated system?"**
-
-  This connects discrete Hodge theory to:
-  - Heat diffusion on graphs (∂u/∂t = -Δu)
-  - Random walks (stationary distribution)
-  - Cheeger inequalities (relating lam₁ to graph cuts)
-  - Spectral clustering (community detection via eigenvectors)
-
-  In your gauge formulation, you computed specific relaxation numerically.
-  The spectral gap tells you the **universal rate** for any initial condition.
-
-  To make this fully rigorous, we would need to:
-  1. Define the full spectrum {lam_i} of the Laplacian
-  2. Prove existence via finite-dimensional spectral theorem
-  3. Relate lam₁ to connectivity (Cheeger's inequality)
-  4. Define gradient flow dynamics ∂ϕ/∂t = -Δϕ
-  5. Prove exponential decay: ||dϕ(t) - dϕ_opt||² ~ e^(-lam₁·t)
-
-  This is all standard spectral graph theory, but requires more machinery
-  than we currently have in this module.
--/
 
 end DiscreteHodge

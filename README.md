@@ -17,8 +17,11 @@ The entire project is **formally verified**, meaning all definitions are mathema
 
 **This project is currently in a foundational pivot.** The gauge-theoretic presentation below provides intuitive understanding of holonomy, frustration, and configuration spaces. However, the deep mathematical structure underlying all of this has been revealed: **Diaspora is discrete Hodge theory on graphs**.
 
-The `Diaspora.Cohomology` module contains the cohomological foundation (`DiscreteHodge.lean`) which recasts all core results in the language of differential forms, harmonic decomposition, and algebraic topology. Going forward:
+The `Diaspora.Cohomology` module contains:
+- **`DiscreteHodge.lean`**: Complete cohomological foundation with Hodge decomposition proven from first principles (zero axioms, using finite-dimensional spectral theorem)
+- **`QuantumHodge.lean`**: Extension to complex-valued wavefunctions, Schrödinger evolution, and Berry phase
 
+Going forward:
 - **New development** will build from the Hodge theory foundation in `Cohomology/`
 - **Existing modules** remain as historical context and intuitive motivation
 - **The gauge presentation** below is pedagogically valuable but mathematically derived from the cohomological structure
@@ -187,6 +190,8 @@ This proves that inheriting historically-optimized structure beats starting from
 
 This reveals the deep mathematical structure underlying all of Diaspora: **the entire framework is discrete Hodge theory on graphs**.
 
+### Classical Theory (`DiscreteHodge.lean`)
+
 * **The Dictionary:**
     * **Phases** (ω) = 0-cochains C⁰(G, ℝ)
     * **Constraints** (σ) = 1-cochains C¹(G, ℝ)
@@ -196,25 +201,40 @@ This reveals the deep mathematical structure underlying all of Diaspora: **the e
     * **Mass** = ||γ||² where γ is the harmonic component
     * **Ground State** = harmonic representative of cohomology class [σ]
 
-* **The Hodge Decomposition:** Any constraint σ uniquely decomposes as:
-    * σ = dϕ + γ
-    * where dϕ is **exact** (can be relaxed away)
-    * and γ is **harmonic** (divergence-free, represents irreducible holonomy)
-    * **and they are orthogonal:** ⟨dϕ, γ⟩ = 0
+* **The Hodge Decomposition:** Any constraint σ uniquely decomposes as σ = dϕ + γ where:
+    * dϕ is **exact** (can be relaxed away by changing phases)
+    * γ is **harmonic** (divergence-free at every node, represents irreducible holonomy)
+    * **Orthogonality:** ⟨dϕ, γ⟩ = 0
 
-* **What This Means:**
-    * **V_int bounds:** Min ||dω - σ||² = ||γ||² (Pythagorean theorem in function space)
-    * **Conservation laws:** Linearity of the Hodge projection operator
-    * **Inheritance theorem:** Linearity of the decomposition under scaling
-    * **Mass is topological:** Harmonic forms live in H¹(G, ℝ) - holonomy measures topology
-
-* **Proven Theorems:**
+* **Core Theorems (all proven from finite-dimensional spectral theorem, zero axioms):**
+    * `hodge_decomposition`: Existence and uniqueness of σ = dϕ + γ with orthogonality
     * `V_int_is_cohomological_distance`: V_int = ||dω - σ||²
-    * `minimum_V_int_is_harmonic_norm`: Min V_int = ||γ||² (norm of harmonic component)
+    * `minimum_V_int_is_harmonic_norm`: Min V_int = ||γ||²
     * `harmonic_projection_is_linear`: Harmonic(α·σ₁ + β·σ₂) = α·Harmonic(σ₁) + β·Harmonic(σ₂)
-    * `inheritance_is_linearity`: Scaling constraints scales optimal phases linearly
+    * `inheritance_is_linearity`: Scaling σ → α·σ linearly scales optimal ϕ → α·ϕ
+    * `pythagorean_from_orthogonality`: ||σ||² = ||dϕ||² + ||γ||²
+    * `exact_form_vanishes_on_cycles`: Stokes' theorem - ⟨dϕ, c⟩ = 0 for all cycles c
+    * `zero_is_eigenvalue`: Constant phases are gauge freedom (kernel of Laplacian)
 
-* **Key insight:** Every theorem about holonomy, mass, inheritance, and conservation is a **consequence of the Hodge decomposition theorem**. Diaspora is secretly algebraic topology on graphs. The "gauge theory" framing is exact: exact forms are pure gauge, harmonic forms are physical observables.
+### Quantum Extension (`QuantumHodge.lean`)
+
+* **Extension to ℂ:** Replace real phases with complex wavefunctions ψ: C⁰(G, ℂ)
+* **Hermitian Structure:** Inner products use conjugation ⟨ψ|φ⟩ = Σᵢ star(ψᵢ)·φᵢ
+* **Quantum Hamiltonian:** Ĥ = -Δ (graph Laplacian, proven Hermitian)
+* **Time Evolution:** Schrödinger equation i∂ψ/∂t = Ĥψ
+* **Berry Phase:** Quantum holonomy in parameter space
+    * Berry connection A(R₁,R₂) = I·⟨ψ(R₁)|ψ(R₂)⟩
+    * Berry phase γ = (1/2)Σᵢⱼ coeff(i,j)·A(i,j) around parameter-space cycles
+    * Gauge-invariant by same telescoping principle as classical holonomy
+
+* **Classical Limit:** Setting Im(ψ) = 0 recovers real-valued theory
+* **Proven Theorems:**
+    * `quantum_laplacian_hermitian`: Self-adjoint Hamiltonian
+    * `quantum_exact_vanishes_on_cycles`: Stokes' theorem for complex phases
+    * `quantum_laplacian_extends_classical`: ℂ-extension recovers ℝ-theory
+    * `constant_is_zero_energy`: Gauge freedom persists in quantum theory
+
+* **Key insight:** Mass emerges from topology in both classical and quantum pictures. The quantum extension is structurally inevitable because the Laplacian was already Hermitian.
 
 ---
 
@@ -305,18 +325,30 @@ This reveals the deep mathematical structure underlying all of Diaspora: **the e
         - Mass term emerges purely from rung constraint frustration, not added by hand.
     * **Physical Interpretation**: Matter (massive fields) = antisymmetric excitations on graphs with cycles. Light (massless waves) = symmetric excitations. Inertia is the cost of maintaining coherence across topological loops.
     * Complete proof with zero sorrys using Euler-Lagrange equations and derivative calculus.
-* **`Diaspora/Experiments/DiscreteHodge.lean`**
-    * **The mathematical foundation** - reveals Diaspora is discrete Hodge theory on graphs.
-    * **Chain Complexes**: Defines C⁰ (0-cochains on vertices), C¹ (skew-symmetric 1-cochains on edges), and coboundary d⁰: C⁰ → C¹.
-    * **Inner Products**: L² inner product on 1-cochains with norm_sq for measuring distances.
-    * **Hodge Decomposition Axiom**: Every 1-cochain σ uniquely decomposes as σ = dϕ + γ where dϕ is exact, γ is harmonic, and ⟨dϕ, γ⟩ = 0.
+* **`Diaspora/Cohomology/DiscreteHodge.lean`**
+    * **The mathematical foundation** - Diaspora is discrete Hodge theory on graphs.
+    * **Chain Complexes**: C⁰ (0-cochains on vertices), C¹ (skew-symmetric 1-cochains on edges), coboundary d⁰: C⁰ → C¹.
+    * **Inner Products**: L² inner product on 1-cochains with norm_sq.
+    * **Hodge Decomposition**: Proven from finite-dimensional spectral theorem - every σ uniquely decomposes as σ = dϕ + γ where dϕ is exact, γ is harmonic, ⟨dϕ, γ⟩ = 0.
     * **Main Theorems:**
-        - `V_int_is_cohomological_distance`: V_int(X) = ||dω - σ||² (internal cost = distance from exactness)
-        - `minimum_V_int_is_harmonic_norm`: Min V_int = ||γ||² (minimum energy = norm of harmonic component)
-        - `harmonic_projection_is_linear`: Linearity of Hodge projection proves K_merged = (K₁ + K₂)/2
-        - `inheritance_is_linearity`: Scaling σ → α·σ scales optimal ϕ → α·ϕ (proves inheritance beats calm)
-    * **Key insight**: All Diaspora theorems are consequences of one fact: the Hodge decomposition. Mass is topological (harmonic forms), relaxation is projection, inheritance is linearity, conservation is additivity.
-    * Complete proofs with zero sorrys using Mathlib's BigOperators for sum manipulation.
+        - `hodge_decomposition`: Existence and uniqueness via infDist minimization and closure
+        - `V_int_is_cohomological_distance`: V_int(X) = ||dω - σ||²
+        - `minimum_V_int_is_harmonic_norm`: Min V_int = ||γ||²
+        - `harmonic_projection_is_linear`: K_merged = (K₁ + K₂)/2
+        - `inheritance_is_linearity`: Scaling σ → α·σ scales optimal ϕ → α·ϕ
+        - `pythagorean_from_orthogonality`: ||σ||² = ||dϕ||² + ||γ||²
+        - `exact_form_vanishes_on_cycles`: Stokes' theorem on discrete chains
+    * Mass is topological (harmonic forms), relaxation is projection, inheritance is linearity.
+    * Zero axioms, zero sorrys.
+* **`Diaspora/Cohomology/QuantumHodge.lean`**
+    * **Quantum extension** - Complex-valued phases on graphs with Hermitian structure.
+    * **Quantum State Spaces**: QC⁰ (complex 0-cochains), QC¹ (complex 1-cochains).
+    * **Hermitian Inner Products**: ⟨ψ|φ⟩ = Σᵢ star(ψᵢ)·φᵢ with conjugation.
+    * **Quantum Hamiltonian**: Ĥ = -Δ proven Hermitian (`quantum_laplacian_hermitian`).
+    * **Time Evolution**: Schrödinger equation i∂ψ/∂t = Ĥψ.
+    * **Berry Phase**: Quantum holonomy in parameter space via Berry connection A(R₁,R₂) = I·⟨ψ(R₁)|ψ(R₂)⟩.
+    * **Classical Limit**: `quantum_laplacian_extends_classical` proves ℂ-extension recovers ℝ-theory.
+    * Zero axioms, zero sorrys.
 * **`Diaspora/Experiments/GravitationalInterferometer.lean`**
     * **Proves gravitational lensing from holonomy** - light bends around high-strain regions.
     * **Interferometer Setup**: Two paths from source to detector:

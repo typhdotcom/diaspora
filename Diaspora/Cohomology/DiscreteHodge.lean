@@ -548,4 +548,177 @@ theorem inheritance_is_linearity {n : ℕ} [Fintype (Fin n)] (σ : C1 n) :
         _ = α * 0 := by rw [h_harm i]
         _ = 0 := by ring
 
+/--
+  **Theorem: Orthogonality gives Pythagorean decomposition**
+
+  At the optimal ϕ_opt, σ = dϕ_opt + γ with ⟨dϕ_opt, γ⟩ = 0, so:
+  ||σ||² = ||dϕ_opt||² + ||γ||² (Pythagorean theorem)
+-/
+theorem pythagorean_from_orthogonality {n : ℕ} [Fintype (Fin n)] (σ : C1 n) :
+  ∃ (ϕ γ : C1 n),
+    (∀ i j, σ.val i j = ϕ.val i j + γ.val i j) ∧
+    inner_product_C1 ϕ γ = 0 ∧
+    norm_sq σ = norm_sq ϕ + norm_sq γ := by
+  obtain ⟨ϕ_opt, γ, h_decomp, h_harm, h_orth⟩ := hodge_decomposition σ
+  let ϕ_cochain : C1 n := d0 ϕ_opt
+  use ϕ_cochain, γ
+  refine ⟨h_decomp, h_orth, ?_⟩
+  -- σ = ϕ + γ and ⟨ϕ,γ⟩ = 0, so ||σ||² = ||ϕ+γ||² = ||ϕ||² + 2⟨ϕ,γ⟩ + ||γ||² = ||ϕ||² + ||γ||²
+  have h_sigma_as_sum : ({ val := fun i j => ϕ_cochain.val i j + γ.val i j,
+                            skew := by intro i j; rw [ϕ_cochain.skew, γ.skew]; ring } : C1 n) =
+                        ({ val := σ.val, skew := σ.skew } : C1 n) := by
+    simp only [ϕ_cochain]
+    congr
+    funext i j
+    exact (h_decomp i j).symm
+  rw [←h_sigma_as_sum, norm_sq_add, h_orth]
+  ring
+
+/-! ## Part 5: Chains and Chain/Cochain Pairing -/
+
+/--
+  A 1-chain is a formal integer linear combination of oriented edges.
+
+  We represent this as an antisymmetric function Fin n → Fin n → ℤ,
+  where c i j represents the coefficient of the oriented edge (i,j).
+
+  For example, a path 0→1→2 is represented as:
+  - c 0 1 = 1, c 1 2 = 1, all others = 0
+-/
+structure Chain1 (n : ℕ) where
+  coeff : Fin n → Fin n → ℤ
+  antisym : ∀ i j, coeff i j = -coeff j i
+
+/--
+  The zero 1-chain (no edges)
+-/
+def Chain1.zero (n : ℕ) : Chain1 n := {
+  coeff := fun _ _ => 0
+  antisym := by intro i j; ring
+}
+
+/--
+  Addition of 1-chains (formal sum)
+-/
+def Chain1.add {n : ℕ} (c₁ c₂ : Chain1 n) : Chain1 n := {
+  coeff := fun i j => c₁.coeff i j + c₂.coeff i j
+  antisym := by intro i j; rw [c₁.antisym, c₂.antisym]; ring
+}
+
+/--
+  A 1-chain is a cycle if it has no boundary (each vertex has equal in-degree and out-degree)
+-/
+def Chain1.IsCycle {n : ℕ} [Fintype (Fin n)] (c : Chain1 n) : Prop :=
+  ∀ i : Fin n, ∑ j : Fin n, c.coeff i j = 0
+
+/--
+  **The Fundamental Pairing: Evaluating a 1-cochain on a 1-chain**
+
+  This is the integration of a differential form over a chain.
+  ⟨σ, c⟩ = ∑ᵢⱼ σ(i,j) · c(i,j)
+
+  The factor of 1/2 accounts for antisymmetry (each edge counted twice in double sum).
+-/
+noncomputable def eval {n : ℕ} [Fintype (Fin n)] (σ : C1 n) (c : Chain1 n) : ℝ :=
+  (1/2) * ∑ i : Fin n, ∑ j : Fin n, σ.val i j * (c.coeff i j : ℝ)
+
+/--
+  Evaluation is linear in the cochain
+-/
+lemma eval_add_cochain {n : ℕ} [Fintype (Fin n)] (σ₁ σ₂ : C1 n) (c : Chain1 n) :
+  eval { val := fun i j => σ₁.val i j + σ₂.val i j,
+         skew := by intro i j; rw [σ₁.skew, σ₂.skew]; ring } c =
+  eval σ₁ c + eval σ₂ c := by
+  unfold eval
+  simp only [add_mul, Finset.sum_add_distrib]
+  ring
+
+/--
+  Evaluation is linear in the chain
+-/
+lemma eval_add_chain {n : ℕ} [Fintype (Fin n)] (σ : C1 n) (c₁ c₂ : Chain1 n) :
+  eval σ (Chain1.add c₁ c₂) = eval σ c₁ + eval σ c₂ := by
+  unfold eval Chain1.add
+  simp only [Int.cast_add, mul_add, Finset.sum_add_distrib]
+
+/--
+  **The Fundamental Theorem: Exact forms evaluate to zero on cycles**
+
+  If σ = dϕ (exact form) and c is a cycle (boundary = 0), then ⟨dϕ, c⟩ = 0.
+
+  This is the discrete version of Stokes' theorem: ∫_c dϕ = ∫_∂c ϕ = 0 (since ∂c = 0).
+
+  This is WHY phase differences telescope around cycles.
+-/
+theorem exact_form_vanishes_on_cycles {n : ℕ} [Fintype (Fin n)] (ϕ : C0 n) (c : Chain1 n)
+    (h_cycle : Chain1.IsCycle c) :
+  eval (d0 ϕ) c = 0 := by
+  unfold eval d0
+  simp only
+  -- ⟨dϕ, c⟩ = (1/2) ∑ᵢⱼ (ϕ(j) - ϕ(i)) · c(i,j)
+  --         = (1/2) ∑ᵢⱼ ϕ(j)·c(i,j) - (1/2) ∑ᵢⱼ ϕ(i)·c(i,j)
+  --         = (1/2) ∑ⱼ ϕ(j)·(∑ᵢ c(i,j)) - (1/2) ∑ᵢ ϕ(i)·(∑ⱼ c(i,j))
+  --         = 0 - 0  (by IsCycle condition)
+
+  have h_expand : ∑ i : Fin n, ∑ j : Fin n, (ϕ j - ϕ i) * (c.coeff i j : ℝ) =
+                  ∑ i : Fin n, ∑ j : Fin n, ϕ j * (c.coeff i j : ℝ) -
+                  ∑ i : Fin n, ∑ j : Fin n, ϕ i * (c.coeff i j : ℝ) := by
+    simp only [sub_mul, Finset.sum_sub_distrib]
+
+  rw [h_expand]
+
+  -- Swap summation order in first term
+  conv_lhs =>
+    arg 2
+    arg 1
+    rw [Finset.sum_comm]
+
+  -- Factor out ϕ values
+  have h_first : ∑ j : Fin n, ∑ i : Fin n, ϕ j * (c.coeff i j : ℝ) =
+                 ∑ j : Fin n, ϕ j * (∑ i : Fin n, (c.coeff i j : ℝ)) := by
+    congr 1
+    ext j
+    rw [Finset.mul_sum]
+
+  have h_second : ∑ i : Fin n, ∑ j : Fin n, ϕ i * (c.coeff i j : ℝ) =
+                  ∑ i : Fin n, ϕ i * (∑ j : Fin n, (c.coeff i j : ℝ)) := by
+    congr 1
+    ext i
+    rw [Finset.mul_sum]
+
+  rw [h_first, h_second]
+
+  -- Apply cycle condition: ∑ⱼ c(i,j) = 0 for all i
+  have h_cycle_cond : ∀ i : Fin n, (∑ j : Fin n, (c.coeff i j : ℝ)) = 0 := by
+    intro i
+    have h := h_cycle i
+    simp only [←Int.cast_sum, h, Int.cast_zero]
+
+  -- Also: ∑ᵢ c(i,j) = -∑ᵢ c(j,i) = -0 = 0 (by antisymmetry and cycle condition)
+  have h_cycle_cond_swap : ∀ j : Fin n, (∑ i : Fin n, (c.coeff i j : ℝ)) = 0 := by
+    intro j
+    calc ∑ i : Fin n, (c.coeff i j : ℝ)
+        = ∑ i : Fin n, (-(c.coeff j i) : ℝ) := by
+          congr 1; ext i; rw [c.antisym]; simp
+      _ = -(∑ i : Fin n, (c.coeff j i : ℝ)) := by rw [Finset.sum_neg_distrib]
+      _ = -0 := by rw [h_cycle_cond j]
+      _ = 0 := by ring
+
+  -- Now both terms vanish
+  simp only [h_cycle_cond, h_cycle_cond_swap]
+  ring
+
+/-
+  **Future Work: Harmonic forms and homology classes**
+
+  Harmonic forms are well-defined on homology classes.
+  If c₁ and c₂ differ by a boundary (c₁ = c₂ + ∂b for some 2-chain b),
+  then ⟨γ, c₁⟩ = ⟨γ, c₂⟩ for any harmonic form γ.
+
+  This means harmonic forms define maps H₁(G, ℤ) → ℝ (homology to reals).
+  This is why "mass is topological" - it only depends on homology classes.
+
+  To prove this, we would need to define 2-chains and the boundary operator ∂.
+-/
+
 end DiscreteHodge

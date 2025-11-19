@@ -36,3 +36,4 @@ import Diaspora.Experiments.BlackHoleInformation
 import Diaspora.Experiments.SchwarzschildDerivation
 import Diaspora.Experiments.MassivePropagation
 import Diaspora.Experiments.GravitationalInterferometer
+import Diaspora.Experiments.DiscreteHodge

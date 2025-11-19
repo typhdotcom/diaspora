@@ -256,6 +256,19 @@ This proves that inheriting historically-optimized structure beats starting from
         - Mass term emerges purely from rung constraint frustration, not added by hand.
     * **Physical Interpretation**: Matter (massive fields) = antisymmetric excitations on graphs with cycles. Light (massless waves) = symmetric excitations. Inertia is the cost of maintaining coherence across topological loops.
     * Complete proof with zero sorrys using Euler-Lagrange equations and derivative calculus.
+* **`Diaspora/Experiments/GravitationalInterferometer.lean`**
+    * **Proves gravitational lensing from holonomy** - light bends around high-strain regions.
+    * **Interferometer Setup**: Two paths from source to detector:
+        - Path A (short): 2 edges through r=1 region (high strain ~M)
+        - Path B (long): 3 edges through r=10 region (low strain ~M/10)
+    * **Strain Field**: σ(r) = M/r creates refractive index n = 1 + σ
+    * **Optical Action**: Fermat's principle - light minimizes ∫n·ds
+    * **Main Result** (`holonomy_lenses_light`): For M > 1.3, Action(B) < Action(A)
+        - Geometric penalty (3 vs 2 edges) < Strain penalty (M/10 vs M)
+        - Light takes the longer path to avoid high-strain center
+    * **Technical Innovation**: Pre-computed match lemmas (`r_0` through `r_4`) bridge pattern matching and arithmetic tactics
+    * **Physical Interpretation**: Mass (holonomy) creates strain gradients that act like gravitational potentials, bending light paths via effective refractive index. This is Fermat's principle emerging from ConfigSpace geometry.
+    * Complete proof with zero sorrys.
 
 ### Physics Bridge (`Diaspora/Physics/`)
 

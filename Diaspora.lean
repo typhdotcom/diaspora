@@ -34,3 +34,5 @@ import Diaspora.Experiments.PurposeSurvival
 import Diaspora.Experiments.StructureStability
 import Diaspora.Experiments.BlackHoleInformation
 import Diaspora.Experiments.SchwarzschildDerivation
+import Diaspora.Experiments.MassivePropagation
+import Diaspora.Experiments.GravitationalInterferometer

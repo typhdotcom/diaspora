@@ -729,6 +729,48 @@ lemma holonomy_factor_through_harmonic {n : ℕ} [Fintype (Fin n)]
   -- done
   simp [h_split, h_exact_zero]
 
+/-- The harmonic component of the averaged constraints is the average of the
+    harmonic components. This is the cohomological "law of averaging". -/
+lemma harmonic_projection_average {n : ℕ} [Fintype (Fin n)] (σ₁ σ₂ : C1 n) :
+  ∃ (γ₁ γ₂ γ_avg : C1 n),
+    (∃ ϕ₁ : C0 n, ∀ i j, σ₁.val i j = (d0 ϕ₁).val i j + γ₁.val i j) ∧
+    IsHarmonic γ₁ ∧
+    (∃ ϕ₂ : C0 n, ∀ i j, σ₂.val i j = (d0 ϕ₂).val i j + γ₂.val i j) ∧
+    IsHarmonic γ₂ ∧
+    (let σ_avg : C1 n :=
+      { val := fun i j => (σ₁.val i j + σ₂.val i j) / 2,
+        skew := by
+          intro i j
+          have h1 := σ₁.skew i j
+          have h2 := σ₂.skew i j
+          field_simp
+          rw [h1, h2]
+          ring }
+     ∃ ϕ_avg : C0 n, ∀ i j, σ_avg.val i j = (d0 ϕ_avg).val i j + γ_avg.val i j) ∧
+    IsHarmonic γ_avg ∧
+    (∀ i j, γ_avg.val i j = (γ₁.val i j + γ₂.val i j) / 2) := by
+  -- start from the general linearity theorem with α = β = 1/2
+  have h := harmonic_projection_is_linear (σ₁ := σ₁) (σ₂ := σ₂)
+                  (α := (1/2 : ℝ)) (β := (1/2 : ℝ))
+  rcases h with ⟨γ₁, γ₂, γ_sum, h₁, h_harm₁, h₂, h_harm₂, h_sum_decomp, h_harm_sum, h_sum_eq⟩
+
+  -- unpack the decomposition of the averaged σ
+  refine ⟨γ₁, γ₂, γ_sum, h₁, h_harm₁, h₂, h_harm₂, ?_, h_harm_sum, ?_⟩
+
+  · rcases h_sum_decomp with ⟨ϕ_sum, hϕ_sum⟩
+    refine ⟨ϕ_sum, ?_⟩
+    intro i j
+    have := hϕ_sum i j
+    show (σ₁.val i j + σ₂.val i j) / 2 = (d0 ϕ_sum).val i j + γ_sum.val i j
+    rw [add_div]
+    convert this using 2 <;> ring
+
+  · -- final equality for γ_avg values
+    intro i j
+    have := h_sum_eq i j
+    field_simp at this ⊢
+    linarith
+
 /-! ## Part 6: Spectral Theory of the Laplacian -/
 
 /-- Δϕ = lam·ϕ -/

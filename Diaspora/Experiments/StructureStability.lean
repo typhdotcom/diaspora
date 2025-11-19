@@ -85,14 +85,11 @@ theorem constraint_decay {n : ℕ} (X : ConfigSpace n) (gen : ℕ)
   intro h_gen
   induction gen with
   | zero =>
-    -- Base case: gen = 0, no merging yet
     unfold iterated_vacuum_merge
     simp
   | succ gen ih =>
-    -- Step case: show that x / 2^n / 2 = x / 2^(n+1)
     unfold iterated_vacuum_merge merge_with_vacuum
     simp only
-    -- The constraint at gen+1 is (constraint at gen) / 2
     have h_prev : (iterated_vacuum_merge X gen).graph.Adj i j :=
       graph_preserved X gen ▸ h
     calc (iterated_vacuum_merge X gen).constraints i j h_prev / 2
@@ -123,13 +120,11 @@ theorem holonomy_from_vertices_decay {n k : ℕ} (X : ConfigSpace n) (gen : ℕ)
     holonomy_from_vertices X vertices adj / (2 ^ gen) := by
   intro X_gen adj_gen
   unfold holonomy_from_vertices
-  -- Each constraint decays by 1/2^gen
   have h_constraint : ∀ i : Fin k,
       X_gen.constraints (vertices i.castSucc) (vertices i.succ) (adj_gen i) =
       X.constraints (vertices i.castSucc) (vertices i.succ) (adj i) / (2 ^ gen) := by
     intro i
     exact constraint_decay X gen (vertices i.castSucc) (vertices i.succ) (adj i)
-  -- Sum distributes over division
   calc ∑ i : Fin k, X_gen.constraints (vertices i.castSucc) (vertices i.succ) (adj_gen i)
       = ∑ i : Fin k, (X.constraints (vertices i.castSucc) (vertices i.succ) (adj i) / (2 ^ gen)) := by
           congr 1
@@ -159,28 +154,17 @@ theorem holonomy_decay {n k : ℕ} (X : ConfigSpace n) (c : Cycle n X.graph k) (
     (h_same_vertices : ∀ i, c_gen.nodes i = c.nodes i) :
     cycle_holonomy (iterated_vacuum_merge X gen) c_gen =
     cycle_holonomy X c / (2 ^ gen) := by
-  -- Both cycles compute holonomy from the same vertex list
   rw [cycle_holonomy_eq_from_vertices, cycle_holonomy_eq_from_vertices]
-  -- Now we need to show:
-  -- holonomy_from_vertices X_gen c_gen.nodes c_gen.adjacent =
-  -- holonomy_from_vertices X c.nodes c.adjacent / (2^gen)
 
-  -- Since vertices are equal, we can substitute
   have : holonomy_from_vertices (iterated_vacuum_merge X gen) c_gen.nodes c_gen.adjacent =
       holonomy_from_vertices (iterated_vacuum_merge X gen) c.nodes
         (fun i => by
-          -- c_gen.adjacent i is a proof that c_gen.nodes are adjacent
-          -- We need a proof that c.nodes are adjacent in X_gen.graph
-          -- Since X_gen.graph = X.graph and c_gen.nodes = c.nodes, these are the same
           have h_adj := c_gen.adjacent i
           rw [h_same_vertices i.castSucc, h_same_vertices i.succ] at h_adj
           exact h_adj) := by
     unfold holonomy_from_vertices
     congr 1
     funext i
-    -- The constraint function doesn't depend on the adjacency proof, only on the nodes
-    -- So constraints at (c_gen.nodes i.castSucc, c_gen.nodes i.succ) =
-    -- constraints at (c.nodes i.castSucc, c.nodes i.succ)
     simp only [h_same_vertices]
   rw [this]
   exact holonomy_from_vertices_decay X gen c.nodes c.adjacent
@@ -234,23 +218,10 @@ We need to CHOOSE a strategy for updating phases.
 The melting point is where compliance becomes cheaper than inheritance.
 -/
 
-/-- Inherited strategy: ACTIVELY scale original phases by 1/2^gen
-
-    This maintains the ratio between edge values and constraints,
-    but causes edge values to shrink to zero.
--/
 noncomputable def inherited_phases {n : ℕ} (X_original : ConfigSpace n)
     (gen : ℕ) : Fin n → ℝ :=
   fun i => X_original.node_phases i / (2 ^ gen)
 
-/-- V_ext for inherited strategy when original was optimized
-
-    If original had edge_value = task_target, then scaling by 1/2^gen gives:
-    edge_value_inherited = task_target / 2^gen
-    V_ext = (task_target/2^gen - task_target)² = task_target² · (1 - 1/2^gen)²
-
-    For large gen, this ≈ task_target² (complete failure on external task)
--/
 axiom V_ext_inherited_large {n k : ℕ} (X : ConfigSpace n) (c : Cycle n X.graph k)
     (task_target : ℝ) (task_edge : Fin k)
     (h_perfect : edge_value X (c.nodes task_edge.castSucc) (c.nodes task_edge.succ)
@@ -348,7 +319,6 @@ theorem melting_requires_strong_external (task_target c lam_ext : ℝ)
       let compliant_V_int := (task_target - c / (2 ^ N : ℝ))^2
       let inherited_V_ext := lam_ext * task_target^2 * (1 - 1 / (2 ^ N : ℝ))^2
       compliant_V_int < inherited_V_ext := by
-  -- Define the limit functions
   let f_lhs (n : ℕ) := (task_target - c / (2 ^ n : ℝ))^2
   let f_rhs (n : ℕ) := lam_ext * task_target^2 * (1 - 1 / (2 ^ n : ℝ))^2
 

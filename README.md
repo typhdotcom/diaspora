@@ -246,6 +246,16 @@ This proves that inheriting historically-optimized structure beats starting from
     * Axiom `different_formation_different_radiation`: Different formation histories → different radiation statistics.
     * Connects to Schwarzschild via `formation_work_is_ground_energy`.
     * Key prediction: Same mass M but different internal structure → measurably different radiation correlations.
+* **`Diaspora/Experiments/MassivePropagation.lean`**
+    * **Proves that topology creates mass** - cycles generate inertia through constraint frustration.
+    * **Ladder Graph**: 2N nodes (two parallel rails connected by rungs), creates 4-cycles with non-trivial topology.
+    * **Lagrangian Dynamics**: L = T - V where V includes both rail coupling (free propagation) and rung coupling (frustration K).
+    * **Mode Decomposition**: Symmetric ψ₊ (sum of rails) vs Antisymmetric ψ₋ (difference of rails).
+    * **Main Result** (`antisymmetric_mode_equation`): The antisymmetric mode satisfies Klein-Gordon equation:
+        - ∂²ψ₋/∂t² = ∇²ψ₋ - 2(ψ₋ - K)
+        - Mass term emerges purely from rung constraint frustration, not added by hand.
+    * **Physical Interpretation**: Matter (massive fields) = antisymmetric excitations on graphs with cycles. Light (massless waves) = symmetric excitations. Inertia is the cost of maintaining coherence across topological loops.
+    * Complete proof with zero sorrys using Euler-Lagrange equations and derivative calculus.
 
 ### Physics Bridge (`Diaspora/Physics/`)
 

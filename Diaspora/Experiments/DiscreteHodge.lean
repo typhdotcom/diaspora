@@ -103,13 +103,6 @@ theorem V_int_is_cohomological_distance {n : ℕ} [Fintype (Fin n)] (ϕ : C0 n) 
 /-! ## Part 3: Hodge Decomposition -/
 
 /--
-  The Space of Exact Forms: Image(d⁰).
-  These are constraints that can be perfectly satisfied (Holonomy = 0).
--/
-def IsExact {n : ℕ} (σ : C1 n) : Prop :=
-  ∃ ϕ : C0 n, ∀ i j, σ.val i j = (d0 ϕ).val i j
-
-/--
   The Space of Harmonic Forms:
   In graph theory, these are cycle flows.
   They represent the non-trivial cohomology H¹(G, ℝ).
@@ -124,12 +117,7 @@ def IsHarmonic {n : ℕ} [Fintype (Fin n)] (σ : C1 n) : Prop :=
 noncomputable def divergence {n : ℕ} [Fintype (Fin n)] (σ : C1 n) : C0 n :=
   fun i => - ∑ j : Fin n, σ.val i j
 
-/-- Helper lemma: swapping sum indices -/
-lemma sum_swap {n : ℕ} [Fintype (Fin n)] (f : Fin n → Fin n → ℝ) :
-  ∑ i : Fin n, ∑ j : Fin n, f i j = ∑ i : Fin n, ∑ j : Fin n, f j i := by
-  rw [Finset.sum_comm]
-
-/-- Lemma: divergence is the (negative) adjoint of d0 under the inner product -/
+/-- divergence is the (negative) adjoint of d0 under the inner product -/
 lemma divergence_is_adjoint {n : ℕ} [Fintype (Fin n)] (ϕ : C0 n) (σ : C1 n) :
   inner_product_C1 (d0 ϕ) σ = ∑ i : Fin n, ϕ i * divergence σ i := by
   unfold inner_product_C1 d0 divergence
@@ -138,7 +126,7 @@ lemma divergence_is_adjoint {n : ℕ} [Fintype (Fin n)] (ϕ : C0 n) (σ : C1 n) 
     simp only [sub_mul, Finset.sum_sub_distrib]
     conv_lhs =>
       enter [1]
-      rw [sum_swap]
+      rw [Finset.sum_comm]
     conv_lhs =>
       enter [1, 2, i, 2, j]
       rw [σ.skew]

@@ -22,11 +22,20 @@ The "Ground State" of a system with holonomy is the **Harmonic Representative** 
 -/
 
 import Mathlib.Algebra.BigOperators.Group.Finset.Basic
+import Mathlib.Algebra.BigOperators.Group.Finset.Sigma
 import Mathlib.Algebra.BigOperators.Ring.Finset
+import Mathlib.Algebra.Order.BigOperators.Group.Finset
 import Mathlib.Data.Real.Basic
 import Mathlib.Data.Fin.Basic
 import Mathlib.Tactic.Ring
 import Mathlib.Tactic.Linarith
+import Mathlib.Tactic.FieldSimp
+import Mathlib.Topology.Basic
+import Mathlib.Topology.Order.Compact
+import Mathlib.Analysis.InnerProductSpace.PiL2
+import Mathlib.Analysis.InnerProductSpace.Projection.Basic
+import Mathlib.Analysis.InnerProductSpace.Projection.Submodule
+import Mathlib.Analysis.Normed.Module.FiniteDimension
 
 open BigOperators
 
@@ -56,6 +65,19 @@ noncomputable def inner_product_C1 {n : ℕ} [Fintype (Fin n)] (σ τ : C1 n) : 
 
 /-- Squared Norm of a 1-cochain -/
 noncomputable def norm_sq {n : ℕ} [Fintype (Fin n)] (σ : C1 n) : ℝ := inner_product_C1 σ σ
+
+/-- Inner product on 1-cochains is symmetric -/
+lemma inner_product_C1_comm {n : ℕ} [Fintype (Fin n)] (σ τ : C1 n) :
+  inner_product_C1 σ τ = inner_product_C1 τ σ := by
+  unfold inner_product_C1
+  congr 1
+  conv_rhs => rw [Finset.sum_comm]
+  congr 1
+  ext i
+  congr 1
+  ext j
+  rw [σ.skew, τ.skew]
+  ring
 
 /--
   **Theorem: V_int is the distance to exactness**
@@ -100,6 +122,233 @@ def IsExact {n : ℕ} (σ : C1 n) : Prop :=
 def IsHarmonic {n : ℕ} [Fintype (Fin n)] (σ : C1 n) : Prop :=
   ∀ i : Fin n, ∑ j : Fin n, σ.val i j = 0
 
+/-- The divergence operator d*: C¹ → C⁰ (negative adjoint of coboundary) -/
+noncomputable def divergence {n : ℕ} [Fintype (Fin n)] (σ : C1 n) : C0 n :=
+  fun i => - ∑ j : Fin n, σ.val i j
+
+/-- Helper lemma: swapping sum indices -/
+lemma sum_swap {n : ℕ} [Fintype (Fin n)] (f : Fin n → Fin n → ℝ) :
+  ∑ i : Fin n, ∑ j : Fin n, f i j = ∑ i : Fin n, ∑ j : Fin n, f j i := by
+  rw [Finset.sum_comm]
+
+/-- Lemma: divergence is the (negative) adjoint of d0 under the inner product -/
+lemma divergence_is_adjoint {n : ℕ} [Fintype (Fin n)] (ϕ : C0 n) (σ : C1 n) :
+  inner_product_C1 (d0 ϕ) σ = ∑ i : Fin n, ϕ i * divergence σ i := by
+  unfold inner_product_C1 d0 divergence
+  simp only
+  -- LHS = (1/2) * ∑ᵢ∑ⱼ (ϕⱼ - ϕᵢ) * σᵢⱼ
+  -- We'll show: ∑ᵢ∑ⱼ (ϕⱼ - ϕᵢ) * σᵢⱼ = 2 * ∑ᵢ ϕᵢ * (-∑ⱼ σᵢⱼ)
+  have key : ∑ i : Fin n, ∑ j : Fin n, (ϕ j - ϕ i) * σ.val i j = 2 * ∑ i : Fin n, ϕ i * (-∑ j : Fin n, σ.val i j) := by
+    -- Expand (ϕⱼ - ϕᵢ) * σᵢⱼ = ϕⱼ*σᵢⱼ - ϕᵢ*σᵢⱼ
+    simp only [sub_mul, Finset.sum_sub_distrib]
+    -- Now: ∑ᵢ∑ⱼ ϕⱼ*σᵢⱼ - ∑ᵢ∑ⱼ ϕᵢ*σᵢⱼ
+    -- In the first term, swap indices: ∑ᵢ∑ⱼ ϕⱼ*σᵢⱼ = ∑ᵢ∑ⱼ ϕᵢ*σⱼᵢ
+    conv_lhs =>
+      enter [1]
+      rw [sum_swap]
+    -- Use skew-symmetry: σⱼᵢ = -σᵢⱼ
+    conv_lhs =>
+      enter [1, 2, i, 2, j]  -- Navigate to σ.val j i inside the first sum
+      rw [σ.skew]
+    simp only [mul_neg, Finset.sum_neg_distrib, Finset.mul_sum, two_mul, Finset.sum_add_distrib]
+    ring
+  rw [key]
+  ring
+
+/-- Linearity of d0: d(ϕ + ψ) = dϕ + dψ -/
+lemma d0_add {n : ℕ} (ϕ ψ : C0 n) :
+  ∀ i j, (d0 (fun i => ϕ i + ψ i)).val i j = (d0 ϕ).val i j + (d0 ψ).val i j := by
+  intro i j
+  simp [d0]
+  ring
+
+/-- Scalar multiplication pulls out of d0 -/
+lemma d0_smul {n : ℕ} (c : ℝ) (ϕ : C0 n) :
+  ∀ i j, (d0 (fun i => c * ϕ i)).val i j = c * (d0 ϕ).val i j := by
+  intro i j
+  simp [d0]
+  ring
+
+/-- Expansion of the squared norm: ||A + B||² = ||A||² + 2⟨A,B⟩ + ||B||² -/
+lemma norm_sq_add {n : ℕ} [Fintype (Fin n)] (A B : C1 n) :
+  norm_sq { val := fun i j => A.val i j + B.val i j,
+            skew := by intro i j; rw [A.skew, B.skew]; ring } =
+  norm_sq A + 2 * inner_product_C1 A B + norm_sq B := by
+  unfold norm_sq inner_product_C1
+  simp only [Finset.sum_add_distrib, mul_add, add_mul]
+  have h_comm : ∀ i j, B.val i j * A.val i j = A.val i j * B.val i j := fun i j => mul_comm _ _
+  simp only [h_comm]
+  ring_nf
+
+/-- The graph Laplacian Δ = d* ∘ d: C⁰ → C⁰ -/
+noncomputable def graph_laplacian {n : ℕ} [Fintype (Fin n)] (ϕ : C0 n) : C0 n :=
+  divergence (d0 ϕ)
+
+/-- Expand the Laplacian: (Δϕ)ᵢ = -∑ⱼ (ϕⱼ - ϕᵢ) = ∑ⱼ (ϕᵢ - ϕⱼ) -/
+lemma laplacian_expansion {n : ℕ} [Fintype (Fin n)] (ϕ : C0 n) (i : Fin n) :
+  graph_laplacian ϕ i = - ∑ j : Fin n, (ϕ j - ϕ i) := by
+  unfold graph_laplacian divergence d0
+  rfl
+
+/-- Helper: The objective function we're minimizing -/
+noncomputable def objective {n : ℕ} [Fintype (Fin n)] (σ : C1 n) (ϕ : C0 n) : ℝ :=
+  norm_sq { val := fun i j => (d0 ϕ).val i j - σ.val i j,
+            skew := by intro i j; simp [d0]; rw [σ.skew]; ring }
+
+/-- The basis vector at index k (1 at k, 0 elsewhere) -/
+def basis_vector {n : ℕ} (k : Fin n) : C0 n :=
+  fun i => if i = k then 1 else 0
+
+/-- The key lemma: If ϕ minimizes ||dϕ - σ||², then Δϕ = d*σ -/
+theorem euler_lagrange {n : ℕ} [Fintype (Fin n)] (σ : C1 n) (ϕ : C0 n) :
+  (∀ ϕ', objective σ ϕ ≤ objective σ ϕ') →
+  ∀ k, graph_laplacian ϕ k = divergence σ k := by
+  intro h_min k
+
+  -- 1. Define the direction of perturbation: basis vector at k
+  let ψ := basis_vector k
+
+  -- 2. The optimality condition: if ϕ is optimal, then ⟨dϕ - σ, dψ⟩ = 0
+  have optimality_condition : inner_product_C1 { val := fun i j => (d0 ϕ).val i j - σ.val i j,
+                                                 skew := by intro i j; simp [d0]; rw [σ.skew]; ring } (d0 ψ) = 0 := by
+    by_contra h_nonzero
+    -- Use the quadratic expansion: ∀ ε, Aε² + Bε ≥ 0 implies B = 0
+    let A := norm_sq (d0 ψ)
+    let B := 2 * inner_product_C1 { val := fun i j => (d0 ϕ).val i j - σ.val i j,
+                                    skew := by intro i j; simp [d0]; rw [σ.skew]; ring } (d0 ψ)
+
+    have quadr_ineq : ∀ (ε : ℝ), A * ε^2 + B * ε ≥ 0 := by
+      intro ε
+      let ϕ_eps : C0 n := fun i => ϕ i + ε * ψ i
+      have val_expand : ∀ i j, (d0 ϕ_eps).val i j - σ.val i j =
+        ((d0 ϕ).val i j - σ.val i j) + ε * (d0 ψ).val i j := by
+        intro i j
+        simp [d0, ψ, ϕ_eps, basis_vector]
+        split_ifs <;> ring
+      -- Use norm_sq (X + Y) expansion
+      have h_obj := h_min ϕ_eps
+      have h_eq : (fun i j => (d0 ϕ_eps).val i j - σ.val i j) =
+                  (fun i j => ((d0 ϕ).val i j - σ.val i j) + ε * (d0 ψ).val i j) := by
+        ext i j
+        exact val_expand i j
+      simp only [h_eq, objective] at h_obj ⊢
+      -- Rewrite RHS as sum of two C1s
+      let resid : C1 n := { val := fun i j => (d0 ϕ).val i j - σ.val i j,
+                            skew := by intro i j; rw [σ.skew]; simp [d0]; ring }
+      let eps_dpsi : C1 n := { val := fun i j => ε * (d0 ψ).val i j,
+                               skew := by intro i j; simp [d0]; ring }
+      have h_split : ({ val := fun i j => (d0 ϕ).val i j - σ.val i j + ε * (d0 ψ).val i j,
+                        skew := by intro i j; rw [σ.skew]; simp [d0]; ring } : C1 n) =
+                     ({ val := fun i j => resid.val i j + eps_dpsi.val i j,
+                        skew := by intro i j; rw [resid.skew, eps_dpsi.skew]; ring } : C1 n) := by
+        rfl
+      rw [h_split] at h_obj
+      rw [norm_sq_add] at h_obj
+      -- The h_obj inequality simplifies to: 0 ≤ 2 * ⟨resid, eps_dpsi⟩ + norm_sq eps_dpsi
+      -- But eps_dpsi = ε * dψ, so this becomes: 0 ≤ 2ε * ⟨resid, dψ⟩ + ε² * norm_sq dψ
+      -- Which is exactly: A * ε² + B * ε ≥ 0
+      have h_simp : norm_sq resid + 2 * inner_product_C1 resid eps_dpsi + norm_sq eps_dpsi =
+                    norm_sq resid + 2 * ε * inner_product_C1 resid (d0 ψ) + ε^2 * A := by
+        congr 1
+        · -- 1. The Linear Term
+          dsimp [inner_product_C1, eps_dpsi]
+          ring_nf
+          -- This is just bilinearity: ∑∑ resid * ε * dψ = ε * ∑∑ resid * dψ
+          simp only [mul_comm (resid.val _ _), mul_assoc, ← Finset.mul_sum]
+        · -- 2. The Quadratic Term
+          dsimp [norm_sq, inner_product_C1, A, eps_dpsi]
+          simp only [pow_two]
+          ring_nf
+          -- Pull ε^2 out of the sums
+          simp only [← Finset.mul_sum]
+      rw [h_simp] at h_obj
+      simp only [resid, ge_iff_le, A, B] at h_obj ⊢
+      linarith
+
+    -- B must be 0
+    have h_B_zero : B = 0 := by
+      by_contra hB
+      -- A is sum of squares, so A ≥ 0
+      -- Choose ε so that A * ε^2 + B * ε < 0
+      let ε := -B / (2 * (A + 1))
+      have h_eps : A * ε^2 + B * ε < 0 := by
+        -- Substitute ε = -B / (2 * (A + 1))
+        simp only [ε, pow_two]
+        -- Clear denominators and simplify
+        field_simp
+        ring_nf
+        -- Goal: -(B^2 * A * (1 + 2A + A^2)⁻¹) - B^2 * (1 + 2A + A^2)⁻¹ * 2 < 0
+        -- Factor: -B^2 * (A + 2) * (1 + 2A + A^2)⁻¹ < 0
+        -- Since B ≠ 0, we have B^2 > 0
+        -- Since A ≥ 0, we have A + 2 > 0
+        -- Since (1 + 2A + A^2) = (1 + A)^2 > 0, the inverse is positive
+        -- So the whole expression is negative
+        have hB_sq : B ^ 2 > 0 := sq_pos_of_ne_zero hB
+        -- A is a norm squared, so A ≥ 0
+        have hA_nonneg : A ≥ 0 := by
+          simp only [A, norm_sq, inner_product_C1]
+          -- Now it's (1/2) * ∑∑ (val * val)
+          apply mul_nonneg
+          · norm_num
+          · apply Finset.sum_nonneg; intro i _
+            apply Finset.sum_nonneg; intro j _
+            apply mul_self_nonneg
+        have h_denom_pos : 1 + A * 2 + A ^ 2 > 0 := by nlinarith [sq_nonneg A]
+        have h_inv_pos : 0 < (1 + A * 2 + A ^ 2)⁻¹ := by positivity
+        -- The numerator after clearing denominators is: -(B^2 * A) - (B^2 * 2) = -B^2 * (A + 2)
+        -- Since B^2 > 0 and A + 2 > 0, this is negative
+        have h_A_plus_2_pos : A + 2 > 0 := by linarith
+        nlinarith [mul_pos hB_sq h_A_plus_2_pos, mul_pos h_inv_pos hB_sq]
+      have h_contra := quadr_ineq ε
+      linarith
+
+    have h : B = 0 := h_B_zero
+    simp only [B] at h
+    have h_zero : inner_product_C1 { val := fun i j => (d0 ϕ).val i j - σ.val i j,
+                                     skew := by intro i j; simp [d0]; rw [σ.skew]; ring } (d0 ψ) = 0 := by
+      linarith
+    exact h_nonzero h_zero
+
+  -- 3. Apply adjointness to get the equation
+  have h_adj : inner_product_C1 { val := fun i j => (d0 ϕ).val i j - σ.val i j,
+                                  skew := by intro i j; simp [d0]; rw [σ.skew]; ring } (d0 ψ)
+             = ∑ i, ψ i * divergence { val := fun i j => (d0 ϕ).val i j - σ.val i j,
+                                       skew := by intro i j; simp [d0]; rw [σ.skew]; ring } i := by
+    rw [inner_product_C1_comm]
+    exact divergence_is_adjoint ψ { val := fun i j => (d0 ϕ).val i j - σ.val i j,
+                                     skew := by intro i j; simp [d0]; rw [σ.skew]; ring }
+
+  rw [h_adj] at optimality_condition
+  -- ψ is basis_vector k, so ψ i is 1 if i=k else 0
+  simp only [basis_vector, ψ] at optimality_condition
+  rw [Finset.sum_eq_single k] at optimality_condition
+  · -- The term at k is 1 * divergence(...) = 0
+    simp only at optimality_condition
+    -- divergence(dϕ - σ) = divergence(dϕ) - divergence(σ) = Δϕ - divergence(σ)
+    unfold divergence at optimality_condition
+    simp only at optimality_condition
+    -- optimality_condition is now: -(∑ j, (dϕ_kj - σ_kj)) = 0
+    -- Expand: -(∑ j, dϕ_kj - ∑ j, σ_kj) = 0
+    have h_expand : -(∑ j, ({ val := fun i j => (d0 ϕ).val i j - σ.val i j,
+                               skew := by intro i j; simp [d0]; rw [σ.skew]; ring } : C1 n).val k j)
+                   = -(∑ j, ((d0 ϕ).val k j - σ.val k j)) := by rfl
+    rw [h_expand] at optimality_condition
+    simp only [Finset.sum_sub_distrib] at optimality_condition
+    have h_split : -(∑ j, (d0 ϕ).val k j - ∑ j, σ.val k j) = (-∑ j, (d0 ϕ).val k j) - (-∑ j, σ.val k j) := by ring
+    rw [h_split] at optimality_condition
+    -- Re-fold definitions
+    have h_lap : (-∑ j, (d0 ϕ).val k j) = graph_laplacian ϕ k := by rfl
+    have h_div : (-∑ j, σ.val k j) = divergence σ k := by rfl
+    rw [h_lap, h_div] at optimality_condition
+    simp at optimality_condition
+    linarith [optimality_condition]
+  · -- Case i ≠ k
+    intro i _ hik
+    simp [hik]
+  · -- Case k ∉ Fin n (impossible)
+    intro hk
+    exact absurd (Finset.mem_univ k) hk
+
 /--
   **The Hodge Decomposition Theorem (Graph Version)**
 
@@ -108,12 +357,132 @@ def IsHarmonic {n : ℕ} [Fintype (Fin n)] (σ : C1 n) : Prop :=
   where d⁰ϕ is Exact (Relaxation) and γ is Harmonic (Mass/Holonomy).
 
   AND: d⁰ϕ ⊥ γ (Orthogonality).
+
+  **Proof Strategy** (currently has `sorry` placeholders):
+  1. Show ϕ minimizing ||dϕ - σ||² exists (compactness on finite dim space)
+  2. Apply Euler-Lagrange: first-order condition gives Δϕ = d*σ
+  3. Define γ = σ - dϕ. From Δϕ = d*σ we get d*γ = 0, so γ is harmonic
+  4. Orthogonality: ⟨dϕ, γ⟩ = ⟨dϕ, σ⟩ - ||dϕ||² = ⟨ϕ, d*σ⟩ - ||dϕ||² = ⟨ϕ, Δϕ⟩ - ||dϕ||² = ||dϕ||² - ||dϕ||² = 0
+
+  **Status**: Proof structure is complete, but three lemmas still need full proofs:
+  - `divergence_is_adjoint`: ⟨dϕ, σ⟩ = ⟨ϕ, d*σ⟩ (algebraic manipulation)
+  - `euler_lagrange`: Minimizer satisfies Δϕ = d*σ (calculus of variations)
+  - `hodge_decomposition` assembly (straightforward given the above)
+
+  These are all standard results in discrete differential geometry, just tedious to formalize.
 -/
-axiom hodge_decomposition {n : ℕ} [Fintype (Fin n)] (σ : C1 n) :
+theorem hodge_decomposition {n : ℕ} [Fintype (Fin n)] (σ : C1 n) :
   ∃ (ϕ : C0 n) (γ : C1 n),
     (∀ i j, σ.val i j = (d0 ϕ).val i j + γ.val i j) ∧
     IsHarmonic γ ∧
-    inner_product_C1 (d0 ϕ) γ = 0
+    inner_product_C1 (d0 ϕ) γ = 0 := by
+
+  -- 1. EXISTENCE OF MINIMIZER
+  have h_exists : ∃ ϕ_opt : C0 n, ∀ ϕ', objective σ ϕ_opt ≤ objective σ ϕ' := by
+    -- A. Local Aliases (EuclideanSpace provides L2 geometry)
+    let E := EuclideanSpace ℝ (Fin n)
+    let F := EuclideanSpace ℝ (Fin n × Fin n)
+
+    -- B. Define Linear Map on Raw Functions
+    -- We use 'intros' to ensure context is clear before 'ext'
+    let L_raw : (Fin n → ℝ) →ₗ[ℝ] (Fin n × Fin n → ℝ) := {
+      toFun := fun ϕ x => ϕ x.2 - ϕ x.1,
+      map_add' := by
+        intros -- Clears ∀ x y
+        ext    -- Applies functional extensionality
+        dsimp
+        ring,
+      map_smul' := by
+        intros -- Clears ∀ c x
+        ext
+        dsimp
+        ring
+    }
+
+    -- C. Cast to EuclideanSpace
+    let L : E →ₗ[ℝ] F := L_raw
+    let target : F := fun x => σ.val x.1 x.2
+    let K := LinearMap.range L
+
+    -- D. The Projection Theorem
+    have h_nonempty : (K : Set F).Nonempty := Submodule.nonempty K
+    obtain ⟨p, hp_mem_closure, hp_min_eq⟩ := 
+      Metric.exists_mem_closure_infDist_eq_dist h_nonempty target
+    
+    have h_closed : IsClosed (K : Set F) := Submodule.closed_of_finiteDimensional K
+    rw [h_closed.closure_eq] at hp_mem_closure
+
+    -- E. Pullback
+    obtain ⟨ϕ_opt_val, h_map⟩ := hp_mem_closure
+    use ϕ_opt_val
+    intro ϕ'
+    
+    -- Cast for type checking
+    let ϕ'_val : E := ϕ'
+
+    -- F. Objective Equivalence
+    have obj_eq : ∀ ψ : E, objective σ ψ = (1/2) * (dist (L ψ) target)^2 := by
+      intro ψ
+      unfold objective norm_sq inner_product_C1
+      rw [PiLp.dist_eq_of_L2]
+      have sum_nonneg : 0 ≤ ∑ x : Fin n × Fin n, dist (L ψ x) (target x) ^ 2 :=
+        Finset.sum_nonneg (fun _ _ => sq_nonneg _)
+      rw [Real.sq_sqrt sum_nonneg]
+      rw [Fintype.sum_prod_type]
+      congr 1
+      apply Finset.sum_congr rfl; intro i _
+      apply Finset.sum_congr rfl; intro j _
+      rw [Real.dist_eq, sq_abs, ←pow_two]
+      dsimp
+      rfl
+
+    -- G. Apply Optimality
+    rw [obj_eq ϕ_opt_val, obj_eq ϕ'_val]
+    gcongr
+    rw [h_map, dist_comm p target, dist_comm (L ϕ'_val) target]
+    rw [←hp_min_eq]
+    apply Metric.infDist_le_dist_of_mem
+    exact LinearMap.mem_range_self L ϕ'_val
+
+  obtain ⟨ϕ_opt, h_min⟩ := h_exists
+
+  -- 2. CONSTRUCT DECOMPOSITION
+  let γ : C1 n := {
+    val := fun i j => σ.val i j - (d0 ϕ_opt).val i j,
+    skew := by intro i j; rw [σ.skew]; simp [d0]; ring
+  }
+
+  use ϕ_opt, γ
+  constructor
+  · intro i j; simp [γ]
+
+  constructor
+  · -- Harmonicity
+    unfold IsHarmonic
+    intro i
+    have el := euler_lagrange σ ϕ_opt h_min i
+    simp only [γ, Finset.sum_sub_distrib]
+    have h1 : ∑ j, σ.val i j = -divergence σ i := by unfold divergence; ring
+    have h2 : ∑ j, (d0 ϕ_opt).val i j = -divergence (d0 ϕ_opt) i := by unfold divergence; ring
+    rw [h1, h2]
+    have h3 : divergence (d0 ϕ_opt) i = graph_laplacian ϕ_opt i := by unfold graph_laplacian; rfl
+    rw [h3, el]
+    ring
+
+  · -- Orthogonality
+    rw [divergence_is_adjoint]
+    apply Finset.sum_eq_zero
+    intro i _
+    have h_harm_val : ∑ j, γ.val i j = 0 := by
+      simp only [γ]
+      have el := euler_lagrange σ ϕ_opt h_min i
+      have h1 : ∑ j, σ.val i j = -divergence σ i := by unfold divergence; ring
+      have h2 : ∑ j, (d0 ϕ_opt).val i j = -graph_laplacian ϕ_opt i := by unfold graph_laplacian divergence; ring
+      simp only [Finset.sum_sub_distrib, h1, h2, el]
+      ring
+    unfold divergence
+    rw [h_harm_val]
+    ring
 
 /-! ## Part 4: Recasting the Main Theorems -/
 

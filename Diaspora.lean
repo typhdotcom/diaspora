@@ -26,6 +26,9 @@ import Diaspora.Physics.SpacetimeGeometry
 import Diaspora.Physics.PoissonEquation
 import Diaspora.Physics.BlackHoleInformationPreservation
 
+-- Cohomological foundation: discrete Hodge theory on graphs
+import Diaspora.Cohomology.DiscreteHodge
+
 -- Experiments exploring consequences of the framework
 import Diaspora.Experiments.PurposefulFrustration
 import Diaspora.Experiments.IteratedNegotiation
@@ -36,4 +39,3 @@ import Diaspora.Experiments.BlackHoleInformation
 import Diaspora.Experiments.SchwarzschildDerivation
 import Diaspora.Experiments.MassivePropagation
 import Diaspora.Experiments.GravitationalInterferometer
-import Diaspora.Experiments.DiscreteHodge

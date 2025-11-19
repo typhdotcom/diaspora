@@ -13,6 +13,20 @@ The entire project is **formally verified**, meaning all definitions are mathema
 
 ---
 
+## 🔄 Foundation Evolution
+
+**This project is currently in a foundational pivot.** The gauge-theoretic presentation below provides intuitive understanding of holonomy, frustration, and configuration spaces. However, the deep mathematical structure underlying all of this has been revealed: **Diaspora is discrete Hodge theory on graphs**.
+
+The `Diaspora.Cohomology` module contains the cohomological foundation (`DiscreteHodge.lean`) which recasts all core results in the language of differential forms, harmonic decomposition, and algebraic topology. Going forward:
+
+- **New development** will build from the Hodge theory foundation in `Cohomology/`
+- **Existing modules** remain as historical context and intuitive motivation
+- **The gauge presentation** below is pedagogically valuable but mathematically derived from the cohomological structure
+
+See [Key Concept 8](#-key-concept-8-the-cohomological-foundation-discrete-hodge-theory) for the mathematical unification.
+
+---
+
 ## 🌀 Key Concept 1: Gauge-Theoretic Holonomy
 
 * **What is a Configuration?** A configuration (`ConfigSpace`) is a graph where:

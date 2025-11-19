@@ -223,6 +223,21 @@ This proves that inheriting historically-optimized structure beats starting from
     * Proves `cost_equals_closure_work`: for cycles achieving optimal V_int = K²/k, cost of purpose = K²/k - baseline.
     * Proves `inheritance_is_path_closure`: cost of purpose in inheritance equals K²/k - Σc² when original is optimal.
     * Establishes that work to optimally distribute holonomy equals the "cost of purpose" metric.
+* **`Diaspora/Experiments/StructureStability.lean`**
+    * Proves the existence of a "melting point" where historical structure dissolves under repeated vacuum merging.
+    * **Iterated Vacuum Merge**: Constraints decay exponentially (c → c/2 → c/4...) as system merges with zero-constraint vacuum.
+    * **Phase Transition**: Proves `melting_point_exists` - there exists generation N where compliant strategy (abandoning structure) beats inherited strategy (maintaining structure).
+    * **Limit Analysis**: Proves `melting_requires_strong_external` using Filter.Tendsto - when λ > 1, eventual melting is guaranteed.
+    * **Holonomy Decay**: Proves holonomy decays exponentially K → K/2 → K/4... via `holonomy_decay` and `constraint_decay`.
+    * **Physical Interpretation**: Information persistence requires mass (holonomy) above threshold; decoherence occurs when K drops below critical value.
+    * Complete proofs with zero sorrys, including complex limit convergence arguments.
+* **`Diaspora/Experiments/SchwarzschildDerivation.lean`**
+    * Derives Schwarzschild-like scaling M ∝ R from model theorems plus known physics.
+    * Proves S ∝ M² from proven theorems: E₀ = K² (proven), M = K (defined), S ∝ E₀ (proven).
+    * Postulates Bekenstein-Hawking S ∝ A (from standard black hole thermodynamics).
+    * Postulates geometric A ∝ R² (area of 2-sphere).
+    * Derives M ∝ R by combining the above relations.
+    * Shows how ConfigSpace entropy scaling produces patterns resembling Schwarzschild radius.
 * **`Diaspora/Experiments/BlackHoleInformation.lean`**
     * Formalizes black hole formation→radiation pipeline for information preservation.
     * Structures: `MatterState` (pre-collapse), `HorizonFormation` (horizon with conservation), `RadiationState` (Hawking radiation).

@@ -29,6 +29,7 @@ This formalizes:
 import Diaspora.GaugeTheoreticHolonomy
 import Diaspora.InheritanceTheorem
 import Diaspora.ConservationOfHolonomy
+import Mathlib.Analysis.SpecificLimits.Normed
 
 open GaugeTheoretic InheritanceTheorem
 
@@ -338,15 +339,80 @@ axiom melting_point_exists {n k : ℕ} (X_original : ConfigSpace n)
     the compliant strategy (violating weak constraints) beats the inherited
     strategy (failing the strong external task).
 
-    The full rigorous proof requires showing the limits exist and using
-    eventual inequality. For now we axiomatize this classical real analysis result.
+    **Proof strategy:** Use Filter.Tendsto to show both sides converge to their limits,
+    then use the fact that strict inequality of limits implies eventual inequality.
 -/
-axiom melting_requires_strong_external (task_target c lam_ext : ℝ)
-    (h_target : 0 < task_target) (h_c : 0 < c) (h_lam : 1 < lam_ext) :
+theorem melting_requires_strong_external (task_target c lam_ext : ℝ)
+    (h_target : 0 < task_target) (_h_c : 0 < c) (h_lam : 1 < lam_ext) :
     ∃ N : ℕ,
       let compliant_V_int := (task_target - c / (2 ^ N : ℝ))^2
       let inherited_V_ext := lam_ext * task_target^2 * (1 - 1 / (2 ^ N : ℝ))^2
-      compliant_V_int < inherited_V_ext
+      compliant_V_int < inherited_V_ext := by
+  -- Define the limit functions
+  let f_lhs (n : ℕ) := (task_target - c / (2 ^ n : ℝ))^2
+  let f_rhs (n : ℕ) := lam_ext * task_target^2 * (1 - 1 / (2 ^ n : ℝ))^2
+
+  -- KEY LEMMA: (1/2)^n tends to 0.
+  -- We state this explicitly for the specific term (1 / (2^n)) used in the goal.
+  have h_term_zero : Filter.Tendsto (fun (n : ℕ) => 1 / (2 : ℝ) ^ n) Filter.atTop (nhds 0) := by
+    -- Convert 1/2^n to (1/2)^n for the theorem
+    have h_eq : (fun (n : ℕ) => 1 / (2 : ℝ) ^ n) = (fun n => (1 / 2 : ℝ) ^ n) := by
+      ext n; rw [one_div_pow, one_div]
+    rw [h_eq]
+    apply tendsto_pow_atTop_nhds_zero_of_abs_lt_one
+    norm_num
+
+  -- Helper: c / 2^n -> 0
+  have h_c_term_zero : Filter.Tendsto (fun n => c / (2 ^ n : ℝ)) Filter.atTop (nhds 0) := by
+    have h_eq : (fun n => c / (2 ^ n : ℝ)) = (fun n => c * (1 / (2 ^ n : ℝ))) := by
+      funext n; ring
+    rw [h_eq]
+    have : Filter.Tendsto (fun n => c * (1 / (2 ^ n : ℝ))) Filter.atTop (nhds (c * 0)) := by
+      exact Filter.Tendsto.const_mul c h_term_zero
+    rw [mul_zero] at this
+    exact this
+
+  -- LHS Limit: (T - c/2^n)^2 -> T^2
+  have h_lhs_lim : Filter.Tendsto f_lhs Filter.atTop (nhds (task_target^2)) := by
+    unfold f_lhs
+    have h_sub : Filter.Tendsto (fun n => task_target - c / (2 ^ n : ℝ)) Filter.atTop (nhds task_target) := by
+      convert Filter.Tendsto.sub tendsto_const_nhds h_c_term_zero
+      simp
+    apply Filter.Tendsto.pow h_sub
+
+  -- RHS Limit: lam * T^2 * (1 - 1/2^n)^2 -> lam * T^2
+  have h_rhs_lim : Filter.Tendsto f_rhs Filter.atTop (nhds (lam_ext * task_target^2)) := by
+    unfold f_rhs
+    -- Prove (1 - 1/2^n)^2 -> 1
+    have h_inner : Filter.Tendsto (fun n => (1 - 1 / (2 ^ n : ℝ))^2) Filter.atTop (nhds 1) := by
+      have h_sub : Filter.Tendsto (fun n => 1 - 1 / (2 ^ n : ℝ)) Filter.atTop (nhds 1) := by
+        have : Filter.Tendsto (fun n => 1 - 1 / (2 ^ n : ℝ)) Filter.atTop (nhds (1 - 0)) := by
+          exact Filter.Tendsto.sub tendsto_const_nhds h_term_zero
+        rw [sub_zero] at this
+        exact this
+      have h_pow2 := Filter.Tendsto.pow h_sub 2
+      rw [one_pow] at h_pow2
+      exact h_pow2
+    -- Now use that lam * T^2 * varying -> lam * T^2 * 1
+    have : Filter.Tendsto (fun n => lam_ext * task_target^2 * (1 - 1 / (2 ^ n : ℝ))^2) Filter.atTop (nhds (lam_ext * task_target^2 * 1)) := by
+      exact Filter.Tendsto.mul tendsto_const_nhds h_inner
+    rw [mul_one] at this
+    exact this
+
+  -- Strict Inequality of Limits: T^2 < lam * T^2
+  have h_strict : task_target^2 < lam_ext * task_target^2 := by
+    rw [mul_comm] -- T^2 * lam
+    have h_pos : 0 < task_target^2 := pow_pos h_target 2
+    have : task_target^2 * 1 < task_target^2 * lam_ext :=
+      (mul_lt_mul_iff_right₀ h_pos).mpr h_lam
+    simpa using this
+
+  -- Final Step: Limits inequality implies eventual inequality
+  have h_eventual : Filter.Eventually (fun n => f_lhs n < f_rhs n) Filter.atTop :=
+    Filter.Tendsto.eventually_lt h_lhs_lim h_rhs_lim h_strict
+
+  obtain ⟨N, hN⟩ := h_eventual.exists
+  use N
 
 /-! ## Part 5: Physical Interpretation
 

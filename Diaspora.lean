@@ -28,6 +28,7 @@ import Diaspora.Physics.BlackHoleInformationPreservation
 
 -- Cohomological foundation: discrete Hodge theory on graphs
 import Diaspora.Cohomology.DiscreteHodge
+import Diaspora.Cohomology.QuantumHodge
 
 -- Experiments exploring consequences of the framework
 import Diaspora.Experiments.PurposefulFrustration

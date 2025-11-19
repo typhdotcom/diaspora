@@ -2,5 +2,7 @@ AXIOM_AUDIT.md
 AXIOM_ELIMINATION_PLAN.md
 HOLONOMY_PROOF_WALKTHROUGH.md
 /.lake
+/.claude
+/.gemini
 *.png
 TODO.md.venv/

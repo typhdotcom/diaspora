@@ -79,6 +79,11 @@ lemma inner_product_C1_comm {n : ℕ} [Fintype (Fin n)] (σ τ : C1 n) :
   rw [σ.skew, τ.skew]
   ring
 
+/-- The residual: dϕ - σ -/
+noncomputable def residual {n : ℕ} (ϕ : C0 n) (σ : C1 n) : C1 n :=
+  { val := fun i j => (d0 ϕ).val i j - σ.val i j,
+    skew := by intro i j; simp [d0]; rw [σ.skew]; ring }
+
 /-- V_int(X) = || d⁰ϕ - σ ||² -/
 theorem V_int_is_cohomological_distance {n : ℕ} [Fintype (Fin n)] (ϕ : C0 n) (σ : C1 n) :
   norm_sq { val := fun i j => (d0 ϕ).val i j - σ.val i j,
@@ -93,6 +98,12 @@ theorem V_int_is_cohomological_distance {n : ℕ} [Fintype (Fin n)] (ϕ : C0 n) 
   ext j
   ring
 
+/-- V_int as norm of residual -/
+lemma V_int_eq_norm_residual {n : ℕ} [Fintype (Fin n)] (ϕ : C0 n) (σ : C1 n) :
+  norm_sq (residual ϕ σ) =
+    (1/2) * ∑ i, ∑ j, ((ϕ j - ϕ i) - σ.val i j)^2 := by
+  simpa [residual] using V_int_is_cohomological_distance (n:=n) ϕ σ
+
 /-! ## Part 3: Hodge Decomposition -/
 
 /-- Harmonic forms: divergence-free at every node -/
@@ -102,6 +113,20 @@ def IsHarmonic {n : ℕ} [Fintype (Fin n)] (σ : C1 n) : Prop :=
 /-- The divergence operator d*: C¹ → C⁰ (negative adjoint of coboundary) -/
 noncomputable def divergence {n : ℕ} [Fintype (Fin n)] (σ : C1 n) : C0 n :=
   fun i => - ∑ j : Fin n, σ.val i j
+
+/-- Harmonic forms ↔ divergence-free -/
+lemma IsHarmonic_iff_divergence_zero {n : ℕ} [Fintype (Fin n)] (σ : C1 n) :
+  IsHarmonic σ ↔ divergence σ = (fun _ => 0 : C0 n) := by
+  constructor
+  · intro h
+    funext i
+    unfold divergence
+    specialize h i
+    simp [h]
+  · intro h i
+    have := congrArg (fun f => f i) h
+    unfold divergence at this
+    linarith
 
 /-- divergence is the (negative) adjoint of d0 under the inner product -/
 lemma divergence_is_adjoint {n : ℕ} [Fintype (Fin n)] (ϕ : C0 n) (σ : C1 n) :
@@ -494,6 +519,15 @@ theorem inheritance_is_linearity {n : ℕ} [Fintype (Fin n)] (σ : C1 n) :
         _ = α * 0 := by rw [h_harm i]
         _ = 0 := by ring
 
+/-- Scaling a 1-cochain scales its norm squared by α² -/
+lemma norm_sq_smul {n : ℕ} [Fintype (Fin n)] (α : ℝ) (σ : C1 n) :
+  norm_sq
+    { val := fun i j => α * σ.val i j,
+      skew := by intro i j; rw [σ.skew]; ring }
+  = α^2 * norm_sq σ := by
+  unfold norm_sq inner_product_C1
+  simp [pow_two, mul_comm, mul_left_comm, mul_assoc, Finset.mul_sum]
+
 /-- ||σ||² = ||dϕ_opt||² + ||γ||² -/
 theorem pythagorean_from_orthogonality {n : ℕ} [Fintype (Fin n)] (σ : C1 n) :
   ∃ (ϕ γ : C1 n),
@@ -612,11 +646,62 @@ theorem exact_form_vanishes_on_cycles {n : ℕ} [Fintype (Fin n)] (ϕ : C0 n) (c
   simp only [h_cycle_cond, h_cycle_cond_swap]
   ring
 
+/-- Holonomy: evaluation of a 1-cochain on a 1-chain -/
+noncomputable def holonomy {n : ℕ} [Fintype (Fin n)]
+    (σ : C1 n) (c : Chain1 n) : ℝ :=
+  eval σ c
+
+/-- Exact forms vanish on cycles -/
+lemma holonomy_exact_zero_on_cycles {n : ℕ} [Fintype (Fin n)]
+    (ϕ : C0 n) (c : Chain1 n) (h_cycle : Chain1.IsCycle c) :
+  holonomy (d0 ϕ) c = 0 := by
+  unfold holonomy
+  exact exact_form_vanishes_on_cycles ϕ c h_cycle
+
+/-- Holonomy is linear in the cochain -/
+lemma holonomy_add_cochain {n : ℕ} [Fintype (Fin n)]
+    (σ₁ σ₂ : C1 n) (c : Chain1 n) :
+  holonomy
+    { val := fun i j => σ₁.val i j + σ₂.val i j,
+      skew := by intro i j; rw [σ₁.skew, σ₂.skew]; ring } c
+  = holonomy σ₁ c + holonomy σ₂ c := by
+  unfold holonomy
+  exact eval_add_cochain σ₁ σ₂ c
+
+/-- Holonomy is linear in the chain -/
+lemma holonomy_add_chain {n : ℕ} [Fintype (Fin n)]
+    (σ : C1 n) (c₁ c₂ : Chain1 n) :
+  holonomy σ (Chain1.add c₁ c₂) =
+  holonomy σ c₁ + holonomy σ c₂ := by
+  unfold holonomy
+  exact eval_add_chain σ c₁ c₂
+
+/-- Holonomy scales with the cochain -/
+lemma holonomy_smul_cochain {n : ℕ} [Fintype (Fin n)]
+    (α : ℝ) (σ : C1 n) (c : Chain1 n) :
+  holonomy
+    { val := fun i j => α * σ.val i j,
+      skew := by intro i j; rw [σ.skew]; ring } c
+  = α * holonomy σ c := by
+  unfold holonomy eval
+  simp [Finset.mul_sum, mul_assoc, mul_left_comm]
+
 /-! ## Part 6: Spectral Theory of the Laplacian -/
 
 /-- Δϕ = lam·ϕ -/
 def IsEigenvector {n : ℕ} [Fintype (Fin n)] (ϕ : C0 n) (lam : ℝ) : Prop :=
   ∀ i : Fin n, graph_laplacian ϕ i = lam * ϕ i
+
+/-- The quadratic form ⟨d0 ϕ, d0 ϕ⟩ is nonnegative -/
+lemma inner_d0_nonneg {n : ℕ} [Fintype (Fin n)] (ϕ : C0 n) :
+  inner_product_C1 (d0 ϕ) (d0 ϕ) ≥ 0 := by
+  unfold inner_product_C1
+  have : ∑ i, ∑ j, (d0 ϕ).val i j * (d0 ϕ).val i j ≥ 0 := by
+    apply Finset.sum_nonneg; intro i _
+    apply Finset.sum_nonneg; intro j _
+    exact mul_self_nonneg _
+  have : (1/2 : ℝ) * _ ≥ 0 := mul_nonneg (by norm_num) this
+  simpa [norm_sq] using this
 
 /-- Constant functions are zero-eigenvalue eigenvectors -/
 theorem zero_is_eigenvalue {n : ℕ} [Fintype (Fin n)] (c : ℝ) :

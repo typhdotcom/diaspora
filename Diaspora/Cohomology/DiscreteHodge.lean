@@ -686,6 +686,49 @@ lemma holonomy_smul_cochain {n : ℕ} [Fintype (Fin n)]
   unfold holonomy eval
   simp [Finset.mul_sum, mul_assoc, mul_left_comm]
 
+/-- Holonomy of σ on any cycle depends only on its harmonic component. -/
+lemma holonomy_factor_through_harmonic {n : ℕ} [Fintype (Fin n)]
+    (σ : C1 n) :
+  ∃ γ : C1 n, IsHarmonic γ ∧
+    ∃ ϕ : C0 n,
+      (∀ i j, σ.val i j = (d0 ϕ).val i j + γ.val i j) ∧
+      ∀ c : Chain1 n, Chain1.IsCycle c →
+        holonomy σ c = holonomy γ c := by
+  -- grab Hodge decomposition
+  obtain ⟨ϕ, γ, h_decomp, h_harm, h_orth⟩ := hodge_decomposition σ
+  refine ⟨γ, h_harm, ϕ, h_decomp, ?_⟩
+  intro c h_cycle
+
+  -- express σ as (d0 ϕ + γ) as an actual C1 record
+  have hσ :
+      σ =
+        { val := fun i j => (d0 ϕ).val i j + γ.val i j,
+          skew := by
+            intro i j
+            unfold d0
+            rw [γ.skew]
+            have := h_decomp i j
+            have := h_decomp j i
+            linarith } := by
+    cases σ
+    congr
+    funext i j
+    exact h_decomp i j
+
+  -- split holonomy using linearity in the cochain
+  have h_split :
+      holonomy σ c =
+        holonomy (d0 ϕ) c + holonomy γ c := by
+    rw [hσ]
+    exact holonomy_add_cochain (σ₁ := d0 ϕ) (σ₂ := γ) c
+
+  -- exact part vanishes on cycles
+  have h_exact_zero : holonomy (d0 ϕ) c = 0 :=
+    holonomy_exact_zero_on_cycles ϕ c h_cycle
+
+  -- done
+  simp [h_split, h_exact_zero]
+
 /-! ## Part 6: Spectral Theory of the Laplacian -/
 
 /-- Δϕ = lam·ϕ -/

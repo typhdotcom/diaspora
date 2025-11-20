@@ -1,3 +1,11 @@
+```
+  o-------o       .       o-------o
+ / \     / \     / \     / \     / \
+o   o---o   o   o   o---o   o---o   o
+ \ /     \ /     \ /     \ /     \ /
+  o       o-------o       o       o
+```
+
 # Diaspora
 
 **A Discrete Hodge Theory Universe**

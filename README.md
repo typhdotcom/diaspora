@@ -6,8 +6,6 @@ Diaspora is a formalization of Discrete Exterior Calculus (DEC) on graphs, writt
 
 This project is **formally verified**. The core framework relies on zero axioms and contains zero `sorrys`.
 
-![The Discrete Hodge Universe](image_657084.jpg)
-
 ---
 
 ## The Logic of the Universe
@@ -65,9 +63,9 @@ The codebase is architected in layers, moving from definitions to functional ana
 
 ## Origin Note
 
-Diaspora began as an attempt to model "social frustration" and "negotiation" using graph theory. We found that "frustration" is mathematically identical to the **harmonic component** in Hodge Theory.
+Diaspora began as an attempt to model "social frustration" and "negotiation" using graph theory. I found that "frustration" is mathematically identical to the **harmonic component** in Hodge Theory.
 
-Recognizing that the math was trying to be physics, we stripped away the metaphors. What remains is a pure implementation of discrete geometry, where the "cost of frustration" is simply the energy of the system.
+Recognizing that the math was trying to be physics, I stripped away the metaphors. What remains is a pure implementation of discrete geometry, where the "cost of frustration" is simply the energy of the system.
 
 ---
 

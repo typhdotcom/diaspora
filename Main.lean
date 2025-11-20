@@ -1,4 +1,7 @@
-import Diaspora
+-- Root module for the Diaspora library
 
-def main : IO Unit :=
-  IO.println s!"Hello, {hello}!"
+-- Cohomological foundation: discrete Hodge theory on graphs (Cohonomy)
+import Diaspora.DiscreteCalculus
+import Diaspora.HodgeDecomposition
+import Diaspora.HarmonicAnalysis
+import Diaspora.QuantumDynamics

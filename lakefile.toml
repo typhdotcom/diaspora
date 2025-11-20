@@ -1,6 +1,6 @@
 name = "Diaspora"
 version = "0.1.0"
-defaultTargets = ["Diaspora"]
+defaultTargets = ["Main"]
 
 [[lean_lib]]
 name = "Diaspora"

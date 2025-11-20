@@ -8,7 +8,7 @@ This file contains the heavy functional analysis proofs. Downstream files import
 only the theorem statements, not the proof details.
 -/
 
-import Diaspora.Cohomology.DiscreteCalculus
+import Diaspora.DiscreteCalculus
 import Mathlib.Tactic.Ring
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.FieldSimp

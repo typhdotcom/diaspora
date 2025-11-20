@@ -8,8 +8,8 @@ This file builds on the harmonic analysis framework to define quantum
 observables, time evolution, and geometric phases.
 -/
 
-import Diaspora.Cohomology.DiscreteCalculus
-import Diaspora.Cohomology.HarmonicAnalysis
+import Diaspora.DiscreteCalculus
+import Diaspora.HarmonicAnalysis
 import Mathlib.Analysis.Complex.Basic
 import Mathlib.Analysis.Calculus.Deriv.Basic
 import Mathlib.LinearAlgebra.Matrix.Hermitian

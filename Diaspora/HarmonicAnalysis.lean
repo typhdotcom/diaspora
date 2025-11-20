@@ -7,7 +7,7 @@ minimization, linearity, orthogonality, holonomy, and spectral properties.
 These are the "Lego blocks" of the physical theory.
 -/
 
-import Diaspora.Cohomology.HodgeDecomposition
+import Diaspora.HodgeDecomposition
 import Mathlib.Tactic.Ring
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.FieldSimp

@@ -800,4 +800,192 @@ theorem harmonic_constant_on_simple_cycle {n : ℕ} [Fintype (Fin n)]
       = f (cycle.next^[k] i₀) := by rw [←hk]
     _ = f i₀ := h_iterate i₀ k
 
+/--
+The 1-chain representing a simple cycle (1 on each edge i → next i).
+
+For n≥3, this gives coefficient 1 on forward edges and -1 on backward edges.
+For n=2, both forward and backward edges coincide, so we return 0 (the degenerate case).
+This is consistent: n=2 cycles can only carry zero holonomy.
+-/
+def SimpleCycle.toChain1 {n : ℕ} (cycle : SimpleCycle n) : Chain1 n := {
+  coeff := fun i j =>
+    if j = cycle.next i ∧ i ≠ cycle.next j then 1
+    else if i = cycle.next j ∧ j ≠ cycle.next i then -1
+    else 0
+  antisym := by
+    intro i j
+    split
+    · rename_i h
+      split
+      · rename_i h'
+        -- Contradiction: h says i ≠ next j, h' says i = next j
+        exact absurd h'.1 h.2
+      · ring
+    · split <;> ring
+}
+
+/--
+Holonomy calibration: if a harmonic form γ has constant value k on every edge
+of a simple cycle, then the holonomy equals n·k.
+
+Combined with harmonic_constant_on_simple_cycle (which proves γ is constant),
+this shows that the cycle holonomy K uniquely determines k = K/n.
+-/
+theorem holonomy_of_constant_harmonic {n : ℕ} [Fintype (Fin n)]
+    (cycle : SimpleCycle n) (γ : C1 n) (k : ℝ)
+    (h_const : ∀ i : Fin n, γ.val i (cycle.next i) = k) :
+  holonomy γ (SimpleCycle.toChain1 cycle) = (Fintype.card (Fin n)) * k := by
+  unfold holonomy eval
+  -- Key: simplify ∑ⱼ γ(i,j) * coeff(i,j) for each i
+  -- Two terms: j=next i (coeff=1) and j=prev i (coeff=-1)
+  -- This gives γ(i, next i) - γ(i, prev i) = k - γ(i, prev i)
+  -- But γ(i, prev i) = -γ(prev i, i) = -k (by skew-symmetry and h_const)
+  -- So we get k - (-k) = 2k
+  have h_sum : ∀ i : Fin n,
+      ∑ j : Fin n, γ.val i j * (cycle.toChain1.coeff i j : ℝ) = 2 * k := by
+    intro i
+    simp only [SimpleCycle.toChain1]
+
+    -- Define the support set: only prev i and next i have nonzero coefficients
+    let s : Finset (Fin n) := {cycle.prev i, cycle.next i}
+
+    -- Reduce the sum to just s by showing nonzero terms are only in s
+    trans (∑ j ∈ s, γ.val i j * ↑(cycle.toChain1.coeff i j))
+    · symm
+      refine Finset.sum_subset (Finset.subset_univ s) ?_
+      intro j _ hj
+      simp [s, Finset.mem_insert, Finset.mem_singleton] at hj
+      push_neg at hj
+      -- If j is neither prev i nor next i, the coefficient is 0
+      simp only [SimpleCycle.toChain1, Chain1.coeff]
+      split_ifs with h1 h2
+      · -- j = next i ∧ i ≠ next j
+        exact absurd h1.1 hj.2
+      · -- i = next j ∧ j ≠ next i
+        -- From i = next j, we get j = prev i
+        have : j = cycle.prev i := by
+          have : cycle.prev (cycle.next j) = cycle.prev i := by rw [h2.1]
+          rw [cycle.prev_next] at this
+          exact this
+        exact absurd this hj.1
+      · ring
+
+    -- Split cases: n ≥ 3 (prev i ≠ next i) vs n = 2 (prev i = next i)
+    by_cases h_distinct : cycle.prev i ≠ cycle.next i
+
+    case pos =>
+      -- Case n ≥ 3: prev i and next i are distinct
+      -- The sum has exactly two terms
+      have h_pair : s = {cycle.prev i, cycle.next i} := rfl
+      have h_ne : cycle.prev i ≠ cycle.next i := h_distinct
+
+      rw [Finset.sum_pair h_ne]
+
+      -- Evaluate the coefficient for j = prev i
+      have h_coeff_prev : (cycle.toChain1.coeff i (cycle.prev i) : ℝ) = -1 := by
+        simp only [SimpleCycle.toChain1, Chain1.coeff]
+        have h_not_eq : ¬(cycle.prev i = cycle.next i ∧ i ≠ cycle.next (cycle.prev i)) := by
+          simp [h_ne]
+        have h_is_prev : i = cycle.next (cycle.prev i) ∧ cycle.prev i ≠ cycle.next i := by
+          exact ⟨(cycle.next_prev i).symm, h_ne⟩
+        simp only [if_neg h_not_eq, if_pos h_is_prev]
+        norm_num
+
+      -- Evaluate the coefficient for j = next i
+      have h_coeff_next : (cycle.toChain1.coeff i (cycle.next i) : ℝ) =
+                          (if i ≠ cycle.next (cycle.next i) then 1 else 0) := by
+        simp only [SimpleCycle.toChain1, Chain1.coeff, eq_self_iff_true, true_and]
+        by_cases h_next2 : i ≠ cycle.next (cycle.next i)
+        · simp [h_next2]
+        · simp [h_next2]
+
+      -- For n≥3, we can show i ≠ next (next i)
+      have h_next2_ne : i ≠ cycle.next (cycle.next i) := by
+        intro h_eq
+        -- If i = next (next i), then next (prev i) = next (next i)
+        -- So prev i = next i, contradicting h_ne
+        have : cycle.prev i = cycle.next i := by
+          apply cycle.next_injective
+          calc cycle.next (cycle.prev i)
+              = i := cycle.next_prev i
+            _ = cycle.next (cycle.next i) := h_eq
+        exact h_ne this
+
+      have h_coeff_next_eq : (cycle.toChain1.coeff i (cycle.next i) : ℝ) = 1 := by
+        rw [h_coeff_next]
+        simp [h_next2_ne]
+
+      simp only [h_coeff_prev, h_coeff_next_eq]
+
+      -- Now we need to show: γ(i, prev i) * (-1) + γ(i, next i) * 1 = 2k
+      have h_val_next : γ.val i (cycle.next i) = k := h_const i
+      have h_val_prev : γ.val i (cycle.prev i) = -k := by
+        have h_i_eq : i = cycle.next (cycle.prev i) := (cycle.next_prev i).symm
+        calc γ.val i (cycle.prev i)
+            = -(γ.val (cycle.prev i) i) := by rw [γ.skew]
+          _ = -(γ.val (cycle.prev i) (cycle.next (cycle.prev i))) := by rw [← h_i_eq]
+          _ = -k := by rw [h_const]
+
+      rw [h_val_prev, h_val_next]
+      ring
+
+    case neg =>
+      -- Case n = 2: prev i = next i (degenerate case)
+      push_neg at h_distinct
+      have h_eq : cycle.prev i = cycle.next i := h_distinct
+
+      -- When prev i = next i, the set s has only one element
+      have h_singleton : s = {cycle.next i} := by
+        ext j
+        simp [s, h_eq, Finset.mem_insert, Finset.mem_singleton]
+
+      rw [h_singleton, Finset.sum_singleton]
+
+      -- The coefficient for j = next i when i = next j
+      -- We have: next i = prev i, so next (next i) = next (prev i) = i
+      -- Therefore i = next (next i), which means i = next j when j = next i
+      have h_i_eq : i = cycle.next (cycle.next i) := by
+        calc i = cycle.next (cycle.prev i) := (cycle.next_prev i).symm
+             _ = cycle.next (cycle.next i) := by rw [h_eq]
+
+      have h_coeff_zero : (cycle.toChain1.coeff i (cycle.next i) : ℝ) = 0 := by
+        simp only [SimpleCycle.toChain1, Chain1.coeff, eq_self_iff_true, true_and]
+        -- With i = next (next i), the first if condition is false
+        have h1 : ¬(i ≠ cycle.next (cycle.next i)) := by
+          intro h
+          exact h h_i_eq
+        rw [if_neg h1]
+        -- The second if condition is also false (cycle.next i = cycle.next i always)
+        have h2 : ¬(i = cycle.next (cycle.next i) ∧ cycle.next i ≠ cycle.next i) := by
+          intro ⟨_, h⟩
+          exact h rfl
+        rw [if_neg h2]
+        norm_num
+
+      rw [h_coeff_zero]
+
+      -- For n = 2, we need to show k = 0
+      -- In the degenerate 2-cycle, skew-symmetry forces k = 0
+      have h_k_zero : k = 0 := by
+        have h_val := h_const i
+        have h_skew : γ.val i (cycle.next i) = -γ.val (cycle.next i) i := γ.skew i (cycle.next i)
+        -- Since prev i = next i and next (next i) = i, we have next i = next (prev i)
+        -- So γ(next i, i) = γ(next i, next (next i)) = k
+        have : γ.val (cycle.next i) i = k := by
+          have h_next2 : cycle.next (cycle.next i) = i := by
+            calc cycle.next (cycle.next i)
+                = cycle.next (cycle.prev i) := by rw [← h_eq]
+              _ = i := cycle.next_prev i
+          calc γ.val (cycle.next i) i
+              = γ.val (cycle.next i) (cycle.next (cycle.next i)) := by congr 1
+            _ = k := h_const (cycle.next i)
+        linarith
+
+      rw [h_k_zero]
+      ring
+  have : ∑ i : Fin n, ∑ j : Fin n, γ.val i j * ↑(cycle.toChain1.coeff i j) =
+         ∑ i : Fin n, 2 * k := Finset.sum_congr rfl (fun i _ => h_sum i)
+  rw [this, Finset.sum_const, Finset.card_univ]
+  ring
+
 end DiscreteHodge

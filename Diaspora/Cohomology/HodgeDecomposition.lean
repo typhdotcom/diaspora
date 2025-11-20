@@ -52,24 +52,6 @@ lemma IsHarmonic_iff_divergence_zero {n : ℕ} [Fintype (Fin n)] (σ : C1 n) :
     unfold divergence at this
     linarith
 
-/-- divergence is the (negative) adjoint of d0 under the inner product -/
-lemma divergence_is_adjoint {n : ℕ} [Fintype (Fin n)] (ϕ : C0 n) (σ : C1 n) :
-  inner_product_C1 (d0 ϕ) σ = ∑ i : Fin n, ϕ i * divergence σ i := by
-  unfold inner_product_C1 d0 divergence
-  simp only
-  have key : ∑ i : Fin n, ∑ j : Fin n, (ϕ j - ϕ i) * σ.val i j = 2 * ∑ i : Fin n, ϕ i * (-∑ j : Fin n, σ.val i j) := by
-    simp only [sub_mul, Finset.sum_sub_distrib]
-    conv_lhs =>
-      enter [1]
-      rw [Finset.sum_comm]
-    conv_lhs =>
-      enter [1, 2, i, 2, j]
-      rw [σ.skew]
-    simp only [mul_neg, Finset.sum_neg_distrib, Finset.mul_sum, two_mul, Finset.sum_add_distrib]
-    ring
-  rw [key]
-  ring
-
 /-- Linearity of d0: d(ϕ + ψ) = dϕ + dψ -/
 lemma d0_add {n : ℕ} (ϕ ψ : C0 n) :
   ∀ i j, (d0 (fun i => ϕ i + ψ i)).val i j = (d0 ϕ).val i j + (d0 ψ).val i j := by

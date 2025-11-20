@@ -55,6 +55,24 @@ def IsHarmonic {n : ℕ} [Fintype (Fin n)] (σ : C1 n) : Prop :=
 noncomputable def divergence {n : ℕ} [Fintype (Fin n)] (σ : C1 n) : C0 n :=
   fun i => - ∑ j : Fin n, σ.val i j
 
+/-- divergence is the (negative) adjoint of d0 under the inner product -/
+lemma divergence_is_adjoint {n : ℕ} [Fintype (Fin n)] (ϕ : C0 n) (σ : C1 n) :
+  inner_product_C1 (d0 ϕ) σ = ∑ i : Fin n, ϕ i * divergence σ i := by
+  unfold inner_product_C1 d0 divergence
+  simp only
+  have key : ∑ i : Fin n, ∑ j : Fin n, (ϕ j - ϕ i) * σ.val i j = 2 * ∑ i : Fin n, ϕ i * (-∑ j : Fin n, σ.val i j) := by
+    simp only [sub_mul, Finset.sum_sub_distrib]
+    conv_lhs =>
+      enter [1]
+      rw [Finset.sum_comm]
+    conv_lhs =>
+      enter [1, 2, i, 2, j]
+      rw [σ.skew]
+    simp only [mul_neg, Finset.sum_neg_distrib, Finset.mul_sum, two_mul, Finset.sum_add_distrib]
+    ring
+  rw [key]
+  ring
+
 /-- The graph Laplacian Δ = d* ∘ d: C⁰ → C⁰ -/
 noncomputable def graph_laplacian {n : ℕ} [Fintype (Fin n)] (ϕ : C0 n) : C0 n :=
   divergence (d0 ϕ)

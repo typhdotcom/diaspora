@@ -1020,4 +1020,178 @@ theorem topological_quantization {n : ℕ} [Fintype (Fin n)] [NeZero n]
   field_simp [h_card] at h_total ⊢
   linarith
 
+/--
+Cycle Cost Theorem: The internal energy of a harmonic form on a cycle
+equals K²/n, where K is the total holonomy (sum of all edge values).
+
+This shows that the cost of creating holonomy scales as the square of the
+winding number divided by system size.
+-/
+theorem cycle_creates_holonomy_cost {n : ℕ} [Fintype (Fin n)]
+    (cycle : SimpleCycle n) (γ : C1 n)
+    (h_harm : IsHarmonic γ)
+    (h_support : SupportedOnCycle cycle γ)
+    (m : ℤ)
+    (h_holonomy : ∑ i, γ.val i (cycle.next i) = m)
+    (h_n_ge_3 : n ≥ 3) :
+  norm_sq γ = (m : ℝ)^2 / (Fintype.card (Fin n)) := by
+  classical
+  haveI : Inhabited (Fin n) := ⟨0, Nat.zero_lt_of_lt (by omega : 0 < n)⟩
+
+  -- First, establish that γ has constant value k on all cycle edges
+  obtain ⟨k, h_const⟩ := harmonic_constant_on_simple_cycle cycle γ h_harm h_support
+
+  -- From h_holonomy, we know ∑ᵢ γ(i, next i) = m
+  -- Combined with h_const, this gives n·k = m, so k = m/n
+  have h_k_eq : k = m / (Fintype.card (Fin n)) := by
+    have : ∑ i : Fin n, k = m := by
+      calc ∑ i : Fin n, k
+          = ∑ i : Fin n, γ.val i (cycle.next i) := Finset.sum_congr rfl (fun i _ => (h_const i).symm)
+        _ = m := h_holonomy
+    rw [Finset.sum_const, Finset.card_univ, nsmul_eq_mul] at this
+    have h_ne : (Fintype.card (Fin n) : ℝ) ≠ 0 := by simp
+    field_simp [h_ne]
+    linarith
+
+  -- Now compute norm_sq γ
+  unfold norm_sq inner_product_C1
+
+  -- The double sum ∑ᵢ ∑ⱼ γ(i,j)² has contributions only from cycle edges
+  -- For each i: γ(i, next i)² + γ(i, prev i)²
+  -- By skew-symmetry and h_const: γ(i, prev i) = -γ(prev i, i) = -k
+  -- So each i contributes: k² + (-k)² = 2k²
+
+  have h_sum_eq : ∑ i : Fin n, ∑ j : Fin n, γ.val i j * γ.val i j =
+                  (Fintype.card (Fin n)) * 2 * k^2 := by
+    -- Each i contributes γ(i, next i)² + γ(i, prev i)²
+    have h_each : ∀ i, ∑ j, γ.val i j * γ.val i j = 2 * k^2 := by
+      intro i
+      -- Only j = next i and j = prev i contribute
+      let s : Finset (Fin n) := {cycle.next i, cycle.prev i}
+
+      trans (∑ j ∈ s, γ.val i j * γ.val i j)
+      · symm
+        refine Finset.sum_subset (Finset.subset_univ s) ?_
+        intro j _ hj
+        simp [s, Finset.mem_insert, Finset.mem_singleton] at hj
+        push_neg at hj
+        have h := h_support i j hj.1
+        rw [h]
+        ring
+
+      -- For n ≥ 3, prev i ≠ next i
+      have h_ne : cycle.prev i ≠ cycle.next i := by
+        intro h_eq
+        -- If prev i = next i, then next (next i) = i (2-cycle)
+        have h_period_2 : cycle.next (cycle.next i) = i := by
+          calc cycle.next (cycle.next i)
+              = cycle.next (cycle.prev i) := by rw [← h_eq]
+            _ = i := cycle.next_prev i
+
+        -- Pick a third element (exists since n ≥ 3)
+        have h_exists_third : ∃ j : Fin n, j ≠ i ∧ j ≠ cycle.next i := by
+          by_contra h_not
+          push_neg at h_not
+          -- Every element is either i or next i
+          have h_all : ∀ j : Fin n, j = i ∨ j = cycle.next i := fun j =>
+            by_cases (fun h : j = i => Or.inl h) (fun h => Or.inr (h_not j h))
+          -- But Fintype.card (Fin n) = n ≥ 3
+          have h_card_le : Fintype.card (Fin n) ≤ 2 := by
+            -- Every element is in {i, next i}, so card ≤ 2
+            classical
+            have h_subset : (Finset.univ : Finset (Fin n)) ⊆ {i, cycle.next i} := by
+              intro j _
+              simp [h_all j]
+            calc Fintype.card (Fin n)
+                = Finset.univ.card := Finset.card_univ.symm
+              _ ≤ ({i, cycle.next i} : Finset (Fin n)).card := Finset.card_le_card h_subset
+              _ ≤ 2 := Finset.card_le_two
+          have h_card_eq : Fintype.card (Fin n) = n := by convert Fintype.card_fin n
+          omega
+
+        obtain ⟨j, hj_ne_i, hj_ne_next⟩ := h_exists_third
+
+        -- By connected property, ∃k. next^k i = j
+        have := cycle.connected i j
+        obtain ⟨k, hk⟩ := this
+
+        -- But next^k i is either i or next i (by period 2)
+        -- First prove it for all k
+        have h_period_gen : ∀ m, cycle.next^[m] i = i ∨ cycle.next^[m] i = cycle.next i := by
+          intro m
+          induction m with
+          | zero => left; rfl
+          | succ m' ih =>
+            cases ih with
+            | inl h => right; simp [Function.iterate_succ_apply', h]
+            | inr h => left; simp [Function.iterate_succ_apply', h, h_period_2]
+
+        have h_periodic := h_period_gen k
+        cases h_periodic with
+        | inl h => rw [←hk] at hj_ne_i; exact hj_ne_i h
+        | inr h => rw [←hk] at hj_ne_next; exact hj_ne_next h
+
+      -- Normal case: two distinct edges
+      have h_next : γ.val i (cycle.next i) = k := h_const i
+      have h_prev : γ.val i (cycle.prev i) = -k := by
+        calc γ.val i (cycle.prev i)
+            = -γ.val (cycle.prev i) i := γ.skew i (cycle.prev i)
+          _ = -γ.val (cycle.prev i) (cycle.next (cycle.prev i)) := by rw [cycle.next_prev]
+          _ = -k := by rw [h_const]
+
+      calc ∑ j ∈ s, γ.val i j * γ.val i j
+          = γ.val i (cycle.next i) * γ.val i (cycle.next i) +
+            γ.val i (cycle.prev i) * γ.val i (cycle.prev i) := by
+              simp only [s]
+              rw [Finset.sum_insert (by intro h; exact h_ne.symm (Finset.mem_singleton.mp h)), Finset.sum_singleton]
+        _ = k * k + (-k) * (-k) := by rw [h_next, h_prev]
+        _ = 2 * k^2 := by ring
+
+    calc ∑ i, ∑ j, γ.val i j * γ.val i j
+        = ∑ i, 2 * k^2 := Finset.sum_congr rfl (fun i _ => h_each i)
+      _ = (Fintype.card (Fin n)) * 2 * k^2 := by
+          rw [Finset.sum_const, Finset.card_univ]; ring
+
+  rw [h_sum_eq, h_k_eq]
+  have h_ne : (Fintype.card (Fin n) : ℝ) ≠ 0 := by simp
+  field_simp [h_ne]
+
+/--
+The Quantized Energy Spectrum.
+If the winding number is `m`, the internal energy of the system is `m²/n`.
+
+This shows that energy levels are discrete and scale inversely with system size.
+E_0 = 0, E_1 = 1/n, E_2 = 4/n...
+-/
+theorem quantized_energy_spectrum {n : ℕ} [Fintype (Fin n)] [NeZero n]
+    (cycle : SimpleCycle n) (γ : C1 n)
+    (h_harm : IsHarmonic γ)
+    (h_support : SupportedOnCycle cycle γ)
+    (m : ℤ)
+    (h_winding : holonomy γ (SimpleCycle.toChain1 cycle) = m)
+    (h_n_ge_3 : n ≥ 3) :
+  norm_sq γ = (m : ℝ)^2 / (Fintype.card (Fin n)) := by
+  -- 1. Establish the constant k
+  classical
+  haveI : Inhabited (Fin n) := ⟨0, Nat.zero_lt_of_lt (by omega : 0 < n)⟩
+  obtain ⟨k, h_const⟩ := harmonic_constant_on_simple_cycle cycle γ h_harm h_support
+
+  -- 2. Use topological quantization to find k = m/n
+  have h_k : k = m / (Fintype.card (Fin n)) := topological_quantization cycle γ k h_const m h_winding
+
+  -- 3. The holonomy K is just m
+  have h_K : ∑ i, γ.val i (cycle.next i) = m := by
+    -- We have k = m / card(Fin n) from topological quantization
+    -- And we know that ∑ᵢ k = card(Fin n) · k from the sum
+    calc ∑ i, γ.val i (cycle.next i)
+        = ∑ i, k := Finset.sum_congr rfl (fun i _ => h_const i)
+      _ = (Fintype.card (Fin n) : ℝ) * k := by rw [Finset.sum_const, Finset.card_univ]; ring
+      _ = (Fintype.card (Fin n) : ℝ) * (m / (Fintype.card (Fin n))) := by rw [h_k]
+      _ = m := by
+        have h_ne : (Fintype.card (Fin n) : ℝ) ≠ 0 := by simp
+        field_simp [h_ne]
+
+  -- 4. Apply the Cycle Cost Theorem (V_int = K²/n)
+  rw [cycle_creates_holonomy_cost cycle γ h_harm h_support m h_K h_n_ge_3]
+
 end DiscreteHodge

@@ -1,9 +1,8 @@
-AXIOM_AUDIT.md
-AXIOM_ELIMINATION_PLAN.md
+*.png
 /.claude
 /.gemini
-HOLONOMY_PROOF_WALKTHROUGH.md
 /.lake
-*.png
-.repair/
-TODO.md.venv/
+/.repair/
+/.venv/
+/archive
+/speculative

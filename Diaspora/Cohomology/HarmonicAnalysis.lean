@@ -500,4 +500,304 @@ theorem quantum_exact_vanishes_on_cycles {n : ℕ} [Fintype (Fin n)]
   simp only [h_cycle_cond, h_cycle_cond_swap, mul_zero, Finset.sum_const_zero]
   ring
 
+/-! ## Harmonic Forms on Simple Cycles -/
+
+/--
+A simple cycle is one where each node has exactly two neighbors in the cycle.
+This structure captures paths like 0→1→2→3→0 where each vertex appears exactly once.
+
+The key property is that the entire set forms a single connected cycle under `next`,
+meaning every element can be reached from any other by iterating `next`.
+-/
+structure SimpleCycle (n : ℕ) where
+  /-- The successor function defining the cycle structure -/
+  next : Fin n → Fin n
+  /-- The predecessor function -/
+  prev : Fin n → Fin n
+  /-- next is injective (each node has a unique successor) -/
+  next_injective : Function.Injective next
+  /-- prev is injective (each node has a unique predecessor) -/
+  prev_injective : Function.Injective prev
+  /-- next and prev are inverses -/
+  next_prev : ∀ i, next (prev i) = i
+  prev_next : ∀ i, prev (next i) = i
+  /-- The cycle is connected: every element is reachable from any other -/
+  connected [Fintype (Fin n)] [Inhabited (Fin n)] :
+    ∀ i j : Fin n, ∃ k : ℕ, next^[k] i = j
+
+/--
+A harmonic form is supported on a simple cycle if it's zero on all edges
+not in the cycle.
+-/
+def SupportedOnCycle {n : ℕ} (cycle : SimpleCycle n) (γ : C1 n) : Prop :=
+  ∀ i j : Fin n, j ≠ cycle.next i → γ.val i j = 0
+
+/--
+Helper lemma: consecutive edges have equal values.
+From harmonic_flow_transfer we get γ(prev, i) = γ(i, next).
+Since next(prev(i)) = i, we have γ(prev(i), i) = γ(i, next(i)).
+By skew-symmetry, -γ(i, prev(i)) = γ(i, next(i)).
+-/
+lemma consecutive_edges_equal {n : ℕ} [Fintype (Fin n)]
+    (cycle : SimpleCycle n) (γ : C1 n)
+    (h_harm : IsHarmonic γ)
+    (h_support : SupportedOnCycle cycle γ)
+    (i : Fin n) :
+  γ.val i (cycle.next i) = γ.val (cycle.next i) (cycle.next (cycle.next i)) := by
+  -- Apply to the next node
+  let j := cycle.next i
+
+  have h_isolation_j : ∀ x, x ≠ cycle.prev j ∧ x ≠ cycle.next j → γ.val j x = 0 := by
+    intro x ⟨h_ne_prev, h_ne_next⟩
+    exact h_support j x h_ne_next
+
+  -- Use harmonic_flow_transfer at node j
+  have h_transfer_j := harmonic_flow_transfer γ j (cycle.prev j) (cycle.next j) h_harm h_isolation_j
+
+  -- Since j = next(i), we have prev(j) = prev(next(i)) = i
+  have h_prev_j : cycle.prev j = i := by
+    calc cycle.prev j
+        = cycle.prev (cycle.next i) := rfl
+      _ = i := cycle.prev_next i
+
+  -- Substitute to get γ(i, j) = γ(j, next(j))
+  rw [h_prev_j] at h_transfer_j
+  exact h_transfer_j
+
+/--
+On a simple cycle, if a harmonic form is supported on that cycle,
+then it has the same value on every edge of the cycle.
+
+This is the key reduction: instead of solving N equations (one per node),
+we reduce to a single scalar k that describes the entire harmonic form.
+-/
+-- Helper: next is surjective (since it's injective and Fin n is finite)
+lemma next_surjective {n : ℕ} [Fintype (Fin n)] (cycle : SimpleCycle n) :
+    Function.Surjective cycle.next := by
+  intro j
+  use cycle.prev j
+  exact cycle.next_prev j
+
+-- Helper: next is bijective
+lemma next_bijective {n : ℕ} [Fintype (Fin n)] (cycle : SimpleCycle n) :
+    Function.Bijective cycle.next :=
+  ⟨cycle.next_injective, next_surjective cycle⟩
+
+theorem harmonic_constant_on_simple_cycle {n : ℕ} [Fintype (Fin n)]
+    (cycle : SimpleCycle n) (γ : C1 n)
+    (h_harm : IsHarmonic γ)
+    (h_support : SupportedOnCycle cycle γ)
+    [Inhabited (Fin n)] :
+  ∃ k : ℝ, ∀ i : Fin n, γ.val i (cycle.next i) = k := by
+  classical
+  -- Use the value at an arbitrary edge as k
+  let i₀ : Fin n := default
+  use γ.val i₀ (cycle.next i₀)
+
+  intro i
+
+  -- Key: All consecutive edges are equal
+  have h_consec : ∀ j : Fin n, γ.val j (cycle.next j) = γ.val (cycle.next j) (cycle.next (cycle.next j)) :=
+    fun j => consecutive_edges_equal cycle γ h_harm h_support j
+
+  -- Define the function that maps each node to the value of its outgoing edge
+  let f : Fin n → ℝ := fun j => γ.val j (cycle.next j)
+
+  -- We need to show f is constant
+  -- Since next is a bijection, every element j' can be written as next(j) for some j
+  -- Therefore: f(j) = γ(j, next(j)) = γ(next(j), next²(j)) = f(next(j))
+
+  have h_f_constant : ∀ j : Fin n, f j = f (cycle.next j) := by
+    intro j
+    exact h_consec j
+
+  -- Now we show that f(i) = f(i₀) for all i
+  -- Strategy: Since next is surjective, we can write i = next^k(i₀) for some k
+  -- Then f(i) = f(next^k(i₀)) = f(next^{k-1}(i₀)) = ... = f(i₀)
+
+  -- First, show that f(next^k(j)) = f(j) for all k and j
+  have h_iterate : ∀ (j : Fin n) (k : ℕ), f (cycle.next^[k] j) = f j := by
+    intro j k
+    induction k with
+    | zero => rfl
+    | succ k ih =>
+      simp only [Function.iterate_succ_apply']
+      calc f (cycle.next (cycle.next^[k] j))
+          = f (cycle.next^[k] j) := (h_f_constant _).symm
+        _ = f j := ih
+
+  -- Since next is surjective, we can "walk backwards" from i to i₀
+  -- i = next(j₁) for some j₁, j₁ = next(j₂), etc.
+  -- Since Fin n is finite, this sequence must eventually hit i₀
+
+  -- Use the fact that for a bijection σ, if f ∘ σ = f, then f is constant
+  -- on each orbit. Since next is a bijection, we need to show all elements
+  -- are in the same orbit.
+
+  -- For a bijection on Fin n, either it's the identity or it has cycles
+  -- Since next and prev are inverses and both are non-trivial (unless n=1),
+  -- the entire set Fin n forms a single cycle.
+
+  -- Actually, here's the key insight: since next is bijective and Fin n is finite,
+  -- we can apply next sufficiently many times to get from any element to any other
+  -- Specifically, for the orbit of i₀ under next: {i₀, next(i₀), next²(i₀), ...}
+  -- Since next is injective and Fin n is finite, this orbit must eventually repeat
+  -- And since next is surjective, the orbit must be all of Fin n
+
+  -- Therefore: i ∈ orbit of i₀, so ∃k. next^k(i₀) = i
+  -- Thus: f(i) = f(next^k(i₀)) = f(i₀)
+
+  --By surjectivity and injectivity, we know next permutes Fin n
+  -- We need to show that all of Fin n is connected by next
+  -- Use that we can reach any element by iterating next from any starting point
+
+  -- Key claim: For any i, there exists k such that next^[k](i₀) = i
+  -- Proof: Consider the sequence i₀, next(i₀), next²(i₀), ...
+  -- Since Fin n is finite and next is injective, this sequence must eventually repeat
+  -- Say next^[a](i₀) = next^[b](i₀) with a < b
+  -- Then next^[b-a](i₀) = i₀ (by injectivity)
+  -- So next has finite order, say m
+  -- Since next is also surjective on Fin n, the orbit of i₀ has size m
+  -- But the orbit of i₀ ⊆ Fin n and next is bijective
+  -- So the orbit of i₀ = Fin n (by counting)
+  --Therefore ∃k. next^[k](i₀) = i
+
+  -- Prove that all elements are in the orbit of i₀
+  -- Strategy: Since next is bijective on a finite set, its orbit partitions the set
+  -- For SimpleCycle, the entire Fin n is one orbit
+  have h_in_orbit : ∃ k : ℕ, cycle.next^[k] i₀ = i := by
+    classical
+
+    -- Key insight: since next is injective on Fin n (finite type),
+    -- by pigeonhole principle, iterating next from i₀ must eventually cycle
+    -- And since next is also surjective, this orbit contains all elements
+
+    -- Use Finset to find the orbit explicitly
+    -- The orbit of i₀ is {next^0(i₀), next^1(i₀), next^2(i₀), ...}
+    -- Since Fin n is finite and next is injective, this sequence must repeat
+    -- Say next^p(i₀) = i₀ for some minimal p > 0 (the period)
+    -- Then the orbit is {next^0(i₀), ..., next^{p-1}(i₀)}
+
+    -- Since next is bijective, |orbit| must equal |Fin n|
+    -- Therefore orbit = Fin n, so i ∈ orbit
+
+    -- Use surjectivity repeatedly: since next is surjective,
+    -- we can write i = next(j₁) for some j₁
+    -- Similarly j₁ = next(j₂) for some j₂, etc.
+    -- This gives a backward sequence: i ← j₁ ← j₂ ← ...
+    -- Since Fin n is finite, this sequence must eventually hit i₀
+
+    -- Since next and prev are inverses, and both are bijections on Fin n,
+    -- we can construct the orbit explicitly
+
+    -- Define a function that counts how many prev steps from i to i₀
+    -- Since Fin n is finite, we can use WellFounded induction
+
+    -- Alternative: use that the orbit of any element under a bijection
+    -- on a finite set eventually returns to itself
+    -- Combined with surjectivity, this means every element is in every orbit
+
+    -- Convert next into an Equiv.Perm and use SameCycle lemmas
+    let σ : Equiv.Perm (Fin n) := Equiv.ofBijective cycle.next (next_bijective cycle)
+
+    -- For a SimpleCycle, all elements are in the same cycle
+    -- We need to show SameCycle σ i₀ i
+
+    -- SameCycle means ∃ k : ℤ, σ^k i₀ = i
+    -- Since we need ℕ, we'll use the variant that gives us natural powers
+
+    -- Key fact: in a SimpleCycle structure, every element is connected
+    -- Because next and prev are global inverses on ALL of Fin n
+    -- This means σ is a single n-cycle (not multiple disjoint cycles)
+
+    have h_same_cycle : Equiv.Perm.SameCycle σ i₀ i := by
+      -- SameCycle σ i₀ i means ∃ k : ℤ, σ^k i₀ = i
+      -- Since σ is bijective on a finite set, we can find such a k
+
+      -- Strategy: Use that σ⁻¹ = prev, and walk backward from i to i₀
+      -- Since Fin n is finite, this walk must eventually hit i₀
+
+      -- For now, use a classical argument: the orbit of i₀ under σ
+      -- must equal all of Fin n (since σ is a bijection on a finite set
+      -- with next and prev as global inverses)
+
+      -- SameCycle is defined as: ∃ i : ℤ, (σ ^ i) i₀ = i
+      -- We can use that σ is surjective to find this i
+
+      classical
+
+      -- Construct the witness using Finset.image
+      -- The orbit of i₀ is the image of {0, 1, ..., n-1} under k ↦ σ^k i₀
+
+      -- Since σ is a bijection, its orbit must cover all of Fin n
+      -- Use Fintype.card to show orbit size = n
+
+      -- Actually, we can use a simpler fact: on a finite set,
+      -- a bijection's positive powers are all distinct until they cycle
+      -- Since there are only n elements, σ^n i₀ must equal i₀ (pigeonhole)
+      -- And by surjectivity, every element appears in {σ^0 i₀, ..., σ^(n-1) i₀}
+
+      -- For a SimpleCycle, σ forms a single cycle on all of Fin n
+      -- This follows from next and prev being global inverses
+
+      -- We'll show that σ.IsCycleOn Finset.univ
+      -- Then use IsCycleOn.exists_pow_eq to get the existence
+
+      -- However, proving IsCycleOn requires showing the cycle structure explicitly
+      -- For now, we use a more direct approach
+
+      -- Since σ is a bijection on a finite set, we know:
+      -- 1. σ has finite order (say m)
+      -- 2. The orbit of any element has size ≤ m
+      -- 3. Since σ is bijective, orbit partitions the set
+      -- 4. For SimpleCycle, we expect one orbit of size n
+
+      -- Use the connected property of SimpleCycle
+      have h_conn := cycle.connected i₀ i
+      obtain ⟨k, hk⟩ := h_conn
+
+      -- We have next^[k] i₀ = i
+      -- Need to show σ^k i₀ = i
+      -- We proved earlier that σ^m x = next^[m] x for all m, x
+      have h_pow_eq_next : ∀ m : ℕ, ∀ x : Fin n, (σ ^ m) x = cycle.next^[m] x := by
+        intro m x
+        induction m generalizing x with
+        | zero => simp [pow_zero, Function.iterate_zero]
+        | succ m ih =>
+          simp only [pow_succ]
+          rw [Equiv.Perm.mul_apply]
+          have h_σ : σ x = cycle.next x := rfl
+          rw [h_σ, ih]
+          rfl
+
+      use (k : ℤ)
+      rw [zpow_natCast, h_pow_eq_next, hk]
+
+    -- Now use the lemma that SameCycle implies exists pow
+    have := Equiv.Perm.SameCycle.exists_nat_pow_eq h_same_cycle
+    obtain ⟨k, hk⟩ := this
+
+    -- σ^k applied = cycle.next^[k] by definition of σ
+    have h_pow_eq : ∀ m : ℕ, ∀ x : Fin n, (σ ^ m) x = cycle.next^[m] x := by
+      intro m x
+      induction m generalizing x with
+      | zero => simp [pow_zero, Function.iterate_zero]
+      | succ m ih =>
+        -- Goal: (σ^(m+1)) x = cycle.next^[m+1] x
+        -- LHS: (σ^m * σ) x = σ^m (σ x) = σ^m (cycle.next x) = cycle.next^[m] (cycle.next x)
+        -- RHS: cycle.next (cycle.next^[m] x)
+        simp only [pow_succ]
+        rw [Equiv.Perm.mul_apply]
+        -- σ x = cycle.next x by definition of σ
+        have h_σ : σ x = cycle.next x := rfl
+        rw [h_σ, ih]
+        rfl
+
+    exact ⟨k, by rw [← h_pow_eq, hk]⟩
+
+  obtain ⟨k, hk⟩ := h_in_orbit
+  calc f i
+      = f (cycle.next^[k] i₀) := by rw [←hk]
+    _ = f i₀ := h_iterate i₀ k
+
 end DiscreteHodge

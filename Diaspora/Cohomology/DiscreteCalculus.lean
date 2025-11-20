@@ -14,6 +14,7 @@ import Mathlib.Algebra.BigOperators.Ring.Finset
 import Mathlib.Data.Real.Basic
 import Mathlib.Data.Fin.Basic
 import Mathlib.Data.Complex.Basic
+import Mathlib.Tactic.Linarith
 
 open BigOperators Complex
 
@@ -50,6 +51,53 @@ noncomputable def residual {n : ℕ} (ϕ : C0 n) (σ : C1 n) : C1 n :=
 /-- Harmonic forms: divergence-free at every node -/
 def IsHarmonic {n : ℕ} [Fintype (Fin n)] (σ : C1 n) : Prop :=
   ∀ i : Fin n, ∑ j : Fin n, σ.val i j = 0
+
+/--
+Harmonic Flow Conservation (Kirchhoff's Current Law).
+
+If a node `i` acts as a bridge strictly between `prev` and `next`
+(meaning γ is zero on all other edges connected to `i`),
+then the harmonic flow entering from `prev` must exactly equal the flow exiting to `next`.
+
+This reduces solving harmonic forms on cycles from N linear equations to 1 variable.
+-/
+lemma harmonic_flow_transfer {n : ℕ} [Fintype (Fin n)]
+  (γ : C1 n) (i prev next : Fin n)
+  (h_harm : IsHarmonic γ)
+  (h_isolation : ∀ x, x ≠ prev ∧ x ≠ next → γ.val i x = 0) :
+  γ.val prev i = γ.val i next := by
+  have h_div_zero := h_harm i
+  unfold IsHarmonic at h_div_zero
+
+  let relevant : Finset (Fin n) := {prev, next}
+
+  rw [←Finset.sum_subset (s₁ := relevant)] at h_div_zero
+  swap
+  · simp
+  swap
+  · intro x _ hx
+    have : x ≠ prev ∧ x ≠ next := by
+      unfold relevant at hx
+      simp only [Finset.mem_insert, Finset.mem_singleton] at hx
+      push_neg at hx
+      exact hx
+    exact h_isolation x this
+
+  by_cases h : prev = next
+  · subst h
+    have : γ.val i prev = 0 := by
+      have eq : ({prev, prev} : Finset (Fin n)) = {prev} := by simp
+      have : ∑ x ∈ relevant, γ.val i x = ∑ x ∈ ({prev} : Finset (Fin n)), γ.val i x := by
+        unfold relevant
+        rw [eq]
+      rw [this] at h_div_zero
+      simp at h_div_zero
+      exact h_div_zero
+    rw [γ.skew prev i, this]
+    linarith
+  · simp only [relevant, Finset.sum_insert, Finset.mem_singleton, h, not_false_eq_true, Finset.sum_singleton] at h_div_zero
+    rw [γ.skew i prev] at h_div_zero
+    linarith
 
 /-- The divergence operator d*: C¹ → C⁰ (negative adjoint of coboundary) -/
 noncomputable def divergence {n : ℕ} [Fintype (Fin n)] (σ : C1 n) : C0 n :=

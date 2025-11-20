@@ -5,3 +5,4 @@ import Diaspora.DiscreteCalculus
 import Diaspora.HodgeDecomposition
 import Diaspora.HarmonicAnalysis
 import Diaspora.QuantumDynamics
+import Diaspora.TopologyChange

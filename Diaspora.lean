@@ -27,8 +27,10 @@ import Diaspora.Physics.PoissonEquation
 import Diaspora.Physics.BlackHoleInformationPreservation
 
 -- Cohomological foundation: discrete Hodge theory on graphs
-import Diaspora.Cohomology.DiscreteHodge
-import Diaspora.Cohomology.QuantumHodge
+import Diaspora.Cohomology.DiscreteCalculus
+import Diaspora.Cohomology.HodgeDecomposition
+import Diaspora.Cohomology.HarmonicAnalysis
+import Diaspora.Cohomology.QuantumDynamics
 
 -- Experiments exploring consequences of the framework
 import Diaspora.Experiments.PurposefulFrustration

@@ -18,8 +18,10 @@ The entire project is **formally verified**, meaning all definitions are mathema
 **This project is currently in a foundational pivot.** The gauge-theoretic presentation below provides intuitive understanding of holonomy, frustration, and configuration spaces. However, the deep mathematical structure underlying all of this has been revealed: **Diaspora is discrete Hodge theory on graphs**.
 
 The `Diaspora.Cohomology` module contains:
-- **`DiscreteHodge.lean`**: Complete cohomological foundation with Hodge decomposition proven from first principles (zero axioms, using finite-dimensional spectral theorem)
-- **`QuantumHodge.lean`**: Extension to complex-valued wavefunctions, Schrödinger evolution, and Berry phase
+- **`DiscreteCalculus.lean`**: Foundational definitions (cochains, chains, operators, inner products) - compiles in ~2s
+- **`HodgeDecomposition.lean`**: The heavy decomposition proof (σ = dϕ + γ with orthogonality) - isolated functional analysis
+- **`HarmonicAnalysis.lean`**: Physical theorems (Stokes, holonomy, spectral theory) - algebraic consequences of decomposition
+- **`QuantumDynamics.lean`**: Quantum extensions (time evolution, Berry phase) - builds on harmonic framework
 
 Going forward:
 - **New development** will build from the Hodge theory foundation in `Cohomology/`
@@ -190,7 +192,7 @@ This proves that inheriting historically-optimized structure beats starting from
 
 This reveals the deep mathematical structure underlying all of Diaspora: **the entire framework is discrete Hodge theory on graphs**.
 
-### Classical Theory (`DiscreteHodge.lean`)
+### Classical Theory (`DiscreteCalculus.lean`, `HodgeDecomposition.lean`, `HarmonicAnalysis.lean`)
 
 * **The Dictionary:**
     * **Phases** (ω) = 0-cochains C⁰(G, ℝ)
@@ -216,7 +218,7 @@ This reveals the deep mathematical structure underlying all of Diaspora: **the e
     * `exact_form_vanishes_on_cycles`: Stokes' theorem - ⟨dϕ, c⟩ = 0 for all cycles c
     * `zero_is_eigenvalue`: Constant phases are gauge freedom (kernel of Laplacian)
 
-### Quantum Extension (`QuantumHodge.lean`)
+### Quantum Extension (`QuantumDynamics.lean`)
 
 * **Extension to ℂ:** Replace real phases with complex wavefunctions ψ: C⁰(G, ℂ)
 * **Hermitian Structure:** Inner products use conjugation ⟨ψ|φ⟩ = Σᵢ star(ψᵢ)·φᵢ
@@ -325,30 +327,43 @@ This reveals the deep mathematical structure underlying all of Diaspora: **the e
         - Mass term emerges purely from rung constraint frustration, not added by hand.
     * **Physical Interpretation**: Matter (massive fields) = antisymmetric excitations on graphs with cycles. Light (massless waves) = symmetric excitations. Inertia is the cost of maintaining coherence across topological loops.
     * Complete proof with zero sorrys using Euler-Lagrange equations and derivative calculus.
-* **`Diaspora/Cohomology/DiscreteHodge.lean`**
-    * **The mathematical foundation** - Diaspora is discrete Hodge theory on graphs.
-    * **Chain Complexes**: C⁰ (0-cochains on vertices), C¹ (skew-symmetric 1-cochains on edges), coboundary d⁰: C⁰ → C¹.
+* **`Diaspora/Cohomology/DiscreteCalculus.lean`**
+    * **Foundational vocabulary** - All definitions with minimal proofs (~150 lines, compiles in ~2s).
+    * **Classical Cochains**: C⁰ (0-cochains on vertices), C¹ (skew-symmetric 1-cochains on edges), coboundary d⁰: C⁰ → C¹.
     * **Inner Products**: L² inner product on 1-cochains with norm_sq.
+    * **Operators**: divergence (d*), graph_laplacian (Δ = d*∘d).
+    * **Chains**: Chain1 structure for cycles and holonomy evaluation.
+    * **Quantum Cochains**: QC⁰ (complex 0-cochains), QC¹, quantum operators.
+    * Provides fast-compiling vocabulary for entire theory.
+* **`Diaspora/Cohomology/HodgeDecomposition.lean`**
+    * **The heavy proof** - Hodge decomposition via functional analysis (~320 lines, compiles in ~10s).
     * **Hodge Decomposition**: Proven from finite-dimensional spectral theorem - every σ uniquely decomposes as σ = dϕ + γ where dϕ is exact, γ is harmonic, ⟨dϕ, γ⟩ = 0.
     * **Main Theorems:**
-        - `hodge_decomposition`: Existence and uniqueness via infDist minimization and closure
+        - `euler_lagrange`: 112-line variational proof (minimizer satisfies Δϕ = d*σ)
+        - `hodge_decomposition`: 99-line existence proof via infDist minimization and closure
+    * Isolates heavyweight imports (InnerProductSpace.Projection, FiniteDimension).
+    * Downstream files import theorem statements, not proof details.
+* **`Diaspora/Cohomology/HarmonicAnalysis.lean`**
+    * **Physical theorems** - Algebraic consequences of decomposition (~440 lines, compiles in ~6s).
+    * **Main Theorems:**
         - `V_int_is_cohomological_distance`: V_int(X) = ||dω - σ||²
         - `minimum_V_int_is_harmonic_norm`: Min V_int = ||γ||²
         - `harmonic_projection_is_linear`: K_merged = (K₁ + K₂)/2
         - `inheritance_is_linearity`: Scaling σ → α·σ scales optimal ϕ → α·ϕ
         - `pythagorean_from_orthogonality`: ||σ||² = ||dϕ||² + ||γ||²
         - `exact_form_vanishes_on_cycles`: Stokes' theorem on discrete chains
-    * Mass is topological (harmonic forms), relaxation is projection, inheritance is linearity.
-    * Zero axioms, zero sorrys.
-* **`Diaspora/Cohomology/QuantumHodge.lean`**
-    * **Quantum extension** - Complex-valued phases on graphs with Hermitian structure.
-    * **Quantum State Spaces**: QC⁰ (complex 0-cochains), QC¹ (complex 1-cochains).
-    * **Hermitian Inner Products**: ⟨ψ|φ⟩ = Σᵢ star(ψᵢ)·φᵢ with conjugation.
-    * **Quantum Hamiltonian**: Ĥ = -Δ proven Hermitian (`quantum_laplacian_hermitian`).
-    * **Time Evolution**: Schrödinger equation i∂ψ/∂t = Ĥψ.
+        - `holonomy_factor_through_harmonic`: Holonomy depends only on harmonic component
+        - `zero_is_eigenvalue`: Constant phases are gauge freedom (kernel of Laplacian)
+        - `quantum_laplacian_hermitian`: Quantum Hamiltonian is self-adjoint
+        - `quantum_exact_vanishes_on_cycles`: Quantum Stokes' theorem
+    * The "Lego blocks" of the physical theory - mass, relaxation, inheritance as linear algebra.
+* **`Diaspora/Cohomology/QuantumDynamics.lean`**
+    * **Quantum extensions** - Time evolution and Berry phase (~50 lines, compiles in ~4s).
+    * **Time Evolution**: Schrödinger equation i∂ψ/∂t = Ĥψ where Ĥ = -Δ.
     * **Berry Phase**: Quantum holonomy in parameter space via Berry connection A(R₁,R₂) = I·⟨ψ(R₁)|ψ(R₂)⟩.
-    * **Classical Limit**: `quantum_laplacian_extends_classical` proves ℂ-extension recovers ℝ-theory.
-    * Zero axioms, zero sorrys.
+    * **Gauge Transforms**: Phase rotations in parameter space.
+    * Builds on HarmonicAnalysis framework for quantum spectral properties.
+    * Zero axioms, zero sorrys across all four cohomology files.
 * **`Diaspora/Experiments/GravitationalInterferometer.lean`**
     * **Proves gravitational lensing from holonomy** - light bends around high-strain regions.
     * **Interferometer Setup**: Two paths from source to detector:

@@ -988,4 +988,36 @@ theorem holonomy_of_constant_harmonic {n : ℕ} [Fintype (Fin n)]
   rw [this, Finset.sum_const, Finset.card_univ]
   ring
 
+/--
+Topological Quantization.
+If the global holonomy K is an integer (representing a winding number),
+then the local field value k must be a rational number with denominator n.
+
+This derives quantization from finiteness: when a topological invariant
+(integer winding number) is distributed uniformly over a finite number
+of degrees of freedom (n edges), the local field values are forced to
+be discrete rational numbers k = m/n.
+
+This is analogous to flux quantization, angular momentum quantization,
+and charge quantization - but here it emerges from pure topology and
+finiteness rather than being postulated.
+-/
+theorem topological_quantization {n : ℕ} [Fintype (Fin n)] [NeZero n]
+    (cycle : SimpleCycle n) (γ : C1 n) (k : ℝ)
+    (h_const : ∀ i, γ.val i (cycle.next i) = k)
+    (m : ℤ)
+    (h_topological : holonomy γ (SimpleCycle.toChain1 cycle) = m) :
+  k = m / (Fintype.card (Fin n)) := by
+  -- Apply holonomy calibration
+  have h_total := holonomy_of_constant_harmonic cycle γ k h_const
+
+  -- The topological constraint (integer winding) equals the physical sum
+  rw [h_topological] at h_total
+
+  -- Solve for k: m = n·k implies k = m/n
+  have h_card : (Fintype.card (Fin n) : ℝ) ≠ 0 := by simp
+
+  field_simp [h_card] at h_total ⊢
+  linarith
+
 end DiscreteHodge

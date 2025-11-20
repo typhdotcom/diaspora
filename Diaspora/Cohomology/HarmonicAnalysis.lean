@@ -857,7 +857,7 @@ theorem holonomy_of_constant_harmonic {n : ℕ} [Fintype (Fin n)]
       simp [s, Finset.mem_insert, Finset.mem_singleton] at hj
       push_neg at hj
       -- If j is neither prev i nor next i, the coefficient is 0
-      simp only [SimpleCycle.toChain1, Chain1.coeff]
+      simp only [SimpleCycle.toChain1]
       split_ifs with h1 h2
       · -- j = next i ∧ i ≠ next j
         exact absurd h1.1 hj.2
@@ -883,7 +883,7 @@ theorem holonomy_of_constant_harmonic {n : ℕ} [Fintype (Fin n)]
 
       -- Evaluate the coefficient for j = prev i
       have h_coeff_prev : (cycle.toChain1.coeff i (cycle.prev i) : ℝ) = -1 := by
-        simp only [SimpleCycle.toChain1, Chain1.coeff]
+        simp only [SimpleCycle.toChain1]
         have h_not_eq : ¬(cycle.prev i = cycle.next i ∧ i ≠ cycle.next (cycle.prev i)) := by
           simp [h_ne]
         have h_is_prev : i = cycle.next (cycle.prev i) ∧ cycle.prev i ≠ cycle.next i := by
@@ -894,7 +894,7 @@ theorem holonomy_of_constant_harmonic {n : ℕ} [Fintype (Fin n)]
       -- Evaluate the coefficient for j = next i
       have h_coeff_next : (cycle.toChain1.coeff i (cycle.next i) : ℝ) =
                           (if i ≠ cycle.next (cycle.next i) then 1 else 0) := by
-        simp only [SimpleCycle.toChain1, Chain1.coeff, eq_self_iff_true, true_and]
+        simp only [SimpleCycle.toChain1, true_and]
         by_cases h_next2 : i ≠ cycle.next (cycle.next i)
         · simp [h_next2]
         · simp [h_next2]
@@ -937,7 +937,7 @@ theorem holonomy_of_constant_harmonic {n : ℕ} [Fintype (Fin n)]
       -- When prev i = next i, the set s has only one element
       have h_singleton : s = {cycle.next i} := by
         ext j
-        simp [s, h_eq, Finset.mem_insert, Finset.mem_singleton]
+        simp [s, h_eq, Finset.mem_singleton]
 
       rw [h_singleton, Finset.sum_singleton]
 
@@ -949,7 +949,7 @@ theorem holonomy_of_constant_harmonic {n : ℕ} [Fintype (Fin n)]
              _ = cycle.next (cycle.next i) := by rw [h_eq]
 
       have h_coeff_zero : (cycle.toChain1.coeff i (cycle.next i) : ℝ) = 0 := by
-        simp only [SimpleCycle.toChain1, Chain1.coeff, eq_self_iff_true, true_and]
+        simp only [SimpleCycle.toChain1, true_and]
         -- With i = next (next i), the first if condition is false
         have h1 : ¬(i ≠ cycle.next (cycle.next i)) := by
           intro h

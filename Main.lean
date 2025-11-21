@@ -6,3 +6,4 @@ import Diaspora.HodgeDecomposition
 import Diaspora.HarmonicAnalysis
 import Diaspora.QuantumDynamics
 import Diaspora.TopologyChange
+import Diaspora.TopologyDynamics

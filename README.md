@@ -1,8 +1,10 @@
-    o-------o-------o
-   / ↻ \    |    / ↺ \
-  o-----o-[-γ-]-o-----o
-   \   /    |    \   /
-    o-------o-------o
+```
+   o-------o-------o
+  / ↻ \    |    / ↺ \
+ o-----o-[-γ-]-o-----o
+  \   /    |    \   /
+   o-------o-------o
+```
 
 # Diaspora
 **Deriving Physical Intuition from Graph Topology**

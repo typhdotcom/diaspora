@@ -45,10 +45,12 @@ def DynamicGraph.complete (n : ℕ) : DynamicGraph n where
 def DynamicGraph.edge_count {n : ℕ} (G : DynamicGraph n) : ℕ :=
   G.active_edges.card / 2
 
-/-- First Betti number (number of independent cycles).
-For a connected graph: b₁ = |E| - |V| + 1.
-We define it as the edge count minus vertices plus 1, assuming connectivity. -/
-def DynamicGraph.betti_1 {n : ℕ} (G : DynamicGraph n) : ℤ :=
+/--
+Cyclomatic number (circuit rank): counts independent cycles in a connected graph.
+For connected graphs: cyclomatic = |E| - |V| + 1.
+This is NOT the true first Betti number, which would be |E| - |V| + c where c is the number of connected components.
+-/
+def DynamicGraph.cyclomatic_number {n : ℕ} (G : DynamicGraph n) : ℤ :=
   (G.edge_count : ℤ) - (n : ℤ) + 1
 
 /-! ## Constraints on Dynamic Graphs -/
@@ -130,7 +132,6 @@ noncomputable def evolve_step {n : ℕ} [Fintype (Fin n)]
 
 /--
 Removing an edge decreases edge count by 1 (since we erase both (i,j) and (j,i)).
-Actually, since edges are undirected, we count each edge once in the Finset.
 -/
 lemma edge_count_decreases_by_one {n : ℕ} (G : DynamicGraph n) (i j : Fin n)
     (h_active : (i, j) ∈ G.active_edges)
@@ -138,35 +139,41 @@ lemma edge_count_decreases_by_one {n : ℕ} (G : DynamicGraph n) (i j : Fin n)
   (remove_edge G i j).edge_count + 1 = G.edge_count := by
   unfold DynamicGraph.edge_count remove_edge
   simp only
-  -- Erasing (i,j) and (j,i) removes 2 from card, which is 1 undirected edge
   have h_sym : (j, i) ∈ G.active_edges := (G.symmetric i j).mp h_active
   have h_ne_pair : (i, j) ≠ (j, i) := by
     intro h_eq
     injection h_eq with hi hj
-    exact h_ne (hi.trans hj.symm)
-
-  have h_card_after_first : (G.active_edges.erase (i, j)).card + 1 = G.active_edges.card := by
-    rw [Finset.card_erase_of_mem h_active]
-
-  have h_card_after_second :
-      ((G.active_edges.erase (i, j)).erase (j, i)).card + 1 = (G.active_edges.erase (i, j)).card := by
-    rw [Finset.card_erase_of_mem]
-    simp [Finset.mem_erase, h_sym, h_ne_pair]
-
+    exact h_ne hi
+  -- After erasing both (i,j) and (j,i), card decreases by 2
+  have h_card : ((G.active_edges.erase (i, j)).erase (j, i)).card = G.active_edges.card - 2 := by
+    have h1 := Finset.card_erase_of_mem h_active
+    have h_mem_after : (j, i) ∈ G.active_edges.erase (i, j) := by
+      simp only [Finset.mem_erase]
+      exact ⟨h_ne_pair.symm, h_sym⟩
+    have h2 := Finset.card_erase_of_mem h_mem_after
+    omega
+  -- So edge_count decreases by 1
+  rw [h_card]
+  have h_card_pos : G.active_edges.card ≥ 2 := by
+    have : G.active_edges.card > 0 := Finset.card_pos.mpr ⟨(i,j), h_active⟩
+    have : G.active_edges.card > 1 := by
+      apply Finset.one_lt_card.mpr
+      exact ⟨(i,j), h_active, (j,i), h_sym, h_ne_pair⟩
+    omega
   omega
 
 /--
-Removing an edge increases the first Betti number (creates a new cycle).
-This is the topological signature of black hole formation.
+Removing an edge decreases the cyclomatic number (removes a cycle).
+This represents the graph becoming more tree-like.
 
-For now assumes the graph stays connected. Full proof needs connectivity theory.
+Assumes the graph stays connected after removal.
 -/
-theorem betti_increases_on_edge_removal {n : ℕ} (G : DynamicGraph n) (i j : Fin n)
+theorem cyclomatic_decreases_on_edge_removal {n : ℕ} (G : DynamicGraph n) (i j : Fin n)
     (h_active : (i, j) ∈ G.active_edges)
     (h_ne : i ≠ j)
-    (h_connected : True) : -- Graph stays connected after removal
-  DynamicGraph.betti_1 (remove_edge G i j) = DynamicGraph.betti_1 G + 1 := by
-  unfold DynamicGraph.betti_1
+    (_h_connected : True) : -- Graph stays connected after removal
+  DynamicGraph.cyclomatic_number (remove_edge G i j) + 1 = DynamicGraph.cyclomatic_number G := by
+  unfold DynamicGraph.cyclomatic_number
   have h_edge := edge_count_decreases_by_one G i j h_active h_ne
   omega
 
@@ -278,16 +285,61 @@ theorem equilibrium_is_stable {n : ℕ} [Fintype (Fin n)]
 /-! ## Iterated Evolution -/
 
 /--
-Iterate evolution until equilibrium.
-In practice, this would need a termination proof (finite edges ensures termination).
-
-For now, we axiomatize this. A proper version would either:
-1. Use a well-founded recursion on (number of active edges, fuel)
-2. Return Option (DynamicGraph n) to signal timeout
-3. Take decidable equality as a parameter
+If evolution changes the graph, the number of active edges strictly decreases.
 -/
-axiom evolve_to_equilibrium {n : ℕ} [Fintype (Fin n)]
+theorem evolve_decreases_card {n : ℕ} [Fintype (Fin n)]
     (G : DynamicGraph n) (ϕ : C0 n) (σ : C1 n) (C_max : ℝ)
-    (fuel : ℕ := 100) : DynamicGraph n
+    (h_changed : evolve_step G ϕ σ C_max ≠ G) :
+  (evolve_step G ϕ σ C_max).active_edges.card < G.active_edges.card := by
+  unfold evolve_step at h_changed
+  unfold evolve_step
+  split
+  · rename_i i j h_found
+    -- Edge was removed
+    unfold remove_edge
+    simp only
+    -- (i,j) was active
+    unfold find_overstressed_edge at h_found
+    have h_mem := List.find?_some_mem _ _ _ h_found
+    have h_active : (i, j) ∈ G.active_edges := Finset.mem_toList.mp h_mem
+    -- (j,i) also active by symmetry
+    have h_sym : (j, i) ∈ G.active_edges := (G.symmetric i j).mp h_active
+    -- First erase decreases card
+    have h_first : (G.active_edges.erase (i, j)).card < G.active_edges.card :=
+      Finset.card_lt_card (Finset.erase_ssubset h_active)
+    -- Second erase decreases card further (or stays same if (i,j) = (j,i))
+    by_cases h_eq : (i, j) = (j, i)
+    · -- If (i,j) = (j,i), second erase is no-op
+      have h_not_mem : (j, i) ∉ G.active_edges.erase (i, j) := by
+        rw [h_eq]
+        simp [Finset.mem_erase]
+      rw [Finset.erase_eq_of_notMem h_not_mem]
+      exact h_first
+    · -- If (i,j) ≠ (j,i), second erase decreases card
+      have h_mem_after : (j, i) ∈ G.active_edges.erase (i, j) := by
+        simp only [Finset.mem_erase]
+        exact ⟨Ne.symm h_eq, h_sym⟩
+      calc ((G.active_edges.erase (i, j)).erase (j, i)).card
+          < (G.active_edges.erase (i, j)).card := Finset.card_lt_card (Finset.erase_ssubset h_mem_after)
+        _ < G.active_edges.card := h_first
+  · -- No change (contradiction with h_changed)
+    rename_i h_none
+    simp only [h_none] at h_changed
+    exact absurd rfl h_changed
+
+/--
+Iterate evolution until equilibrium.
+Termination is guaranteed: each step strictly decreases the number of edges.
+-/
+noncomputable def evolve_to_equilibrium {n : ℕ} [Fintype (Fin n)] [DecidableEq (DynamicGraph n)]
+    (G : DynamicGraph n) (ϕ : C0 n) (σ : C1 n) (C_max : ℝ) :
+    DynamicGraph n :=
+  if h : evolve_step G ϕ σ C_max = G then
+    G
+  else
+    have _ : (evolve_step G ϕ σ C_max).active_edges.card < G.active_edges.card :=
+      evolve_decreases_card G ϕ σ C_max h
+    evolve_to_equilibrium (evolve_step G ϕ σ C_max) ϕ σ C_max
+termination_by G.active_edges.card
 
 end DiscreteHodge

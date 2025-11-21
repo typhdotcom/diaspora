@@ -14,7 +14,7 @@ import Mathlib.Data.Finset.Basic
 import Mathlib.Algebra.BigOperators.Group.Finset.Sigma
 import Mathlib.Algebra.BigOperators.Group.Finset.Piecewise
 
-open BigOperators
+open BigOperators Classical
 
 namespace DiscreteHodge
 
@@ -69,16 +69,100 @@ def DynamicC1 (n : ℕ) (G : DynamicGraph n) :=
 def DynamicC1.toC1 {n : ℕ} {G : DynamicGraph n} (σ : DynamicC1 n G) : C1 n :=
   σ.val
 
-/-! ## Finding Overstressed Edges -/
+/-! ## Finding Overstressed Edges (Max Strain Logic) -/
+
+/-- The comparison logic for finding max strain -/
+noncomputable def select_max_strain_fn {n : ℕ} (ϕ : C0 n) (σ : C1 n) 
+    (best : Option (Fin n × Fin n)) (curr : Fin n × Fin n) : Option (Fin n × Fin n) :=
+  match best with
+  | none => some curr
+  | some b => if edge_strain ϕ σ curr.1 curr.2 > edge_strain ϕ σ b.1 b.2 then some curr else some b
+
+/-- Helper: Fold function to find the edge with the maximum strain in a list -/
+noncomputable def select_max_strain {n : ℕ} (ϕ : C0 n) (σ : C1 n)
+    (candidates : List (Fin n × Fin n)) : Option (Fin n × Fin n) :=
+  candidates.foldl (select_max_strain_fn ϕ σ) none
+
+/-- Auxiliary Lemma: General correctness of the max strain fold logic -/
+lemma select_max_strain_aux {n : ℕ} (ϕ : C0 n) (σ : C1 n)
+    (l : List (Fin n × Fin n)) (init : Option (Fin n × Fin n)) (res : Fin n × Fin n)
+    (h : l.foldl (select_max_strain_fn ϕ σ) init = some res) : 
+    res ∈ l ∨ (∃ x, init = some x ∧ res = x) := by
+  induction l generalizing init with
+  | nil =>
+    simp only [List.foldl_nil] at h
+    right
+    use res
+  | cons head tail ih =>
+    simp only [List.foldl_cons] at h
+    specialize ih (select_max_strain_fn ϕ σ init head) h
+    rcases ih with h_in_tail | ⟨x, h_acc_eq, h_res_eq⟩
+    · left
+      exact List.mem_cons_of_mem head h_in_tail
+    · -- We know res = x. Replace x with res in the hypothesis.
+      rw [←h_res_eq] at h_acc_eq 
+      simp only [select_max_strain_fn] at h_acc_eq
+      cases init with
+      | none =>
+        -- If init was none, acc became some head.
+        injection h_acc_eq with h_head
+        rw [←h_head]
+        left
+        exact List.mem_cons_self
+      | some b =>
+        -- If init was some b, acc became either head or b.
+        simp only [] at h_acc_eq
+        split_ifs at h_acc_eq
+        · -- Case: head was better. Acc became head.
+          injection h_acc_eq with h_head
+          rw [←h_head]
+          left
+          exact List.mem_cons_self
+        · -- Case: b was better/equal. Acc stayed b.
+          injection h_acc_eq with h_b
+          rw [←h_b]
+          right
+          use b
+
+/-- Lemma: The result of select_max_strain is always a member of the input list -/
+lemma select_max_strain_mem {n : ℕ} (ϕ : C0 n) (σ : C1 n)
+    (l : List (Fin n × Fin n)) (res : Fin n × Fin n)
+    (h : select_max_strain ϕ σ l = some res) : res ∈ l := by
+  unfold select_max_strain at h
+  have aux := select_max_strain_aux ϕ σ l none res h
+  cases aux with
+  | inl h_in => exact h_in
+  | inr h_init =>
+    obtain ⟨x, h_none, _⟩ := h_init
+    contradiction
 
 /--
-Find an edge that exceeds the breaking threshold.
-Returns the first such edge found (if any).
+Find the edge that exceeds the breaking threshold with the MAXIMUM strain.
+Returns the single worst edge found (if any).
 -/
 noncomputable def find_overstressed_edge {n : ℕ} [Fintype (Fin n)]
     (G : DynamicGraph n) (ϕ : C0 n) (σ : C1 n) (C_max : ℝ) :
     Option (Fin n × Fin n) :=
-  G.active_edges.toList.find? (fun (i, j) => edge_strain ϕ σ i j > C_max)
+  let candidates := G.active_edges.toList.filter (fun (i, j) => decide (edge_strain ϕ σ i j > C_max))
+  select_max_strain ϕ σ candidates
+
+/--
+Key Theorem: If find_overstressed_edge returns an edge, it is active and overstressed.
+-/
+theorem find_overstressed_edge_spec {n : ℕ} [Fintype (Fin n)]
+    (G : DynamicGraph n) (ϕ : C0 n) (σ : C1 n) (C_max : ℝ)
+    (i j : Fin n)
+    (h_some : find_overstressed_edge G ϕ σ C_max = some (i, j)) :
+    (i, j) ∈ G.active_edges ∧ edge_strain ϕ σ i j > C_max := by
+  unfold find_overstressed_edge at h_some
+  have h_in_candidates := select_max_strain_mem ϕ σ _ _ h_some
+  rw [List.mem_filter] at h_in_candidates
+  constructor
+  · rw [Finset.mem_toList] at h_in_candidates
+    exact h_in_candidates.1
+  · have h_bool := h_in_candidates.2
+    simp only [decide_eq_true_iff] at h_bool
+    exact h_bool
 
 /-! ## Topological Evolution -/
 
@@ -121,7 +205,7 @@ def remove_edge {n : ℕ} (G : DynamicGraph n) (i j : Fin n) : DynamicGraph n wh
     exact G.no_loops a h3
 
 /--
-Single step of evolution: if an overstressed edge exists, break it.
+Single step of evolution: if an overstressed edge exists, break the worst one.
 Otherwise, return the graph unchanged.
 -/
 noncomputable def evolve_step {n : ℕ} [Fintype (Fin n)]
@@ -188,34 +272,6 @@ theorem evolve_preserves_vertices {n : ℕ} [Fintype (Fin n)]
     (_ : DynamicGraph n) (_ : C0 n) (_ : C1 n) (_ : ℝ) :
   True := by trivial
 
-/-- If find? returns some, the element satisfies the predicate -/
-lemma List.find?_some_prop {α : Type*} (xs : List α) (p : α → Bool) (a : α)
-    (h : xs.find? p = some a) : p a = true := by
-  induction xs with
-  | nil => contradiction
-  | cons x xs ih =>
-    unfold List.find? at h
-    split at h
-    · injection h with h_eq
-      subst h_eq
-      assumption
-    · exact ih h
-
-/-- If find? returns some, the element is in the list -/
-lemma List.find?_some_mem {α : Type*} (xs : List α) (p : α → Bool) (a : α)
-    (h : xs.find? p = some a) : a ∈ xs := by
-  induction xs with
-  | nil => contradiction
-  | cons x xs ih =>
-    unfold List.find? at h
-    split at h
-    · injection h with h_eq
-      subst h_eq
-      simp
-    · simp
-      right
-      exact ih h
-
 /--
 If evolution changes the graph, it's because an edge was overstressed.
 -/
@@ -226,14 +282,9 @@ theorem evolve_changes_only_if_overstressed {n : ℕ} [Fintype (Fin n)]
   unfold evolve_step at h_changed
   split at h_changed
   · rename_i i j h_found
+    have spec := find_overstressed_edge_spec G ϕ σ C_max i j h_found
     use i, j
-    unfold find_overstressed_edge at h_found
-    have h_mem := List.find?_some_mem _ _ _ h_found
-    have h_prop := List.find?_some_prop _ _ _ h_found
-    simp at h_prop
-    exact ⟨Finset.mem_toList.mp h_mem, h_prop⟩
-  · -- none case: graph unchanged, contradicts h_changed
-    contradiction
+  · contradiction
 
 /-! ## Dynamic Energy Calculation -/
 
@@ -256,50 +307,32 @@ theorem energy_drop_on_break {n : ℕ} [Fintype (Fin n)]
   dynamic_strain_energy G ϕ σ - edge_strain ϕ σ i j := by
   intro G_next
   
-  -- 1. Expose definition
   simp only [dynamic_strain_energy]
-
-  -- 2. Convert nested sums (∑ i, ∑ j) to product sums (∑ p)
-  -- Use simp_rw to penetrate the multiplication and equation
   simp_rw [←Finset.sum_product']
-
-  -- 3. Convert "sum over universe with if" to "sum over active edges"
-  -- ∑ x, if x ∈ S then f x else 0  ==>  ∑ x in S, f x
-  -- logic: we use sum_filter backwards, then simplify filter (· ∈ S) univ to S
   rw [←Finset.sum_filter, ←Finset.sum_filter]
   simp only [Prod.eta, Finset.filter_mem_eq_inter]
 
-  -- 4. Decompose the sets: G = G_next ∪ {(i,j), (j,i)}
   let S_next := G_next.active_edges
   let f := fun (p : Fin n × Fin n) => edge_strain ϕ σ p.1 p.2
   
-  -- Establish the set relationship
   have h_decomp : G.active_edges = insert (j, i) (insert (i, j) S_next) := by
     have h_sym : (j, i) ∈ G.active_edges := (G.symmetric i j).mp h_active
     have h_ne_pair : (i, j) ≠ (j, i) := by
       intro h_eq; injection h_eq with h_inj; exact h_ne h_inj
-    
-    -- G = (G \ {(i,j)}) + {(i,j)}
+      
     have step1 : G.active_edges = insert (i, j) (G.active_edges.erase (i, j)) := 
       (Finset.insert_erase h_active).symm
       
-    -- (j,i) is in the erased set
     have h_ji_in_erased : (j, i) ∈ G.active_edges.erase (i, j) := by
       simp [Finset.mem_erase, h_ne_pair.symm, h_sym]
       
-    -- G = ((G \ {(i,j)}) \ {(j,i)}) + {(j,i)} + {(i,j)}
     rw [step1]
-    -- Insert (j,i) back into the erased set
     rw [←Finset.insert_erase h_ji_in_erased]
-    -- Swap insertion order to match RHS
     rw [Finset.insert_comm]
-    -- S_next is exactly (G.active_edges.erase (i,j)).erase (j,i)
     rfl
 
-  -- 5. Expand the sum for G
   rw [h_decomp]
 
-  -- Prove (i,j) and (j,i) are NOT in S_next to use sum_insert
   have h_ij_not_in_next : (i, j) ∉ S_next := by
     simp [S_next, G_next, remove_edge, Finset.mem_erase]
   have h_ji_not_in_next : (j, i) ∉ S_next := by
@@ -307,26 +340,19 @@ theorem energy_drop_on_break {n : ℕ} [Fintype (Fin n)]
   have h_ne_pair : (j, i) ≠ (i, j) := by
     intro h; injection h with h'; exact h_ne h'.symm
 
-  -- Prove (j,i) is not in (insert (i,j) S_next)
   have h_ji_not_in_insert : (j, i) ∉ insert (i, j) S_next := by
     simp [h_ne_pair, h_ji_not_in_next]
 
-  -- Simplify univ ×ˢ univ ∩ S to just S
   simp only [Finset.univ_product_univ, Finset.univ_inter]
 
-  -- Expand: Sum(S_next + {ji} + {ij}) = Sum(S_next) + f(ji) + f(ij)
   rw [Finset.sum_insert h_ji_not_in_insert]
   rw [Finset.sum_insert h_ij_not_in_next]
   
-  -- 6. Algebraic Simplification
-  -- Symmetry: strain(j,i) = strain(i,j)
   have h_strain_sym : f (j, i) = f (i, j) := by
     unfold f edge_strain
     rw [(d0 ϕ).skew j i, σ.skew j i]
     ring
 
-  -- Result: 1/2 * (S + f + f) = 1/2 * S + f
-  -- Convert edge_strain expressions to f notation
   change 1 / 2 * ∑ x ∈ G_next.active_edges, f x =
          1 / 2 * (f (j, i) + (f (i, j) + ∑ x ∈ S_next, f x)) - edge_strain ϕ σ i j
   rw [h_strain_sym]
@@ -353,16 +379,12 @@ theorem equilibrium_is_stable {n : ℕ} [Fintype (Fin n)]
   unfold evolve_step
   split
   · rename_i i j h_found
-    -- Found overstressed edge, contradicts equilibrium
-    unfold find_overstressed_edge at h_found
-    have h_mem := List.find?_some_mem _ _ _ h_found
-    have h_prop := List.find?_some_prop _ _ _ h_found
-    simp at h_prop
-    have h_active : (i, j) ∈ G.active_edges := Finset.mem_toList.mp h_mem
+    have spec := find_overstressed_edge_spec G ϕ σ C_max i j h_found
+    have h_active := spec.1
+    have h_strain := spec.2
     have h_bounded := h_eq i j h_active
     linarith
-  · -- No overstressed edge found
-    rfl
+  · rfl
 
 /-! ## Iterated Evolution -/
 
@@ -377,35 +399,28 @@ theorem evolve_decreases_card {n : ℕ} [Fintype (Fin n)]
   unfold evolve_step
   split
   · rename_i i j h_found
-    -- Edge was removed
     unfold remove_edge
     simp only
-    -- (i,j) was active
-    unfold find_overstressed_edge at h_found
-    have h_mem := List.find?_some_mem _ _ _ h_found
-    have h_active : (i, j) ∈ G.active_edges := Finset.mem_toList.mp h_mem
-    -- (j,i) also active by symmetry
+    have spec := find_overstressed_edge_spec G ϕ σ C_max i j h_found
+    have h_active := spec.1
+    
     have h_sym : (j, i) ∈ G.active_edges := (G.symmetric i j).mp h_active
-    -- First erase decreases card
     have h_first : (G.active_edges.erase (i, j)).card < G.active_edges.card :=
       Finset.card_lt_card (Finset.erase_ssubset h_active)
-    -- Second erase decreases card further (or stays same if (i,j) = (j,i))
+
     by_cases h_eq : (i, j) = (j, i)
-    · -- If (i,j) = (j,i), second erase is no-op
-      have h_not_mem : (j, i) ∉ G.active_edges.erase (i, j) := by
+    · have h_not_mem : (j, i) ∉ G.active_edges.erase (i, j) := by
         rw [h_eq]
         simp [Finset.mem_erase]
       rw [Finset.erase_eq_of_notMem h_not_mem]
       exact h_first
-    · -- If (i,j) ≠ (j,i), second erase decreases card
-      have h_mem_after : (j, i) ∈ G.active_edges.erase (i, j) := by
+    · have h_mem_after : (j, i) ∈ G.active_edges.erase (i, j) := by
         simp only [Finset.mem_erase]
         exact ⟨Ne.symm h_eq, h_sym⟩
       calc ((G.active_edges.erase (i, j)).erase (j, i)).card
           < (G.active_edges.erase (i, j)).card := Finset.card_lt_card (Finset.erase_ssubset h_mem_after)
         _ < G.active_edges.card := h_first
-  · -- No change (contradiction with h_changed)
-    rename_i h_none
+  · rename_i h_none
     simp only [h_none] at h_changed
     exact absurd rfl h_changed
 
@@ -423,5 +438,6 @@ noncomputable def evolve_to_equilibrium {n : ℕ} [Fintype (Fin n)] [DecidableEq
       evolve_decreases_card G ϕ σ C_max h
     evolve_to_equilibrium (evolve_step G ϕ σ C_max) ϕ σ C_max
 termination_by G.active_edges.card
+decreasing_by exact evolve_decreases_card G ϕ σ C_max h
 
 end DiscreteHodge

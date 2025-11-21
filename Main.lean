@@ -7,3 +7,6 @@ import Diaspora.HarmonicAnalysis
 import Diaspora.QuantumDynamics
 import Diaspora.TopologyChange
 import Diaspora.TopologyDynamics
+import Diaspora.GlassDynamics
+import Diaspora.FrustratedTriangle
+import Diaspora.FalseVacuum

@@ -11,6 +11,8 @@ configuration space—it changes the configuration space itself.
 
 import Diaspora.TopologyChange
 import Mathlib.Data.Finset.Basic
+import Mathlib.Algebra.BigOperators.Group.Finset.Sigma
+import Mathlib.Algebra.BigOperators.Group.Finset.Piecewise
 
 open BigOperators
 
@@ -29,6 +31,7 @@ structure DynamicGraph (n : ℕ) where
   symmetric : ∀ i j, (i, j) ∈ active_edges ↔ (j, i) ∈ active_edges
   /-- No self-loops -/
   no_loops : ∀ i, (i, i) ∉ active_edges
+deriving DecidableEq
 
 /-- The complete graph on n vertices (all edges active) -/
 def DynamicGraph.complete (n : ℕ) : DynamicGraph n where
@@ -232,24 +235,103 @@ theorem evolve_changes_only_if_overstressed {n : ℕ} [Fintype (Fin n)]
   · -- none case: graph unchanged, contradicts h_changed
     contradiction
 
-/-! ## Energy Conservation During Evolution -/
+/-! ## Dynamic Energy Calculation -/
+
+/-- Sum of strain only on active edges -/
+noncomputable def dynamic_strain_energy {n : ℕ} [Fintype (Fin n)]
+    (G : DynamicGraph n) (ϕ : C0 n) (σ : C1 n) : ℝ :=
+  (1/2) * ∑ i, ∑ j, if (i, j) ∈ G.active_edges then edge_strain ϕ σ i j else 0
 
 /--
-When an edge breaks, the strain energy stored in that edge is released.
-The total system energy (strain + harmonic) is conserved.
-
-This is the discrete analogue of energy-momentum conservation in GR.
+Energy Drop Theorem:
+When an edge breaks, the total strain energy decreases by exactly the amount
+that was stored in that edge.
 -/
-theorem energy_conservation_sketch {n : ℕ} [Fintype (Fin n)]
-    (G : DynamicGraph n) (ϕ : C0 n) (σ : C1 n) (C_max : ℝ)
-    (i j : Fin n) (h_active : (i, j) ∈ G.active_edges) :
-  -- Before: energy is localized strain on edge (i,j)
-  -- After: energy appears as harmonic form (new cycle created)
-  -- Total energy conserved
-  True := by
-  sorry -- Need to define energy on DynamicGraph
-  -- Would prove: E_total(G) = E_total(remove_edge G i j)
-  -- where E_total = strain_energy + harmonic_energy
+theorem energy_drop_on_break {n : ℕ} [Fintype (Fin n)]
+    (G : DynamicGraph n) (ϕ : C0 n) (σ : C1 n) (i j : Fin n)
+    (h_active : (i, j) ∈ G.active_edges)
+    (h_ne : i ≠ j) :
+  let G_next := remove_edge G i j
+  dynamic_strain_energy G_next ϕ σ =
+  dynamic_strain_energy G ϕ σ - edge_strain ϕ σ i j := by
+  intro G_next
+  
+  -- 1. Expose definition
+  simp only [dynamic_strain_energy]
+
+  -- 2. Convert nested sums (∑ i, ∑ j) to product sums (∑ p)
+  -- Use simp_rw to penetrate the multiplication and equation
+  simp_rw [←Finset.sum_product']
+
+  -- 3. Convert "sum over universe with if" to "sum over active edges"
+  -- ∑ x, if x ∈ S then f x else 0  ==>  ∑ x in S, f x
+  -- logic: we use sum_filter backwards, then simplify filter (· ∈ S) univ to S
+  rw [←Finset.sum_filter, ←Finset.sum_filter]
+  simp only [Prod.eta, Finset.filter_mem_eq_inter]
+
+  -- 4. Decompose the sets: G = G_next ∪ {(i,j), (j,i)}
+  let S_next := G_next.active_edges
+  let f := fun (p : Fin n × Fin n) => edge_strain ϕ σ p.1 p.2
+  
+  -- Establish the set relationship
+  have h_decomp : G.active_edges = insert (j, i) (insert (i, j) S_next) := by
+    have h_sym : (j, i) ∈ G.active_edges := (G.symmetric i j).mp h_active
+    have h_ne_pair : (i, j) ≠ (j, i) := by
+      intro h_eq; injection h_eq with h_inj; exact h_ne h_inj
+    
+    -- G = (G \ {(i,j)}) + {(i,j)}
+    have step1 : G.active_edges = insert (i, j) (G.active_edges.erase (i, j)) := 
+      (Finset.insert_erase h_active).symm
+      
+    -- (j,i) is in the erased set
+    have h_ji_in_erased : (j, i) ∈ G.active_edges.erase (i, j) := by
+      simp [Finset.mem_erase, h_ne_pair.symm, h_sym]
+      
+    -- G = ((G \ {(i,j)}) \ {(j,i)}) + {(j,i)} + {(i,j)}
+    rw [step1]
+    -- Insert (j,i) back into the erased set
+    rw [←Finset.insert_erase h_ji_in_erased]
+    -- Swap insertion order to match RHS
+    rw [Finset.insert_comm]
+    -- S_next is exactly (G.active_edges.erase (i,j)).erase (j,i)
+    rfl
+
+  -- 5. Expand the sum for G
+  rw [h_decomp]
+
+  -- Prove (i,j) and (j,i) are NOT in S_next to use sum_insert
+  have h_ij_not_in_next : (i, j) ∉ S_next := by
+    simp [S_next, G_next, remove_edge, Finset.mem_erase]
+  have h_ji_not_in_next : (j, i) ∉ S_next := by
+    simp [S_next, G_next, remove_edge, Finset.mem_erase]
+  have h_ne_pair : (j, i) ≠ (i, j) := by
+    intro h; injection h with h'; exact h_ne h'.symm
+
+  -- Prove (j,i) is not in (insert (i,j) S_next)
+  have h_ji_not_in_insert : (j, i) ∉ insert (i, j) S_next := by
+    simp [h_ne_pair, h_ji_not_in_next]
+
+  -- Simplify univ ×ˢ univ ∩ S to just S
+  simp only [Finset.univ_product_univ, Finset.univ_inter]
+
+  -- Expand: Sum(S_next + {ji} + {ij}) = Sum(S_next) + f(ji) + f(ij)
+  rw [Finset.sum_insert h_ji_not_in_insert]
+  rw [Finset.sum_insert h_ij_not_in_next]
+  
+  -- 6. Algebraic Simplification
+  -- Symmetry: strain(j,i) = strain(i,j)
+  have h_strain_sym : f (j, i) = f (i, j) := by
+    unfold f edge_strain
+    rw [(d0 ϕ).skew j i, σ.skew j i]
+    ring
+
+  -- Result: 1/2 * (S + f + f) = 1/2 * S + f
+  -- Convert edge_strain expressions to f notation
+  change 1 / 2 * ∑ x ∈ G_next.active_edges, f x =
+         1 / 2 * (f (j, i) + (f (i, j) + ∑ x ∈ S_next, f x)) - edge_strain ϕ σ i j
+  rw [h_strain_sym]
+  unfold f edge_strain
+  ring
 
 /-! ## Termination and Equilibrium -/
 

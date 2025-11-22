@@ -13,3 +13,4 @@ import Diaspora.FrustratedTriangle
 import Diaspora.FalseVacuum
 import Diaspora.SelfMeasurement
 import Diaspora.Duality
+import Diaspora.Interaction

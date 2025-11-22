@@ -11,3 +11,4 @@ import Diaspora.TopologicalGenesis
 import Diaspora.GlassDynamics
 import Diaspora.FrustratedTriangle
 import Diaspora.FalseVacuum
+import Diaspora.SelfMeasurement

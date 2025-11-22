@@ -15,31 +15,7 @@ open BigOperators Classical
 
 namespace DiscreteHodge
 
-/-! ## Dynamic Graph Structure -/
-
-/--
-A graph with fixed vertices but dynamic edges.
-Vertices persist while edges can break under strain.
--/
-structure DynamicGraph (n : ℕ) where
-  /-- Active (unbroken) edges -/
-  active_edges : Finset (Fin n × Fin n)
-  /-- Active edges are symmetric (undirected graph) -/
-  symmetric : ∀ i j, (i, j) ∈ active_edges ↔ (j, i) ∈ active_edges
-  /-- No self-loops -/
-  no_loops : ∀ i, (i, i) ∉ active_edges
-deriving DecidableEq
-
-/-- The complete graph on n vertices (all edges active) -/
-def DynamicGraph.complete (n : ℕ) : DynamicGraph n where
-  active_edges := Finset.univ.filter (fun (i, j) => i ≠ j)
-  symmetric := by
-    intro i j
-    simp only [Finset.mem_filter, Finset.mem_univ, true_and]
-    tauto
-  no_loops := by
-    intro i
-    simp only [Finset.mem_filter, Finset.mem_univ, true_and, not_not]
+/-! ## Graph Metrics -/
 
 /-- Number of active undirected edges (card / 2, since we store both directions) -/
 def DynamicGraph.edge_count {n : ℕ} (G : DynamicGraph n) : ℕ :=
@@ -52,19 +28,6 @@ This is NOT the true first Betti number, which would be |E| - |V| + c where c is
 -/
 def DynamicGraph.cyclomatic_number {n : ℕ} (G : DynamicGraph n) : ℤ :=
   (G.edge_count : ℤ) - (n : ℤ) + 1
-
-/-! ## Constraints on Dynamic Graphs -/
-
-/--
-A 1-cochain on a dynamic graph: only defined on active edges.
-We embed this into the full C1 n by setting broken edges to zero.
--/
-def DynamicC1 (n : ℕ) (G : DynamicGraph n) :=
-  { σ : C1 n // ∀ i j, (i, j) ∉ G.active_edges → σ.val i j = 0 }
-
-/-- Embed DynamicC1 into C1 -/
-def DynamicC1.toC1 {n : ℕ} {G : DynamicGraph n} (σ : DynamicC1 n G) : C1 n :=
-  σ.val
 
 /-! ## Finding Overstressed Edges (Max Strain Logic) -/
 

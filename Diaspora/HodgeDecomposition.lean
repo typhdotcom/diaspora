@@ -18,10 +18,164 @@ import Mathlib.Analysis.InnerProductSpace.PiL2
 import Mathlib.Analysis.InnerProductSpace.Projection.Basic
 import Mathlib.Analysis.InnerProductSpace.Projection.Submodule
 import Mathlib.Analysis.Normed.Module.FiniteDimension
+import Mathlib.LinearAlgebra.FiniteDimensional.Defs
 
 open BigOperators
 
 namespace DiscreteHodge
+
+/-! ## Graph-Aware Hodge Theory -/
+
+section GraphAware
+
+variable {n : ℕ} [Fintype (Fin n)] (G : DynamicGraph n)
+
+-- ActiveForm G is finite-dimensional (subtype of finite product type)
+noncomputable instance activeFormFiniteDimensional : FiniteDimensional ℝ (ActiveForm G) := by
+  -- We construct an injective linear map into a finite-dimensional space
+  haveI : Finite (Fin n × Fin n) := inferInstance
+  haveI : FiniteDimensional ℝ (Fin n × Fin n → ℝ) := inferInstance
+  -- The natural embedding toC1 then into the underlying function space
+  let embed : ActiveForm G →ₗ[ℝ] (Fin n × Fin n → ℝ) := {
+    toFun := fun σ => fun (i, j) => σ.val.val i j,
+    map_add' := by intro σ τ; ext ⟨i, j⟩; rfl,
+    map_smul' := by intro r σ; ext ⟨i, j⟩; rfl
+  }
+  apply FiniteDimensional.of_injective embed
+  intro σ τ h
+  ext i j
+  have : (fun (p : Fin n × Fin n) => σ.val.val p.1 p.2) = (fun (p : Fin n × Fin n) => τ.val.val p.1 p.2) := h
+  exact congr_fun this (i, j)
+
+-- ActiveForm G is complete (finite-dimensional inner product spaces are complete)
+noncomputable instance activeFormCompleteSpace : CompleteSpace (ActiveForm G) :=
+  FiniteDimensional.complete ℝ (ActiveForm G)
+
+
+/-- The graph gradient as a linear map -/
+noncomputable def d_G_linear : (Fin n → ℝ) →ₗ[ℝ] ActiveForm G where
+  toFun := d_G G
+  map_add' := by
+    intro φ ψ
+    ext i j
+    show (d_G G (φ + ψ)).val.val i j = (d_G G φ + d_G G ψ).val.val i j
+    -- RHS unfolds to (d_G G φ).val.val i j + (d_G G ψ).val.val i j
+    change (if (i, j) ∈ G.active_edges then (φ + ψ) j - (φ + ψ) i else 0) =
+           (if (i, j) ∈ G.active_edges then φ j - φ i else 0) +
+           (if (i, j) ∈ G.active_edges then ψ j - ψ i else 0)
+    by_cases h : (i, j) ∈ G.active_edges <;> simp [h, Pi.add_apply]
+    ring
+  map_smul' := by
+    intro r φ
+    ext i j
+    show (d_G G (r • φ)).val.val i j = (r • d_G G φ).val.val i j
+    -- RHS unfolds to r * (d_G G φ).val.val i j
+    change (if (i, j) ∈ G.active_edges then (r • φ) j - (r • φ) i else 0) =
+           r * (if (i, j) ∈ G.active_edges then φ j - φ i else 0)
+    by_cases h : (i, j) ∈ G.active_edges <;> simp [h, Pi.smul_apply, smul_eq_mul]
+    ring
+
+/-- The image of the gradient operator (exact forms on the graph) -/
+noncomputable def ImGradient : Submodule ℝ (ActiveForm G) :=
+  LinearMap.range (d_G_linear G)
+
+-- The gradient submodule is finite-dimensional (submodule of finite-dimensional space)
+noncomputable instance gradientFiniteDimensional : FiniteDimensional ℝ (ImGradient G) :=
+  FiniteDimensional.finiteDimensional_submodule (ImGradient G)
+
+-- The gradient submodule is complete (finite-dimensional subspaces are complete)
+noncomputable instance gradientCompleteSpace : CompleteSpace (ImGradient G) :=
+  FiniteDimensional.complete ℝ (ImGradient G)
+
+-- The gradient submodule has orthogonal projection
+noncomputable instance gradientHasOrthogonalProjection : (ImGradient G).HasOrthogonalProjection :=
+  @Submodule.HasOrthogonalProjection.ofCompleteSpace ℝ (ActiveForm G) _ _ _ (ImGradient G) _
+
+/--
+The new Hodge decomposition using orthogonal projection.
+Every active form σ decomposes uniquely into a gradient part and an orthogonal harmonic part.
+-/
+theorem hodge_decomposition_graph (σ : ActiveForm G) :
+  ∃ (φ : C0 n) (γ : ActiveForm G),
+    σ = d_G G φ + γ ∧
+    γ ∈ (ImGradient G)ᗮ ∧
+    ActiveForm.inner (d_G G φ) γ = 0 := by
+  -- Use orthogonal projection onto the gradient subspace
+  let dφ := (ImGradient G).orthogonalProjection σ
+  -- The harmonic part is the orthogonal complement
+  let γ := σ - dφ
+
+  -- The exact part is in the image of d_G, so there exists φ
+  have ⟨φ, h_φ⟩ : ∃ φ, d_G G φ = dφ := by
+    have : (dφ : ActiveForm G) ∈ ImGradient G := Submodule.coe_mem dφ
+    unfold ImGradient at this
+    exact this
+
+  use φ, γ
+  constructor
+  · -- σ = dφ + γ by definition of γ
+    unfold γ
+    rw [h_φ]
+    abel
+  constructor
+  · -- γ is orthogonal to ImGradient
+    unfold γ
+    -- σ - ↑dφ is in the orthogonal complement by construction
+    have h_star_eq : (ImGradient G).starProjection σ = ↑dφ := Submodule.starProjection_apply _ _
+    rw [←h_star_eq]
+    -- The orthogonal projection onto Kᗮ is exactly σ - K.starProjection σ
+    exact Submodule.sub_starProjection_mem_orthogonal σ
+  · -- Orthogonality of dφ and γ
+    rw [h_φ]
+    unfold γ
+    -- Use that if x ∈ K and y ∈ Kᗮ, then inner x y = 0
+    have h_mem_K : (↑dφ : ActiveForm G) ∈ ImGradient G := Submodule.coe_mem dφ
+    have h_star_eq : (ImGradient G).starProjection σ = ↑dφ := Submodule.starProjection_apply _ _
+    rw [←h_star_eq]
+    have h_mem_Kperp := Submodule.sub_starProjection_mem_orthogonal σ (K := ImGradient G)
+    rw [Submodule.mem_orthogonal] at h_mem_Kperp
+    exact h_mem_Kperp _ h_mem_K
+
+end GraphAware
+
+/-! ## Complete Graph Specialization -/
+
+section CompleteGraph
+
+variable {n : ℕ} [Fintype (Fin n)]
+
+/-- Embed C1 n into ActiveForm (complete graph) -/
+noncomputable def C1_to_ActiveForm (σ : C1 n) : ActiveForm (DynamicGraph.complete n) :=
+  ⟨σ, by intro i j h; simp [DynamicGraph.complete] at h; subst h; have := σ.skew i i; linarith⟩
+
+/-- Extract C1 from ActiveForm (complete graph) -/
+noncomputable def ActiveForm_to_C1 (σ : ActiveForm (DynamicGraph.complete n)) : C1 n :=
+  σ.val
+
+omit [Fintype (Fin n)] in
+lemma C1_ActiveForm_equiv (σ : C1 n) :
+    ActiveForm_to_C1 (C1_to_ActiveForm σ) = σ := rfl
+
+omit [Fintype (Fin n)] in
+lemma ActiveForm_C1_equiv (σ : ActiveForm (DynamicGraph.complete n)) :
+    C1_to_ActiveForm (ActiveForm_to_C1 σ) = σ := by
+  ext i j; rfl
+
+omit [Fintype (Fin n)] in
+lemma d0_eq_d_G_complete (φ : C0 n) :
+    ActiveForm_to_C1 (d_G (DynamicGraph.complete n) φ) = d0 φ := by
+  ext i j
+  simp [d_G, DynamicGraph.complete, d0, ActiveForm_to_C1]
+  by_cases h : i = j
+  · simp [h]
+  · simp [h]
+
+/-- Inner products agree -/
+lemma inner_C1_ActiveForm (σ τ : C1 n) :
+    inner_product_C1 σ τ = ActiveForm.inner (C1_to_ActiveForm σ) (C1_to_ActiveForm τ) := by
+  rfl
+
+end CompleteGraph
 
 /-! ## Supporting Lemmas -/
 
@@ -83,226 +237,74 @@ lemma laplacian_expansion {n : ℕ} [Fintype (Fin n)] (ϕ : C0 n) (i : Fin n) :
   unfold graph_laplacian divergence d0
   rfl
 
-/-- Helper: The objective function we're minimizing -/
-noncomputable def objective {n : ℕ} [Fintype (Fin n)] (σ : C1 n) (ϕ : C0 n) : ℝ :=
-  norm_sq { val := fun i j => (d0 ϕ).val i j - σ.val i j,
-            skew := by intro i j; simp [d0]; rw [σ.skew]; ring }
-
 /-! ## Main Theorems -/
 
-/-- The key lemma: If ϕ minimizes ||dϕ - σ||², then Δϕ = d*σ -/
-theorem euler_lagrange {n : ℕ} [Fintype (Fin n)] (σ : C1 n) (ϕ : C0 n) :
-  (∀ ϕ', objective σ ϕ ≤ objective σ ϕ') →
-  ∀ k, graph_laplacian ϕ k = divergence σ k := by
-  intro h_min k
-
-  let ψ := basis_vector k
-
-  have optimality_condition : inner_product_C1 { val := fun i j => (d0 ϕ).val i j - σ.val i j,
-                                                 skew := by intro i j; simp [d0]; rw [σ.skew]; ring } (d0 ψ) = 0 := by
-    by_contra h_nonzero
-    let A := norm_sq (d0 ψ)
-    let B := 2 * inner_product_C1 { val := fun i j => (d0 ϕ).val i j - σ.val i j,
-                                    skew := by intro i j; simp [d0]; rw [σ.skew]; ring } (d0 ψ)
-
-    have quadr_ineq : ∀ (ε : ℝ), A * ε^2 + B * ε ≥ 0 := by
-      intro ε
-      let ϕ_eps : C0 n := fun i => ϕ i + ε * ψ i
-      have val_expand : ∀ i j, (d0 ϕ_eps).val i j - σ.val i j =
-        ((d0 ϕ).val i j - σ.val i j) + ε * (d0 ψ).val i j := by
-        intro i j
-        simp [d0, ψ, ϕ_eps, basis_vector]
-        split_ifs <;> ring
-      have h_obj := h_min ϕ_eps
-      have h_eq : (fun i j => (d0 ϕ_eps).val i j - σ.val i j) =
-                  (fun i j => ((d0 ϕ).val i j - σ.val i j) + ε * (d0 ψ).val i j) := by
-        ext i j
-        exact val_expand i j
-      simp only [h_eq, objective] at h_obj ⊢
-      let resid : C1 n := { val := fun i j => (d0 ϕ).val i j - σ.val i j,
-                            skew := by intro i j; rw [σ.skew]; simp [d0]; ring }
-      let eps_dpsi : C1 n := { val := fun i j => ε * (d0 ψ).val i j,
-                               skew := by intro i j; simp [d0]; ring }
-      have h_split : ({ val := fun i j => (d0 ϕ).val i j - σ.val i j + ε * (d0 ψ).val i j,
-                        skew := by intro i j; rw [σ.skew]; simp [d0]; ring } : C1 n) =
-                     ({ val := fun i j => resid.val i j + eps_dpsi.val i j,
-                        skew := by intro i j; rw [resid.skew, eps_dpsi.skew]; ring } : C1 n) := by
-        rfl
-      rw [h_split] at h_obj
-      rw [norm_sq_add] at h_obj
-      have h_simp : norm_sq resid + 2 * inner_product_C1 resid eps_dpsi + norm_sq eps_dpsi =
-                    norm_sq resid + 2 * ε * inner_product_C1 resid (d0 ψ) + ε^2 * A := by
-        congr 1
-        · dsimp [inner_product_C1, eps_dpsi]
-          ring_nf
-          simp only [mul_comm (resid.val _ _), mul_assoc, ← Finset.mul_sum]
-        · dsimp [norm_sq, inner_product_C1, A, eps_dpsi]
-          simp only [pow_two]
-          ring_nf
-          simp only [← Finset.mul_sum]
-      rw [h_simp] at h_obj
-      simp only [resid, ge_iff_le, A, B] at h_obj ⊢
-      linarith
-
-    have h_B_zero : B = 0 := by
-      by_contra hB
-      let ε := -B / (2 * (A + 1))
-      have h_eps : A * ε^2 + B * ε < 0 := by
-        simp only [ε, pow_two]
-        field_simp
-        ring_nf
-        have hB_sq : B ^ 2 > 0 := sq_pos_of_ne_zero hB
-        have hA_nonneg : A ≥ 0 := by
-          simp only [A, norm_sq, inner_product_C1]
-          apply mul_nonneg
-          · norm_num
-          · apply Finset.sum_nonneg; intro i _
-            apply Finset.sum_nonneg; intro j _
-            apply mul_self_nonneg
-        have h_denom_pos : 1 + A * 2 + A ^ 2 > 0 := by nlinarith [sq_nonneg A]
-        have h_inv_pos : 0 < (1 + A * 2 + A ^ 2)⁻¹ := by positivity
-        have h_A_plus_2_pos : A + 2 > 0 := by linarith
-        nlinarith [mul_pos hB_sq h_A_plus_2_pos, mul_pos h_inv_pos hB_sq]
-      have h_contra := quadr_ineq ε
-      linarith
-
-    have h : B = 0 := h_B_zero
-    simp only [B] at h
-    have h_zero : inner_product_C1 { val := fun i j => (d0 ϕ).val i j - σ.val i j,
-                                     skew := by intro i j; simp [d0]; rw [σ.skew]; ring } (d0 ψ) = 0 := by
-      linarith
-    exact h_nonzero h_zero
-
-  have h_adj : inner_product_C1 { val := fun i j => (d0 ϕ).val i j - σ.val i j,
-                                  skew := by intro i j; simp [d0]; rw [σ.skew]; ring } (d0 ψ)
-             = ∑ i, ψ i * divergence { val := fun i j => (d0 ϕ).val i j - σ.val i j,
-                                       skew := by intro i j; simp [d0]; rw [σ.skew]; ring } i := by
-    rw [inner_product_C1_comm]
-    exact divergence_is_adjoint ψ { val := fun i j => (d0 ϕ).val i j - σ.val i j,
-                                     skew := by intro i j; simp [d0]; rw [σ.skew]; ring }
-
-  rw [h_adj] at optimality_condition
-  simp only [basis_vector, ψ] at optimality_condition
-  rw [Finset.sum_eq_single k] at optimality_condition
-  · simp only at optimality_condition
-    unfold divergence at optimality_condition
-    simp only at optimality_condition
-    have h_expand : -(∑ j, ({ val := fun i j => (d0 ϕ).val i j - σ.val i j,
-                               skew := by intro i j; simp [d0]; rw [σ.skew]; ring } : C1 n).val k j)
-                   = -(∑ j, ((d0 ϕ).val k j - σ.val k j)) := by rfl
-    rw [h_expand] at optimality_condition
-    simp only [Finset.sum_sub_distrib] at optimality_condition
-    have h_split : -(∑ j, (d0 ϕ).val k j - ∑ j, σ.val k j) = (-∑ j, (d0 ϕ).val k j) - (-∑ j, σ.val k j) := by ring
-    rw [h_split] at optimality_condition
-    have h_lap : (-∑ j, (d0 ϕ).val k j) = graph_laplacian ϕ k := by rfl
-    have h_div : (-∑ j, σ.val k j) = divergence σ k := by rfl
-    rw [h_lap, h_div] at optimality_condition
-    simp at optimality_condition
-    linarith [optimality_condition]
-  · intro i _ hik
-    simp [hik]
-  · intro hk
-    exact absurd (Finset.mem_univ k) hk
-
-/-- σ = d⁰ϕ + γ where d⁰ϕ is exact, γ is harmonic, and d⁰ϕ ⊥ γ -/
+/--
+Hodge decomposition for the complete graph case.
+Uses the graph-aware machinery specialized to DynamicGraph.complete.
+-/
 theorem hodge_decomposition {n : ℕ} [Fintype (Fin n)] (σ : C1 n) :
   ∃ (ϕ : C0 n) (γ : C1 n),
     (∀ i j, σ.val i j = (d0 ϕ).val i j + γ.val i j) ∧
     IsHarmonic γ ∧
     inner_product_C1 (d0 ϕ) γ = 0 := by
+  -- Use the graph-aware decomposition on the complete graph
+  let σ_active := C1_to_ActiveForm σ
+  obtain ⟨φ, γ_active, h_decomp, h_orth_submod, h_orth_inner⟩ :=
+    hodge_decomposition_graph (DynamicGraph.complete n) σ_active
 
-  have h_exists : ∃ ϕ_opt : C0 n, ∀ ϕ', objective σ ϕ_opt ≤ objective σ ϕ' := by
-    let E := EuclideanSpace ℝ (Fin n)
-    let F := EuclideanSpace ℝ (Fin n × Fin n)
-
-    let L_raw : (Fin n → ℝ) →ₗ[ℝ] (Fin n × Fin n → ℝ) := {
-      toFun := fun ϕ x => ϕ x.2 - ϕ x.1,
-      map_add' := by
-        intros
-        ext
-        dsimp
-        ring,
-      map_smul' := by
-        intros
-        ext
-        dsimp
-        ring
-    }
-
-    let L : E →ₗ[ℝ] F := L_raw
-    let target : F := fun x => σ.val x.1 x.2
-    let K := LinearMap.range L
-
-    have h_nonempty : (K : Set F).Nonempty := Submodule.nonempty K
-    obtain ⟨p, hp_mem_closure, hp_min_eq⟩ :=
-      Metric.exists_mem_closure_infDist_eq_dist h_nonempty target
-
-    have h_closed : IsClosed (K : Set F) := Submodule.closed_of_finiteDimensional K
-    rw [h_closed.closure_eq] at hp_mem_closure
-
-    obtain ⟨ϕ_opt_val, h_map⟩ := hp_mem_closure
-    use ϕ_opt_val
-    intro ϕ'
-
-    let ϕ'_val : E := ϕ'
-
-    have obj_eq : ∀ ψ : E, objective σ ψ = (1/2) * (dist (L ψ) target)^2 := by
-      intro ψ
-      unfold objective norm_sq inner_product_C1
-      rw [PiLp.dist_eq_of_L2]
-      have sum_nonneg : 0 ≤ ∑ x : Fin n × Fin n, dist (L ψ x) (target x) ^ 2 :=
-        Finset.sum_nonneg (fun _ _ => sq_nonneg _)
-      rw [Real.sq_sqrt sum_nonneg]
-      rw [Fintype.sum_prod_type]
-      congr 1
-      apply Finset.sum_congr rfl; intro i _
-      apply Finset.sum_congr rfl; intro j _
-      rw [Real.dist_eq, sq_abs, ←pow_two]
-      dsimp
-      rfl
-
-    rw [obj_eq ϕ_opt_val, obj_eq ϕ'_val]
-    gcongr
-    rw [h_map, dist_comm p target, dist_comm (L ϕ'_val) target]
-    rw [←hp_min_eq]
-    apply Metric.infDist_le_dist_of_mem
-    exact LinearMap.mem_range_self L ϕ'_val
-
-  obtain ⟨ϕ_opt, h_min⟩ := h_exists
-
-  let γ : C1 n := {
-    val := fun i j => σ.val i j - (d0 ϕ_opt).val i j,
-    skew := by intro i j; rw [σ.skew]; simp [d0]; ring
-  }
-
-  use ϕ_opt, γ
-  constructor
-  · intro i j; simp [γ]
+  -- Convert back to C1 n
+  let γ := ActiveForm_to_C1 γ_active
+  use φ, γ
 
   constructor
-  · unfold IsHarmonic
+  · -- Decomposition σ = d0 φ + γ
+    intro i j
+    have h_eq : σ_active.val.val i j = (d_G (DynamicGraph.complete n) φ + γ_active).val.val i j := by
+      rw [h_decomp]
+    simp [σ_active, C1_to_ActiveForm] at h_eq
+    calc σ.val i j
+        = (d_G (DynamicGraph.complete n) φ).val.val i j + γ_active.val.val i j := h_eq
+      _ = (ActiveForm_to_C1 (d_G (DynamicGraph.complete n) φ)).val i j + γ.val i j := rfl
+      _ = (d0 φ).val i j + γ.val i j := by rw [d0_eq_d_G_complete]
+
+  constructor
+  · -- γ is harmonic (divergence-free)
     intro i
-    have el := euler_lagrange σ ϕ_opt h_min i
-    simp only [γ, Finset.sum_sub_distrib]
-    have h1 : ∑ j, σ.val i j = -divergence σ i := by unfold divergence; ring
-    have h2 : ∑ j, (d0 ϕ_opt).val i j = -divergence (d0 ϕ_opt) i := by unfold divergence; ring
-    rw [h1, h2]
-    have h3 : divergence (d0 ϕ_opt) i = graph_laplacian ϕ_opt i := by unfold graph_laplacian; rfl
-    rw [h3, el]
-    ring
+    simp [γ, ActiveForm_to_C1]
+    -- γ_active ⊥ ImGradient means ⟨d_G φ', γ_active⟩ = 0 for all φ'
+    have h_orth_all : ∀ φ' : C0 n, ActiveForm.inner (d_G (DynamicGraph.complete n) φ') γ_active = 0 := by
+      intro φ'
+      rw [Submodule.mem_orthogonal] at h_orth_submod
+      apply h_orth_submod
+      show d_G (DynamicGraph.complete n) φ' ∈ LinearMap.range (d_G_linear (DynamicGraph.complete n))
+      exact ⟨φ', rfl⟩
+    -- The sum equals δ_G on the complete graph
+    show δ_G (DynamicGraph.complete n) γ_active i = 0
+    -- Prove via adjoint: inner ⟨d_G φ', γ⟩ = φ'ᵢ * divergence γ ᵢ = -φ'ᵢ * δ_G γ ᵢ
+    have h_adj : (basis_vector i) i * divergence γ i = 0 := by
+      calc (basis_vector i) i * divergence γ i
+          = ∑ j, (basis_vector i) j * divergence γ j := by
+              rw [Finset.sum_eq_single i]
+              · intro b _ hb; simp [basis_vector, hb]
+              · intro h; exact absurd (Finset.mem_univ i) h
+        _ = inner_product_C1 (d0 (basis_vector i)) γ := (divergence_is_adjoint _ _).symm
+        _ = inner_product_C1 (ActiveForm_to_C1 (d_G (DynamicGraph.complete n) (basis_vector i)))
+                             (ActiveForm_to_C1 γ_active) := by rw [← d0_eq_d_G_complete]
+        _ = ActiveForm.inner (d_G (DynamicGraph.complete n) (basis_vector i)) γ_active := rfl
+        _ = 0 := h_orth_all (basis_vector i)
+    -- divergence γ i = - δ_G γ_active i, so both must be zero
+    have h_div_neg : divergence γ i = - δ_G (DynamicGraph.complete n) γ_active i := by
+      unfold divergence δ_G γ ActiveForm_to_C1; ring
+    simp [basis_vector] at h_adj
+    linarith
 
-  · rw [divergence_is_adjoint]
-    apply Finset.sum_eq_zero
-    intro i _
-    have h_harm_val : ∑ j, γ.val i j = 0 := by
-      simp only [γ]
-      have el := euler_lagrange σ ϕ_opt h_min i
-      have h1 : ∑ j, σ.val i j = -divergence σ i := by unfold divergence; ring
-      have h2 : ∑ j, (d0 ϕ_opt).val i j = -graph_laplacian ϕ_opt i := by unfold graph_laplacian divergence; ring
-      simp only [Finset.sum_sub_distrib, h1, h2, el]
-      ring
-    unfold divergence
-    rw [h_harm_val]
-    ring
+  · -- Orthogonality
+    calc inner_product_C1 (d0 φ) γ
+        = inner_product_C1 (ActiveForm_to_C1 (d_G (DynamicGraph.complete n) φ)) (ActiveForm_to_C1 γ_active) := by rw [d0_eq_d_G_complete]
+      _ = ActiveForm.inner (C1_to_ActiveForm (ActiveForm_to_C1 (d_G (DynamicGraph.complete n) φ)))
+                           (C1_to_ActiveForm (ActiveForm_to_C1 γ_active)) := by rw [inner_C1_ActiveForm]
+      _ = ActiveForm.inner (d_G (DynamicGraph.complete n) φ) γ_active := by simp [ActiveForm_C1_equiv]
+      _ = 0 := h_orth_inner
 
 end DiscreteHodge

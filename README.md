@@ -1,9 +1,9 @@
 ```
-   o-------o-------o
-  / ↻ \    |    / ↺ \
- o-----o-[-γ-]-o-----o
-  \   /    |    \   /
-   o-------o-------o
+  o---o---o
+ /  ↻ | ↺  \
+o-----⊕-----o
+ \  ↺ | ↻  /
+  o---o---o
 ```
 
 # Diaspora
@@ -146,6 +146,17 @@ Diaspora formally proves via the Discrete Hodge Star operator that these are ide
 
 The "Black Hole" that appears as information erasure from the outside is precisely the boundary condition that enables observation from the inside. The entity looking (the observer) and the entity being looked at (the singularity) are the same topological necessity, viewed from opposite sides of the boundary.
 
+### 10\. Interaction (The Handshake)
+
+How do distinct topological spaces communicate? Diaspora proves that simple connectivity is insufficient for information exchange.
+
+We model interaction by connecting two disjoint "worlds" (graphs):
+
+  * **Contact is Sterile (The Bridge):** Adding a single edge between worlds connects the graph components but creates no new independent cycles ($b_1$ is constant). No harmonic form can flow across a single bridge because there is no return path. Information cannot be "teleported"; it must flow.
+  * **Fusion is Generative (The Handle):** Adding a second edge creates a topological handle. This fusion event increases the Betti number, birthing a new harmonic cycle that threads through both worlds.
+
+This proves the **Handshake Theorem**: True interaction requires a shared topological reality. Two systems can only communicate if they mutually participate in a cycle that traverses them both.
+
 ### File Structure
 
 **Foundations**
@@ -160,6 +171,7 @@ HarmonicAnalysis.lean   -- Consequences: energy, quantization, conservation
 
 ```
 TopologicalGenesis.lean -- Origin: How closing a loop creates energy
+Interaction.lean        -- Fusion: Contact vs. shared reality (The Handshake)
 GlassDynamics.lean      -- Complexity: Definitions of landscapes and isomorphism
 FrustratedTriangle.lean -- Example: A system with multiple stable vacua
 FalseVacuum.lean        -- Dynamics: Greedy algorithms vs. Global optima

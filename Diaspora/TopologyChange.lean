@@ -88,7 +88,7 @@ theorem black_hole_formation
     {n : ℕ} [Fintype (Fin n)] [NeZero n]
     (σ : C1 n) (C_max : ℝ) (h_pos : C_max > 0)
     (ϕ_opt : C0 n)
-    (h_min : ∀ ϕ', objective σ ϕ_opt ≤ objective σ ϕ')
+    (h_min : ∀ ϕ', norm_sq (residual ϕ_opt σ) ≤ norm_sq (residual ϕ' σ))
     (h_frustration : norm_sq (residual ϕ_opt σ) > (1/2) * (Fintype.card (Fin n))^2 * C_max) :
   -- 1. Some edge must break (strain localization)
   (∃ i j : Fin n, edge_strain ϕ_opt σ i j > C_max)
@@ -138,12 +138,8 @@ theorem black_hole_formation
 
     -- But ϕ is from hodge_decomposition, ϕ_opt is what we're working with
     -- Need to connect them: both minimize the same objective
-    -- Actually, the minimizer is unique up to constants
-    -- For now, use that the optimality conditions are the same
-    have h_opt_resid : norm_sq (residual ϕ_opt σ) ≤ norm_sq (residual ϕ σ) := by
-      have := h_min ϕ
-      unfold objective at this
-      exact this
+    -- The minimizer satisfies the optimality condition
+    have h_opt_resid : norm_sq (residual ϕ_opt σ) ≤ norm_sq (residual ϕ σ) := h_min ϕ
 
     rw [h_resid_norm, h_gamma_zero] at h_opt_resid
     have h_card_pos : (1/2) * (Fintype.card (Fin n))^2 * C_max > 0 := by

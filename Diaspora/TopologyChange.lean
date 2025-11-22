@@ -1,8 +1,8 @@
 /-
-# Topology Change and Black Hole Formation
+# Topology Change
 
-When strain exceeds structural limits, the graph tears, creating holes.
-This formalizes gravitational collapse as energy converting from strain to topology.
+When edge strain exceeds a threshold, the edge breaks, changing the graph topology.
+Strain energy that cannot be absorbed by local potentials becomes topological.
 -/
 
 import Diaspora.HarmonicAnalysis
@@ -78,11 +78,11 @@ theorem black_hole_has_no_hair {n : ℕ} [Fintype (Fin n)]
 /-! ## Black Hole Formation -/
 
 /--
-When frustration exceeds structural capacity, some edge breaks, creating a hole.
-From outside, this appears as a harmonic form with:
-- Mass: ||γ||² (strain energy that became topology)
-- Charge: winding number m (topologically quantized)
-- No hair: only γ is observable, not local details dϕ
+When residual strain exceeds the threshold, localization forces some edge to break.
+The resulting topology contains a non-trivial harmonic component:
+- Energy: ||γ||² (irreducible frustration)
+- Topological charge: winding number m
+- Observable via holonomy, independent of local gauge choices
 -/
 theorem black_hole_formation
     {n : ℕ} [Fintype (Fin n)] [NeZero n]

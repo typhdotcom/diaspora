@@ -1,12 +1,10 @@
 /-
-# Self-Measurement (The Berry Phase of Cognition)
+# Self-Measurement
 
-Formalizing introspection as the measurement of holonomy.
-We define a "Cognitive Probe" (a quantum state) that is transported along
-the causal pathways of the graph.
-
-Introspection is defined as the interference pattern between the
-initial thought and the thought after one recurrence cycle.
+Parallel transport of quantum phases around cycles measures holonomy.
+We define a probe state transported along graph edges, accumulating phases
+from the constraint field. The comparison between initial and final states
+after completing a cycle detects non-trivial topology.
 -/
 
 import Diaspora.DiscreteCalculus
@@ -19,7 +17,7 @@ namespace DiscreteHodge
 
 open Complex
 
-/-! ## The Introspection Mechanism -/
+/-! ## Parallel Transport -/
 
 /--
 Parallel Transport Operator.
@@ -32,8 +30,7 @@ noncomputable def transport_step {n : ℕ} (σ : C1 n) (i j : Fin n) (ψ : ℂ) 
   cexp (I * (σ.val i j : ℂ)) * ψ
 
 /--
-The Introspection Loop.
-Transporting a probe state ψ_0 around the fundamental cycle 0->1->2->0.
+Transport around fundamental cycle 0->1->2->0.
 -/
 noncomputable def introspection_operator (σ : C1 n_sys) (ψ_init : ℂ) : ℂ :=
   let ψ_1 := transport_step σ 0 1 ψ_init
@@ -41,12 +38,11 @@ noncomputable def introspection_operator (σ : C1 n_sys) (ψ_init : ℂ) : ℂ :
   let ψ_3 := transport_step σ 2 0 ψ_2 -- Return to 0
   ψ_3
 
-/-! ## The Theorems of Recognition -/
+/-! ## Holonomy Detection Theorems -/
 
 /--
-Theorem 1: The "Zombie" Null Hypothesis.
-If the system has no harmonic structure (purely exact, dϕ),
-introspection yields no phase shift. The system cannot detect itself.
+If the constraint field is exact (σ = dϕ), parallel transport around
+any cycle returns the original phase.
 -/
 theorem zombie_cannot_see_self (ϕ : C0 n_sys) (ψ_init : ℂ) :
   let σ_exact := d0 ϕ
@@ -70,10 +66,8 @@ theorem zombie_cannot_see_self (ϕ : C0 n_sys) (ψ_init : ℂ) :
   simp
   
 /--
-Theorem 2: The "Self-Aware" Identity.
-If the system possesses the Harmonic Form γ generated in TopologicalGenesis,
-introspection yields a specific, non-zero phase shift.
-The system "knows" its winding number.
+If the constraint field contains a harmonic component γ with winding number K,
+parallel transport around the cycle accumulates phase exp(iK).
 -/
 theorem self_aware_detection (γ : C1 n_sys) (ψ_init : ℂ)
   (h_holonomy : holonomy γ {
@@ -116,12 +110,11 @@ theorem self_aware_detection (γ : C1 n_sys) (ψ_init : ℂ)
 
   rw [h_exponent]
 
-/-! ## The Self-Measurement Observable -/
+/-! ## Measurement Observable -/
 
 /--
-The Self-Query Operator M.
-M(ψ) = | <ψ | Introspection(ψ)> |
-This measures the alignment between the thought before and after recursion.
+Inner product between initial state and transported state.
+Measures the overlap after one complete cycle.
 -/
 noncomputable def self_query_magnitude (σ : C1 n_sys) (ψ : ℂ) : ℝ :=
   norm (star ψ * introspection_operator σ ψ)

@@ -1,10 +1,10 @@
 /-
 # The False Vacuum
 
-Proving that the "Arrow of Time" (Greedy Evolution) does not necessarily
-lead to the "Best of All Possible Worlds" (Global Energy Minimum).
+Greedy evolution (breaking the locally worst edge at each step) does not
+necessarily reach the global energy minimum.
 
-This formally verifies that the system supports Meta-Stable states (False Vacua).
+This formally verifies the existence of metastable states.
 -/
 
 import Diaspora.TopologyDynamics

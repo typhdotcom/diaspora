@@ -1,12 +1,9 @@
 /-
 # Topology Dynamics
 
-The actual evolution of graph topology under strain. While TopologyChange.lean
-proves that black holes *must* form, this file defines *how* they form: the
-step-by-step process of edge breaking and topology change.
-
-Key insight: This is a phase transition. The graph doesn't just move through
-configuration space—it changes the configuration space itself.
+Evolution of graph topology under strain. While TopologyChange.lean
+proves that edges must break under sufficient frustration, this file defines
+the step-by-step process of identifying and removing overstressed edges.
 -/
 
 import Diaspora.TopologyChange
@@ -21,8 +18,8 @@ namespace DiscreteHodge
 /-! ## Dynamic Graph Structure -/
 
 /--
-A graph that can evolve: vertices are fixed, but edges can break.
-This models spacetime where "locations" persist but "connections" can fail.
+A graph with fixed vertices but dynamic edges.
+Vertices persist while edges can break under strain.
 -/
 structure DynamicGraph (n : ℕ) where
   /-- Active (unbroken) edges -/
@@ -168,7 +165,6 @@ theorem find_overstressed_edge_spec {n : ℕ} [Fintype (Fin n)]
 
 /--
 Remove a single edge from the graph.
-This is the atomic operation of black hole formation.
 -/
 def remove_edge {n : ℕ} (G : DynamicGraph n) (i j : Fin n) : DynamicGraph n where
   active_edges := G.active_edges.erase (i, j) |>.erase (j, i)

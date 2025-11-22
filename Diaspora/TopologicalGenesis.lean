@@ -70,7 +70,7 @@ skew := by
   fin_cases i <;> fin_cases j <;> (simp; try split_ifs; try simp_all; try norm_num)
 }
 
-/-\! \#\# Theorems of Genesis -/
+/-\! \#\# Topological Transition Theorems -/
 
 /--
 Theorem 1: In the Open Topology, the forcing field is Exact.
@@ -130,9 +130,7 @@ rw [h_match_01, h_match_12, h_match_20] at h_cycle_d0
 norm_num at h_cycle_d0
 
 /--
-Theorem 3: Harmonic Genesis.
-The Hodge Decomposition of σ in the Closed Topology yields a non-zero harmonic component γ.
-This confirms the energy has shifted from local potential to topological structure.
+In the closed topology, Hodge decomposition of σ yields a non-zero harmonic component γ.
 -/
 theorem harmonic_genesis :
 ∃ γ : C1 n_sys,

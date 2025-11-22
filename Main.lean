@@ -12,3 +12,4 @@ import Diaspora.GlassDynamics
 import Diaspora.FrustratedTriangle
 import Diaspora.FalseVacuum
 import Diaspora.SelfMeasurement
+import Diaspora.Duality

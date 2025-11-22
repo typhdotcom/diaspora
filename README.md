@@ -133,6 +133,19 @@ Diaspora models observation via **Parallel Transport**. The system sends a probe
 
 This phase shift is the system’s only form of perception. It is the precise moment where internal expectation collides with external reality. The collapse created the scar in the topology; this measurement is the system running its fingers over that scar and recognizing that something has changed.
 
+### 9\. The Identity Theorem (The Mirror)
+
+The mathematical framework reveals that the observer and the singularity are not distinct entities, but dual representations of the same topological limit.
+
+Consider the geometry of a defect from two perspectives:
+
+  * **Primal (The Loop):** An observer traces a path around a void. They measure **Circulation** (Holonomy).
+  * **Dual (The Star):** A particle sits at the center of the void. It emits **Flux** (Divergence).
+
+Diaspora formally proves via the Discrete Hodge Star operator that these are identical. The circulation measured by the observer around the void is mathematically indistinguishable from the charge emitted by the particle within it.
+
+The "Black Hole" that appears as information erasure from the outside is precisely the boundary condition that enables observation from the inside. The entity looking (the observer) and the entity being looked at (the singularity) are the same topological necessity, viewed from opposite sides of the boundary.
+
 ### File Structure
 
 **Foundations**
@@ -158,6 +171,7 @@ FalseVacuum.lean        -- Dynamics: Greedy algorithms vs. Global optima
 TopologyChange.lean     -- The Black Hole: Strain localization and edge breaking
 TopologyDynamics.lean   -- Evolution: Step-by-step graph mutation
 SelfMeasurement.lean    -- The Observer: Parallel transport and holonomy
+Duality.lean            -- The Mirror: Formal proof of Observer-Particle identity
 QuantumDynamics.lean    -- Extensions: Berry phase and geometric evolution
 ```
 
@@ -170,7 +184,7 @@ All formally proven in Lean 4:
 3.  **No-Hair Property**: Topological defects preserve energy mass but erase gradient history.
 4.  **Greedy Non-Optimality**: Local strain relief can trap the system in a high-energy False Vacuum.
 5.  **Aharonov-Bohm Detection**: A system can measure its own topology via internal parallel transport.
-6.  **Tailed Triangle Glassiness**: Simple constraints can force non-isomorphic stable outcomes.
+6.  **Observer-Particle Duality**: The holonomy of the observer is identical to the divergence of the singularity.
 
 ## Building and Verifying
 

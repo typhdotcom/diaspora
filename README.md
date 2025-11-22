@@ -111,27 +111,27 @@ Diaspora defines a **Glassy System** as one with multiple, non-isomorphic stable
   * **The False Vacuum:** We prove that a greedy algorithm (always fixing the locally worst error) will often trap the system in a high-energy metastable state.
   * **The Butterfly Effect:** Arbitrarily small changes in initial conditions can cause the system to "freeze" into topologically distinct universes.
 
-### 7. Structural Collapse (The Limit of Connectivity)
+### 7\. Structural Collapse (The Black Hole)
 
 What happens when the tension between two nodes becomes unbearable? The connection snaps.
 
 We model this as a topological phase change. When the local strain on an edge exceeds a threshold, the edge is removed from the graph. This is a destructive act, but it is also a creative one:
 
-* **Loss of Local Detail:** The specific strain ($d\phi$) that caused the break is effectively erased.
-* **Creation of Global Memory:** The energy that broke the bond doesn't vanish; it becomes a permanent circulation ($\gamma$) around the newly formed void.
+  * **Loss of Local Detail:** The specific strain ($d\phi$) that caused the break is effectively erased.
+  * **Creation of Global Memory:** The energy that broke the bond doesn't vanish; it becomes a permanent circulation ($\gamma$) around the newly formed void.
 
 This is Diaspora's "Black Hole": a region where the geometry failed, erasing the local history of the failure but preserving its magnitude as a permanent topological mass.
 
-### 8. Self-Measurement (The Geometry of Observation)
+### 8\. Self-Measurement (The Feedback Loop)
 
 If the local history is gone, how can the system "know" the mass is there?
 
-Diaspora models observation using **Parallel Transport**. To measure the system, we move a probe state ($\psi$) along a path.
+Diaspora models observation via **Parallel Transport**. The system sends a probe state ($\psi$) on a journey around a loop to compare against its own memory.
 
-* **The Zombie:** If the probe travels through a relaxed region, it returns to the start unchanged.
-* **The Measurement:** If the probe encircles a topological defect, it picks up the "twist" left behind by the collapse ($e^{i\theta}$).
+  * **The Zombie:** In a relaxed space, the probe returns to the start exactly as it left. Movement leaves no trace; the system is effectively blind to its own geometry.
+  * **The Detection:** When the probe encircles a topological defect (our "Black Hole"), it returns changed, carrying a phase shift ($e^{i\theta}$).
 
-There is a precise geometric symmetry here: **Structural Collapse** creates the defect by destroying the *direct* path between nodes; **Measurement** detects the defect by traversing the *indirect* path (the loop) that surrounds it. One operation writes the memory into the topology; the other reads it back.
+This phase shift is the system’s only form of perception. It is the precise moment where internal expectation collides with external reality. The collapse created the scar in the topology; this measurement is the system running its fingers over that scar and recognizing that something has changed.
 
 ### File Structure
 

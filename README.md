@@ -1,7 +1,3 @@
-<p align="center">
-  <img src="img/logo.png" alt="Diaspora" height="100" />
-</p>
-
 # Diaspora
 **A Universe of Graph Topology**
 
@@ -31,23 +27,9 @@ But when you reach the collar, you discover you're off by one. There's a twist i
 
 **The crucial insight**: No individual button violates the local rule. Each one correctly followed the instructions. The error is **global** - it's a property of the whole chain, not any particular link.
 
-You cannot fix this by adjusting individual buttons. You'd just move the problem around. The twist is stuck in the topology of the situation itself.
+You cannot fix this by adjusting individual buttons. You'd just move the problem around. The twist is stuck in the topology of the situation itself. Like a wrinkle in a fitted bedsheet that's slightly too large—you can smooth it down here, but it pops up over there. The excess is geometric fact.
 
-Diaspora models energy as this twist—the measure of impossible demands, the distance between what local rules want and what global consistency allows.
-
----
-
-## The Rug Bubble: Why Energy Persists
-
-Imagine a wall-to-wall carpet with a bubble in it - a lump of excess material. You can step on the bubble, pushing it down here. But it pops up over there. You can chase it around the room endlessly.
-
-The bubble persists not because there's a law preventing you from destroying it, but because you have **too much carpet for the floor**. The excess material is a geometric fact. You can redistribute it, but you cannot eliminate it without lifting the carpet at the edges.
-
-**This is conservation of energy.**
-
-The bubble (the harmonic component) and the flat floor (the gradient component) are fundamentally different types of structure. They live in separate dimensions of possibility-space. Moving the bubble around (local adjustments) cannot make it vanish because "flatness" and "bubbliness" are orthogonal properties.
-
-In Diaspora, conservation isn't a law imposed on the system. It's a theorem about dimensional separation - some aspects of a system live in dimensions that local operations simply cannot reach.
+Diaspora models energy as this twist—the measure of impossible demands, the distance between what local rules want and what global consistency allows. The twist (harmonic) and the flat configuration (gradient) live in separate dimensions of possibility-space. Conservation isn't a law imposed on the system—it's a theorem about dimensional separation.
 
 ---
 
@@ -55,188 +37,105 @@ In Diaspora, conservation isn't a law imposed on the system. It's a theorem abou
 
 Every configuration of local demands splits uniquely into two parts:
 
-**σ = adjustable + stuck**
-
-Or more precisely:
-
 **σ = dφ + γ**
 
-- The **gradient part (dφ)** is what can be resolved by adjusting local perspectives. It's negotiable. You can smooth it out by changing how observers encode their viewpoints.
-
-- The **harmonic part (γ)** is what's stuck in the topology. It's non-negotiable. It represents circulations around holes that cannot be unwound by any local move.
+- The **gradient part (dφ)** is what can be resolved by adjusting local perspectives. It's negotiable.
+- The **harmonic part (γ)** is what's stuck in the topology. It's non-negotiable.
 
 **The key property**: These parts are orthogonal. Completely independent. Living in separate dimensions.
 
-This means: Adjust perspectives all you want. Redistribute local mismatches however you please. You will **never** accidentally create or destroy the topological component. It's protected by geometry itself.
+Adjust perspectives all you want. You will **never** accidentally create or destroy the topological component. It's protected by geometry itself.
 
-Diaspora formally proves this orthogonality: `⟨dφ, γ⟩ = 0`. The local noise and the global structure reside in mathematically distinct subspaces.
+Diaspora formally proves this orthogonality: `⟨dφ, γ⟩ = 0`.
 
 ---
 
 ## Topological Genesis: How Closing a Loop Creates Energy
 
-Here's the most profound result:
-
-**Open topology** (a line of connected nodes): Every local demand can be satisfied. There's always a way to adjust perspectives so everyone agrees. The system can relax to zero energy.
+**Open topology** (a line of connected nodes): Every local demand can be satisfied. The system can relax to zero energy.
 
 **Close the loop** (connect the endpoints): Suddenly, the same local demands become impossible to satisfy globally.
 
 Energy appears from nowhere. Not because you added energy to the system, but because you **changed the topology**.
 
-**The deep truth**: Loops force circulation. 
-
-When perspectives form a circuit, their demands create a cycle of constraints. Go around the loop, and the constraints might not sum to zero. That excess - that failure to close smoothly - becomes permanent circulation trapped in the topology.
-
-In this framework, structure necessitates tension. The existence of cycles (holes in your connectivity graph) forces the existence of irreducible circulation. Diaspora treats topology and energy as two views of the same mathematical structure.
+When perspectives form a circuit, their demands create a cycle of constraints. Go around the loop, and the constraints might not sum to zero. That excess becomes permanent circulation trapped in the topology.
 
 ---
 
 ## Quantization: The Spiral Staircase
 
-Why can't energy vary smoothly? Why must it jump in discrete levels?
+Imagine a spiral staircase in a tall tower. To exit onto a floor, you must complete full loops. One circle → Floor 1. Two circles → Floor 2. **You cannot stop at 1.5 circles.** There's nowhere to stand.
 
-Imagine walking up a spiral staircase in a tall tower. The stairs wind smoothly upward. You can climb as gradually as you like.
+Even though the climb feels smooth, the **stable states** are discrete. In a graph, you can't have 1.5 units of circulation because the path wouldn't connect back—you'd be left hanging in mid-air.
 
-But suppose you want to **exit** the stairwell to rest. You must step off onto a floor.
-* You can walk one full circle and step off at **Floor 1**.
-* You can walk two full circles and step off at **Floor 2**.
-* **You cannot stop at 1.5 circles.**
-
-If you walk 1.5 loops, you are facing the exit door direction, but you are hovering ten feet above the floor. There is nowhere to stand. If you try to exit there, you fall.
-
-This is quantization.
-Even though the "climb" (local variation) feels smooth, the **stable states** (floors) are discrete.
-In a graph-based universe, the "floors" are the requirement that the values at the nodes must match up. You cannot have 1.5 units of circulation because the path wouldn't connect back to the node you started on—mathematically, you would be left hanging in mid-air.
-
-Energy levels jump in discrete steps because the topology only allows integer windings. You can't have half a hole, so you can't have half a quantum of circulation around that hole.
-
-**The philosophical implication**: Quantization emerges when continuous possibilities meet discrete structure. It's not a weird quantum rule - it's basic counting on a discrete graph.
+Energy levels jump in discrete steps because topology only allows integer windings.
 
 ---
 
 ## The Black Hole: Information Horizons From Structural Collapse
 
-What happens when the tension between two nodes becomes unbearable? When the local mismatch is too strong?
+When an edge breaks:
 
-**The connection breaks.**
+1. **The topology changes** - you've created a hole
+2. **Local details are destroyed** - the specific strain that caused the break is lost
+3. **Global magnitude is preserved** - the energy becomes a permanent circulation
 
-When an edge is removed:
+After a connection breaks, you know something broke here and how much energy was involved, but NOT the specific details of what broke or how.
 
-1. **The topology changes** - you've created a hole where there wasn't one before
-2. **Local details are destroyed** - the specific gradient strain that caused the break is lost forever
-3. **Global magnitude is preserved** - the energy becomes a permanent circulation around the new hole
-
-Diaspora models this as an information horizon.
-
-The system forgets the **how** (the local configuration that broke) but remembers the **how much** (the magnitude of energy involved).
-
-**The No-Hair Theorem for graphs**: After a connection breaks, you know:
-- Something broke here (there's a hole)
-- How much energy was involved (the circulation magnitude)
-- But NOT the specific details of what broke or how
-
-Information isn't destroyed in the sense of leaving the universe. It's **compressed** - from high-dimensional local details into low-dimensional topological invariants.
-
-History becomes scar. Process becomes pattern. The gradient gets absorbed into the harmonic form.
-
-**Why this matters**: Information destruction isn't mysterious. It's what happens when local structure gets integrated into global topology. The details collapse into a simpler summary - a permanent circulation that says "something happened here" without specifying what.
+Information is **compressed** - from high-dimensional local details into low-dimensional topological invariants.
 
 ---
 
 ## Interaction: Why Touching Isn't Talking
 
-We usually think of communication as sending a message: I throw a ball, you catch it. But in a universe made of topology, this is impossible.
+**One Bridge (Contact):** Flow requires a circuit. A single bridge provides no return path. The topology forces the flow to cancel itself out. The bridge is sterile.
 
-Imagine two separate graph-universes. World A and World B.
+**Two Bridges (Fusion):** A cycle can now leave World A, traverse World B, and return. A new harmonic form appears—a shared topological feature belonging to both.
 
-**Scenario 1: The Bridge (Contact)**
-You build a single connection between them. A bridge. You try to send a signal (a flow) across.
-The problem? Flow requires a circuit. A harmonic form must close a loop. If you send a flow across the bridge, it hits a dead end in World B. It has no way to return to complete the cycle. The topology forces the flow to cancel itself out.
-**The Result:** The bridge is sterile. You are "touching," but you are mathematically incapable of exchanging conserved quantities.
-
-**Scenario 2: The Handle (Fusion)**
-Now, you build a *second* connection.
-
-Suddenly, a new reality is born. A cycle can now leave World A via the first bridge, traverse World B, and return via the second.
-**The Result:** A new harmonic form appears. This isn't a message moving from A to B; it is a new, shared topological feature that belongs to neither and both simultaneously.
-
-**The Handshake Theorem:**
-To exchange information, two systems cannot just touch. They must topologically merge. They must form a handle that allows flow to circulate through both of them.
-Interaction is not transmission. Interaction is the creation of a shared geometry.
+**The Handshake Theorem:** To exchange information, two systems must topologically merge. Interaction is the creation of shared geometry.
 
 ---
 
 ## Self-Measurement: How a System Observes Its Own Topology
 
-After an edge breaks and local information is lost, how can the rest of the system know the defect exists?
+Send a probe around a loop tracking "which way is up." In flat space, it returns unchanged. Around a defect, it returns **rotated**.
 
-**The method**: Parallel transport.
-
-Send a probe on a journey around a loop. Have it keep track of "which way is up" as it travels. When it returns to the start, compare its orientation to what it was before.
-
-**In flat space** (no defects): The probe returns unchanged. The journey was trivial. The loop closes smoothly.
-
-**Around a defect**: The probe returns **rotated**. Even though it traveled in a loop, it's now pointing a different direction.
-
-**This is measurement without an external observer.**
-
-The system doesn't detect the hole by looking at it directly. The system detects the hole by **trying to pretend it's not there and failing**.
-
-The probe expects: "I walked in a circle, so I should be exactly where I started, pointing the same way."
-
-Reality responds: "Nope. You're rotated. Something's wrong with the topology."
-
-That discrepancy - the gap between expectation and result - is the detection.
-
-**The profound realization**: Observation is the discovery of inconsistency. The system measures its own structure by noticing that local perspectives can't be made globally consistent.
-
-It's the universe running its fingers along its own scars, feeling the bumps where perspective-loops don't close smoothly.
-
-Diaspora models this detection via holonomy—the phase shift accumulated during parallel transport. The Aharonov-Bohm effect emerges naturally: the system can measure topology it cannot directly access.
-
----
-
-## The Mirror: Observer and Observed Are One
-
-Here's where duality reveals something strange.
-
-Consider a topological defect from two viewpoints:
-
-**The External View** (The Loop):  
-An observer traces a path around a void. They measure **circulation** - how much their perspective rotates during the journey. This is holonomy.
-
-**The Internal View** (The Star):  
-A particle sits at the center of the void. It emits **flux** - a divergence that sources the field. This is charge.
-
-Diaspora represents the observer and particle as dual aspects of the same topological structure. Via the Discrete Hodge Star operator, the circulation measured by the loop around the outside equals the flux emitted from the center.
-
-**What this means philosophically**:
-
-The "thing being observed" and "the act of observing" are the same structure from different perspectives.
-
-The black hole that appears as information erasure from the outside is precisely the boundary condition that enables observation from the inside.
-
-The entity looking and the entity being looked at are one and the same topological feature, seen from opposite sides of a broken edge.
-
-**Measurement is reflexive**. When a system measures its topology, it's discovering itself as object by acting as subject. The observer-particle duality shows that detection and detected emerge simultaneously from the same geometric necessity.
+The system detects the hole by **trying to pretend it's not there and failing**. Observation is the discovery of inconsistency—the system measures itself by noticing that local perspectives can't be made globally consistent.
 
 ---
 
 ## The Glassy Landscape: Multiple Possible Realities
 
-In simple graphs, there's often one "best" way to arrange things. But in complex graphs, the definition of "best" fractures.
+In complex graphs with "frustrated" constraints (where demands can't all be satisfied), multiple stable configurations exist. A greedy algorithm (always fix the worst local problem) can trap the system in a high-energy false vacuum by addressing immediate pain while missing the global optimum.
 
-Diaspora defines a **glassy system** as one with multiple stable configurations - different ways to organize the same basic structure, each locally stable but globally distinct.
+When multiple stable configurations exist, history matters. The path taken determines which vacuum the system settles into.
 
-Think of the "frustrated triangle": three nodes in a triangle where the desired flows around the edges can't all be satisfied simultaneously. The system must choose which edge gets strained most.
+---
 
-But there are multiple choices. Break this edge? Or that one? Each choice creates a different topology, a different vacuum state.
+## Summary
 
-**The problem**: A greedy algorithm (always fix the worst local problem) can trap the system in a high-energy false vacuum. By always addressing immediate pain, it might miss the global optimum.
+First there are **perspectives** (local encodings). These perspectives must **coexist** (share a reality). The topology of their **connections** creates constraints. Those constraints force the emergence of **everything else**.
 
-**The butterfly effect**: Tiny differences in initial conditions can cause the system to freeze into topologically distinct stable states. The same rules, slightly different starting points, completely different final realities.
+---
 
-**Why this matters**: When multiple stable configurations exist, history matters. The path taken determines which vacuum the system settles into. A glassy system's state isn't just a function of dynamics - it's a function of **which choices were made when conflicts arose**.
+## How Diaspora Works
+
+### The Setup
+We model the universe using two types of data:
+- **Potentials (Nodes, $C^0$)**: The state at a location (e.g., pressure, voltage)
+- **Constraints (Edges, $C^1$)**: The rule between locations (e.g., flow rate)
+
+### The Gradient
+The gradient operator `d` acts as a **local predictor**.
+```
+(dφ)(edge i→j) = φ(j) - φ(i)
+```
+It predicts what the edge constraint *should* be, assuming the nodes are correct.
+
+### The Central Problem: Integration
+We rarely see the global state ($\phi$) directly. Instead, we define systems by local constraints ($\sigma$). The central question is: **Do these local rules add up to a consistent reality?**
+
+Can we find node values $\phi$ that perfectly satisfy every local desire $\sigma$? **Generally, no.** Conflicting local constraints create impossible global requirements.
 
 ---
 
@@ -262,53 +161,13 @@ From just this:
 - **Observation** is self-measurement through parallel transport
 - **Observer-particle duality** shows measurement as reflexive structure
 
-No additional physics. No mysterious constants. Just topology, information geometry, and the requirement that local encoders share one reality.
-
----
-
-## How Diaspora Works
-
-### The Setup
-We model the universe using two types of data:
-- **Potentials (Nodes, $C^0$)**: The state at a location (e.g., pressure, voltage)
-- **Constraints (Edges, $C^1$)**: The rule between locations (e.g., flow rate)
-
-### The Gradient
-The gradient operator `d` acts as a **local predictor**.
-```
-(dφ)(edge i→j) = φ(j) - φ(i)
-```
-It predicts what the edge constraint *should* be, assuming the nodes are correct.
-
-### The Central Problem: Integration
-We rarely see the global state ($\phi$) directly. Instead, we define systems by local constraints ($\sigma$). The central question is: **Do these local rules add up to a consistent reality?**
-
-Can we find a set of node values $\phi$ that perfectly satisfies every local desire $\sigma$? 
-**Generally, no.** Conflicting local constraints create impossible global requirements.
-
----
-
-## Summary
-
-First there are **perspectives** (local encodings).  
-These perspectives must **coexist** (share a reality).  
-The topology of their **connections** creates constraints.  
-Those constraints force the emergence of **everything else**.
-
-Space is not a container. Energy is not a substance. Laws are not imposed rules.
-
-They're all consequences of the geometry of agreement - the shape of the problem "how can many local views form one global truth?"
-
-This framework suggests a perspective: reality as the shape of self-consistent information.
-
-Structure eats itself and becomes reality.
+No additional physics or constants. Just topology, information geometry, and the requirement that local encoders share one reality.
 
 ---
 
 ## File Structure
 
 **Foundations**
-
 ```
 DiscreteCalculus.lean   -- Basic definitions: graphs, cochains, operators
 HodgeDecomposition.lean -- The main theorem: existence and uniqueness
@@ -316,7 +175,6 @@ HarmonicAnalysis.lean   -- Consequences: energy, quantization, conservation
 ```
 
 **Phenomenology**
-
 ```
 TopologicalGenesis.lean -- Origin: How closing a loop creates energy
 Interaction.lean        -- Fusion: Contact vs. shared reality (The Handshake)
@@ -326,7 +184,6 @@ FalseVacuum.lean        -- Dynamics: Greedy algorithms vs. Global optima
 ```
 
 **Observer & Evolution**
-
 ```
 TopologyChange.lean     -- The Black Hole: Strain localization and edge breaking
 TopologyDynamics.lean   -- Evolution: Step-by-step graph mutation

@@ -3,7 +3,7 @@
 </p>
 
 # Diaspora
-**Toy Universe of Graph Topology**
+**A Universe of Graph Topology**
 
 Diaspora is a formally verified exploration of Discrete Hodge Theory in Lean 4. It demonstrates how complex phenomena—conservation laws, energy quantization, topological defects, observation—emerge from a simple requirement: local perspectives on a discrete graph must form one consistent global reality.
 

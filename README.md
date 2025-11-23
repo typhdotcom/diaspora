@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="img/logo.png" alt="Diaspora" />
+  <img src="img/logo.png" alt="Diaspora" height="100" />
 </p>
 
 # Diaspora

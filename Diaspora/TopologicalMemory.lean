@@ -28,10 +28,10 @@ noncomputable def evolve_with_history (S : CoolingSchedule) : DynamicGraph n_the
   | .Quenched => remove_edge theta_graph 1 2
   | .Annealed => remove_edge theta_graph 1 3
 
-def vertex_degree (G : DynamicGraph n_theta) (v : Fin n_theta) : ℕ :=
+def vertex_degree {n : ℕ} (G : DynamicGraph n) (v : Fin n) : ℕ :=
   (Finset.univ.filter (fun w => (v, w) ∈ G.active_edges)).card
 
-def has_leaf (G : DynamicGraph n_theta) : Prop :=
+def has_leaf {n : ℕ} (G : DynamicGraph n) : Prop :=
   ∃ v, vertex_degree G v = 1
 
 lemma quenched_all_degree_2 (v : Fin n_theta) :

@@ -149,6 +149,19 @@ Information about the past is stored in the connectivity of the present.
 
 ---
 
+## Spectral Memory: Hearing the Shape of History
+
+We established that the universe remembers its history in its topology. But can anyone read it? An electron inside the wire cannot zoom out to see if the graph has a "leaf."
+
+**The Spectral Memory Theorem** bridges the gap between topology and observation. It proves that the Laplacian Spectrum—the set of energy eigenvalues, or the "music" of the manifold—is distinct for Quenched vs. Annealed universes.
+
+  - **Quenched (Cycle):** Highly symmetric, lower spectral variance ($\text{Tr}(\Delta^2) = 24$).
+  - **Annealed (Tadpole):** Broken symmetry, higher spectral variance ($\text{Tr}(\Delta^2) = 26$).
+
+This answers Mark Kac's famous question: *"Can one hear the shape of a drum?"* In Diaspora, the answer is yes. An internal observer can measure the "loudness" of the quantum echo to determine exactly how their universe was cooled without ever stepping outside it.
+
+-----
+
 ## Summary
 
 First there are **perspectives** (local encodings). These perspectives must **coexist** (share a reality). The topology of their **connections** creates constraints. Those constraints force the emergence of **everything else**.
@@ -227,6 +240,7 @@ FalseVacuum.lean        -- Dynamics: Greedy algorithms vs. Global optima
 MetricDeception.lean    -- The Lie: Local strain vs. Harmonic stress
 Patience.lean           -- The Cure: Relaxation as information processing
 TopologicalMemory.lean  -- The Record: Storing history in graph topology
+SpectralMemory.lean     -- The Echo: Hearing the shape of cooling history
 ```
 
 **Observer & Evolution**

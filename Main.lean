@@ -16,3 +16,4 @@ import Diaspora.Duality
 import Diaspora.Interaction
 import Diaspora.MetricDeception
 import Diaspora.TopologicalMemory
+import Diaspora.SpectralMemory

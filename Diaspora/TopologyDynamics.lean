@@ -96,6 +96,53 @@ lemma select_max_strain_mem {n : ℕ} (ϕ : C0 n) (σ : C1 n)
     obtain ⟨x, h_none, _⟩ := h_init
     contradiction
 
+/-- The foldl result has strain ≥ the init -/
+lemma select_max_strain_fn_foldl_ge_init {n : ℕ} (ϕ : C0 n) (σ : C1 n)
+    (l : List (Fin n × Fin n)) (init : Fin n × Fin n) (res : Fin n × Fin n)
+    (h : l.foldl (select_max_strain_fn ϕ σ) (some init) = some res) :
+    edge_strain ϕ σ res.1 res.2 ≥ edge_strain ϕ σ init.1 init.2 := by
+  induction l generalizing init res with
+  | nil =>
+    simp only [List.foldl_nil] at h
+    injection h with h_res
+    rw [← h_res]
+  | cons hd tl ih =>
+    simp only [List.foldl_cons] at h
+    simp only [select_max_strain_fn] at h
+    split_ifs at h with hcmp
+    · -- hd > init, continue with hd
+      have h_res_ge_hd := ih hd res h
+      exact le_trans (le_of_lt hcmp) h_res_ge_hd
+    · -- init >= hd, continue with init
+      exact ih init res h
+
+/-- Auxiliary: The foldl result has strain ≥ all elements processed -/
+lemma select_max_strain_fn_foldl_max {n : ℕ} (ϕ : C0 n) (σ : C1 n)
+    (l : List (Fin n × Fin n)) (init : Fin n × Fin n) (res : Fin n × Fin n)
+    (h : l.foldl (select_max_strain_fn ϕ σ) (some init) = some res) :
+    ∀ e ∈ l, edge_strain ϕ σ res.1 res.2 ≥ edge_strain ϕ σ e.1 e.2 := by
+  induction l generalizing init res with
+  | nil => intro e he; simp at he
+  | cons hd tl ih =>
+    simp only [List.foldl_cons] at h
+    simp only [select_max_strain_fn] at h
+    split_ifs at h with hcmp
+    · -- hd > init, continue with hd
+      intro e he
+      simp only [List.mem_cons] at he
+      rcases he with rfl | he_tl
+      · exact select_max_strain_fn_foldl_ge_init ϕ σ tl e res h
+      · exact ih hd res h e he_tl
+    · -- init >= hd, continue with init
+      intro e he
+      simp only [List.mem_cons] at he
+      rcases he with rfl | he_tl
+      · -- e = hd
+        have h_init_ge_hd : edge_strain ϕ σ init.1 init.2 ≥ edge_strain ϕ σ e.1 e.2 := le_of_not_gt hcmp
+        have h_res_ge_init := select_max_strain_fn_foldl_ge_init ϕ σ tl init res h
+        exact le_trans h_init_ge_hd h_res_ge_init
+      · exact ih init res h e he_tl
+
 /--
 Find the edge that exceeds the breaking threshold with the MAXIMUM strain.
 Returns the single worst edge found (if any).
@@ -123,6 +170,34 @@ theorem find_overstressed_edge_spec {n : ℕ} [Fintype (Fin n)]
   · have h_bool := h_in_candidates.2
     simp only [decide_eq_true_iff] at h_bool
     exact h_bool
+
+/--
+Maximality: The returned edge has strain ≥ all other overstressed edges.
+-/
+theorem find_overstressed_edge_max {n : ℕ} [Fintype (Fin n)]
+    (G : DynamicGraph n) (ϕ : C0 n) (σ : C1 n) (C_max : ℝ)
+    (i j : Fin n)
+    (h_some : find_overstressed_edge G ϕ σ C_max = some (i, j))
+    (a b : Fin n) (h_ab_active : (a, b) ∈ G.active_edges) (h_ab_over : edge_strain ϕ σ a b > C_max) :
+    edge_strain ϕ σ i j ≥ edge_strain ϕ σ a b := by
+  unfold find_overstressed_edge at h_some
+  -- (a, b) is in the candidates list
+  have h_ab_in_cand : (a, b) ∈ G.active_edges.toList.filter (fun x => decide (edge_strain ϕ σ x.1 x.2 > C_max)) := by
+    simp only [List.mem_filter, Finset.mem_toList, decide_eq_true_iff]
+    exact ⟨h_ab_active, h_ab_over⟩
+  -- select_max_strain returns a maximal element
+  unfold select_max_strain at h_some
+  cases h_list : G.active_edges.toList.filter (fun x => decide (edge_strain ϕ σ x.1 x.2 > C_max)) with
+  | nil => simp [h_list] at h_ab_in_cand
+  | cons hd tl =>
+    rw [h_list] at h_some h_ab_in_cand
+    simp only [List.foldl_cons] at h_some
+    simp only [List.mem_cons] at h_ab_in_cand
+    rcases h_ab_in_cand with rfl | h_ab_in_tl
+    · -- (a, b) = hd, so we use the fact that result strain ≥ init strain
+      exact select_max_strain_fn_foldl_ge_init ϕ σ tl (a, b) (i, j) h_some
+    · -- (a, b) in tail
+      exact select_max_strain_fn_foldl_max ϕ σ tl hd (i, j) h_some (a, b) h_ab_in_tl
 
 /-! ## Topological Evolution -/
 
@@ -162,6 +237,86 @@ def remove_edge {n : ℕ} (G : DynamicGraph n) (i j : Fin n) : DynamicGraph n wh
     simp only [Finset.mem_erase, ne_eq]
     intro ⟨_, _, h3⟩
     exact G.no_loops a h3
+
+/--
+When an edge breaks, its capacity transfers from Active to Latent.
+-/
+theorem latent_capacity_growth {n : ℕ} [Fintype (Fin n)]
+    (G : DynamicGraph n) (σ : C1 n) (i j : Fin n)
+    (h_active : (i, j) ∈ G.active_edges) :
+  latent_capacity (remove_edge G i j) σ = latent_capacity G σ + (σ.val i j)^2 := by
+  rw [latent_capacity, latent_capacity, remove_edge]
+  simp only [Finset.mem_erase, ne_eq, not_and]
+  have h_sym : (j, i) ∈ G.active_edges := (G.symmetric j i).mpr h_active
+  have skew_sq : σ.val j i ^ 2 = σ.val i j ^ 2 := by
+    have : σ.val j i = -σ.val i j := σ.skew j i
+    rw [this]; ring
+  have cond_equiv : ∀ a b, (¬(a, b) = (j, i) → ¬(a, b) = (i, j) → (a, b) ∉ G.active_edges) ↔
+                           ((a, b) = (j, i) ∨ (a, b) = (i, j) ∨ (a, b) ∉ G.active_edges) := by
+    intro a b
+    constructor
+    · intro h
+      by_cases h1 : (a, b) = (j, i)
+      · left; exact h1
+      · by_cases h2 : (a, b) = (i, j)
+        · right; left; exact h2
+        · right; right; exact h h1 h2
+    · intro h h1 h2
+      rcases h with h | h | h
+      · exact absurd h h1
+      · exact absurd h h2
+      · exact h
+  simp_rw [cond_equiv]
+  have sum_split : ∑ x, ∑ y, (if (x, y) = (j, i) ∨ (x, y) = (i, j) ∨ (x, y) ∉ G.active_edges
+                                then σ.val x y ^ 2 else 0) =
+                   ∑ x, ∑ y, (if (x, y) ∉ G.active_edges then σ.val x y ^ 2 else 0) +
+                   σ.val i j ^ 2 + σ.val j i ^ 2 := by
+    trans (∑ x, ∑ y, ((if (x,y) ∉ G.active_edges then σ.val x y ^ 2 else 0) +
+                       (if (x,y) = (i,j) then σ.val i j ^ 2 else 0) +
+                       (if (x,y) = (j,i) then σ.val j i ^ 2 else 0)))
+    · congr 1; ext x; congr 1; ext y
+      by_cases hji : (x, y) = (j, i)
+      · rw [hji]
+        simp only [h_sym, if_true, Or.inl]
+        have neq : (j, i) ≠ (i, j) := by
+          intro h; injection h with h1 h2
+          have : j = i := h1
+          rw [this] at h_sym
+          exact G.no_loops i h_sym
+        simp [neq]
+        congr; injection hji; simp_all
+      · by_cases hij : (x, y) = (i, j)
+        · rw [hij]
+          simp only [h_active, if_true, Or.inr, Or.inl]
+          have neq : (i, j) ≠ (j, i) := by
+            intro h; injection h with h1 h2
+            have : i = j := h1
+            rw [this] at h_active
+            exact G.no_loops j h_active
+          simp [neq]
+          congr; injection hij; simp_all
+        · by_cases hr : (x, y) ∉ G.active_edges
+          · simp [hr, hji, hij]
+          · simp [hr, hji, hij]
+    · simp only [Finset.sum_add_distrib]
+      have sum_pair_eq : ∀ (a b : Fin n) (c : ℝ),
+          ∑ x, ∑ y, (if (x, y) = (a, b) then c else 0) = c := by
+        intro a b c
+        have inner : ∀ x, ∑ y, (if (x, y) = (a, b) then c else 0) = if x = a then c else 0 := by
+          intro x
+          by_cases hx : x = a
+          · subst hx
+            simp only [Prod.mk.injEq, true_and]
+            rw [Finset.sum_ite_eq']; simp
+          · simp only [hx, ite_false]
+            apply Finset.sum_eq_zero
+            intro y _
+            simp [hx]
+        simp_rw [inner]
+        rw [Finset.sum_ite_eq']; simp
+      rw [sum_pair_eq i j, sum_pair_eq j i]
+  rw [sum_split, skew_sq]
+  ring
 
 /--
 Single step of evolution: if an overstressed edge exists, break the worst one.
@@ -382,21 +537,5 @@ theorem evolve_decreases_card {n : ℕ} [Fintype (Fin n)]
   · rename_i h_none
     simp only [h_none] at h_changed
     exact absurd rfl h_changed
-
-/--
-Iterate evolution until equilibrium.
-Termination is guaranteed: each step strictly decreases the number of edges.
--/
-noncomputable def evolve_to_equilibrium {n : ℕ} [Fintype (Fin n)] [DecidableEq (DynamicGraph n)]
-    (G : DynamicGraph n) (ϕ : C0 n) (σ : C1 n) (C_max : ℝ) :
-    DynamicGraph n :=
-  if h : evolve_step G ϕ σ C_max = G then
-    G
-  else
-    have _ : (evolve_step G ϕ σ C_max).active_edges.card < G.active_edges.card :=
-      evolve_decreases_card G ϕ σ C_max h
-    evolve_to_equilibrium (evolve_step G ϕ σ C_max) ϕ σ C_max
-termination_by G.active_edges.card
-decreasing_by exact evolve_decreases_card G ϕ σ C_max h
 
 end DiscreteHodge

@@ -8,6 +8,7 @@ distinct stable vacua.
 -/
 
 import Diaspora.TopologyDynamics
+import Diaspora.Universe
 import Mathlib.Logic.Equiv.Basic
 import Mathlib.Logic.Equiv.Defs
 
@@ -76,11 +77,15 @@ def topological_sensitivity_statement
     {n : ℕ} [Fintype (Fin n)] [DecidableEq (DynamicGraph n)]
     (σ : C1 n) (C_max : ℝ) : Prop :=
   ∃ (G_start : DynamicGraph n) (ϕ₁ ϕ₂ : C0 n),
-    -- The inputs are arbitrarily close (formalizing "small perturbation" would require a metric)
+    -- The inputs are arbitrarily close
     (∀ i, |ϕ₁ i - ϕ₂ i| < 0.001) ∧
     -- But they evolve to topologically distinct universes
-    let final₁ := evolve_to_equilibrium G_start ϕ₁ σ C_max
-    let final₂ := evolve_to_equilibrium G_start ϕ₂ σ C_max
+    -- We define "static solvers" that just apply the initial potential regardless of topology
+    let solver₁ := fun (_ : DynamicGraph n) (_ : C1 n) => ϕ₁
+    let solver₂ := fun (_ : DynamicGraph n) (_ : C1 n) => ϕ₂
+    -- We extract the final graph (.1) from the simulation result
+    let final₁ := (run_universe G_start σ C_max solver₁).1
+    let final₂ := (run_universe G_start σ C_max solver₂).1
     ¬ IsIsomorphic final₁ final₂
 
 end DiscreteHodge

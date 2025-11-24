@@ -9,7 +9,7 @@ We show that the landscape contains two non-isomorphic stable vacua:
 -/
 
 import Diaspora.GlassDynamics
-import Diaspora.DiscreteCalculus
+import Diaspora.Universe
 import Mathlib.Data.Fin.Basic
 import Mathlib.Tactic.Linarith
 
@@ -205,5 +205,54 @@ theorem tailed_triangle_is_glassy (C_max : ℝ) (h_pos : C_max ≥ 0) :
     exact h_pos
   · -- They are distinct
     exact star_ne_line
+
+/-! ## Evolution: Proof-Carrying Paths to Vacua -/
+
+/-- Edge (1,2) is active in the kite graph. -/
+lemma kite_has_edge_12 : (1, 2) ∈ kite_graph.active_edges := by decide
+
+/-- Edge (0,1) is active in the kite graph. -/
+lemma kite_has_edge_01 : (0, 1) ∈ kite_graph.active_edges := by decide
+
+/--
+The evolution chain from kite to star: break edge (1,2).
+This is a proof-carrying object - the chain itself witnesses that the transition was valid.
+-/
+def kite_to_star_chain : EvolutionChain n_kite frustrated_sigma star_graph :=
+  EvolutionChain.step (EvolutionChain.genesis kite_graph) 1 2 kite_has_edge_12
+
+/--
+The evolution chain from kite to line: break edge (0,1).
+-/
+def kite_to_line_chain : EvolutionChain n_kite frustrated_sigma line_graph :=
+  EvolutionChain.step (EvolutionChain.genesis kite_graph) 0 1 kite_has_edge_01
+
+/-- Both chains originate from the same graph. -/
+theorem same_origin :
+    kite_to_star_chain.origin = kite_graph ∧ kite_to_line_chain.origin = kite_graph := by
+  constructor <;> rfl
+
+/-- Breaking edge (1,2) increases latent capacity by σ(1,2)². -/
+theorem star_entropy_increase :
+    latent_capacity star_graph frustrated_sigma =
+    latent_capacity kite_graph frustrated_sigma + (frustrated_sigma.val 1 2)^2 :=
+  latent_capacity_growth kite_graph frustrated_sigma 1 2 kite_has_edge_12
+
+/-- Breaking edge (0,1) increases latent capacity by σ(0,1)². -/
+theorem line_entropy_increase :
+    latent_capacity line_graph frustrated_sigma =
+    latent_capacity kite_graph frustrated_sigma + (frustrated_sigma.val 0 1)^2 :=
+  latent_capacity_growth kite_graph frustrated_sigma 0 1 kite_has_edge_01
+
+/--
+THE DYNAMICAL GLASSINESS THEOREM:
+The same initial condition (kite_graph) can evolve to two distinct, non-isomorphic
+stable configurations via valid evolution chains.
+-/
+theorem dynamical_glassiness :
+    ∃ (chain_star : EvolutionChain n_kite frustrated_sigma star_graph)
+      (chain_line : EvolutionChain n_kite frustrated_sigma line_graph),
+      chain_star.origin = chain_line.origin ∧ ¬ IsIsomorphic star_graph line_graph :=
+  ⟨kite_to_star_chain, kite_to_line_chain, rfl, star_ne_line⟩
 
 end DiscreteHodge

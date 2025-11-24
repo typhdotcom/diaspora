@@ -1,4 +1,5 @@
 import Diaspora.TopologyDynamics
+import Diaspora.Universe
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.FinCases
 import Mathlib.Tactic.FieldSimp
@@ -23,27 +24,20 @@ def theta_active : Finset (Fin n_theta × Fin n_theta) := {
 
 def theta_graph : DynamicGraph n_theta where
   active_edges := theta_active
-  symmetric := by 
+  symmetric := by
     intro i j
     simp [theta_active]
     tauto
-  no_loops := by 
+  no_loops := by
     intro i
     simp [theta_active]
     fin_cases i <;> decide
 
-/-! ## Parameterized Fields -/
-
-/--
-Construct a constraint field (Sigma) based on three flux parameters:
-- Ft: Flux across the Trap (1,2)
-- Fs: Flux across the Smart Edge (1,3)
-- Fa: Flux (Pre-tension) on Anchors (0,1)
--/
+/-- Constraint field from flux parameters: Ft (trap), Fs (smart), Fa (anchor). -/
 def make_sigma (Ft Fs Fa : ℝ) : C1 n_theta := {
   val := fun i j =>
-    if (i=1 ∧ j=2) then Ft else if (i=2 ∧ j=1) then -Ft      
-    else if (i=1 ∧ j=3) then Fs else if (i=3 ∧ j=1) then -Fs  
+    if (i=1 ∧ j=2) then Ft else if (i=2 ∧ j=1) then -Ft
+    else if (i=1 ∧ j=3) then Fs else if (i=3 ∧ j=1) then -Fs
     else if (i=3 ∧ j=2) then Fs else if (i=2 ∧ j=3) then -Fs
     else if (i=0 ∧ j=1) then -Fa else if (i=1 ∧ j=0) then Fa
     else if (i=0 ∧ j=2) then Fa else if (i=2 ∧ j=0) then -Fa
@@ -51,10 +45,7 @@ def make_sigma (Ft Fs Fa : ℝ) : C1 n_theta := {
   skew := by intro i j; fin_cases i <;> fin_cases j <;> simp
 }
 
-/--
-Construct a relaxation potential (Phi) based on a magnitude P.
-Symmetric relaxation: Node 1 lowers by P, Node 2 raises by P.
--/
+/-- Relaxation potential: node 1 lowers by P, node 2 raises by P. -/
 noncomputable def make_phi (P : ℝ) : C0 n_theta :=
   fun i =>
     if i = 0 then 0
@@ -62,14 +53,11 @@ noncomputable def make_phi (P : ℝ) : C0 n_theta :=
     else if i = 2 then P
     else 0
 
-/-! ## Strain Analysis Theorems -/
-
-/-- Without relaxation (ϕ=0), strain equals flux squared. -/
 lemma greedy_strain_is_flux_sq (Ft Fs Fa : ℝ) (i j : Fin n_theta) :
   edge_strain (fun _ => 0) (make_sigma Ft Fs Fa) i j = ((make_sigma Ft Fs Fa).val i j)^2 := by
   unfold edge_strain d0; simp
 
-/-- Quenched instability: without relaxation, the edge with highest flux fails first. -/
+/-- Without relaxation, the edge with highest flux has highest strain. -/
 theorem quenched_instability (Ft Fs Fa : ℝ)
   (h_trap_dominant : Ft > Fs ∧ Ft > Fa)
   (h_pos : Ft > 0 ∧ Fs > 0 ∧ Fa > 0) :
@@ -87,7 +75,7 @@ theorem quenched_instability (Ft Fs Fa : ℝ)
   · apply sq_lt_sq.mpr; rw [abs_of_pos h_pos.1, abs_of_pos h_pos.2.2]; exact h_trap_dominant.2
 
 set_option linter.unusedSimpArgs false in
-/-- Annealed crossover: relaxation can invert which edge fails. -/
+/-- Relaxation can invert which edge fails first. -/
 theorem annealed_crossover (Ft Fs Fa : ℝ) (P : ℝ)
   (h_relax : P = Ft / 2 + 1)
   (h_smart_weak : Fs < P - 2) :
@@ -115,5 +103,148 @@ theorem annealed_crossover (Ft Fs Fa : ℝ) (P : ℝ)
     linarith
   rw [abs_of_pos (by linarith)]
   exact h_ineq
+
+lemma theta_has_12 : (1, 2) ∈ theta_graph.active_edges := by simp [theta_graph, theta_active]
+lemma theta_has_13 : (1, 3) ∈ theta_graph.active_edges := by simp [theta_graph, theta_active]
+
+/-- Trap decay: breaking the high-flux edge (1,2). -/
+def trap_decay_chain (σ : C1 n_theta) : EvolutionChain n_theta σ (remove_edge theta_graph 1 2) :=
+  EvolutionChain.step (EvolutionChain.genesis theta_graph) 1 2 theta_has_12
+
+/-- Smart decay: breaking the lower-flux edge (1,3). -/
+def smart_decay_chain (σ : C1 n_theta) : EvolutionChain n_theta σ (remove_edge theta_graph 1 3) :=
+  EvolutionChain.step (EvolutionChain.genesis theta_graph) 1 3 theta_has_13
+
+/-- Trap decay releases more latent capacity than smart decay under quenched conditions. -/
+theorem quenched_path_preference (Ft Fs Fa : ℝ)
+  (h_trap_dominant : Ft > Fs ∧ Ft > Fa)
+  (h_pos : Ft > 0 ∧ Fs > 0 ∧ Fa > 0) :
+  let σ := make_sigma Ft Fs Fa
+  (trap_decay_chain σ).origin = (smart_decay_chain σ).origin ∧
+  latent_capacity (remove_edge theta_graph 1 2) σ > latent_capacity (remove_edge theta_graph 1 3) σ := by
+  intro σ
+  constructor
+  · rfl
+  · rw [step_entropy_growth 1 2 theta_has_12]
+    rw [step_entropy_growth 1 3 theta_has_13]
+    simp only [σ, make_sigma]
+    norm_num
+    apply sq_lt_sq.mpr
+    rw [abs_of_pos h_pos.1, abs_of_pos h_pos.2.1]
+    exact h_trap_dominant.1
+
+lemma remove_edge_comm (G : DynamicGraph n_theta) (i j : Fin n_theta) :
+    remove_edge G i j = remove_edge G j i := by
+  simp only [remove_edge, DynamicGraph.mk.injEq]
+  ext ⟨a, b⟩
+  simp only [Finset.mem_erase, ne_eq, Prod.mk.injEq]
+  constructor
+  · intro ⟨h1, h2, h3⟩
+    refine ⟨?_, ?_, h3⟩
+    · intro ⟨ha, hb⟩; subst ha hb; exact h2 ⟨rfl, rfl⟩
+    · intro ⟨ha, hb⟩; subst ha hb; exact h1 ⟨rfl, rfl⟩
+  · intro ⟨h1, h2, h3⟩
+    refine ⟨?_, ?_, h3⟩
+    · intro ⟨ha, hb⟩; subst ha hb; exact h2 ⟨rfl, rfl⟩
+    · intro ⟨ha, hb⟩; subst ha hb; exact h1 ⟨rfl, rfl⟩
+
+/-- evolve_step selects the trap edge (1,2) when it has dominant strain. -/
+theorem simulation_selects_trap (Ft Fs Fa C_max : ℝ)
+  (h_trap_dominant : Ft > Fs ∧ Ft > Fa)
+  (h_pos : Ft > 0 ∧ Fs > 0 ∧ Fa > 0)
+  (h_break : Ft^2 > C_max) :
+  let σ := make_sigma Ft Fs Fa
+  let ϕ := fun (_ : Fin n_theta) => (0 : ℝ)
+  evolve_step theta_graph ϕ σ C_max = remove_edge theta_graph 1 2 := by
+  intro σ ϕ
+  have h12_strain : edge_strain ϕ σ 1 2 = Ft^2 := greedy_strain_is_flux_sq Ft Fs Fa 1 2
+  have h12_over : edge_strain ϕ σ 1 2 > C_max := by rw [h12_strain]; exact h_break
+  unfold evolve_step
+  split
+  case h_1 i j heq =>
+    have h_spec := find_overstressed_edge_spec theta_graph ϕ σ C_max i j heq
+    have h_active := h_spec.1
+    fin_cases i <;> fin_cases j
+    · exfalso; simp only [theta_graph, theta_active, Finset.mem_insert, Finset.mem_singleton, Prod.mk.injEq] at h_active; simp_all
+    · exfalso
+      have h01_strain : edge_strain ϕ σ 0 1 = Fa^2 := by simp only [edge_strain, d0]; simp [σ, ϕ, make_sigma]
+      have hFt_sq_gt_Fa : Ft^2 > Fa^2 := sq_lt_sq.mpr (by rw [abs_of_pos h_pos.1, abs_of_pos h_pos.2.2]; exact h_trap_dominant.2)
+      have h_max := find_overstressed_edge_max theta_graph ϕ σ C_max 0 1 heq 1 2 theta_has_12 h12_over
+      rw [h01_strain, h12_strain] at h_max
+      linarith
+    · exfalso
+      have h02_strain : edge_strain ϕ σ 0 2 = Fa^2 := by simp only [edge_strain, d0]; simp [σ, ϕ, make_sigma]
+      have hFt_sq_gt_Fa : Ft^2 > Fa^2 := sq_lt_sq.mpr (by rw [abs_of_pos h_pos.1, abs_of_pos h_pos.2.2]; exact h_trap_dominant.2)
+      have h_max := find_overstressed_edge_max theta_graph ϕ σ C_max 0 2 heq 1 2 theta_has_12 h12_over
+      rw [h02_strain, h12_strain] at h_max
+      linarith
+    · exfalso; simp only [theta_graph, theta_active, Finset.mem_insert, Finset.mem_singleton, Prod.mk.injEq] at h_active; simp_all
+    · exfalso
+      have h10_strain : edge_strain ϕ σ 1 0 = Fa^2 := by simp only [edge_strain, d0]; simp [σ, ϕ, make_sigma]
+      have hFt_sq_gt_Fa : Ft^2 > Fa^2 := sq_lt_sq.mpr (by rw [abs_of_pos h_pos.1, abs_of_pos h_pos.2.2]; exact h_trap_dominant.2)
+      have h_max := find_overstressed_edge_max theta_graph ϕ σ C_max 1 0 heq 1 2 theta_has_12 h12_over
+      rw [h10_strain, h12_strain] at h_max
+      linarith
+    · exfalso; simp only [theta_graph, theta_active, Finset.mem_insert, Finset.mem_singleton, Prod.mk.injEq] at h_active; simp_all
+    · rfl
+    · exfalso
+      have h13_strain : edge_strain ϕ σ 1 3 = Fs^2 := by simp only [edge_strain, d0]; simp [σ, ϕ, make_sigma]
+      have hFt_sq_gt_Fs : Ft^2 > Fs^2 := sq_lt_sq.mpr (by rw [abs_of_pos h_pos.1, abs_of_pos h_pos.2.1]; exact h_trap_dominant.1)
+      have h_max := find_overstressed_edge_max theta_graph ϕ σ C_max 1 3 heq 1 2 theta_has_12 h12_over
+      rw [h13_strain, h12_strain] at h_max
+      linarith
+    · exfalso
+      have h20_strain : edge_strain ϕ σ 2 0 = Fa^2 := by simp only [edge_strain, d0]; simp [σ, ϕ, make_sigma]
+      have hFt_sq_gt_Fa : Ft^2 > Fa^2 := sq_lt_sq.mpr (by rw [abs_of_pos h_pos.1, abs_of_pos h_pos.2.2]; exact h_trap_dominant.2)
+      have h_max := find_overstressed_edge_max theta_graph ϕ σ C_max 2 0 heq 1 2 theta_has_12 h12_over
+      rw [h20_strain, h12_strain] at h_max
+      linarith
+    · exact remove_edge_comm theta_graph 1 2
+    · exfalso; simp only [theta_graph, theta_active, Finset.mem_insert, Finset.mem_singleton, Prod.mk.injEq] at h_active; simp_all
+    · exfalso
+      have h23_strain : edge_strain ϕ σ 2 3 = Fs^2 := by simp only [edge_strain, d0]; simp [σ, ϕ, make_sigma]
+      have hFt_sq_gt_Fs : Ft^2 > Fs^2 := sq_lt_sq.mpr (by rw [abs_of_pos h_pos.1, abs_of_pos h_pos.2.1]; exact h_trap_dominant.1)
+      have h_max := find_overstressed_edge_max theta_graph ϕ σ C_max 2 3 heq 1 2 theta_has_12 h12_over
+      rw [h23_strain, h12_strain] at h_max
+      linarith
+    · exfalso; simp only [theta_graph, theta_active, Finset.mem_insert, Finset.mem_singleton, Prod.mk.injEq] at h_active; simp_all
+    · exfalso
+      have h31_strain : edge_strain ϕ σ 3 1 = Fs^2 := by simp only [edge_strain, d0]; simp [σ, ϕ, make_sigma]
+      have hFt_sq_gt_Fs : Ft^2 > Fs^2 := sq_lt_sq.mpr (by rw [abs_of_pos h_pos.1, abs_of_pos h_pos.2.1]; exact h_trap_dominant.1)
+      have h_max := find_overstressed_edge_max theta_graph ϕ σ C_max 3 1 heq 1 2 theta_has_12 h12_over
+      rw [h31_strain, h12_strain] at h_max
+      linarith
+    · exfalso
+      have h32_strain : edge_strain ϕ σ 3 2 = Fs^2 := by simp only [edge_strain, d0]; simp [σ, ϕ, make_sigma]
+      have hFt_sq_gt_Fs : Ft^2 > Fs^2 := sq_lt_sq.mpr (by rw [abs_of_pos h_pos.1, abs_of_pos h_pos.2.1]; exact h_trap_dominant.1)
+      have h_max := find_overstressed_edge_max theta_graph ϕ σ C_max 3 2 heq 1 2 theta_has_12 h12_over
+      rw [h32_strain, h12_strain] at h_max
+      linarith
+    · exfalso; simp only [theta_graph, theta_active, Finset.mem_insert, Finset.mem_singleton, Prod.mk.injEq] at h_active; simp_all
+  case h_2 heq =>
+    exfalso
+    unfold find_overstressed_edge at heq
+    have h12_active : (1, 2) ∈ theta_graph.active_edges := theta_has_12
+    have h12_in_filter : (1, 2) ∈ List.filter (fun x => decide (edge_strain ϕ σ x.1 x.2 > C_max)) theta_graph.active_edges.toList := by
+      simp only [List.mem_filter, Finset.mem_toList]
+      exact ⟨h12_active, by simp only [decide_eq_true_iff]; exact h12_over⟩
+    have h_ne : List.filter (fun x => decide (edge_strain ϕ σ x.1 x.2 > C_max)) theta_graph.active_edges.toList ≠ [] :=
+      List.ne_nil_of_mem h12_in_filter
+    simp only [select_max_strain] at heq
+    cases h_list : List.filter (fun x => decide (edge_strain ϕ σ x.1 x.2 > C_max)) theta_graph.active_edges.toList with
+    | nil => exact h_ne h_list
+    | cons hd tl =>
+      rw [h_list] at heq
+      simp only [List.foldl_cons, select_max_strain_fn] at heq
+      have h_isSome : (List.foldl (select_max_strain_fn ϕ σ) (some hd) tl).isSome := by
+        clear heq h_list h_ne h12_in_filter h12_active h12_over h12_strain h_break h_pos h_trap_dominant
+        induction tl generalizing hd with
+        | nil => simp
+        | cons h t ih =>
+          simp only [List.foldl_cons]
+          have h_step : ∃ x, select_max_strain_fn ϕ σ (some hd) h = some x := by
+            simp only [select_max_strain_fn]; split_ifs <;> exact ⟨_, rfl⟩
+          obtain ⟨x, hx⟩ := h_step; rw [hx]; exact ih x
+      rw [heq] at h_isSome; simp at h_isSome
 
 end DiscreteHodge

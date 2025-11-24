@@ -561,4 +561,39 @@ noncomputable def qdivergence {n : ℕ} [Fintype (Fin n)] (σ : QC1 n) : QC0 n :
 noncomputable def quantum_laplacian {n : ℕ} [Fintype (Fin n)] (ψ : QC0 n) : QC0 n :=
   qdivergence (qd0 ψ)
 
+/--
+Realized Capacity: The capacity on edges that are currently active.
+-/
+noncomputable def norm_sq_on_active {n : ℕ} [Fintype (Fin n)]
+    (G : DynamicGraph n) (σ : C1 n) : ℝ :=
+  (1/2) * ∑ i, ∑ j,
+    if (i, j) ∈ G.active_edges then (σ.val i j)^2 else 0
+
+/--
+Latent Capacity: The capacity demand on edges that are currently broken.
+-/
+noncomputable def latent_capacity {n : ℕ} [Fintype (Fin n)]
+    (G : DynamicGraph n) (σ : C1 n) : ℝ :=
+  (1/2) * ∑ i, ∑ j,
+    if (i, j) ∉ G.active_edges then (σ.val i j)^2 else 0
+
+/--
+Conservation of Representational Capacity.
+The total capacity of the constraint σ is the sum of the 
+Realized Capacity (on the graph) and the Latent Capacity (off the graph).
+-/
+theorem capacity_conservation {n : ℕ} [Fintype (Fin n)]
+    (G : DynamicGraph n) (σ : C1 n) :
+  norm_sq σ = (norm_sq_on_active G σ) + (latent_capacity G σ) := by
+  rw [norm_sq, inner_product_C1, norm_sq_on_active, latent_capacity]
+  rw [← mul_add]
+  congr 1
+  rw [← Finset.sum_add_distrib]
+  congr 1
+  ext i
+  rw [← Finset.sum_add_distrib]
+  congr 1
+  ext j
+  by_cases h : (i, j) ∈ G.active_edges <;> simp [h, sq]
+
 end DiscreteHodge

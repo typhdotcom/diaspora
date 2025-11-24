@@ -16,7 +16,7 @@ Diaspora is a Lean 4 project that builds a discrete Hodge-theoretic toy model on
 - A “**glassy**” landscape with multiple non-isomorphic stable vacua  
 - Quantum add-ons: discrete Schrödinger evolution, Berry phase, and holonomy-as-measurement
 
-Everything here is proved inside Lean + mathlib. The physics words (`black hole`, `handshake`, `false vacuum`, `consciousness`, etc.) are metaphors layered on top of honest finite-dimensional linear algebra and graph theory.
+Everything here is proved inside Lean + mathlib. The physics (`black hole`, `handshake`, `false vacuum`, `consciousness`, etc.) are metaphors layered on top of finite-dimensional linear algebra and graph theory.
 
 ## Big picture
 
@@ -41,7 +41,6 @@ Then we prove (for the complete graph) a discrete **Hodge decomposition**:
 > where `d0 ϕ` is exact and `γ` is divergence-free (harmonic), and the two parts are orthogonal.
 
 That’s all standard math, but we make it **fully formal** in Lean and then build a whole story-universe out of the consequences.
-
 
 ## What lives in this repo?
 

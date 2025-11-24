@@ -16,10 +16,9 @@ abbrev n_theta : ℕ := 4
 @[simp] lemma fin_2 : (2 : Fin n_theta) = ⟨2, by decide⟩ := rfl
 @[simp] lemma fin_3 : (3 : Fin n_theta) = ⟨3, by decide⟩ := rfl
 
--- The edge set defined explicitly
 def theta_active : Finset (Fin n_theta × Fin n_theta) := {
-    (0,1), (1,0), (1,2), (2,1), (2,0), (0,2), -- Left Loop
-    (1,3), (3,1), (3,2), (2,3)                -- Right Loop
+    (0,1), (1,0), (1,2), (2,1), (2,0), (0,2),
+    (1,3), (3,1), (3,2), (2,3)
   }
 
 def theta_graph : DynamicGraph n_theta where
@@ -65,16 +64,12 @@ noncomputable def make_phi (P : ℝ) : C0 n_theta :=
 
 /-! ## Strain Analysis Theorems -/
 
--- Lemma: In the Greedy limit (phi=0), strain is exactly flux squared.
-lemma greedy_strain_is_flux_sq (Ft Fs Fa : ℝ) (i j : Fin n_theta) : 
+/-- Without relaxation (ϕ=0), strain equals flux squared. -/
+lemma greedy_strain_is_flux_sq (Ft Fs Fa : ℝ) (i j : Fin n_theta) :
   edge_strain (fun _ => 0) (make_sigma Ft Fs Fa) i j = ((make_sigma Ft Fs Fa).val i j)^2 := by
   unfold edge_strain d0; simp
 
-/--
-Theorem: The Quenched Instability.
-If the Trap Flux (Ft) is higher than the Anchor Flux (Fa) and Smart Flux (Fs),
-and the system cannot relax (Greedy), the Trap (1,2) sustains the highest strain.
--/
+/-- Quenched instability: without relaxation, the edge with highest flux fails first. -/
 theorem quenched_instability (Ft Fs Fa : ℝ)
   (h_trap_dominant : Ft > Fs ∧ Ft > Fa)
   (h_pos : Ft > 0 ∧ Fs > 0 ∧ Fa > 0) :
@@ -92,11 +87,7 @@ theorem quenched_instability (Ft Fs Fa : ℝ)
   · apply sq_lt_sq.mpr; rw [abs_of_pos h_pos.1, abs_of_pos h_pos.2.2]; exact h_trap_dominant.2
 
 set_option linter.unusedSimpArgs false in
-/--
-Theorem: The Annealed Crossover (False Vacuum Protection).
-There exists a relaxation magnitude P such that the Trap (1,2) becomes
-safer than the Smart Edge (1,3), even though Ft > Fs.
--/
+/-- Annealed crossover: relaxation can invert which edge fails. -/
 theorem annealed_crossover (Ft Fs Fa : ℝ) (P : ℝ)
   (h_relax : P = Ft / 2 + 1)
   (h_smart_weak : Fs < P - 2) :

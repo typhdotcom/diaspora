@@ -108,13 +108,22 @@ The system detects the hole by **trying to pretend it's not there and failing**.
 
 ---
 
-## The Glassy Landscape: Multiple Possible Realities
+## Metric Deception: Why Local Sensors Lie
 
-In complex graphs with "frustrated" constraints (where demands can't all be satisfied), multiple stable configurations exist. A greedy algorithm (always fix the worst local problem) can trap the system in a high-energy false vacuum by addressing immediate pain while missing the global optimum.
+In a complex graph, what looks like the "weakest link" depends on how fast you look.
 
-When multiple stable configurations exist, history matters. The path taken determines which vacuum the system settles into.
+To prove this, Diaspora constructs a specific topology: the **Theta Graph ($\Theta$)**.
+* **The Trap (Middle Bar):** A structural bridge carrying a heavy load. Locally, it has the highest strain. It *looks* like the obvious point of failure.
+* **The Smart Edge (Outer Loop):** A redundant path carrying a lighter load. Locally, it appears safe.
 
----
+Diaspora proves that the stability of this structure depends entirely on the observer's timescale:
+
+1.  **Quenched Limit (Fast):** Without relaxation, strain is determined purely by local flux constraints ($F$). Since $F_{trap} > F_{smart}$, the system blindly snaps the Trap.
+2.  **Annealed Limit (Slow):** With relaxation, potentials ($\phi$) shift to distribute the load. We prove there exists a relaxation magnitude that **inverts** the strain profile. The Trap holds, and the "safe" Smart Edge breaks instead.
+
+This proves that **stability is relative to the observer's timescale**. A system acting quickly perceives a different physical reality than one acting slowly. The "False Vacuum" is simply the result of acting on local metrics before global information has propagated.
+
+***
 
 ## Summary
 
@@ -185,6 +194,7 @@ TopologicalGenesis.lean -- Origin: How closing a loop creates energy
 Interaction.lean        -- Fusion: Contact vs. shared reality (The Handshake)
 GlassDynamics.lean      -- Complexity: Definitions of landscapes and isomorphism
 FrustratedTriangle.lean -- Example: A system with multiple stable vacua
+FalseVacuum.lean        -- Metric Deception: Formal proof that relaxation inverts topological stability
 ```
 
 **Observer & Evolution**

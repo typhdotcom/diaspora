@@ -3,224 +3,309 @@
 </p>
 
 # Diaspora
-**A Universe of Graph Topology**
 
-Diaspora is a formally verified exploration of Discrete Hodge Theory in Lean 4. It demonstrates how complex phenomena—conservation laws, energy quantization, topological defects, observation—emerge from a simple requirement: local perspectives on a discrete graph must form one consistent global reality.
+*A toy universe of topology*
 
----
+Diaspora is a Lean 4 project that builds a discrete Hodge-theoretic toy model on finite graphs. It's an amateur effort, with LLM help, built solely to explore philosophical intuitions through topology.
 
-## The Fundamental Problem: Perspectives That Must Agree
+- **Graphs** whose edges can break under strain  
+- **Constraints** living as 1-cochains (flux / tension)  
+- **Potentials** as 0-cochains (relaxation fields)  
+- **Harmonic forms** as the “ irreducible frustration ” left over when you’ve relaxed everything you can  
+- **Topology change** when edges snap  
+- A “**glassy**” landscape with multiple non-isomorphic stable vacua  
+- Quantum add-ons: discrete Schrödinger evolution, Berry phase, and holonomy-as-measurement
 
-Imagine a network of observers. Each observer can only see their immediate surroundings - the connections touching them. Each one forms an opinion about how things should flow through their local connections.
+Everything here is proved inside Lean + mathlib. The physics words (`black hole`, `handshake`, `false vacuum`, `consciousness`, etc.) are metaphors layered on top of honest finite-dimensional linear algebra and graph theory.
 
-You think three units should flow out.  
-Your neighbor thinks five units should flow in.  
-The wire between you hears both demands.
+## Big picture
 
-**The central question**: Can reality satisfy everyone simultaneously?
+At the core is a simple idea:
 
-Usually, no. Local perspectives conflict. This mismatch - this impossibility of making everyone happy at once - is where everything interesting begins.
+> Take a finite graph. Put a “desired flux” on each edge (a 1-cochain).  
+> Let the vertices carry a “relaxation potential” (a 0-cochain).  
+> Try to relax away as much strain as possible. Whatever you *cannot* relax
+> is topological and shows up as a harmonic form.
 
----
+This is expressed in a very classical way:
 
-## The Misbuttoned Shirt: Where Energy Comes From
+- `σ : C1 n` is a real skew-symmetric 1-cochain (edge constraints / flux).
+- `ϕ : C0 n` is a real 0-cochain (vertex potential).
+- The coboundary `d0 : C0 → C1` takes differences along edges.
+- The “internal energy” is essentially `‖d0 ϕ - σ‖²` with a discrete inner product.
 
-Imagine buttoning a shirt in the dark. You follow a simple rule: match each button to the hole right next to it. Every single pairing feels locally correct. Each button clicks into place satisfyingly.
+Then we prove (for the complete graph) a discrete **Hodge decomposition**:
 
-But when you reach the collar, you discover you're off by one. There's a twist in the system.
+> Every 1-cochain `σ` splits as  
+> `σ = d0 ϕ + γ`  
+> where `d0 ϕ` is exact and `γ` is divergence-free (harmonic), and the two parts are orthogonal.
 
-**The crucial insight**: No individual button violates the local rule. Each one correctly followed the instructions. The error is **global** - it's a property of the whole chain, not any particular link.
+That’s all standard math, but we make it **fully formal** in Lean and then build a whole story-universe out of the consequences.
 
-You cannot fix this by adjusting individual buttons. You'd just move the problem around. The twist is stuck in the topology of the situation itself. Like a wrinkle in a fitted bedsheet that's slightly too large—you can smooth it down here, but it pops up over there. The excess is geometric fact.
 
-Diaspora models energy as this twist—the measure of impossible demands, the distance between what local rules want and what global consistency allows. The twist (harmonic) and the flat configuration (gradient) live in separate dimensions of possibility-space. Conservation isn't a law imposed on the system—it's a theorem about dimensional separation.
+## What lives in this repo?
 
----
+This is the “tour of files” version — you don’t need to read them in this order, but it gives you a mental map.
 
-## The Hodge Decomposition: The Great Separation
+### 1. Discrete calculus on graphs
 
-Every configuration of local demands splits uniquely into two parts:
+**`Diaspora/DiscreteCalculus.lean`**
 
-**σ = dφ + γ**
+Foundations:
 
-- The **gradient part (dφ)** is what can be resolved by adjusting local perspectives. It's negotiable.
-- The **harmonic part (γ)** is what's stuck in the topology. It's non-negotiable.
+- `DynamicGraph n`: graph with `n` fixed vertices and a *dynamic* set of active edges.
+- 0- and 1-cochains:
+  - `C0 n := Fin n → ℝ`
+  - `C1 n`: skew-symmetric `Fin n → Fin n → ℝ`
+- Classical coboundary / gradient:
+  - `d0 : C0 n → C1 n`
+- Inner product and norm on 1-cochains:
+  - `inner_product_C1`, `norm_sq`
+- **Active forms**:
+  - `ActiveForm G`: 1-cochains that vanish on broken edges of a `DynamicGraph G`.
+  - Equipped with an inner product, norm, and turned into an `InnerProductSpace`.
 
-**The key property**: These parts are orthogonal. Completely independent. Living in separate dimensions.
+Graph-aware operators:
 
-Adjust perspectives all you want. You will **never** accidentally create or destroy the topological component. It's protected by geometry itself.
+- `d_G : C0 n → ActiveForm G` — gradient respecting which edges exist.
+- `δ_G : ActiveForm G → C0 n` — divergence.
+- `Δ_G := δ_G ∘ d_G` — graph Laplacian.
+- `IsHarmonic σ` — divergence-free 1-cochains.
 
-Diaspora formally proves this orthogonality: `⟨dφ, γ⟩ = 0`.
+Quantum flavor:
 
----
+- `QC0 n`, `QC1 n` — complex analogues.
+- Hermitian inner products `inner_QC0`, `inner_QC1`.
+- `quantum_laplacian` and `IsEnergyEigenstate`.
 
-## Topological Genesis: How Closing a Loop Creates Energy
+### 2. Hodge decomposition (the heavy lifting)
 
-**Open topology** (a line of connected nodes): Every local demand can be satisfied. The system can relax to zero energy.
+**`Diaspora/HodgeDecomposition.lean`**
 
-**Close the loop** (connect the endpoints): Suddenly, the same local demands become impossible to satisfy globally.
+This is where the real functional-analysis work happens.
 
-Energy appears from nowhere. Not because you added energy to the system, but because you **changed the topology**.
+- Builds an inner product space structure on `ActiveForm G`.
+- Uses finite-dimensionality + orthogonal projection to define:
+  - `ImGradient G` — the subspace of exact graph gradients.
+  - An orthogonal decomposition `σ = d_G φ + γ` with `γ ⟂ ImGradient`.
+- Specializes this to the **complete graph** and transfers everything back to plain `C1 n`.
 
-When perspectives form a circuit, their demands create a cycle of constraints. Go around the loop, and the constraints might not sum to zero. That excess becomes permanent circulation trapped in the topology.
+Main theorem (for the complete graph):
 
----
+```lean
+theorem hodge_decomposition {n : ℕ} [Fintype (Fin n)] (σ : C1 n) :
+  ∃ (ϕ : C0 n) (γ : C1 n),
+    (∀ i j, σ.val i j = (d0 ϕ).val i j + γ.val i j) ∧
+    IsHarmonic γ ∧
+    inner_product_C1 (d0 ϕ) γ = 0
+````
 
-## Quantization: The Spiral Staircase
+This is the core technical engine everything else leans on.
 
-Imagine a spiral staircase in a tall tower. To exit onto a floor, you must complete full loops. One circle → Floor 1. Two circles → Floor 2. **You cannot stop at 1.5 circles.** There's nowhere to stand.
+### 3. Harmonic analysis and physical interpretations
 
-Even though the climb feels smooth, the **stable states** are discrete. In a graph, you can't have 1.5 units of circulation because the path wouldn't connect back—you'd be left hanging in mid-air.
+**`Diaspora/HarmonicAnalysis.lean`**
 
-Energy levels jump in discrete steps because topology only allows integer windings.
+Once we have Hodge, we get a bunch of physical-sounding theorems:
 
----
+* Energy as cohomological distance:
 
-## The Black Hole: Information Horizons From Structural Collapse
+  * `V_int_is_cohomological_distance`
+    expresses `‖d0 ϕ - σ‖²` explicitly as a sum over edges.
+* Minimal energy achieved when you project onto exact forms:
 
-When an edge breaks:
+  * `minimum_V_int_is_harmonic_norm`
+* Linearity properties:
 
-1. **The topology changes** - you've created a hole
-2. **Local details are destroyed** - the specific strain that caused the break is lost
-3. **Global magnitude is preserved** - the energy becomes a permanent circulation
+  * `harmonic_projection_is_linear`
+  * `inheritance_is_linearity`
+* “Pythagorean theorem” for cochains:
 
-After a connection breaks, you know something broke here and how much energy was involved, but NOT the specific details of what broke or how.
+  * `‖σ‖² = ‖exact part‖² + ‖harmonic part‖²`
 
-Information is **compressed** - from high-dimensional local details into low-dimensional topological invariants.
+Stokes / holonomy:
 
----
+* Chains `Chain1 n` represent directed cycles.
+* `eval` / `holonomy`: pairings of cochains with chains.
+* **Stokes theorem in this discrete setting**:
 
-## Interaction: Why Touching Isn't Talking
+  * Exact forms vanish on cycles.
+  * Holonomy of `σ` on a cycle depends only on its harmonic component.
 
-**One Bridge (Contact):** Flow requires a circuit. A single bridge provides no return path. The topology forces the flow to cancel itself out. The bridge is sterile.
+Simple cycles & quantization:
 
-**Two Bridges (Fusion):** A cycle can now leave World A, traverse World B, and return. A new harmonic form appears—a shared topological feature belonging to both.
+* `SimpleCycle` structure encodes a simple loop.
+* Show harmonic forms supported on such a cycle are **constant along the loop**.
+* Get **topological quantization** statements:
 
-**The Handshake Theorem:** To exchange information, two systems must topologically merge. Interaction is the creation of shared geometry.
+  * Winding number `m` implies specific energy levels like `m² / n`.
 
----
+Quantum:
 
-## Self-Measurement: How a System Observes Its Own Topology
+* `quantum_laplacian_hermitian` — the discrete Laplacian is self-adjoint.
+* `constant_is_zero_energy` — constant phases are zero-energy eigenstates.
+* `quantum_exact_vanishes_on_cycles` — quantum version of Stokes.
 
-Send a probe around a loop tracking "which way is up." In flat space, it returns unchanged. Around a defect, it returns **rotated**.
+### 4. Topology, strain, and graph evolution
 
-The system detects the hole by **trying to pretend it's not there and failing**. Observation is the discovery of inconsistency—the system measures itself by noticing that local perspectives can't be made globally consistent.
+**`Diaspora/TopologyChange.lean`**
+**`Diaspora/TopologyDynamics.lean`**
 
----
+These files turn the math into a dynamics:
 
-## Metric Deception: Why Local Sensors Lie
+* Define **edge strain**:
 
-In a complex graph, what looks like the "weakest link" depends on how fast you look.
+  * `edge_strain ϕ σ i j := ((d0 ϕ).val i j - σ.val i j)²`
+* Show **strain must localize** if total frustration is high:
 
-To prove this, Diaspora constructs a specific topology: the **Theta Graph ($\Theta$)**.
-* **The Trap (Middle Bar):** A structural bridge carrying a heavy load. Locally, it has the highest strain. It *looks* like the obvious point of failure.
-* **The Smart Edge (Outer Loop):** A redundant path carrying a lighter load. Locally, it appears safe.
+  * `strain_must_localize`: a pigeonhole principle on edges.
+* `BreakingThreshold` and `C_max`: when strain exceeds this, an edge “breaks”.
 
-Diaspora proves that the stability of this structure depends entirely on the observer's timescale:
+Graph metrics:
 
-1.  **Quenched Limit (Fast):** Without relaxation, strain is determined purely by local flux constraints ($F$). Since $F_{trap} > F_{smart}$, the system blindly snaps the Trap.
-2.  **Annealed Limit (Slow):** With relaxation, potentials ($\phi$) shift to distribute the load. We prove there exists a relaxation magnitude that **inverts** the strain profile. The Trap holds, and the "safe" Smart Edge breaks instead.
+* `DynamicGraph.edge_count`
+* `DynamicGraph.cyclomatic_number` — counts cycles (for connected graphs).
 
-This proves that **stability is relative to the observer's timescale**. A system acting quickly perceives a different physical reality than one acting slowly. The "False Vacuum" is simply the result of acting on local metrics before global information has propagated.
+Edge removal and evolution:
 
-***
+* `remove_edge` — deletes an undirected edge (both orientations).
+* `find_overstressed_edge` — pick an active edge with highest strain above threshold.
+* `evolve_step` — perform one “break” if needed.
+* `evolve_to_equilibrium` — recursively evolve until no edge is overstressed (proven to terminate because edge counts strictly decrease).
 
-## Summary
+“Black hole” metaphor:
 
-First there are **perspectives** (local encodings). These perspectives must **coexist** (share a reality). The topology of their **connections** creates constraints. Those constraints force the emergence of **everything else**.
+* `black_hole_formation` packages:
 
----
+  1. **Some edge must break** under high frustration.
+  2. A harmonic form with positive norm appears.
+  3. External observers measuring holonomy “see only γ” (no-hair analogue).
 
-## How Diaspora Works
+### 5. Toy systems and named stories
 
-### The Setup
-We model the universe using two types of data:
-- **Potentials (Nodes, $C^0$)**: The state at a location (e.g., pressure, voltage)
-- **Constraints (Edges, $C^1$)**: The rule between locations (e.g., flow rate)
+These are the narrative / physics-inspired examples built on top.
 
-### The Gradient
-The gradient operator `d` acts as a **local predictor**.
-```
-(dφ)(edge i→j) = φ(j) - φ(i)
-```
-It predicts what the edge constraint *should* be, assuming the nodes are correct.
+#### Topological genesis: open vs closed line
 
-### The Central Problem: Integration
-We rarely see the global state ($\phi$) directly. Instead, we define systems by local constraints ($\sigma$). The central question is: **Do these local rules add up to a consistent reality?**
+**`Diaspora/TopologicalGenesis.lean`**
 
-Can we find node values $\phi$ that perfectly satisfy every local desire $\sigma$? **Generally, no.** Conflicting local constraints create impossible global requirements.
+* Two graphs on 3 nodes:
 
----
+  * `G_open`: line `0–1–2`
+  * `G_closed`: cycle `0–1–2–0`
+* A uniform “rotational” forcing field `sigma_forcing` which wants +1 flow around the triangle.
 
-## What Is Represented
+Theorems:
 
-Starting with just a graph (nodes and edges), Diaspora verifies that:
-- The $L^2$ norm (energy) is strictly conserved under projection
-- Discrete geometry necessitates discrete energy levels (quantization)
-- Topological defects imply information horizons (no-hair theorem)
-- Closed topologies are necessary and sufficient for energy emergence (harmonic genesis)
-- Local strain relief can trap systems in high-energy false vacua (greedy non-optimality)
-- Systems can measure their own topology via internal parallel transport (Aharonov-Bohm detection)
-- The holonomy of the observer is identical to the divergence of the singularity (observer-particle duality)
+* `open_state_is_exact`: on the open line, `sigma_forcing` is exact (`d0 ϕ`).
+* `closed_state_is_not_exact`: on the closed loop, no `ϕ` can satisfy `d0 ϕ = σ` on all edges.
+* `harmonic_genesis`: in the closed case, Hodge decomposition produces a non-zero harmonic γ whose holonomy around the cycle is 3.
 
-Everything emerges from one axiom: **a discrete graph where local perspectives must coexist**.
+Interpretation: **closing the loop** is exactly the topological move that makes “irremovable frustration” possible.
 
-From just this:
+#### Self-measurement & “introspection”
 
-- **Energy** emerges as the measure of conflicting local demands
-- **Conservation** follows from dimensional orthogonality  
-- **Quantization** arises from discrete topology
-- **Information horizons** appear when structure collapses into topology
-- **Observation** is self-measurement through parallel transport
-- **Observer-particle duality** shows measurement as reflexive structure
+**`Diaspora/SelfMeasurement.lean`**
 
-No additional physics or constants. Just topology, information geometry, and the requirement that local encoders share one reality.
+* Parallel transport operator:
 
----
+  * `transport_step σ i j ψ = exp(i σ_ij) ψ`
+* `introspection_operator`: transport a phase around a fundamental cycle and compare.
 
-## File Structure
+Theorems:
 
-**Foundations**
-```
-DiscreteCalculus.lean   -- Basic definitions: graphs, cochains, operators
-HodgeDecomposition.lean -- The main theorem: existence and uniqueness
-HarmonicAnalysis.lean   -- Consequences: energy, quantization, conservation
-```
+* `zombie_cannot_see_self`: if `σ` is exact (`σ = d0 ϕ`), going around the loop returns the same phase. No observable holonomy → “no self-awareness”.
+* `self_aware_detection`: if there is a harmonic component with winding number 3, then transport around the loop multiplies the phase by `exp(i·3)`.
 
-**Phenomenology & Dynamics**
+This is a poetic way of saying: **holonomy is the obstruction to being globally exact**, recast as “self-measurement.”
 
-```
-TopologicalGenesis.lean -- Origin: How closing a loop creates energy
-Interaction.lean        -- Fusion: Contact vs. shared reality (The Handshake)
-GlassDynamics.lean      -- Complexity: Definitions of landscapes and isomorphism
-FrustratedTriangle.lean -- Example: A system with multiple stable vacua
-FalseVacuum.lean        -- Metric Deception: Formal proof that relaxation inverts topological stability
-```
+#### Glassy dynamics
 
-**Observer & Evolution**
+**`Diaspora/GlassDynamics.lean`**
+**`Diaspora/FrustratedTriangle.lean`**
 
-```
-TopologyChange.lean     -- The Black Hole: Strain localization and edge breaking
-TopologyDynamics.lean   -- Evolution: Step-by-step graph mutation
-SelfMeasurement.lean    -- The Observer: Parallel transport and holonomy
-Duality.lean            -- The Mirror: Formal proof of Observer-Particle identity
-QuantumDynamics.lean    -- Extensions: Berry phase and geometric evolution
-```
+* Formal notion of **graph isomorphism** and “glassy system”:
 
----
+  * `IsIsomorphic G₁ G₂`: existence of a vertex permutation preserving edges.
+  * `StableLandscape σ C_max`: graphs that are equilibria for the constraints.
+  * `IsGlassySystem`: existence of at least two non-isomorphic stable graphs.
 
-## Building and Verifying
+Tailed triangle example:
+
+* A triangle `0–1–2` with a tail `0–3`.
+* A frustrated constraint `frustrated_sigma` around the loop.
+* Two candidate vacua after one edge breaks:
+
+  * `star_graph`: break (1,2) → everything hangs off vertex 0.
+  * `line_graph`: break (0,1) → a 3–0–2–1 path.
+
+Theorems:
+
+* `star_has_zero_strain`, `line_has_zero_strain` — both have perfect local relaxation.
+* `star_ne_line` — they are not isomorphic (different degree profiles).
+* `tailed_triangle_is_glassy` — the system has at least two distinct stable vacua.
+
+Interpretation: **glassy** = history-dependent: different break orders end in genuinely different topologies.
+
+#### False vacuum & protection
+
+**`Diaspora/FalseVacuum.lean`**
+
+* A θ-graph (two loops sharing a pair of nodes).
+* Parameterized constraints:
+
+  * `Ft` (trap flux), `Fs` (smart edge flux), `Fa` (anchor tension).
+* `make_sigma`, `make_phi` construct constraints and relaxation potentials.
+
+Theorems:
+
+* `quenched_instability`: in a non-relaxing limit, the trap edge carries the largest strain.
+* `annealed_crossover`: there exists a relaxation magnitude `P` where the trap edge becomes *safer* than the smart edge, even if `Ft > Fs`.
+
+Interpretation: a toy model of **false vacuum protection** via relaxation.
+
+#### Interaction & the handshake
+
+**`Diaspora/Interaction.lean`**
+
+* Two disjoint triangles `{0,1,2}` and `{3,4,5}`:
+
+  * `disjoint_worlds`
+* One bridge → `bridged_worlds`
+* Two bridges → `fused_worlds`
+
+Using a simple Betti-number proxy, we prove:
+
+* `isolation_betti_number`: two disconnected triangles → total “b₁” = 2.
+* `contact_is_sterile`: adding a single bridge keeps the Betti number the same.
+* `fusion_creates_shared_reality`: adding a second bridge creates a new independent cycle that threads both worlds.
+
+Then we define a **communication cycle** and prove the “handshake theorem”:
+
+* There exists a harmonic γ on the fused graph with non-zero holonomy around the cross-world cycle.
+
+Interpretation: **one bridge is just contact; two bridges create shared topology**.
+
+#### Quantum dynamics & Berry phase
+
+**`Diaspora/QuantumDynamics.lean`**
+
+Quantum layer:
+
+* `SchrodingerEvolution`: a discrete Schrödinger equation with Hamiltonian `-Δ + V`.
+* `ParametricState`: ψ depending on a parameter index.
+* `DiscreteBerryConnection`: `A(R₁, R₂) = i ⟨ψ(R₁), ψ(R₂)⟩`.
+* `BerryPhase`: holonomy of the Berry connection along a discrete parameter-space cycle.
+* `GaugeTransform`: ψ ↦ e^{iθ(R)} ψ.
+
+This is the “Berry phase but on a finite parameter graph” version.
+
+## How to build / run
+
+This project targets **Lean 4 + mathlib**.
 
 ```bash
+# Install Lean 4 & Lake (see leanprover-community docs)
+# Then from the project root:
 lake build
 ```
-
-This verifies all proofs. The implementation uses only basic mathematical definitions from Mathlib—no physics libraries, just graph theory elevated through rigorous proof.
-
----
-
-## Notes
-
-- This is a highly LLM-collaborated project (reader beware!), serving as a self-learning tool for Lean proofs and exploring these mathematical structures. Highly speculative.
-- The framework requires zero additional axioms beyond Lean's foundation.
-- All functions are constructive where possible, noncomputable when necessary.

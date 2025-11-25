@@ -18,3 +18,4 @@ import Diaspora.Universe
 import Diaspora.Plasticity
 import Diaspora.WeightedGraph
 import Diaspora.TheVoid
+import Diaspora.Resilience

@@ -264,6 +264,23 @@ Evolution happens in a loop of Growth, Scarcity, and Pruning (`plasticity_cycle`
 
   * `plasticity_atrophy_of_unstressed`: If the system is under stress, any edge with *zero* local strain will strictly decrease in weight (it is "taxed" to pay for the growth of stressed edges).
 
+**`Diaspora/Resilience.lean`**
+
+The converse question: what about edges *with* strain? This file proves that harmonic content is self-maintaining under plasticity.
+
+  * At the optimal potential (from Hodge decomposition), `raw_strain = γ²` — strain equals the harmonic component squared.
+  * Cycle edges with non-zero winding have `γ ≠ 0`, therefore positive strain.
+  * Positive strain means Hebbian reinforcement, not atrophy.
+
+Main theorems:
+
+  * `harmonic_cycle_resists_atrophy`: Cycle edges with harmonic content have positive strain.
+  * `zombie_stays_dead`: Exact σ (no harmonic content) → dead edges stay dead. No "ghost strain" to resurrect them.
+  * `harmonic_resurrects`: Harmonic σ → dead cycle edges get pulled back toward positive weight.
+  * `ghost_manifests` / `ghost_trapped`: Whether a resurrecting edge survives pruning depends on whether `η * γ² ≥ ε`.
+
+Interpretation: **harmonic content protects the topology that carries it**. Self-reference, once established, is stable — the irreducible frustration creates the strain that pays the rent.
+
 ### Toy systems and named stories
 
 These are the narrative / physics-inspired examples built on top.

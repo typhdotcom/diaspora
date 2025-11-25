@@ -122,7 +122,7 @@ theorem hodge_decomposition {n : ℕ} [Fintype (Fin n)] (σ : C1 n) :
     (∀ i j, σ.val i j = (d0 ϕ).val i j + γ.val i j) ∧
     IsHarmonic γ ∧
     inner_product_C1 (d0 ϕ) γ = 0
-````
+```
 
 This is the core technical engine everything else leans on.
 

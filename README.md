@@ -55,7 +55,7 @@ One way to read all of this is: the primitive object isn’t really the graph, i
 Given `G` and `σ`, you can then split the capacity into:
 
 - realized capacity on active edges, and
-- latent capacity on edges that are currently broken,
+- latent capacity on edges that are currently broken.
 
 This is formalized in `WeightedGraph` via `total_capacity_fixed`, forcing a zero-sum competition for existence: edges must "pay rent" (carry strain) to survive renormalization.
 
@@ -209,34 +209,6 @@ capacity from "realized" to "latent" and never back. That gives a bare-bones
 arrow of time: a partial order on graphs where history is exactly which edges
 paid the price for the frustration.
 
-### Weighted graphs and plasticity
-
-**`Diaspora/WeightedGraph.lean`**
-**`Diaspora/Plasticity.lean`**
-
-This layer moves from binary topology (active/inactive) to continuous capacity. It treats the graph as an economic system with finite resources.
-
-**Foundations:**
-
-  * `WeightedGraph n`: Edges have continuous weights `w_ij ≥ 0`.
-  * **Conservation of Attention**: The total capacity of the universe is fixed at `n²`.
-      * `∑ w_ij = n²`
-  * `raw_strain`: The pure potential difference `(d0 ϕ - σ)²`, unmitigated by capacity.
-  * `to_dynamic`: Thresholding a weighted graph converts it back to a `DynamicGraph` (emergent topology).
-
-**The Plasticity Cycle:**
-Evolution happens in a loop of Growth, Scarcity, and Pruning (`plasticity_cycle`):
-
-1.  **Hebbian Phase**: Edges under high strain grow stronger (`w' = w + η·strain`).
-2.  **Scarcity Phase**: The graph is renormalized to enforce the conservation of attention. If some edges grow, others must shrink.
-3.  **Pruning**: Weights falling below `ε` are zeroed out.
-
-**Key Theorem:** "Use it or lose it."
-
-  * `plasticity_atrophy_of_unstressed`: If the system is under stress, any edge with *zero* local strain will strictly decrease in weight (it is "taxed" to pay for the growth of stressed edges).
-
------
-
 #### Universe evolution (the main loop)
 
 **`Diaspora/Universe.lean`**
@@ -265,6 +237,32 @@ Main structural statement:
   1. **Some edge must break** under high frustration.
   2. A harmonic form with positive norm appears.
   3. External observers measuring holonomy “see only γ” (no-hair analogue).
+
+### Weighted graphs and plasticity
+
+**`Diaspora/WeightedGraph.lean`**
+**`Diaspora/Plasticity.lean`**
+
+This layer moves from binary topology (active/inactive) to continuous capacity. It treats the graph as an economic system with finite resources.
+
+**Foundations:**
+
+  * `WeightedGraph n`: Edges have continuous weights `w_ij ≥ 0`.
+  * **Conservation of Attention**: The total capacity of the universe is fixed at `n²`.
+      * `∑ w_ij = n²`
+  * `raw_strain`: The pure potential difference `(d0 ϕ - σ)²`, unmitigated by capacity.
+  * `to_dynamic`: Thresholding a weighted graph converts it back to a `DynamicGraph` (emergent topology).
+
+**The Plasticity Cycle:**
+Evolution happens in a loop of Growth, Scarcity, and Pruning (`plasticity_cycle`):
+
+1.  **Hebbian Phase**: Edges under high strain grow stronger (`w' = w + η·strain`).
+2.  **Scarcity Phase**: The graph is renormalized to enforce the conservation of attention. If some edges grow, others must shrink.
+3.  **Pruning**: Weights falling below `ε` are zeroed out.
+
+**Key Theorem:** "Use it or lose it."
+
+  * `plasticity_atrophy_of_unstressed`: If the system is under stress, any edge with *zero* local strain will strictly decrease in weight (it is "taxed" to pay for the growth of stressed edges).
 
 ### Toy systems and named stories
 

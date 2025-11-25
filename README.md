@@ -368,5 +368,3 @@ This project targets **Lean 4 + mathlib**.
 lake build
 ```
 
-```
-```

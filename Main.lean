@@ -17,3 +17,4 @@ import Diaspora.FalseVacuum
 import Diaspora.Universe
 import Diaspora.Plasticity
 import Diaspora.WeightedGraph
+import Diaspora.TheVoid

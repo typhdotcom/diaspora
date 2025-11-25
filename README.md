@@ -268,6 +268,26 @@ Evolution happens in a loop of Growth, Scarcity, and Pruning (`plasticity_cycle`
 
 These are the narrative / physics-inspired examples built on top.
 
+#### The Void: observation vs reality
+
+**`Diaspora/TheVoid.lean`**
+
+Formalizes the distinction between full state and observable state.
+
+* `Microstate n`: weighted graph + constraint field σ + potential φ.
+* `Macrostate n`: thresholded topology + visible fields + Laplacian spectrum.
+* `observe`: projects microstate to macrostate via threshold ε.
+* `evolve_micro`: evolves microstate via plasticity (uses full σ, including sub-threshold).
+* `graphSpectrum`: eigenvalues of the graph Laplacian.
+
+Main theorem:
+
+* `observable_present_undetermines_future`: There exist microstates S1, S2 with same observation now but different observations after evolution.
+
+The proof constructs explicit witnesses on 3 vertices where σ on a sub-threshold edge affects plasticity but is invisible to observation.
+
+Interpretation: observation doesn't commute with dynamics.
+
 #### Topological genesis: open vs closed line
 
 **`Diaspora/TopologicalGenesis.lean`**

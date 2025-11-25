@@ -82,13 +82,12 @@ Foundations:
   - `ActiveForm G`: 1-cochains that vanish on broken edges of a `DynamicGraph G`.
   - Equipped with an inner product, norm, and turned into an `InnerProductSpace`.
 
-Graph-aware operators and capacity bookkeeping:
+Graph-aware operators:
 
 - `d_G : C0 n → ActiveForm G` — gradient respecting which edges exist.
 - `δ_G : ActiveForm G → C0 n` — divergence.
 - `Δ_G := δ_G ∘ d_G` — graph Laplacian.
 - `IsHarmonic σ` — divergence-free 1-cochains.
-- `norm_sq_on_active`, `latent_capacity`, `capacity_conservation` — split the total 1-cochain norm into realized capacity on active edges and latent capacity on broken edges, and show their sum is invariant.
 
 Quantum flavor:
 
@@ -96,13 +95,21 @@ Quantum flavor:
 - Hermitian inner products `inner_QC0`, `inner_QC1`.
 - `quantum_laplacian` and `IsEnergyEigenstate`.
 
+**`Diaspora/Duality.lean`**
+
+A small companion file:
+
+- Defines a discrete Hodge-star–style operation on complete graphs.
+- Proves basic duality lemmas that make the harmonic / energy statements cleaner.
+- You can safely skip it on a first pass; it’s part of the underlying toolkit rather than a story file.
+
 ### 2. Hodge decomposition (the heavy lifting)
 
 **`Diaspora/HodgeDecomposition.lean`**
 
 This is where the real functional-analysis work happens.
 
-- Uses the inner product / metric structure on `ActiveForm G` from `DiscreteCalculus` as the ambient space.
+- Builds an inner product space structure on `ActiveForm G`.
 - Uses finite-dimensionality + orthogonal projection to define:
   - `ImGradient G` — the subspace of exact graph gradients.
   - An orthogonal decomposition `σ = d_G φ + γ` with `γ ⟂ ImGradient`.
@@ -184,32 +191,53 @@ Graph metrics:
 * `DynamicGraph.edge_count`
 * `DynamicGraph.cyclomatic_number` — counts cycles (for connected graphs).
 
-Edge removal, capacity, and evolution:
+Edge removal and evolution:
 
 * `remove_edge` — deletes an undirected edge (both orientations).
-* `latent_capacity_growth` — when an active edge breaks, its σ(i,j)² contribution moves from realized to latent capacity.
-* `energy_drop_on_break` — the total strain energy on active edges drops by exactly the strain stored in the broken edge.
 * `find_overstressed_edge` — pick an active edge with highest strain above threshold.
-* `evolve_step` — perform one "break" if needed, otherwise leave the graph unchanged.
-* `evolve_changes_only_if_overstressed` / `evolve_decreases_card` — evolution only modifies the graph by breaking overstressed edges, and strictly reduces the number of active edges when it does.
-* `evolve` / `run_universe` — proof-carrying simulation that evolves until equilibrium (see `Universe.lean`); together with `simulation_entropy_nondecreasing` in `Universe.lean`, this packages a simple “entropy” statement: latent capacity cannot decrease along the run.
+* `evolve_step` — perform one "break" if needed.
 
-This gives a very bare-bones, graph-theoretic “arrow of time”: valid evolution chains always move from lower to higher (or equal) latent capacity.
+Dynamic energy:
 
-“Black hole” metaphor:
+* `dynamic_strain_energy G ϕ σ` — strain summed only over active edges.
+* `energy_drop_on_break` — breaking an edge reduces this energy by exactly that edge’s strain.
+* `is_equilibrium` — no edge exceeds `C_max`; `equilibrium_is_stable` shows that in this case `evolve_step` is a no-op.
+
+There’s a simple entropy-like quantity hiding here: the **latent capacity** of `σ`
+with respect to `G` (how much strain lives on broken edges). Along any valid
+evolution chain, latent capacity is non-decreasing; breaking an edge moves some
+capacity from "realized" to "latent" and never back. That gives a bare-bones
+arrow of time: a partial order on graphs where history is exactly which edges
+paid the price for the frustration.
+
+#### Universe evolution (the main loop)
+
+**`Diaspora/Universe.lean`**
+
+This is the proof-carrying simulation engine:
+
+* `EvolutionChain n σ G` — inductive type of valid histories, step-by-step edge breaks.
+* `evolve` — given a solver `solver : DynamicGraph n → C1 n → C0 n`, repeatedly:
+
+  1. Solve for a potential `ϕ`.
+  2. Find an overstressed edge.
+  3. Break it and extend the chain.
+* `run_universe` — start from an initial graph `G₀` and run `evolve`.
+
+Main structural statement:
+
+* `simulation_entropy_nondecreasing` — latent capacity with respect to `σ`
+  never decreases along this simulation. Once capacity has moved to broken edges,
+  it doesn’t come back; the “time” of the universe is literally the accumulation
+  of irreversibly latent strain.
+
+“Black hole” metaphor (in the TopologyChange layer):
 
 * `black_hole_formation` packages:
 
   1. **Some edge must break** under high frustration.
   2. A harmonic form with positive norm appears.
   3. External observers measuring holonomy “see only γ” (no-hair analogue).
-
-There’s a simple entropy-like quantity hiding here: the **latent capacity** of `σ`
-with respect to `G` (how much strain lives on broken edges). Along any valid
-evolution chain, latent capacity is non-decreasing; breaking an edge moves some
-capacity from "realized" to "latent" and never back. That gives a very bare-bones
-arrow of time: a partial order on graphs where history is exactly which edges paid
-the price for the frustration.
 
 ### 5. Toy systems and named stories
 

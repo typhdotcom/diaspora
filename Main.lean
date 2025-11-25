@@ -15,3 +15,5 @@ import Diaspora.Duality
 import Diaspora.Interaction
 import Diaspora.FalseVacuum
 import Diaspora.Universe
+import Diaspora.Plasticity
+import Diaspora.WeightedGraph

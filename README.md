@@ -13,7 +13,8 @@ Diaspora is a Lean 4 project that builds a discrete Hodge-theoretic toy model on
 - **Potentials** as 0-cochains (relaxation fields)  
 - **Harmonic forms** as the “ irreducible frustration ” left over when you’ve relaxed everything you can  
 - **Topology change** when edges snap  
-- A “**glassy**” landscape with multiple non-isomorphic stable vacua  
+- **Plasticity** where edges strengthen under strain and atrophy from disuse (Hebbian learning + scarcity)
+- A “**glassy**” landscape with multiple non-isomorphic stable vacua
 - Quantum add-ons: discrete Schrödinger evolution, Berry phase, and holonomy-as-measurement
 
 Everything here is proved inside Lean + mathlib. The physics (`black hole`, `handshake`, `false vacuum`, `consciousness`, etc.) are metaphors layered on top of finite-dimensional linear algebra and graph theory.
@@ -56,15 +57,13 @@ Given `G` and `σ`, you can then split the capacity into:
 - realized capacity on active edges, and
 - latent capacity on edges that are currently broken,
 
-with a little conservation law: the sum of the two is fixed. The rest of the project
-is basically asking: how does that representational density reorganize itself as the
-topology bends, relaxes, and eventually breaks?
+This is formalized in `WeightedGraph` via `total_capacity_fixed`, forcing a zero-sum competition for existence: edges must "pay rent" (carry strain) to survive renormalization.
 
 ## What lives in this repo?
 
 This is the “tour of files” version — you don’t need to read them in this order, but it gives you a mental map.
 
-### 1. Discrete calculus on graphs
+### Discrete calculus on graphs
 
 **`Diaspora/DiscreteCalculus.lean`**
 
@@ -103,7 +102,7 @@ A small companion file:
 - Proves basic duality lemmas that make the harmonic / energy statements cleaner.
 - You can safely skip it on a first pass; it’s part of the underlying toolkit rather than a story file.
 
-### 2. Hodge decomposition (the heavy lifting)
+### Hodge decomposition (the heavy lifting)
 
 **`Diaspora/HodgeDecomposition.lean`**
 
@@ -127,7 +126,7 @@ theorem hodge_decomposition {n : ℕ} [Fintype (Fin n)] (σ : C1 n) :
 
 This is the core technical engine everything else leans on.
 
-### 3. Harmonic analysis and physical interpretations
+### Harmonic analysis and physical interpretations
 
 **`Diaspora/HarmonicAnalysis.lean`**
 
@@ -171,7 +170,7 @@ Quantum:
 * `constant_is_zero_energy` — constant phases are zero-energy eigenstates.
 * `quantum_exact_vanishes_on_cycles` — quantum version of Stokes.
 
-### 4. Topology, strain, and graph evolution
+### Topology, strain, and graph evolution
 
 **`Diaspora/TopologyChange.lean`**
 **`Diaspora/TopologyDynamics.lean`**
@@ -210,6 +209,34 @@ capacity from "realized" to "latent" and never back. That gives a bare-bones
 arrow of time: a partial order on graphs where history is exactly which edges
 paid the price for the frustration.
 
+### Weighted graphs and plasticity
+
+**`Diaspora/WeightedGraph.lean`**
+**`Diaspora/Plasticity.lean`**
+
+This layer moves from binary topology (active/inactive) to continuous capacity. It treats the graph as an economic system with finite resources.
+
+**Foundations:**
+
+  * `WeightedGraph n`: Edges have continuous weights `w_ij ≥ 0`.
+  * **Conservation of Attention**: The total capacity of the universe is fixed at `n²`.
+      * `∑ w_ij = n²`
+  * `raw_strain`: The pure potential difference `(d0 ϕ - σ)²`, unmitigated by capacity.
+  * `to_dynamic`: Thresholding a weighted graph converts it back to a `DynamicGraph` (emergent topology).
+
+**The Plasticity Cycle:**
+Evolution happens in a loop of Growth, Scarcity, and Pruning (`plasticity_cycle`):
+
+1.  **Hebbian Phase**: Edges under high strain grow stronger (`w' = w + η·strain`).
+2.  **Scarcity Phase**: The graph is renormalized to enforce the conservation of attention. If some edges grow, others must shrink.
+3.  **Pruning**: Weights falling below `ε` are zeroed out.
+
+**Key Theorem:** "Use it or lose it."
+
+  * `plasticity_atrophy_of_unstressed`: If the system is under stress, any edge with *zero* local strain will strictly decrease in weight (it is "taxed" to pay for the growth of stressed edges).
+
+-----
+
 #### Universe evolution (the main loop)
 
 **`Diaspora/Universe.lean`**
@@ -239,7 +266,7 @@ Main structural statement:
   2. A harmonic form with positive norm appears.
   3. External observers measuring holonomy “see only γ” (no-hair analogue).
 
-### 5. Toy systems and named stories
+### Toy systems and named stories
 
 These are the narrative / physics-inspired examples built on top.
 

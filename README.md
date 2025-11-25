@@ -17,7 +17,7 @@ Diaspora is a Lean 4 project that builds a discrete Hodge-theoretic toy model on
 - A “**glassy**” landscape with multiple non-isomorphic stable vacua
 - Quantum add-ons: discrete Schrödinger evolution, Berry phase, and holonomy-as-measurement
 
-Everything here is proved inside Lean + mathlib. The physics (`black hole`, `handshake`, `false vacuum`, `consciousness`, etc.) are metaphors layered on top of finite-dimensional linear algebra and graph theory.
+Everything here is proved inside Lean + mathlib. The physics (`black hole`, `handshake`, `false vacuum`, `observer`, etc.) are metaphors layered on top of finite-dimensional linear algebra and graph theory.
 
 ## Big picture
 

@@ -8,11 +8,13 @@
 
 Diaspora is a Lean 4 project that builds a discrete Hodge-theoretic toy model on finite graphs. It's an amateur effort, with LLM help, built solely to explore philosophical intuitions through topology.
 
-- **Graphs** whose edges can break under strain  
-- **Constraints** living as 1-cochains (flux / tension)  
-- **Potentials** as 0-cochains (relaxation fields)  
-- **Harmonic forms** as the “ irreducible frustration ” left over when you’ve relaxed everything you can  
-- **Topology change** when edges snap  
+- **Graphs** whose edges can break under strain
+- **Diffusion** as the local mechanism for relaxation (Heat Equation)
+- **Holonomy** as the local mechanism for measurement (Parallel Transport)
+- **Constraints** living as 1-cochains (flux / tension)
+- **Potentials** as 0-cochains (relaxation fields)
+- **Harmonic forms** as the “ irreducible frustration ” left over when you’ve relaxed everything you can
+- **Topology change** when edges snap
 - **Plasticity** where edges strengthen under strain and atrophy from disuse (Hebbian learning + scarcity)
 - A “**glassy**” landscape with multiple non-isomorphic stable vacua
 - Quantum add-ons: discrete Schrödinger evolution, Berry phase, and holonomy-as-measurement
@@ -28,12 +30,13 @@ At the core is a simple idea:
 > Try to relax away as much strain as possible. Whatever you *cannot* relax
 > is topological and shows up as a harmonic form.
 
-This is expressed in a very classical way:
+This is formalized in two layers:
 
-- `σ : C1 n` is a real skew-symmetric 1-cochain (edge constraints / flux).
-- `ϕ : C0 n` is a real 0-cochain (vertex potential).
-- The coboundary `d0 : C0 → C1` takes differences along edges.
-- The “internal energy” is essentially `‖d0 ϕ - σ‖²` with a discrete inner product.
+1.  **The Mathematical Ideal (Global):**
+    In `HodgeDecomposition.lean`, we use global linear algebra to prove that a perfect potential `ϕ` exists. This serves as the "Ground Truth" for the system's energy.
+
+2.  **The Physical Mechanism (Local):**
+    In `Diffusion.lean`, we show that the system doesn't *need* a global solver to find this state. Nodes simply push against their neighbors (Heat Equation) to minimize local strain. Similarly, observers measure topology locally via **Holonomy** (walking in loops).
 
 Then we prove (for the complete graph) a discrete **Hodge decomposition**:
 
@@ -133,18 +136,14 @@ This is the core technical engine everything else leans on.
 Once we have Hodge, we get a bunch of physical-sounding theorems:
 
 * Energy as cohomological distance:
-
   * `V_int_is_cohomological_distance`
     expresses `‖d0 ϕ - σ‖²` explicitly as a sum over edges.
 * Minimal energy achieved when you project onto exact forms:
-
   * `minimum_V_int_is_harmonic_norm`
 * Linearity properties:
-
   * `harmonic_projection_is_linear`
   * `inheritance_is_linearity`
 * “Pythagorean theorem” for cochains:
-
   * `‖σ‖² = ‖exact part‖² + ‖harmonic part‖²`
 
 Stokes / holonomy:
@@ -152,7 +151,6 @@ Stokes / holonomy:
 * Chains `Chain1 n` represent directed cycles.
 * `eval` / `holonomy`: pairings of cochains with chains.
 * **Stokes theorem in this discrete setting**:
-
   * Exact forms vanish on cycles.
   * Holonomy of `σ` on a cycle depends only on its harmonic component.
 
@@ -161,7 +159,6 @@ Simple cycles & quantization:
 * `SimpleCycle` structure encodes a simple loop.
 * Show harmonic forms supported on such a cycle are **constant along the loop**.
 * Get **topological quantization** statements:
-
   * Winding number `m` implies specific energy levels like `m² / n`.
 
 Quantum:
@@ -169,6 +166,21 @@ Quantum:
 * `quantum_laplacian_hermitian` — the discrete Laplacian is self-adjoint.
 * `constant_is_zero_energy` — constant phases are zero-energy eigenstates.
 * `quantum_exact_vanishes_on_cycles` — quantum version of Stokes.
+
+### Mechanisms of Relaxation & Measurement
+
+**`Diaspora/Diffusion.lean`**
+A local alternative to the global solver.
+* `diffusion_step`: Discrete heat equation. Nodes adjust their potential based only on immediate neighbor strain.
+* **Theorem:** `stationary_diffusion_is_optimal` — If every node is locally balanced, the global system has reached the Hodge energy minimum.
+
+**`Diaspora/LocalWitness.lean`**
+A local alternative to global energy summation.
+* `measure_loop_distortion`: An observer walking a cycle tracks their internal phase shift.
+* **Theorem:** `local_holonomy_predicts_global_energy` — The phase shift detected by a local walker accurately predicts the total energy of the topological defect.
+
+**`Diaspora/LocalUniverse.lean`**
+* Runs the `Universe` simulation using `diffusion` as the solver, proving that local rules are sufficient to drive the global topology change.
 
 ### Topology, strain, and graph evolution
 
@@ -178,10 +190,8 @@ Quantum:
 These files turn the math into a dynamics:
 
 * Define **edge strain**:
-
   * `edge_strain ϕ σ i j := ((d0 ϕ).val i j - σ.val i j)²`
 * Show **strain must localize** if total frustration is high:
-
   * `strain_must_localize`: a pigeonhole principle on edges.
 * `BreakingThreshold` and `C_max`: when strain exceeds this, an edge “breaks”.
 
@@ -213,15 +223,11 @@ paid the price for the frustration.
 
 **`Diaspora/Universe.lean`**
 
-This is the proof-carrying simulation engine:
+This is the abstract proof-carrying simulation engine:
 
 * `EvolutionChain n σ G` — inductive type of valid histories, step-by-step edge breaks.
-* `evolve` — given a solver `solver : DynamicGraph n → C1 n → C0 n`, repeatedly:
-
-  1. Solve for a potential `ϕ`.
-  2. Find an overstressed edge.
-  3. Break it and extend the chain.
-* `run_universe` — start from an initial graph `G₀` and run `evolve`.
+* `evolve` — Given a **Solver** (either the Global Ideal or the Local Diffusion), it resolves potentials and breaks the most overstressed edge.
+* `run_universe` — Start from an initial graph `G₀` and run `evolve`.
 
 Main structural statement:
 
@@ -230,10 +236,11 @@ Main structural statement:
   it doesn’t come back; the “time” of the universe is literally the accumulation
   of irreversibly latent strain.
 
+(See `LocalUniverse.lean` for the concrete implementation where the "Solver" is just local heat diffusion).
+
 “Black hole” metaphor (in the TopologyChange layer):
 
 * `black_hole_formation` packages:
-
   1. **Some edge must break** under high frustration.
   2. A harmonic form with positive norm appears.
   3. External observers measuring holonomy “see only γ” (no-hair analogue).
@@ -310,7 +317,6 @@ Interpretation: observation doesn't commute with dynamics.
 **`Diaspora/TopologicalGenesis.lean`**
 
 * Two graphs on 3 nodes:
-
   * `G_open`: line `0–1–2`
   * `G_closed`: cycle `0–1–2–0`
 * A uniform “rotational” forcing field `sigma_forcing` which wants +1 flow around the triangle.
@@ -328,7 +334,6 @@ Interpretation: **closing the loop** is exactly the topological move that makes 
 **`Diaspora/SelfMeasurement.lean`**
 
 * Parallel transport operator:
-
   * `transport_step σ i j ψ = exp(i σ_ij) ψ`
 * `introspection_operator`: transport a phase around a fundamental cycle and compare.
 
@@ -345,7 +350,6 @@ This is a poetic way of saying: **holonomy is the obstruction to being globally 
 **`Diaspora/FrustratedTriangle.lean`**
 
 * Formal notion of **graph isomorphism** and “glassy system”:
-
   * `IsIsomorphic G₁ G₂`: existence of a vertex permutation preserving edges.
   * `StableLandscape σ C_max`: graphs that are equilibria for the constraints.
   * `IsGlassySystem`: existence of at least two non-isomorphic stable graphs.
@@ -355,7 +359,6 @@ Tailed triangle example:
 * A triangle `0–1–2` with a tail `0–3`.
 * A frustrated constraint `frustrated_sigma` around the loop.
 * Two candidate vacua after one edge breaks:
-
   * `star_graph`: break (1,2) → everything hangs off vertex 0.
   * `line_graph`: break (0,1) → a 3–0–2–1 path.
 
@@ -373,7 +376,6 @@ Interpretation: **glassy** = history-dependent: different break orders end in ge
 
 * A θ-graph (two loops sharing a pair of nodes).
 * Parameterized constraints:
-
   * `Ft` (trap flux), `Fs` (smart edge flux), `Fa` (anchor tension).
 * `make_sigma`, `make_phi` construct constraints and relaxation potentials.
 
@@ -389,7 +391,6 @@ Interpretation: a toy model of **false vacuum protection** via relaxation.
 **`Diaspora/Interaction.lean`**
 
 * Two disjoint triangles `{0,1,2}` and `{3,4,5}`:
-
   * `disjoint_worlds`
 * One bridge → `bridged_worlds`
 * Two bridges → `fused_worlds`
@@ -429,4 +430,3 @@ This project targets **Lean 4 + mathlib**.
 # Then from the project root:
 lake build
 ```
-

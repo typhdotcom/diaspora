@@ -19,6 +19,9 @@ import Diaspora.Plasticity
 import Diaspora.WeightedGraph
 import Diaspora.TheVoid
 import Diaspora.Resilience
+import Diaspora.SpectralGap
+import Diaspora.PhaseField
 import Diaspora.LocalWitness
 import Diaspora.Diffusion
 import Diaspora.LocalUniverse
+import Diaspora.DehnTwist

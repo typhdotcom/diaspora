@@ -9,6 +9,7 @@ This replaces the "Global Solver" oracle with a purely local dynamical process.
 
 import Diaspora.DiscreteCalculus
 import Diaspora.TopologyChange
+import Diaspora.PhaseField
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Ring
 import Mathlib.Analysis.SpecialFunctions.Pow.Real
@@ -67,6 +68,26 @@ noncomputable def diffusion_process {n : ℕ} (G : DynamicGraph n) (σ : C1 n) (
   match k with
   | 0 => (fun _ => 0)
   | s + 1 => diffusion_step G (diffusion_process G σ α s) σ α
+
+/-! ## Phase Synchronization (Kuramoto Dynamics) -/
+
+/-- Phase imbalance at vertex i: sum of geodesic phase differences to neighbors.
+    Replaces linear heat diffusion with phase-aware synchronization. -/
+noncomputable def phase_imbalance {n k : ℕ} [NeZero k] [Fintype (Fin n)]
+    (G : DynamicGraph n) (ϕ : PC0 n k) (σ : PC1 n k) (i : Fin n) : ℤ :=
+  ∑ j, if (i, j) ∈ G.active_edges then
+    let delta := (pd0 ϕ).val i j - σ.val i j
+    let dist := geodesic_dist delta 0
+    if dist ≤ k / 2 then -(delta.val : ℤ) else (k - delta.val : ℤ)
+  else 0
+
+/-- One step of Kuramoto-style phase synchronization.
+    Adjusts local phase to minimize geodesic distance to neighbors + constraint. -/
+noncomputable def phase_synchronization_step {n k : ℕ} [NeZero k] [Fintype (Fin n)]
+    (G : DynamicGraph n) (ϕ : PC0 n k) (σ : PC1 n k) (α : ℝ) : PC0 n k :=
+  fun i =>
+    let imb := phase_imbalance G ϕ σ i
+    ϕ i + (Int.floor (α * imb) : ℤ)
 
 /-! ## 3. Convergence and Optimality -/
 

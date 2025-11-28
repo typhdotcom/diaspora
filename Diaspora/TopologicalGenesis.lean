@@ -11,6 +11,7 @@ import Diaspora.DiscreteCalculus
 import Diaspora.HodgeDecomposition
 import Diaspora.HarmonicAnalysis
 import Diaspora.TopologyDynamics
+import Diaspora.Resilience
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.FinCases
 
@@ -80,7 +81,6 @@ Harmonic content is zero.
 theorem open_state_is_exact :
 ∃ ϕ : C0 n_sys, ∀ i j, (i, j) ∈ G_open.active_edges →
 (d0 ϕ).val i j = sigma_forcing.val i j := by
--- Construct the potential by integrating σ along the path starting at 0
 let ϕ : C0 n_sys := fun x =>
 match x with
 | 0 => 0
@@ -89,20 +89,15 @@ match x with
 
 use ϕ
 intro i j h_active
--- Verify dϕ = σ for every active edge
 simp [G_open] at h_active
 rcases h_active with h01|h10|h12|h21
-· -- Edge (0,1)
-  obtain ⟨rfl, rfl⟩ := h01
+· obtain ⟨rfl, rfl⟩ := h01
   simp [d0, sigma_forcing]; norm_num
-· -- Edge (1,0)
-  obtain ⟨rfl, rfl⟩ := h10
+· obtain ⟨rfl, rfl⟩ := h10
   simp [d0, sigma_forcing]; norm_num
-· -- Edge (1,2)
-  obtain ⟨rfl, rfl⟩ := h12
+· obtain ⟨rfl, rfl⟩ := h12
   simp [d0, sigma_forcing]; norm_num
-· -- Edge (2,1)
-  obtain ⟨rfl, rfl⟩ := h21
+· obtain ⟨rfl, rfl⟩ := h21
   simp [d0, sigma_forcing]; norm_num
 
 /--
@@ -115,17 +110,14 @@ theorem closed_state_is_not_exact :
 intro h_exists
 obtain ⟨ϕ, h_match⟩ := h_exists
 
--- Summing dϕ around the cycle 0->1->2->0 must be 0 (telescoping sum)
 have h_cycle_d0 : (d0 ϕ).val 0 1 + (d0 ϕ).val 1 2 + (d0 ϕ).val 2 0 = 0 := by
   unfold d0
   simp
 
--- Evaluate σ on the active edges of the cycle
 have h_match_01 : (d0 ϕ).val 0 1 = 1 := h_match 0 1 (by simp [G_closed])
 have h_match_12 : (d0 ϕ).val 1 2 = 1 := h_match 1 2 (by simp [G_closed])
 have h_match_20 : (d0 ϕ).val 2 0 = 1 := h_match 2 0 (by simp [G_closed])
 
--- Algebraic contradiction: 0 = 3
 rw [h_match_01, h_match_12, h_match_20] at h_cycle_d0
 norm_num at h_cycle_d0
 
@@ -136,18 +128,15 @@ theorem harmonic_genesis :
 ∃ γ : C1 n_sys,
 IsHarmonic γ ∧
 norm_sq γ > 0 ∧
--- The harmonic form captures the winding number (3)
 (holonomy γ {
 coeff := fun i j => if (i=0∧j=1)∨(i=1∧j=2)∨(i=2∧j=0) then 1
 else if (i=1∧j=0)∨(i=2∧j=1)∨(i=0∧j=2) then -1 else 0,
 antisym := by intro i j; fin_cases i <;> fin_cases j <;> (simp; try split_ifs; try simp_all; try norm_num)
 }) = 3 := by
--- Perform Hodge Decomposition on the forcing field
 obtain ⟨ϕ, γ, h_decomp, h_harm, h_orth⟩ := hodge_decomposition sigma_forcing
 
 use γ
 
--- First prove holonomy γ = 3 (needed for both bullets below)
 have h_sigma_cycle : holonomy sigma_forcing {
   coeff := fun i j => if (i=0∧j=1)∨(i=1∧j=2)∨(i=2∧j=0) then 1
     else if (i=1∧j=0)∨(i=2∧j=1)∨(i=0∧j=2) then -1 else 0,
@@ -197,9 +186,7 @@ have h_gamma_cycle : holonomy γ {
 constructor
 · exact h_harm
 constructor
-· -- Prove ||γ|| > 0 using contradiction
-  -- If holonomy is non-zero, norm must be non-zero
-  by_contra h_zero
+· by_contra h_zero
   simp at h_zero
   have h_gamma_zero : γ.val = fun _ _ => 0 := by
     have h_norm_eq : norm_sq γ = 0 := by
@@ -229,5 +216,64 @@ constructor
   simp at h_gamma_cycle
 
 · exact h_gamma_cycle
+
+/-! ## Genesis from Noise: The Measure-Zero Argument -/
+
+/-- A 1-cochain is exact if it equals d0 ϕ for some potential ϕ. -/
+def C1.IsExact {n : ℕ} (σ : C1 n) : Prop :=
+  ∃ ϕ : C0 n, ∀ i j, σ.val i j = (d0 ϕ).val i j
+
+/-- Key lemma: Non-exact forms have non-zero harmonic projection.
+
+    Proof: By Hodge decomposition, σ = d0(ϕ) + γ with γ harmonic.
+    If γ = 0, then σ = d0(ϕ), so σ is exact. Contrapositive gives the result.
+-/
+theorem non_exact_has_nonzero_harmonic {n : ℕ} [Fintype (Fin n)] (σ : C1 n)
+    (h_not_exact : ¬ C1.IsExact σ) :
+    ∃ γ : C1 n, IsHarmonic γ ∧ norm_sq γ > 0 ∧
+    ∃ ϕ : C0 n, ∀ i j, σ.val i j = (d0 ϕ).val i j + γ.val i j := by
+  obtain ⟨ϕ, γ, h_decomp, h_harm, _⟩ := hodge_decomposition σ
+  use γ
+  refine ⟨h_harm, ?_, ϕ, h_decomp⟩
+  by_contra h_not_pos
+  push_neg at h_not_pos
+  have h_zero : norm_sq γ = 0 := le_antisymm h_not_pos (norm_sq_nonneg γ)
+  have h_val_zero : ∀ i j, γ.val i j = 0 := norm_sq_zero_iff_zero γ h_zero
+  have h_exact : C1.IsExact σ := by
+    use ϕ
+    intro i j
+    rw [h_decomp i j, h_val_zero i j, add_zero]
+  exact h_not_exact h_exact
+
+/-- The forcing field σ_forcing is not exact (witnessed by closed_state_is_not_exact). -/
+theorem sigma_forcing_not_exact : ¬ C1.IsExact sigma_forcing := by
+  intro ⟨ϕ, h_eq⟩
+  apply closed_state_is_not_exact
+  use ϕ
+  intro i j h_active
+  exact (h_eq i j).symm
+
+/-- Exact forms are a proper subset: there exist non-exact 1-cochains.
+
+    sigma_forcing is a witness that the exact forms don't cover all of C1 n.
+-/
+theorem exact_forms_proper_subset :
+    ∃ σ : C1 n_sys, ¬ C1.IsExact σ :=
+  ⟨sigma_forcing, sigma_forcing_not_exact⟩
+
+/-- Non-exact forms exist and have non-trivial harmonic projection. -/
+theorem random_field_has_harmonic_component :
+    ∃ σ : C1 n_sys, ∃ γ : C1 n_sys,
+      IsHarmonic γ ∧ norm_sq γ > 0 ∧
+      ∃ ϕ : C0 n_sys, ∀ i j, σ.val i j = (d0 ϕ).val i j + γ.val i j := by
+  obtain ⟨σ, h_not_exact⟩ := exact_forms_proper_subset
+  obtain ⟨γ, h_harm, h_pos, ϕ, h_decomp⟩ := non_exact_has_nonzero_harmonic σ h_not_exact
+  exact ⟨σ, γ, h_harm, h_pos, ϕ, h_decomp⟩
+
+/-- The harmonic projection of the forcing field has positive energy. -/
+theorem forcing_field_harmonic_energy_positive :
+    ∃ γ : C1 n_sys, IsHarmonic γ ∧ norm_sq γ > 0 ∧
+    ∃ ϕ : C0 n_sys, ∀ i j, sigma_forcing.val i j = (d0 ϕ).val i j + γ.val i j :=
+  non_exact_has_nonzero_harmonic sigma_forcing sigma_forcing_not_exact
 
 end DiscreteHodge

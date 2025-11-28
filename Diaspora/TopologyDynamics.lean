@@ -7,6 +7,8 @@ the step-by-step process of identifying and removing overstressed edges.
 -/
 
 import Diaspora.TopologyChange
+import Diaspora.SpectralGap
+import Diaspora.DehnTwist
 import Mathlib.Data.Finset.Basic
 import Mathlib.Algebra.BigOperators.Group.Finset.Sigma
 import Mathlib.Algebra.BigOperators.Group.Finset.Piecewise
@@ -537,5 +539,65 @@ theorem evolve_decreases_card {n : ℕ} [Fintype (Fin n)]
   · rename_i h_none
     simp only [h_none] at h_changed
     exact absurd rfl h_changed
+
+/-! ## Topological Nucleation (Soliton Formation) -/
+
+/--
+The Nucleation Barrier.
+The minimum energy required to sustain a topological defect (winding number ≠ 0).
+Derived from the spectral gap: E_min = 1/n.
+-/
+noncomputable def nucleation_barrier (n : ℕ) : ℝ := 1 / (n : ℝ)
+
+/--
+The Stability of the Vacuum.
+If the total harmonic energy is strictly below the nucleation barrier, 
+the system is topologically trapped in the exact (winding = 0) sector.
+-/
+theorem vacuum_stability {n : ℕ} [NeZero n]
+    (cycle : SimpleCycle n)
+    (γ : C1 n)
+    (h_harm : IsHarmonic γ)
+    (h_support : SupportedOnCycle cycle γ)
+    (h_n_ge_3 : n ≥ 3)
+    (m : ℤ) -- The integer winding number
+    (h_winding : holonomy γ (SimpleCycle.toChain1 cycle) = m)
+    (h_energy_low : norm_sq γ < nucleation_barrier n) :
+    m = 0 := by
+  -- Proof by Contradiction using the Spectral Gap
+  by_contra h_m_ne_zero
+  
+  -- 1. If winding m ≠ 0, the Quantitative Spectral Gap applies.
+  have h_gap := spectral_gap_quantitative cycle γ h_harm h_support m h_m_ne_zero h_winding h_n_ge_3
+  
+  -- 2. Link card (Fin n) to n
+  have h_card : Fintype.card (Fin n) = n := Fintype.card_fin n
+  rw [h_card] at h_gap
+
+  -- 3. Contradiction
+  unfold nucleation_barrier at h_energy_low
+  linarith
+
+/--
+Nucleation Necessity.
+Conversely, if a topological defect exists (m ≠ 0), the energy MUST 
+have exceeded the nucleation barrier.
+-/
+theorem nucleation_necessity {n : ℕ} [NeZero n]
+    (cycle : SimpleCycle n)
+    (γ : C1 n)
+    (h_harm : IsHarmonic γ)
+    (h_support : SupportedOnCycle cycle γ)
+    (h_n_ge_3 : n ≥ 3)
+    (m : ℤ) (h_m_ne : m ≠ 0)
+    (h_winding : holonomy γ (SimpleCycle.toChain1 cycle) = m) :
+    norm_sq γ ≥ nucleation_barrier n := by
+  unfold nucleation_barrier
+  -- Get the raw gap inequality
+  have h_gap := spectral_gap_quantitative cycle γ h_harm h_support m h_m_ne h_winding h_n_ge_3
+  -- Unify types
+  have h_card : Fintype.card (Fin n) = n := Fintype.card_fin n
+  rw [h_card] at h_gap
+  exact h_gap
 
 end DiscreteHodge

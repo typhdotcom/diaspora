@@ -1,7 +1,15 @@
+/-
+# The Void
+
+Micro/macro observation framework and dimensional analysis.
+-/
+
+import Diaspora.HodgeDecomposition
 import Diaspora.Plasticity
 import Diaspora.WeightedGraph
 import Mathlib.LinearAlgebra.Matrix.Spectrum
 import Mathlib.Data.Matrix.Basic
+import Mathlib.LinearAlgebra.Dimension.Finrank
 
 namespace DiscreteHodge
 
@@ -39,7 +47,8 @@ noncomputable def graphSpectrum {n : ℕ} (G : DynamicGraph n) : Multiset ℝ :=
   let hH : (laplacianMatrix G).IsHermitian := isSymm_isHermitian _ (laplacianMatrix_isSymm G)
   (Finset.univ : Finset (Fin n)).val.map hH.eigenvalues
 
-/-- Full state: weighted graph + constraint field + potential. -/
+/-! ## 1. Micro vs Macro States -/
+
 structure Microstate (n : ℕ) where
   weights : WeightedGraph n
   sigma   : C1 n
@@ -56,6 +65,81 @@ noncomputable def observe {n : ℕ} (S : Microstate n) (ε : ℝ) : Macrostate n
   let G := to_dynamic S.weights ε
   { topology := G, visible_sigma := d_G G S.phi, spectrum := graphSpectrum G }
 
+/-! ## 2. Dimensional Analysis -/
+
+section DimensionalAnalysis
+
+variable {n : ℕ} [Fintype (Fin n)] [DecidableEq (Fin n)]
+variable (G : DynamicGraph n)
+
+/-- A graph with no cycles (tree/forest): dim(Harmonic) = 0. -/
+def IsVoidTopology : Prop :=
+  Module.finrank ℝ (HarmonicSubspace G) = 0
+
+/-- A graph supporting non-trivial Harmonic forms: dim(Harmonic) > 0. -/
+def AllowsGenesis : Prop :=
+  Module.finrank ℝ (HarmonicSubspace G) > 0
+
+omit [DecidableEq (Fin n)] in
+/-- In a tree, every constraint is exact. -/
+theorem void_implies_exactness (h_void : IsVoidTopology G) (σ : ActiveForm G) :
+  σ ∈ ImGradient G := by
+  -- The active form space decomposes into Gradient ⊕ Harmonic
+  obtain ⟨φ, γ, h_decomp, h_harm, _⟩ := hodge_decomposition_graph G σ
+  
+  -- If Harmonic dimension is 0, then γ must be 0
+  have h_γ_zero : γ = 0 := by
+    rw [IsVoidTopology] at h_void
+    have h_sub : (HarmonicSubspace G) = ⊥ := Submodule.finrank_eq_zero.mp h_void
+    rw [h_sub] at h_harm
+    exact (Submodule.mem_bot ℝ).mp h_harm
+  
+  -- Therefore σ = dφ + 0 = dφ
+  rw [h_decomp, h_γ_zero, add_zero]
+  exact LinearMap.mem_range.mpr ⟨φ, rfl⟩
+
+/-! ## 3. Generic Structure -/
+
+omit [DecidableEq (Fin n)] in
+/-- If dim(Harmonic) > 0, then dim(Exact) < dim(ActiveForm). -/
+theorem structure_is_generic (h_genesis : AllowsGenesis G) :
+  Module.finrank ℝ (ImGradient G) < Module.finrank ℝ (ActiveForm G) := by
+  -- Recall the dimension split: dim(Active) = dim(Exact) + dim(Harmonic)
+  have h_orth : IsCompl (ImGradient G) (HarmonicSubspace G) :=
+    Submodule.isCompl_orthogonal_of_hasOrthogonalProjection
+  have h_split := Submodule.finrank_add_eq_of_isCompl h_orth
+
+  rw [AllowsGenesis] at h_genesis
+
+  -- If dim(Harmonic) > 0, then dim(Exact) + dim(Harmonic) > dim(Exact)
+  omega
+
+end DimensionalAnalysis
+
+/-! ## 4. Cyclomatic Condition -/
+
+/-- The graph has at least one edge more than a spanning tree. -/
+def HasObserver {n : ℕ} (G : DynamicGraph n) : Prop :=
+  G.active_edges.card / 2 ≥ n 
+
+/-- If |E| ≥ |V| and graph is connected, then dim(Harmonic) ≥ 1. -/
+theorem observer_creates_mass {n : ℕ} [Fintype (Fin n)] [DecidableEq (Fin n)]
+    (G : DynamicGraph n)
+    (h_observer : HasObserver G)
+    (h_connected : Module.finrank ℝ (LinearMap.ker (d_G_linear G)) = 1) :
+    AllowsGenesis G := by
+  rw [AllowsGenesis]
+  -- Use the Algebraic Bridge from HodgeDecomposition
+  have h_dim := harmonic_dimension_eq_cyclomatic (G := G)
+  rw [h_connected] at h_dim
+  rw [HasObserver] at h_observer
+
+  -- dim(H) = |E| - |V| + 1
+  -- If |E| >= |V|, then |E| - |V| >= 0, so dim(H) >= 1
+  omega
+
+/-! ## 5. Dynamics (Plasticity) -/
+
 /-- Evolve microstate via plasticity. -/
 noncomputable def evolve_micro {n : ℕ} (S : Microstate n) (η : ℝ)
     (h_eta : η ≥ 0)
@@ -70,7 +154,7 @@ noncomputable def evolve_micro {n : ℕ} (S : Microstate n) (η : ℝ)
       show ∑ i, ∑ j, plasticity_step S.weights S.phi S.sigma η i j = (n : ℝ)^2
       unfold plasticity_step
       simp only
-      have h_factor : ∀ (c : ℝ) (f : Fin n → Fin n → ℝ),
+      have h_factor : ∀ (c : ℝ) (f : Fin n → Fin n → ℝ), 
           ∑ i, ∑ j, f i j * c = (∑ i, ∑ j, f i j) * c := fun _ _ => by simp_rw [Finset.sum_mul]
       rw [h_factor]
       rw [mul_div_assoc', mul_div_cancel_left_of_imp]

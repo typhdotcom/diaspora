@@ -1,4 +1,6 @@
 import Diaspora.WeightedGraph
+import Diaspora.PhaseField
+import Diaspora.DehnTwist
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.FieldSimp
 import Mathlib.Analysis.SpecificLimits.Basic
@@ -17,6 +19,19 @@ noncomputable def plasticity_step {n : ℕ}
     let strain := raw_strain ϕ σ i j
     let w_unnormalized := G.weights i j + η * strain
     let total_unnormalized := ∑ x, ∑ y, (G.weights x y + η * raw_strain ϕ σ x y)
+    let scale_factor := ((n : ℝ)^2) / total_unnormalized
+    w_unnormalized * scale_factor
+
+/--
+Phase-aware plasticity step: Hebbian learning with geodesic strain.
+Uses phase_strain instead of raw_strain for cyclic phase fields.
+-/
+noncomputable def phase_plasticity_step {n k : ℕ} [NeZero k]
+    (G : WeightedGraph n) (ϕ : PC0 n k) (σ : PC1 n k) (η : ℝ) : Fin n → Fin n → ℝ :=
+  fun i j =>
+    let strain := phase_strain ϕ σ i j
+    let w_unnormalized := G.weights i j + η * strain
+    let total_unnormalized := ∑ x, ∑ y, (G.weights x y + η * phase_strain ϕ σ x y)
     let scale_factor := ((n : ℝ)^2) / total_unnormalized
     w_unnormalized * scale_factor
 
@@ -158,5 +173,79 @@ noncomputable def plasticity_cycle {n : ℕ}
       rw [mul_div_assoc', mul_div_cancel_left_of_imp]
       intro h; exact absurd h (ne_of_gt h_survive)
   }
+
+/-! ## The Shape of Memory: Dehn Twists as Attractors -/
+
+/--
+Symmetry Preservation Lemma.
+If the graph weights are uniform on a cycle, and the strain is uniform (Dehn Twist),
+then the plasticity step preserves this uniformity.
+-/
+theorem dehn_twist_preserves_symmetry {n : ℕ} [NeZero n]
+    (G : WeightedGraph n) (cycle : SimpleCycle n) (h_n_ge_3 : n ≥ 3)
+    (w_val : ℝ) (h_weights_uniform : ∀ i, G.weights i (cycle.next i) = w_val)
+    (η : ℝ) :
+    let twist := dehn_twist cycle
+    let ϕ := fun (_ : Fin n) => (0 : ℝ)
+    let w_next := plasticity_step G ϕ twist η
+    ∃ (w_new : ℝ), ∀ i, w_next i (cycle.next i) = w_new := by
+  intro twist ϕ w_next
+
+  -- The strain of a Dehn Twist is constant on the cycle
+  have h_strain_uniform : ∀ i, raw_strain ϕ twist i (cycle.next i) = (1 / (n : ℝ))^2 := by
+    intro i
+    unfold raw_strain d0
+    have h_phi_zero : ϕ (cycle.next i) - ϕ i = 0 := by simp only [ϕ, sub_self]
+    simp only [h_phi_zero, zero_sub, neg_sq]
+    rw [dehn_twist_constant cycle h_n_ge_3 i]
+
+  -- The unnormalized weight update is uniform
+  let strain_val := (1 / (n : ℝ))^2
+
+  -- The renormalization factor is global, so it scales everything equally
+  use (w_val + η * strain_val) * (((n : ℝ)^2) / (∑ x : Fin n, ∑ y : Fin n, (G.weights x y + η * raw_strain ϕ twist x y)))
+
+  intro i
+  unfold w_next plasticity_step
+  dsimp only
+
+  have h_w : G.weights i (cycle.next i) = w_val := h_weights_uniform i
+  have h_s : raw_strain ϕ twist i (cycle.next i) = strain_val := h_strain_uniform i
+
+  rw [h_w, h_s]
+
+/-- One step of Dehn Twist plasticity guarantees cycle edges become active. -/
+theorem dehn_twist_guarantees_existence {n : ℕ} [NeZero n]
+    (G : WeightedGraph n) (cycle : SimpleCycle n) (h_n_ge_3 : n ≥ 3)
+    (η : ℝ) (h_eta : η > 0)
+    (h_total_pos : ∑ x : Fin n, ∑ y : Fin n, (G.weights x y + η * raw_strain (fun _ => (0 : ℝ)) (dehn_twist cycle) x y) > 0) :
+    let twist := dehn_twist cycle
+    let ϕ := fun (_ : Fin n) => (0 : ℝ)
+    ∀ i, plasticity_step G ϕ twist η i (cycle.next i) > 0 := by
+  intro twist ϕ i
+  unfold plasticity_step
+  dsimp only
+  
+  -- 1. Prove Strain is Strictly Positive
+  have h_strain_pos : raw_strain ϕ twist i (cycle.next i) > 0 := by
+    unfold raw_strain d0
+    have h_phi_zero : ϕ (cycle.next i) - ϕ i = 0 := by simp only [ϕ, sub_self]
+    simp only [h_phi_zero, zero_sub, neg_sq]
+    apply sq_pos_of_ne_zero
+    rw [dehn_twist_constant cycle h_n_ge_3 i]
+    have h_n_ne : (n : ℝ) ≠ 0 := Nat.cast_ne_zero.mpr (NeZero.ne n)
+    exact one_div_ne_zero h_n_ne
+
+  -- 2. Prove Scale Factor is Positive
+  have h_scale_pos : 0 < ((n : ℝ)^2) / (∑ x, ∑ y, (G.weights x y + η * raw_strain ϕ twist x y)) := by
+    apply div_pos (sq_pos_of_ne_zero (Nat.cast_ne_zero.mpr (NeZero.ne n)))
+    convert h_total_pos
+
+  -- 3. Combine: (w + η*pos) * pos > 0
+  apply mul_pos
+  · -- The unnormalized weight is positive
+    apply add_pos_of_nonneg_of_pos (G.nonneg i (cycle.next i))
+    apply mul_pos h_eta h_strain_pos
+  · exact h_scale_pos
 
 end DiscreteHodge

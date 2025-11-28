@@ -6,6 +6,7 @@ Strain energy that cannot be absorbed by local potentials becomes topological.
 -/
 
 import Diaspora.HarmonicAnalysis
+import Diaspora.PhaseField
 
 open BigOperators
 
@@ -20,6 +21,15 @@ def BreakingThreshold := ℝ
 noncomputable def edge_strain {n : ℕ} (ϕ : C0 n) (σ : C1 n) (i j : Fin n) : ℝ :=
   ((d0 ϕ).val i j - σ.val i j)^2
 
+/-! ## Phase-Field Strain -/
+
+/-- Phase strain: accounts for cyclic boundary conditions.
+    Measures frustration on an edge in the phase field. -/
+noncomputable def phase_edge_strain {n k : ℕ} [NeZero k]
+    (ϕ : PC0 n k) (σ : PC1 n k) (i j : Fin n) : ℝ :=
+  let delta := (pd0 ϕ).val i j - σ.val i j
+  (geodesic_dist delta 0 : ℝ)^2
+
 /-! ## Strain Localization -/
 
 /--
@@ -32,19 +42,16 @@ theorem strain_must_localize {n : ℕ} [Fintype (Fin n)] [NeZero n]
   by_contra h_none
   push_neg at h_none
 
-  -- Total strain is sum of edge strains
   have h_sum_bound : ∑ i : Fin n, ∑ j : Fin n, edge_strain ϕ σ i j ≤
                      ∑ i : Fin n, ∑ j : Fin n, C_max := by
     apply Finset.sum_le_sum; intro i _
     apply Finset.sum_le_sum; intro j _
     exact h_none i j
 
-  -- Count total edges: n²
   have h_card : ∑ i : Fin n, ∑ j : Fin n, C_max = (Fintype.card (Fin n))^2 * C_max := by
     rw [Finset.sum_const, Finset.card_univ, Finset.sum_const, Finset.card_univ]
     ring
 
-  -- norm_sq includes 1/2 factor
   have h_norm : norm_sq (residual ϕ σ) =
                 (1/2) * ∑ i : Fin n, ∑ j : Fin n, edge_strain ϕ σ i j := by
     unfold norm_sq inner_product_C1 residual edge_strain
@@ -53,7 +60,6 @@ theorem strain_must_localize {n : ℕ} [Fintype (Fin n)] [NeZero n]
     ext i; congr 1; ext j
     ring
 
-  -- We have: (1/2) * sum ≤ (1/2) * (n² * C_max)
   have h_half_bound : (1/2 : ℝ) * ∑ i : Fin n, ∑ j : Fin n, edge_strain ϕ σ i j ≤
                       (1/2) * ((Fintype.card (Fin n))^2 * C_max) := by
     rw [← h_card]
@@ -90,28 +96,21 @@ theorem black_hole_formation
     (ϕ_opt : C0 n)
     (h_min : ∀ ϕ', norm_sq (residual ϕ_opt σ) ≤ norm_sq (residual ϕ' σ))
     (h_frustration : norm_sq (residual ϕ_opt σ) > (1/2) * (Fintype.card (Fin n))^2 * C_max) :
-  -- 1. Some edge must break (strain localization)
   (∃ i j : Fin n, edge_strain ϕ_opt σ i j > C_max)
   ∧
-  -- 2. A harmonic form exists with positive energy
   (∃ γ : C1 n, IsHarmonic γ ∧ norm_sq γ > 0)
   ∧
-  -- 3. External observers see only γ (no hair)
   (∀ cycle : Chain1 n, Chain1.IsCycle cycle →
     ∃ γ : C1 n, IsHarmonic γ ∧ holonomy σ cycle = holonomy γ cycle) := by
   constructor
-  · -- Edge must break
-    exact strain_must_localize ϕ_opt σ C_max h_frustration
+  · exact strain_must_localize ϕ_opt σ C_max h_frustration
   constructor
-  · -- Harmonic form with positive norm exists
-    obtain ⟨ϕ, γ, h_decomp, h_harm, _⟩ := hodge_decomposition σ
+  · obtain ⟨ϕ, γ, h_decomp, h_harm, _⟩ := hodge_decomposition σ
     use γ, h_harm
 
-    -- If ||γ|| = 0, then σ = dϕ exactly, contradicting high frustration
     by_contra h_zero
     push_neg at h_zero
 
-    -- γ has zero norm
     have h_norm_nonneg : norm_sq γ ≥ 0 := by
       unfold norm_sq inner_product_C1
       apply mul_nonneg
@@ -121,14 +120,12 @@ theorem black_hole_formation
         exact mul_self_nonneg _
     have h_gamma_zero : norm_sq γ = 0 := by linarith
 
-    -- Residual equals -γ (from decomposition)
     have h_resid_eq : ∀ i j, (residual ϕ σ).val i j = -γ.val i j := by
       intro i j
       unfold residual
       have := h_decomp i j
       linarith
 
-    -- So residual has same norm as γ (zero)
     have h_resid_norm : norm_sq (residual ϕ σ) = norm_sq γ := by
       unfold norm_sq inner_product_C1
       congr 1; congr 1
@@ -136,9 +133,6 @@ theorem black_hole_formation
       rw [h_resid_eq]
       ring
 
-    -- But ϕ is from hodge_decomposition, ϕ_opt is what we're working with
-    -- Need to connect them: both minimize the same objective
-    -- The minimizer satisfies the optimality condition
     have h_opt_resid : norm_sq (residual ϕ_opt σ) ≤ norm_sq (residual ϕ σ) := h_min ϕ
 
     rw [h_resid_norm, h_gamma_zero] at h_opt_resid
@@ -151,8 +145,7 @@ theorem black_hole_formation
       · exact h_pos
     linarith
 
-  · -- No hair
-    intro cycle h_cycle
+  · intro cycle h_cycle
     exact black_hole_has_no_hair σ cycle h_cycle
 
 end DiscreteHodge

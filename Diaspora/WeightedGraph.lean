@@ -1,4 +1,5 @@
 import Diaspora.DiscreteCalculus
+import Diaspora.PhaseField
 import Mathlib.Data.Real.Basic
 import Mathlib.Algebra.BigOperators.Group.Finset.Basic
 
@@ -31,6 +32,30 @@ lemma raw_strain_symm {n : ℕ} (ϕ : C0 n) (σ : C1 n) (i j : Fin n) :
 /-- raw_strain is non-negative (it's a square). -/
 lemma raw_strain_nonneg {n : ℕ} (ϕ : C0 n) (σ : C1 n) (i j : Fin n) :
     0 ≤ raw_strain ϕ σ i j := sq_nonneg _
+
+/-- Phase-aware strain using geodesic distance.
+    Respects the cyclic boundary of phase fields. -/
+noncomputable def phase_strain {n k : ℕ} [NeZero k]
+    (ϕ : PC0 n k) (σ : PC1 n k) (i j : Fin n) : ℝ :=
+  let delta := (pd0 ϕ).val i j - σ.val i j
+  (geodesic_dist delta 0 : ℝ)^2
+
+/-- Phase strain is symmetric. -/
+lemma phase_strain_symm {n k : ℕ} [NeZero k] (ϕ : PC0 n k) (σ : PC1 n k) (i j : Fin n) :
+    phase_strain ϕ σ i j = phase_strain ϕ σ j i := by
+  unfold phase_strain pd0
+  simp only
+  have h1 : (ϕ j - ϕ i) = -(ϕ i - ϕ j) := by ring
+  have h2 : σ.val i j = -σ.val j i := σ.skew i j
+  have h_delta_eq : (ϕ j - ϕ i) - σ.val i j = -((ϕ i - ϕ j) - σ.val j i) := by
+    calc (ϕ j - ϕ i) - σ.val i j
+        = -(ϕ i - ϕ j) - -σ.val j i := by rw [h1, h2]
+      _ = -((ϕ i - ϕ j) - σ.val j i) := by ring
+  rw [h_delta_eq, geodesic_dist_neg]
+
+/-- Phase strain is non-negative. -/
+lemma phase_strain_nonneg {n k : ℕ} [NeZero k] (ϕ : PC0 n k) (σ : PC1 n k) (i j : Fin n) :
+    0 ≤ phase_strain ϕ σ i j := sq_nonneg _
 
 /-- Converts a WeightedGraph into a DynamicGraph by thresholding. -/
 noncomputable def to_dynamic {n : ℕ} (G : WeightedGraph n) (ε : ℝ) : DynamicGraph n where

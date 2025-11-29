@@ -21,7 +21,7 @@ import Mathlib.Tactic.FinCases
 
 open BigOperators
 
-namespace DiscreteHodge
+namespace Diaspora.Models
 
 /-! ## 1. Primal Graph -/
 
@@ -104,4 +104,4 @@ theorem primal_dual_identity (σ : PrimalForm) :
   rw [h0, h1, h2, h3]
   ring
 
-end DiscreteHodge
+end Diaspora.Models

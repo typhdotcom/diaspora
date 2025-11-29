@@ -7,17 +7,17 @@ is a necessary and sufficient condition for the emergence of non-trivial
 harmonic forms under a uniform non-conservative constraint field.
 \-/
 
-import Diaspora.DiscreteCalculus
-import Diaspora.HodgeDecomposition
-import Diaspora.HarmonicAnalysis
-import Diaspora.TopologyDynamics
-import Diaspora.Resilience
+import Diaspora.Core.Calculus
+import Diaspora.Hodge.Decomposition
+import Diaspora.Hodge.Harmonic
+import Diaspora.Dynamics.Transition
+import Diaspora.Models.Resilience
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.FinCases
 
-namespace DiscreteHodge
+open BigOperators Diaspora.Core Diaspora.Hodge Diaspora.Dynamics
 
-open BigOperators
+namespace Diaspora.Models
 
 /-\! \#\# System Configuration -/
 
@@ -276,4 +276,4 @@ theorem forcing_field_harmonic_energy_positive :
     ∃ ϕ : C0 n_sys, ∀ i j, sigma_forcing.val i j = (d0 ϕ).val i j + γ.val i j :=
   non_exact_has_nonzero_harmonic sigma_forcing sigma_forcing_not_exact
 
-end DiscreteHodge
+end Diaspora.Models

@@ -9,17 +9,17 @@ sterile. True communication requires fusion (two bridges), which creates
 a new harmonic cycle shared between the worlds.
 -/
 
-import Diaspora.DiscreteCalculus
-import Diaspora.HodgeDecomposition
-import Diaspora.HarmonicAnalysis
-import Diaspora.TopologyDynamics
+import Diaspora.Core.Calculus
+import Diaspora.Hodge.Decomposition
+import Diaspora.Hodge.Harmonic
+import Diaspora.Dynamics.Transition
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.FinCases
 import Mathlib.Tactic.IntervalCases
 
-namespace DiscreteHodge
+open BigOperators Diaspora.Core Diaspora.Hodge Diaspora.Dynamics
 
-open BigOperators
+namespace Diaspora.Models
 
 /-! ## The Setup: Two Isolated Worlds -/
 
@@ -31,7 +31,7 @@ True first Betti number: |E| - |V| + c where c is the number of connected compon
 For the specific graphs in this file, we manually specify the component count.
 -/
 def betti_number {n : ℕ} (G : DynamicGraph n) (num_components : ℕ) : ℤ :=
-  (G.edge_count : ℤ) - (n : ℤ) + (num_components : ℤ)
+  (edge_count G : ℤ) - (n : ℤ) + (num_components : ℤ)
 
 /-- World A and World B are disjoint triangles with internal topology. -/
 def disjoint_worlds : DynamicGraph n_two_worlds where
@@ -52,7 +52,7 @@ Betti number = 1 (from A) + 1 (from B) = 2.
 -/
 theorem isolation_betti_number :
   betti_number disjoint_worlds 2 = 2 := by
-  unfold betti_number DynamicGraph.edge_count disjoint_worlds
+  unfold betti_number edge_count disjoint_worlds
   decide
 
 /-! ## Stage 1: The Bridge (Contact) -/
@@ -79,7 +79,7 @@ These cancel out: Betti number remains 2. No new independent cycle is created.
 -/
 theorem contact_is_sterile :
   betti_number bridged_worlds 1 = 2 := by
-  unfold betti_number DynamicGraph.edge_count bridged_worlds disjoint_worlds
+  unfold betti_number edge_count bridged_worlds disjoint_worlds
   decide
 
 /-! ## Stage 2: The Handle (Fusion) -/
@@ -107,7 +107,7 @@ This new cycle (0→3→4→1→0) traverses BOTH worlds.
 -/
 theorem fusion_creates_shared_reality :
   betti_number fused_worlds 1 = 3 := by
-  unfold betti_number DynamicGraph.edge_count fused_worlds bridged_worlds disjoint_worlds
+  unfold betti_number edge_count fused_worlds bridged_worlds disjoint_worlds
   decide
 
 /-! ## The Shared Harmonic -/
@@ -205,4 +205,4 @@ theorem the_handshake_theorem :
     rw [this]
     norm_num
 
-end DiscreteHodge
+end Diaspora.Models

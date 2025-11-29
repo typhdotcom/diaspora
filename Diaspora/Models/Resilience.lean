@@ -5,12 +5,12 @@ Harmonic content is self-maintaining under plasticity: if σ has non-zero harmon
 component on a cycle, those edges carry irreducible strain that protects them from atrophy.
 -/
 
-import Diaspora.Plasticity
-import Diaspora.HarmonicAnalysis
+import Diaspora.Dynamics.Plasticity
+import Diaspora.Hodge.Harmonic
 
-namespace DiscreteHodge
+open BigOperators Diaspora.Core Diaspora.Hodge Diaspora.Dynamics
 
-open BigOperators
+namespace Diaspora.Models
 
 /-! ## Helper Lemmas for Norm -/
 
@@ -264,4 +264,4 @@ theorem harmonic_manifests {n : ℕ} [Fintype (Fin n)] [NeZero n]
   rw [strain_at_optimal_eq_harmonic_sq σ ϕ γ h_decomp i (cycle.next i)]
   exact h_loud
 
-end DiscreteHodge
+end Diaspora.Models

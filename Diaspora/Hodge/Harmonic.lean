@@ -7,15 +7,15 @@ minimization, linearity, orthogonality, holonomy, and spectral properties.
 These are the "Lego blocks" of the physical theory.
 -/
 
-import Diaspora.HodgeDecomposition
+import Diaspora.Hodge.Decomposition
 import Mathlib.Tactic.Ring
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.FieldSimp
 import Mathlib.Algebra.Order.BigOperators.Group.Finset
 
-open BigOperators Complex
+open BigOperators Complex Diaspora.Core
 
-namespace DiscreteHodge
+namespace Diaspora.Hodge
 
 /-! ## Physical Theorems -/
 
@@ -35,9 +35,9 @@ theorem V_int_is_cohomological_distance {n : ℕ} [Fintype (Fin n)] (ϕ : C0 n) 
 
 /-- V_int as norm of residual -/
 lemma V_int_eq_norm_residual {n : ℕ} [Fintype (Fin n)] (ϕ : C0 n) (σ : C1 n) :
-  norm_sq (residual ϕ σ) =
+  norm_sq (Diaspora.Core.residual ϕ σ) =
     (1/2) * ∑ i, ∑ j, ((ϕ j - ϕ i) - σ.val i j)^2 := by
-  simpa [residual] using V_int_is_cohomological_distance (n:=n) ϕ σ
+  simpa [Diaspora.Core.residual] using V_int_is_cohomological_distance (n:=n) ϕ σ
 
 /-- Min || d⁰ϕ - σ ||² = || γ ||² -/
 theorem minimum_V_int_is_harmonic_norm {n : ℕ} [Fintype (Fin n)] (σ : C1 n) :
@@ -885,4 +885,4 @@ theorem quantized_energy_spectrum {n : ℕ} [Fintype (Fin n)] [NeZero n]
         field_simp [h_ne]
   rw [cycle_creates_holonomy_cost cycle γ h_harm h_support m h_K h_n_ge_3]
 
-end DiscreteHodge
+end Diaspora.Hodge

@@ -2,12 +2,12 @@
 Universe evolution via proof-carrying simulation.
 -/
 
-import Diaspora.TopologyDynamics
-import Diaspora.DiscreteCalculus
+import Diaspora.Dynamics.Transition
+import Diaspora.Core.Calculus
 
-namespace DiscreteHodge
+open BigOperators Diaspora.Core
 
-open BigOperators
+namespace Diaspora.Dynamics
 
 /-! ## The Evolution Chain -/
 
@@ -151,4 +151,4 @@ theorem simulation_entropy_nondecreasing {n : ℕ} [Fintype (Fin n)] [DecidableE
   rw [h_origin] at h
   exact h
 
-end DiscreteHodge
+end Diaspora.Dynamics

@@ -8,14 +8,14 @@ We show that the landscape contains two non-isomorphic stable vacua:
 2. A "Line" graph (breaking a near edge).
 -/
 
-import Diaspora.GlassDynamics
-import Diaspora.Universe
+import Diaspora.Dynamics.Glass
+import Diaspora.Dynamics.Sim
 import Mathlib.Data.Fin.Basic
 import Mathlib.Tactic.Linarith
 
-namespace DiscreteHodge
+open BigOperators Diaspora.Core Diaspora.Hodge Diaspora.Dynamics
 
-open BigOperators
+namespace Diaspora.Models
 
 /-! ## Setup: The Graph and Constraints -/
 
@@ -124,13 +124,13 @@ Original edges = 4. Vertices = 4.
 Remove 1 edge -> 3 edges.
 Cyclomatic = E - V + 1 = 3 - 4 + 1 = 0.
 -/
-lemma star_is_tree : DynamicGraph.cyclomatic_number star_graph = 0 := by
-  unfold DynamicGraph.cyclomatic_number star_graph DynamicGraph.edge_count
+lemma star_is_tree : cyclomatic_number star_graph = 0 := by
+  unfold cyclomatic_number star_graph edge_count
   unfold remove_edge kite_graph
   simp
 
-lemma line_is_tree : DynamicGraph.cyclomatic_number line_graph = 0 := by
-  unfold DynamicGraph.cyclomatic_number line_graph DynamicGraph.edge_count
+lemma line_is_tree : cyclomatic_number line_graph = 0 := by
+  unfold cyclomatic_number line_graph edge_count
   unfold remove_edge kite_graph
   simp
 
@@ -255,4 +255,4 @@ theorem dynamical_glassiness :
       chain_star.origin = chain_line.origin ∧ ¬ IsIsomorphic star_graph line_graph :=
   ⟨kite_to_star_chain, kite_to_line_chain, rfl, star_ne_line⟩
 
-end DiscreteHodge
+end Diaspora.Models

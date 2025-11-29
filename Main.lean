@@ -1,27 +1,35 @@
 -- Root module for the Diaspora library
 
--- Cohomological foundation: discrete Hodge theory on graphs (Cohonomy)
-import Diaspora.DiscreteCalculus
-import Diaspora.HodgeDecomposition
-import Diaspora.HarmonicAnalysis
-import Diaspora.QuantumDynamics
-import Diaspora.TopologyChange
-import Diaspora.TopologyDynamics
-import Diaspora.TopologicalGenesis
-import Diaspora.GlassDynamics
-import Diaspora.FrustratedTriangle
-import Diaspora.SelfMeasurement
-import Diaspora.Duality
-import Diaspora.Interaction
-import Diaspora.FalseVacuum
-import Diaspora.Universe
-import Diaspora.Plasticity
-import Diaspora.WeightedGraph
-import Diaspora.TheVoid
-import Diaspora.Resilience
-import Diaspora.SpectralGap
-import Diaspora.PhaseField
-import Diaspora.LocalWitness
-import Diaspora.Diffusion
-import Diaspora.LocalUniverse
-import Diaspora.DehnTwist
+-- Core: Foundations
+import Diaspora.Core.Calculus
+import Diaspora.Core.Weighted
+import Diaspora.Core.Phase
+
+-- Hodge: Static Theory
+import Diaspora.Hodge.Decomposition
+import Diaspora.Hodge.Harmonic
+import Diaspora.Hodge.Spectral
+import Diaspora.Hodge.Twist
+
+-- Dynamics: Time Evolution
+import Diaspora.Dynamics.Diffusion
+import Diaspora.Dynamics.Plasticity
+import Diaspora.Dynamics.Strain
+import Diaspora.Dynamics.Transition
+import Diaspora.Dynamics.Glass
+import Diaspora.Dynamics.Sim
+import Diaspora.Dynamics.Local
+
+-- Quantum: Complex Extensions
+import Diaspora.Quantum.Evolution
+import Diaspora.Quantum.Measurement
+import Diaspora.Quantum.Witness
+
+-- Models: Stories and Test Cases
+import Diaspora.Models.FalseVacuum
+import Diaspora.Models.Triangle
+import Diaspora.Models.Interaction
+import Diaspora.Models.Duality
+import Diaspora.Models.Void
+import Diaspora.Models.Resilience
+import Diaspora.Models.Genesis

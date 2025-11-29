@@ -7,12 +7,14 @@ and formally state the condition for a "glassy" system: one with multiple,
 distinct stable vacua.
 -/
 
-import Diaspora.TopologyDynamics
-import Diaspora.Universe
+import Diaspora.Dynamics.Transition
+import Diaspora.Dynamics.Sim
 import Mathlib.Logic.Equiv.Basic
 import Mathlib.Logic.Equiv.Defs
 
-namespace DiscreteHodge
+open Diaspora.Core
+
+namespace Diaspora.Dynamics
 
 /-! ## Graph Isomorphism -/
 
@@ -88,4 +90,4 @@ def topological_sensitivity_statement
     let final₂ := (run_universe G_start σ C_max solver₂).1
     ¬ IsIsomorphic final₁ final₂
 
-end DiscreteHodge
+end Diaspora.Dynamics

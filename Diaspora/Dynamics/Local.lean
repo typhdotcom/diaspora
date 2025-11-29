@@ -1,5 +1,5 @@
-import Diaspora.Universe
-import Diaspora.Diffusion
+import Diaspora.Dynamics.Sim
+import Diaspora.Dynamics.Diffusion
 
 /-!
 # Local Universe
@@ -7,9 +7,9 @@ import Diaspora.Diffusion
 Concrete universe execution using local diffusion from `Diffusion.lean`.
 -/
 
-namespace DiscreteHodge
+open BigOperators Diaspora.Core
 
-open BigOperators
+namespace Diaspora.Dynamics
 
 /-! ## 1. The Local Solver -/
 
@@ -39,4 +39,4 @@ theorem local_universe_entropy_nondecreasing {n : ℕ} [Fintype (Fin n)] [Decida
   -- to our specific local implementation.
   apply simulation_entropy_nondecreasing
 
-end DiscreteHodge
+end Diaspora.Dynamics

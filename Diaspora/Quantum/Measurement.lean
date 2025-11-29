@@ -7,15 +7,15 @@ from the constraint field. The comparison between initial and final states
 after completing a cycle detects non-trivial topology.
 -/
 
-import Diaspora.DiscreteCalculus
-import Diaspora.HarmonicAnalysis
-import Diaspora.TopologicalGenesis
+import Diaspora.Core.Calculus
+import Diaspora.Hodge.Harmonic
+import Diaspora.Models.Genesis
 import Mathlib.Analysis.SpecialFunctions.Complex.Log
 import Mathlib.Analysis.Complex.Exponential
 
-namespace DiscreteHodge
+open Complex Diaspora.Core Diaspora.Hodge Diaspora.Models
 
-open Complex
+namespace Diaspora.Quantum
 
 /-! ## Parallel Transport -/
 
@@ -119,4 +119,4 @@ Measures the overlap after one complete cycle.
 noncomputable def self_query_magnitude (σ : C1 n_sys) (ψ : ℂ) : ℝ :=
   norm (star ψ * introspection_operator σ ψ)
 
-end DiscreteHodge
+end Diaspora.Quantum

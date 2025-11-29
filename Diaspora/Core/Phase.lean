@@ -8,12 +8,12 @@ to be integers. In the phase field theory, winding is enforced by the type
 system: you can't partially have a winding.
 -/
 
-import Diaspora.HarmonicAnalysis
+import Diaspora.Hodge.Harmonic
 import Mathlib.Data.ZMod.Basic
 
-namespace DiscreteHodge
+open BigOperators Diaspora.Hodge
 
-open BigOperators
+namespace Diaspora.Core
 
 /-! ## Geodesic Distance -/
 
@@ -156,4 +156,4 @@ theorem winding_depends_only_on_cohomology_class {n k : ℕ} [Fintype (Fin n)]
   rw [phase_exact_telescope ϕ cycle]
   ring
 
-end DiscreteHodge
+end Diaspora.Core

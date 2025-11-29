@@ -1,12 +1,13 @@
-import Diaspora.WeightedGraph
-import Diaspora.PhaseField
-import Diaspora.DehnTwist
+import Diaspora.Core.Weighted
+import Diaspora.Core.Phase
+import Diaspora.Hodge.Twist
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.FieldSimp
 import Mathlib.Analysis.SpecificLimits.Basic
 
-namespace DiscreteHodge
-open BigOperators
+open BigOperators Diaspora.Core Diaspora.Hodge
+
+namespace Diaspora.Dynamics
 
 /--
 One step of Plasticity.
@@ -248,4 +249,4 @@ theorem dehn_twist_guarantees_existence {n : ℕ} [NeZero n]
     apply mul_pos h_eta h_strain_pos
   · exact h_scale_pos
 
-end DiscreteHodge
+end Diaspora.Dynamics

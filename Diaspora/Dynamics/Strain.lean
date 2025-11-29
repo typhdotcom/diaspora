@@ -5,12 +5,12 @@ When edge strain exceeds a threshold, the edge breaks, changing the graph topolo
 Strain energy that cannot be absorbed by local potentials becomes topological.
 -/
 
-import Diaspora.HarmonicAnalysis
-import Diaspora.PhaseField
+import Diaspora.Hodge.Harmonic
+import Diaspora.Core.Phase
 
-open BigOperators
+open BigOperators Diaspora.Core Diaspora.Hodge
 
-namespace DiscreteHodge
+namespace Diaspora.Dynamics
 
 /-! ## Structural Limits -/
 
@@ -37,7 +37,7 @@ If total strain is high, some edge must have high strain (pigeonhole principle).
 -/
 theorem strain_must_localize {n : ℕ} [Fintype (Fin n)] [NeZero n]
     (ϕ : C0 n) (σ : C1 n) (C_max : ℝ)
-    (h_total : norm_sq (residual ϕ σ) > (1/2) * (Fintype.card (Fin n))^2 * C_max) :
+    (h_total : norm_sq (Diaspora.Core.residual ϕ σ) > (1/2) * (Fintype.card (Fin n))^2 * C_max) :
   ∃ i j : Fin n, edge_strain ϕ σ i j > C_max := by
   by_contra h_none
   push_neg at h_none
@@ -52,9 +52,9 @@ theorem strain_must_localize {n : ℕ} [Fintype (Fin n)] [NeZero n]
     rw [Finset.sum_const, Finset.card_univ, Finset.sum_const, Finset.card_univ]
     ring
 
-  have h_norm : norm_sq (residual ϕ σ) =
+  have h_norm : norm_sq (Diaspora.Core.residual ϕ σ) =
                 (1/2) * ∑ i : Fin n, ∑ j : Fin n, edge_strain ϕ σ i j := by
-    unfold norm_sq inner_product_C1 residual edge_strain
+    unfold norm_sq inner_product_C1 Diaspora.Core.residual edge_strain
     simp only [d0]
     congr 1; congr 1
     ext i; congr 1; ext j
@@ -84,7 +84,7 @@ theorem black_hole_has_no_hair {n : ℕ} [Fintype (Fin n)]
 /-! ## Black Hole Formation -/
 
 /--
-When residual strain exceeds the threshold, localization forces some edge to break.
+When Diaspora.Core.residual strain exceeds the threshold, localization forces some edge to break.
 The resulting topology contains a non-trivial harmonic component:
 - Energy: ||γ||² (irreducible frustration)
 - Topological charge: winding number m
@@ -94,8 +94,8 @@ theorem black_hole_formation
     {n : ℕ} [Fintype (Fin n)] [NeZero n]
     (σ : C1 n) (C_max : ℝ) (h_pos : C_max > 0)
     (ϕ_opt : C0 n)
-    (h_min : ∀ ϕ', norm_sq (residual ϕ_opt σ) ≤ norm_sq (residual ϕ' σ))
-    (h_frustration : norm_sq (residual ϕ_opt σ) > (1/2) * (Fintype.card (Fin n))^2 * C_max) :
+    (h_min : ∀ ϕ', norm_sq (Diaspora.Core.residual ϕ_opt σ) ≤ norm_sq (Diaspora.Core.residual ϕ' σ))
+    (h_frustration : norm_sq (Diaspora.Core.residual ϕ_opt σ) > (1/2) * (Fintype.card (Fin n))^2 * C_max) :
   (∃ i j : Fin n, edge_strain ϕ_opt σ i j > C_max)
   ∧
   (∃ γ : C1 n, IsHarmonic γ ∧ norm_sq γ > 0)
@@ -120,20 +120,20 @@ theorem black_hole_formation
         exact mul_self_nonneg _
     have h_gamma_zero : norm_sq γ = 0 := by linarith
 
-    have h_resid_eq : ∀ i j, (residual ϕ σ).val i j = -γ.val i j := by
+    have h_resid_eq : ∀ i j, (Diaspora.Core.residual ϕ σ).val i j = -γ.val i j := by
       intro i j
-      unfold residual
+      unfold Diaspora.Core.residual
       have := h_decomp i j
       linarith
 
-    have h_resid_norm : norm_sq (residual ϕ σ) = norm_sq γ := by
+    have h_resid_norm : norm_sq (Diaspora.Core.residual ϕ σ) = norm_sq γ := by
       unfold norm_sq inner_product_C1
       congr 1; congr 1
       ext i; congr 1; ext j
       rw [h_resid_eq]
       ring
 
-    have h_opt_resid : norm_sq (residual ϕ_opt σ) ≤ norm_sq (residual ϕ σ) := h_min ϕ
+    have h_opt_resid : norm_sq (Diaspora.Core.residual ϕ_opt σ) ≤ norm_sq (Diaspora.Core.residual ϕ σ) := h_min ϕ
 
     rw [h_resid_norm, h_gamma_zero] at h_opt_resid
     have h_card_pos : (1/2) * (Fintype.card (Fin n))^2 * C_max > 0 := by
@@ -148,4 +148,4 @@ theorem black_hole_formation
   · intro cycle h_cycle
     exact black_hole_has_no_hair σ cycle h_cycle
 
-end DiscreteHodge
+end Diaspora.Dynamics

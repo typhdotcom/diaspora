@@ -6,7 +6,7 @@ Every constraint field σ decomposes uniquely into:
 2. A Harmonic form γ
 -/
 
-import Diaspora.DiscreteCalculus
+import Diaspora.Core.Calculus
 import Mathlib.Tactic.Ring
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.FieldSimp
@@ -19,9 +19,9 @@ import Mathlib.Analysis.Normed.Module.FiniteDimension
 import Mathlib.LinearAlgebra.FiniteDimensional.Defs
 import Mathlib.LinearAlgebra.Dimension.Finrank
 
-open BigOperators
+open BigOperators Diaspora.Core
 
-namespace DiscreteHodge
+namespace Diaspora.Hodge
 
 /-! ## 1. The Geometry of Active Forms -/
 
@@ -103,7 +103,7 @@ theorem hodge_decomposition_graph (σ : ActiveForm G) :
   ∃ (φ : C0 n) (γ : ActiveForm G),
     σ = d_G G φ + γ ∧
     γ ∈ HarmonicSubspace G ∧
-    ActiveForm.inner (d_G G φ) γ = 0 := by
+    Diaspora.Core.ActiveForm.inner (d_G G φ) γ = 0 := by
   -- Use the orthogonal projection provided by inner product space theory
   let γ_sub := harmonic_projector G σ
   let exact_sub := (ImGradient G).orthogonalProjection σ
@@ -457,7 +457,7 @@ lemma d0_eq_d_G_complete (φ : C0 n) :
   · simp [h]
 
 lemma inner_C1_ActiveForm (σ τ : C1 n) : 
-    inner_product_C1 σ τ = ActiveForm.inner (C1_to_ActiveForm σ) (C1_to_ActiveForm τ) := rfl
+    inner_product_C1 σ τ = Diaspora.Core.ActiveForm.inner (C1_to_ActiveForm σ) (C1_to_ActiveForm τ) := rfl
 
 /--
 The Classical Hodge Decomposition (for the complete graph).
@@ -500,7 +500,7 @@ theorem hodge_decomposition {n : ℕ} [Fintype (Fin n)] (σ : C1 n) :
     intro i
     simp [γ, ActiveForm_to_C1]
     -- γ_act ⊥ ImGradient means ⟨d_G φ', γ_act⟩ = 0 for all φ'
-    have h_orth_all : ∀ φ' : C0 n, ActiveForm.inner (d_G (DynamicGraph.complete n) φ') γ_act = 0 := by
+    have h_orth_all : ∀ φ' : C0 n, Diaspora.Core.ActiveForm.inner (d_G (DynamicGraph.complete n) φ') γ_act = 0 := by
       intro φ'
       -- h_harm_sub says γ_act ∈ HarmonicSubspace = (ImGradient)ᗮ
       rw [HarmonicSubspace, Submodule.mem_orthogonal] at h_harm_sub
@@ -519,7 +519,7 @@ theorem hodge_decomposition {n : ℕ} [Fintype (Fin n)] (σ : C1 n) :
         _ = inner_product_C1 (d0 (basis_vector i)) γ := (divergence_is_adjoint _ _).symm
         _ = inner_product_C1 (ActiveForm_to_C1 (d_G (DynamicGraph.complete n) (basis_vector i)))
                              (ActiveForm_to_C1 γ_act) := by rw [← d0_eq_d_G_complete]
-        _ = ActiveForm.inner (d_G (DynamicGraph.complete n) (basis_vector i)) γ_act := rfl
+        _ = Diaspora.Core.ActiveForm.inner (d_G (DynamicGraph.complete n) (basis_vector i)) γ_act := rfl
         _ = 0 := h_orth_all (basis_vector i)
     -- divergence γ i = - δ_G γ_act i, so both must be zero
     have h_div_neg : divergence γ i = - δ_G (DynamicGraph.complete n) γ_act i := by
@@ -574,4 +574,4 @@ lemma laplacian_expansion {n : ℕ} [Fintype (Fin n)] (ϕ : C0 n) (i : Fin n) :
   unfold graph_laplacian divergence d0
   rfl
 
-end DiscreteHodge
+end Diaspora.Hodge

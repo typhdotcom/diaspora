@@ -1,9 +1,9 @@
-import Diaspora.DiscreteCalculus
-import Diaspora.PhaseField
+import Diaspora.Core.Calculus
+import Diaspora.Core.Phase
 import Mathlib.Data.Real.Basic
 import Mathlib.Algebra.BigOperators.Group.Finset.Basic
 
-namespace DiscreteHodge
+namespace Diaspora.Core
 open BigOperators
 
 /-- A graph where edges have continuous capacity (weights). -/
@@ -75,4 +75,4 @@ noncomputable def to_dynamic {n : ℕ} (G : WeightedGraph n) (ε : ℝ) : Dynami
     exact h.2.2 rfl
 
 
-end DiscreteHodge
+end Diaspora.Core

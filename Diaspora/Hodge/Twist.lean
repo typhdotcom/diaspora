@@ -4,11 +4,11 @@
 Given a cycle, construct a harmonic form with non-trivial winding number.
 -/
 
-import Diaspora.HarmonicAnalysis
+import Diaspora.Hodge.Harmonic
 
-namespace DiscreteHodge
+open BigOperators Diaspora.Core
 
-open BigOperators
+namespace Diaspora.Hodge
 
 /-! ## The Dehn Twist Construction -/
 
@@ -230,4 +230,4 @@ theorem dehn_twist_is_canonical {n : ℕ} [Fintype (Fin n)] [NeZero n] [Inhabite
     linarith
   rw [h_const, h_k, dehn_twist_constant cycle h_n_ge_3]
 
-end DiscreteHodge
+end Diaspora.Hodge

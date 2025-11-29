@@ -7,12 +7,12 @@ If γ is harmonic with non-zero integer winding m on an n-cycle, then:
   ‖γ‖² = m²/n ≥ 1/n
 -/
 
-import Diaspora.HarmonicAnalysis
-import Diaspora.Resilience
+import Diaspora.Hodge.Harmonic
+import Diaspora.Models.Resilience
 
-namespace DiscreteHodge
+open BigOperators Diaspora.Core Diaspora.Models
 
-open BigOperators
+namespace Diaspora.Hodge
 
 /-! ## Helper Lemmas -/
 
@@ -106,4 +106,4 @@ theorem soliton_lower_bound {n : ℕ} [Fintype (Fin n)] [NeZero n]
     simp only [h_card] at h
     exact h
 
-end DiscreteHodge
+end Diaspora.Hodge

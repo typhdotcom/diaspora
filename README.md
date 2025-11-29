@@ -35,10 +35,10 @@ At the core is a simple idea:
 This is formalized in two layers:
 
 1. **The Mathematical Ideal (Global):**
-   In `HodgeDecomposition.lean`, we use global linear algebra to prove that a perfect potential `ϕ` exists and compute **Betti numbers** via the dimension formula dim(H) + |V| = |E| + dim(Ker d). In particular, for a connected graph this recovers the usual cyclomatic number: `dim(H) = |E| - |V| + 1`.
+   In `Hodge/Decomposition.lean`, we use global linear algebra to prove that a perfect potential `ϕ` exists and compute **Betti numbers** via the dimension formula dim(H) + |V| = |E| + dim(Ker d). In particular, for a connected graph this recovers the usual cyclomatic number: `dim(H) = |E| - |V| + 1`.
 
 2. **The Physical Mechanism (Local):**
-   In `Diffusion.lean`, we show that the system doesn't *need* a global solver to find this state. Nodes simply push against their neighbors (Heat Equation) to minimize local strain. Similarly, observers measure topology locally via **Holonomy** (walking in loops).
+   In `Dynamics/Diffusion.lean`, we show that the system doesn't *need* a global solver to find this state. Nodes simply push against their neighbors (Heat Equation) to minimize local strain. Similarly, observers measure topology locally via **Holonomy** (walking in loops).
 
 Then we prove (for the complete graph) a discrete **Hodge decomposition**:
 
@@ -72,9 +72,22 @@ This is formalized in `WeightedGraph` via `total_capacity_fixed`, forcing a zero
 
 This is the “tour of files” version — you don’t need to read them in this order, but it gives you a mental map.
 
+## Project Structure
+
+The codebase is organized into five layers:
+
+```
+Diaspora/
+├── Core/           # Foundations: calculus, phase fields, weighted graphs
+├── Hodge/          # Static theory: decomposition, harmonic analysis, spectral gap
+├── Dynamics/       # Time evolution: diffusion, plasticity, topology change
+├── Quantum/        # Complex extensions: Schrödinger, Berry phase, measurement
+└── Models/         # Concrete examples and named stories
+```
+
 ### Discrete calculus on graphs
 
-**`Diaspora/DiscreteCalculus.lean`**
+**`Diaspora/Core/Calculus.lean`**
 
 Foundations:
 
@@ -107,7 +120,7 @@ Quantum flavor:
 * Hermitian inner products `inner_QC0`, `inner_QC1`.
 * `quantum_laplacian` and `IsEnergyEigenstate`.
 
-**`Diaspora/Duality.lean`**
+**`Diaspora/Models/Duality.lean`**
 
 A small companion file:
 
@@ -117,7 +130,7 @@ A small companion file:
 
 ### Hodge decomposition (the heavy lifting)
 
-**`Diaspora/HodgeDecomposition.lean`**
+**`Diaspora/Hodge/Decomposition.lean`**
 
 The core decomposition theorem with explicit algebraic topology.
 
@@ -150,7 +163,7 @@ theorem hodge_decomposition {n : ℕ} [Fintype (Fin n)] (σ : C1 n) :
 
 ### Harmonic analysis and physical interpretations
 
-**`Diaspora/HarmonicAnalysis.lean`**
+**`Diaspora/Hodge/Harmonic.lean`**
 
 Once we have Hodge, we get a bunch of physical-sounding theorems:
 
@@ -195,7 +208,7 @@ Quantum:
 
 ### Spectral gap and quantization
 
-**`Diaspora/SpectralGap.lean`**
+**`Diaspora/Hodge/Spectral.lean`**
 
 Non-trivial topology implies a minimum energy cost.
 
@@ -204,9 +217,9 @@ Non-trivial topology implies a minimum energy cost.
 * `spectral_gap_quantitative`: For cycle-supported harmonic with winding m ≠ 0, **‖γ‖² ≥ 1/n**.
 * `soliton_lower_bound`: Combines exact formula ‖γ‖² = m²/n with lower bound.
 
-Interpretation: topological defects have quantized energy levels with a **mass gap**. The `DehnTwist` module then shows this lower bound is sharp by constructing a canonical winding-1 defect with energy exactly `1/n`.
+Interpretation: topological defects have quantized energy levels with a **mass gap**. The `Twist` module then shows this lower bound is sharp by constructing a canonical winding-1 defect with energy exactly `1/n`.
 
-**`Diaspora/DehnTwist.lean`**
+**`Diaspora/Hodge/Twist.lean`**
 
 Canonical construction of harmonic forms with specified winding.
 
@@ -216,7 +229,7 @@ Canonical construction of harmonic forms with specified winding.
 * `dehn_twist_energy`: **‖dehn_twist‖² = 1/n** (minimum non-zero energy).
 * `dehn_twist_is_canonical`: Any harmonic form with winding 1 equals the Dehn twist.
 
-**`Diaspora/PhaseField.lean`**
+**`Diaspora/Core/Phase.lean`**
 
 Discrete calculus over finite cyclic groups (ZMod k).
 
@@ -231,7 +244,7 @@ Interpretation: in phase fields, winding is **enforced by the type system** — 
 
 ### Mechanisms of Relaxation & Measurement
 
-**`Diaspora/Diffusion.lean`**
+**`Diaspora/Dynamics/Diffusion.lean`**
 A local alternative to the global solver.
 
 * `diffusion_step`: Discrete heat equation. Nodes adjust their potential based only on immediate neighbor strain.
@@ -240,20 +253,20 @@ A local alternative to the global solver.
 
 Together they say: scalar potentials relax toward the Hodge optimum, while phase fields synchronize along geodesics on `ZMod k` without ever breaking their winding constraints.
 
-**`Diaspora/LocalWitness.lean`**
+**`Diaspora/Quantum/Witness.lean`**
 A local alternative to global energy summation.
 
 * `measure_loop_distortion`: An observer walking a cycle tracks their internal phase shift.
 * **Theorem:** `local_holonomy_predicts_global_energy` — The phase shift detected by a local walker accurately predicts the total energy of the topological defect.
 
-**`Diaspora/LocalUniverse.lean`**
+**`Diaspora/Dynamics/Local.lean`**
 
-* Runs the `Universe` simulation using `diffusion` as the solver, proving that local rules are sufficient to drive the global topology change.
+* Runs the `Sim` simulation using `diffusion` as the solver, proving that local rules are sufficient to drive the global topology change.
 
 ### Topology, strain, and graph evolution
 
-**`Diaspora/TopologyChange.lean`**
-**`Diaspora/TopologyDynamics.lean`**
+**`Diaspora/Dynamics/Strain.lean`**
+**`Diaspora/Dynamics/Transition.lean`**
 
 These files turn the math into a dynamics:
 
@@ -267,8 +280,8 @@ These files turn the math into a dynamics:
 
 Graph metrics:
 
-* `DynamicGraph.edge_count`
-* `DynamicGraph.cyclomatic_number` — counts cycles (for connected graphs).
+* `edge_count`
+* `cyclomatic_number` — counts cycles (for connected graphs).
 
 Edge removal and evolution:
 
@@ -299,7 +312,7 @@ paid the price for the frustration.
 
 #### Universe evolution (the main loop)
 
-**`Diaspora/Universe.lean`**
+**`Diaspora/Dynamics/Sim.lean`**
 
 This is the abstract proof-carrying simulation engine:
 
@@ -314,7 +327,7 @@ Main structural statement:
   it doesn’t come back; the “time” of the universe is literally the accumulation
   of irreversibly latent strain.
 
-(See `LocalUniverse.lean` for the concrete implementation where the "Solver" is just local heat diffusion).
+(See `Dynamics/Local.lean` for the concrete implementation where the "Solver" is just local heat diffusion).
 
 “Black hole” metaphor (in the TopologyChange layer):
 
@@ -326,8 +339,8 @@ Main structural statement:
 
 ### Weighted graphs and plasticity
 
-**`Diaspora/WeightedGraph.lean`**
-**`Diaspora/Plasticity.lean`**
+**`Diaspora/Core/Weighted.lean`**
+**`Diaspora/Dynamics/Plasticity.lean`**
 
 This layer moves from binary topology (active/inactive) to continuous capacity. It treats the graph as an economic system with finite resources.
 
@@ -357,7 +370,7 @@ Evolution happens in a loop of Growth, Scarcity, and Pruning (`plasticity_cycle`
 * `dehn_twist_preserves_symmetry`: Uniform weights + Dehn twist strain → weights stay uniform.
 * `dehn_twist_guarantees_existence`: Positive learning rate ensures cycle edges remain active.
 
-**`Diaspora/Resilience.lean`**
+**`Diaspora/Models/Resilience.lean`**
 
 The converse question: what about edges *with* strain? This file proves that harmonic content is self-maintaining under plasticity.
 
@@ -376,11 +389,11 @@ Interpretation: **harmonic content protects the topology that carries it**. Self
 
 ### Toy systems and named stories
 
-These are the narrative / physics-inspired examples built on top.
+These are the narrative / physics-inspired models built on top.
 
 #### The Void: observation vs reality
 
-**`Diaspora/TheVoid.lean`**
+**`Diaspora/Models/Void.lean`**
 
 Formalizes the distinction between full state and observable state, plus dimensional analysis.
 
@@ -414,7 +427,7 @@ Interpretation: observation doesn't commute with dynamics.
 
 #### Topological genesis: open vs closed line
 
-**`Diaspora/TopologicalGenesis.lean`**
+**`Diaspora/Models/Genesis.lean`**
 
 * Two graphs on 3 nodes:
 
@@ -437,9 +450,9 @@ Theorems:
 
 Interpretation: **closing the loop** is exactly the topological move that makes "irremovable frustration" possible. Generic noise creates topology. And thanks to the spectral gap, any such harmonic component comes with a fixed minimum energy bill `1/n` — “genesis” isn’t just generic, it’s **energetically chunky**.
 
-#### Self-measurement & “introspection”
+#### Self-measurement & "introspection"
 
-**`Diaspora/SelfMeasurement.lean`**
+**`Diaspora/Quantum/Measurement.lean`**
 
 * Parallel transport operator:
 
@@ -455,8 +468,8 @@ This is a poetic way of saying: **holonomy is the obstruction to being globally 
 
 #### Glassy dynamics
 
-**`Diaspora/GlassDynamics.lean`**
-**`Diaspora/FrustratedTriangle.lean`**
+**`Diaspora/Dynamics/Glass.lean`**
+**`Diaspora/Models/Triangle.lean`**
 
 * Formal notion of **graph isomorphism** and “glassy system”:
 
@@ -483,7 +496,7 @@ Interpretation: **glassy** = history-dependent: different break orders end in ge
 
 #### False vacuum & protection
 
-**`Diaspora/FalseVacuum.lean`**
+**`Diaspora/Models/FalseVacuum.lean`**
 
 * A θ-graph (two loops sharing a pair of nodes).
 * Parameterized constraints:
@@ -500,7 +513,7 @@ Interpretation: a toy model of **false vacuum protection** via relaxation.
 
 #### Interaction & the handshake
 
-**`Diaspora/Interaction.lean`**
+**`Diaspora/Models/Interaction.lean`**
 
 * Two disjoint triangles `{0,1,2}` and `{3,4,5}`:
 
@@ -522,7 +535,7 @@ Interpretation: **one bridge is just contact; two bridges create shared topology
 
 #### Quantum dynamics & Berry phase
 
-**`Diaspora/QuantumDynamics.lean`**
+**`Diaspora/Quantum/Evolution.lean`**
 
 Quantum layer:
 

@@ -1,5 +1,5 @@
-import Diaspora.TopologyDynamics
-import Diaspora.Universe
+import Diaspora.Dynamics.Transition
+import Diaspora.Dynamics.Sim
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.FinCases
 import Mathlib.Tactic.FieldSimp
@@ -7,9 +7,9 @@ import Mathlib.Tactic.NormNum
 
 set_option maxHeartbeats 500000
 
-namespace DiscreteHodge
+open BigOperators Diaspora.Core Diaspora.Hodge Diaspora.Dynamics
 
-open BigOperators
+namespace Diaspora.Models
 
 abbrev n_theta : ℕ := 4
 @[simp] lemma fin_0 : (0 : Fin n_theta) = ⟨0, by decide⟩ := rfl
@@ -247,4 +247,4 @@ theorem simulation_selects_trap (Ft Fs Fa C_max : ℝ)
           obtain ⟨x, hx⟩ := h_step; rw [hx]; exact ih x
       rw [heq] at h_isSome; simp at h_isSome
 
-end DiscreteHodge
+end Diaspora.Models

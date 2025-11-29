@@ -4,16 +4,16 @@
 Micro/macro observation framework and dimensional analysis.
 -/
 
-import Diaspora.HodgeDecomposition
-import Diaspora.Plasticity
-import Diaspora.WeightedGraph
+import Diaspora.Hodge.Decomposition
+import Diaspora.Dynamics.Plasticity
+import Diaspora.Core.Weighted
 import Mathlib.LinearAlgebra.Matrix.Spectrum
 import Mathlib.Data.Matrix.Basic
 import Mathlib.LinearAlgebra.Dimension.Finrank
 
-namespace DiscreteHodge
+open BigOperators Matrix Diaspora.Core Diaspora.Hodge Diaspora.Dynamics
 
-open BigOperators Matrix
+namespace Diaspora.Models
 
 /-- Graph Laplacian: L_ii = degree(i), L_ij = -1 if (i,j) active. -/
 noncomputable def laplacianMatrix {n : ℕ} (G : DynamicGraph n) : Matrix (Fin n) (Fin n) ℝ :=
@@ -337,4 +337,4 @@ theorem observable_present_undetermines_future :
     simp only [observe] at this
     exact this
 
-end DiscreteHodge
+end Diaspora.Models

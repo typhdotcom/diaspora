@@ -6,21 +6,21 @@ proves that edges must break under sufficient frustration, this file defines
 the step-by-step process of identifying and removing overstressed edges.
 -/
 
-import Diaspora.TopologyChange
-import Diaspora.SpectralGap
-import Diaspora.DehnTwist
+import Diaspora.Dynamics.Strain
+import Diaspora.Hodge.Spectral
+import Diaspora.Hodge.Twist
 import Mathlib.Data.Finset.Basic
 import Mathlib.Algebra.BigOperators.Group.Finset.Sigma
 import Mathlib.Algebra.BigOperators.Group.Finset.Piecewise
 
-open BigOperators Classical
+open BigOperators Classical Diaspora.Core Diaspora.Hodge
 
-namespace DiscreteHodge
+namespace Diaspora.Dynamics
 
 /-! ## Graph Metrics -/
 
 /-- Number of active undirected edges (card / 2, since we store both directions) -/
-def DynamicGraph.edge_count {n : ℕ} (G : DynamicGraph n) : ℕ :=
+def edge_count {n : ℕ} (G : DynamicGraph n) : ℕ :=
   G.active_edges.card / 2
 
 /--
@@ -28,8 +28,8 @@ Cyclomatic number (circuit rank): counts independent cycles in a connected graph
 For connected graphs: cyclomatic = |E| - |V| + 1.
 This is NOT the true first Betti number, which would be |E| - |V| + c where c is the number of connected components.
 -/
-def DynamicGraph.cyclomatic_number {n : ℕ} (G : DynamicGraph n) : ℤ :=
-  (G.edge_count : ℤ) - (n : ℤ) + 1
+def cyclomatic_number {n : ℕ} (G : DynamicGraph n) : ℤ :=
+  (edge_count G : ℤ) - (n : ℤ) + 1
 
 /-! ## Finding Overstressed Edges (Max Strain Logic) -/
 
@@ -339,8 +339,8 @@ Removing an edge decreases edge count by 1 (since we erase both (i,j) and (j,i))
 lemma edge_count_decreases_by_one {n : ℕ} (G : DynamicGraph n) (i j : Fin n)
     (h_active : (i, j) ∈ G.active_edges)
     (h_ne : i ≠ j) :
-  (remove_edge G i j).edge_count + 1 = G.edge_count := by
-  unfold DynamicGraph.edge_count remove_edge
+  edge_count (remove_edge G i j) + 1 = edge_count G := by
+  unfold edge_count remove_edge
   simp only
   have h_sym : (j, i) ∈ G.active_edges := (G.symmetric i j).mp h_active
   have h_ne_pair : (i, j) ≠ (j, i) := by
@@ -375,8 +375,8 @@ theorem cyclomatic_decreases_on_edge_removal {n : ℕ} (G : DynamicGraph n) (i j
     (h_active : (i, j) ∈ G.active_edges)
     (h_ne : i ≠ j)
     (_h_connected : True) : -- Graph stays connected after removal
-  DynamicGraph.cyclomatic_number (remove_edge G i j) + 1 = DynamicGraph.cyclomatic_number G := by
-  unfold DynamicGraph.cyclomatic_number
+  cyclomatic_number (remove_edge G i j) + 1 = cyclomatic_number G := by
+  unfold cyclomatic_number
   have h_edge := edge_count_decreases_by_one G i j h_active h_ne
   omega
 
@@ -600,4 +600,4 @@ theorem nucleation_necessity {n : ℕ} [NeZero n]
   rw [h_card] at h_gap
   exact h_gap
 
-end DiscreteHodge
+end Diaspora.Dynamics

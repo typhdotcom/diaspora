@@ -7,36 +7,36 @@ are exactly the global energy minima (Hodge potentials).
 This replaces the "Global Solver" oracle with a purely local dynamical process.
 -/
 
-import Diaspora.DiscreteCalculus
-import Diaspora.TopologyChange
-import Diaspora.PhaseField
+import Diaspora.Core.Calculus
+import Diaspora.Dynamics.Strain
+import Diaspora.Core.Phase
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Ring
 import Mathlib.Analysis.SpecialFunctions.Pow.Real
 
-namespace DiscreteHodge
+open BigOperators Diaspora.Core
 
-open BigOperators
+namespace Diaspora.Dynamics
 
 /-! ## 1. The Local Imbalance (The Force) -/
 
 /--
 The "Force" acting on a vertex i.
-It is the sum of residual strains on all active edges incident to i.
+It is the sum of Diaspora.Core.residual strains on all active edges incident to i.
 Vertex i increases its potential if its neighbors are higher (relative to σ).
 -/
 noncomputable def local_imbalance {n : ℕ} (G : DynamicGraph n) (ϕ : C0 n) (σ : C1 n) (i : Fin n) : ℝ :=
-  ∑ j, if (i, j) ∈ G.active_edges then (residual ϕ σ).val i j else 0
+  ∑ j, if (i, j) ∈ G.active_edges then (Diaspora.Core.residual ϕ σ).val i j else 0
 
-/-- The residual restricted to active edges (as an ActiveForm) -/
-noncomputable def active_residual {n : ℕ} (G : DynamicGraph n) (ϕ : C0 n) (σ : C1 n) : ActiveForm G :=
-  ⟨{ val := fun i j => if (i, j) ∈ G.active_edges then (residual ϕ σ).val i j else 0,
+/-- The Diaspora.Core.residual restricted to active edges (as an ActiveForm) -/
+noncomputable def active_Diaspora.Core.residual {n : ℕ} (G : DynamicGraph n) (ϕ : C0 n) (σ : C1 n) : ActiveForm G :=
+  ⟨{ val := fun i j => if (i, j) ∈ G.active_edges then (Diaspora.Core.residual ϕ σ).val i j else 0,
      skew := by
        intro i j
        by_cases h : (i, j) ∈ G.active_edges
        · have h' : (j, i) ∈ G.active_edges := G.symmetric i j |>.mp h
          simp only [h, h', ↓reduceIte]
-         rw [(residual ϕ σ).skew]
+         rw [(Diaspora.Core.residual ϕ σ).skew]
        · have h' : (j, i) ∉ G.active_edges := by
             intro hcontra
             have := G.symmetric j i |>.mp hcontra
@@ -45,12 +45,12 @@ noncomputable def active_residual {n : ℕ} (G : DynamicGraph n) (ϕ : C0 n) (σ
    by intro i j h_not_active
       simp only [h_not_active, ↓reduceIte]⟩
 
-/-- Graph divergence of the residual. -/
+/-- Graph divergence of the Diaspora.Core.residual. -/
 lemma imbalance_is_divergence {n : ℕ} [Fintype (Fin n)]
     (G : DynamicGraph n) (ϕ : C0 n) (σ : C1 n) :
-    local_imbalance G ϕ σ = δ_G G (active_residual G ϕ σ) := by
+    local_imbalance G ϕ σ = δ_G G (active_Diaspora.Core.residual G ϕ σ) := by
   ext i
-  unfold local_imbalance δ_G active_residual
+  unfold local_imbalance δ_G active_Diaspora.Core.residual
   simp
   convert rfl
 
@@ -58,7 +58,7 @@ lemma imbalance_is_divergence {n : ℕ} [Fintype (Fin n)]
 
 /--
 One step of the discrete heat equation (forward Euler).
-ϕ_{t+1}(i) = ϕ_t(i) + α * ∑_{j~i} (residual_{ij})
+ϕ_{t+1}(i) = ϕ_t(i) + α * ∑_{j~i} (Diaspora.Core.residual_{ij})
 -/
 noncomputable def diffusion_step {n : ℕ} (G : DynamicGraph n) (ϕ : C0 n) (σ : C1 n) (α : ℝ) : C0 n :=
   fun i => ϕ i + α * local_imbalance G ϕ σ i
@@ -124,7 +124,7 @@ lemma linear_term_is_imbalance {n : ℕ} [Fintype (Fin n)]
                   = ∑ i, δ i * local_imbalance G ϕ_star σ i := by
     apply Finset.sum_congr rfl
     intro i _
-    unfold local_imbalance residual d0
+    unfold local_imbalance Diaspora.Core.residual d0
     simp only
     trans (δ i * ∑ j, if (i, j) ∈ G.active_edges then (ϕ_star j - ϕ_star i - σ.val i j) else 0)
     · rw [Finset.mul_sum]
@@ -152,7 +152,7 @@ lemma linear_term_is_imbalance {n : ℕ} [Fintype (Fin n)]
                           ∑ i, ∑ k, if (i,k) ∈ G.active_edges then δ i * (ϕ_star k - ϕ_star i - σ.val i k) else 0 := by
             apply Finset.sum_congr rfl
             intro i _
-            simp only [local_imbalance, residual, d0, Finset.mul_sum, mul_ite, mul_zero]
+            simp only [local_imbalance, Diaspora.Core.residual, d0, Finset.mul_sum, mul_ite, mul_zero]
             exact Finset.sum_bij (fun j _ => j) (by simp) (by simp) (by simp) (by simp)
           rw [h_expand, ← Finset.sum_neg_distrib]
           congr 1; ext i
@@ -397,4 +397,4 @@ noncomputable def pragmatic_diffusion_solver {n : ℕ} (K : ℕ) (α : ℝ) :
     DynamicGraph n → C1 n → C0 n :=
   fun G σ => diffusion_process G σ α K
 
-end DiscreteHodge
+end Diaspora.Dynamics

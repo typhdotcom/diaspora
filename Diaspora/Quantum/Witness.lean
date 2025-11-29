@@ -4,13 +4,13 @@
 Parallel transport along a cycle recovers the global harmonic form magnitude.
 -/
 
-import Diaspora.SelfMeasurement
-import Diaspora.HarmonicAnalysis
+import Diaspora.Quantum.Measurement
+import Diaspora.Hodge.Harmonic
 import Mathlib.Analysis.SpecialFunctions.Complex.Log
 
-namespace DiscreteHodge
+open Complex Diaspora.Core Diaspora.Hodge
 
-open Complex
+namespace Diaspora.Quantum
 
 /-! ## 1. The Blind Walker -/
 
@@ -553,4 +553,4 @@ theorem local_holonomy_predicts_global_energy {n : ℕ} [Fintype (Fin n)] [NeZer
       = (holonomy γ cycle.toChain1) ^ 2 / (Fintype.card (Fin n)) := h_norm_from_hol
     _ = (Complex.log Z / I).re ^ 2 / (Fintype.card (Fin n)) := by rw [← h_log_formula]
 
-end DiscreteHodge
+end Diaspora.Quantum

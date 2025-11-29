@@ -20,7 +20,7 @@ import Mathlib.Tactic.Linarith
 
 open BigOperators Complex
 
-namespace DiscreteHodge
+namespace Diaspora.Core
 
 /-! ## Dynamic Graph Structure -/
 
@@ -84,7 +84,7 @@ This is the mathematically correct type for constraints that respect topology.
 def ActiveForm {n : ℕ} (G : DynamicGraph n) : Type :=
   { σ : C1 n // ∀ i j, (i, j) ∉ G.active_edges → σ.val i j = 0 }
 
-namespace ActiveForm
+namespace Diaspora.Core.ActiveForm
 
 variable {n : ℕ} {G : DynamicGraph n}
 
@@ -354,7 +354,7 @@ noncomputable instance [Fintype (Fin n)] : InnerProductSpace ℝ (ActiveForm G) 
   add_left := by intro x y z; show inner (x + y) z = inner x z + inner y z; exact inner_add_left x y z
   smul_left := by intro r x y; show inner (y • r) x = (starRingEnd ℝ) y * inner r x; simp [starRingEnd]; exact inner_smul_left y r x
 
-end ActiveForm
+end Diaspora.Core.ActiveForm
 
 /-! ## Graph-Aware Operators -/
 
@@ -596,4 +596,4 @@ theorem capacity_conservation {n : ℕ} [Fintype (Fin n)]
   ext j
   by_cases h : (i, j) ∈ G.active_edges <;> simp [h, sq]
 
-end DiscreteHodge
+end Diaspora.Core

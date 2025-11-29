@@ -33,3 +33,11 @@ import Diaspora.Models.Duality
 import Diaspora.Models.Void
 import Diaspora.Models.Resilience
 import Diaspora.Models.Genesis
+import Diaspora.Models.WeightedStrain
+import Diaspora.Models.StrainDynamics
+import Diaspora.Models.ObserverEffect
+
+-- Logic 
+import Diaspora.Logic.Basic
+import Diaspora.Logic.Omega
+import Diaspora.Logic.Genesis

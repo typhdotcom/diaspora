@@ -74,12 +74,13 @@ This is the “tour of files” version — you don’t need to read them in thi
 
 ## Project Structure
 
-The codebase is organized into five layers:
+The codebase is organized into six layers:
 
 ```
 Diaspora/
 ├── Core/           # Foundations: calculus, phase fields, weighted graphs
 ├── Hodge/          # Static theory: decomposition, harmonic analysis, spectral gap
+├── Logic/          # Bridge: formal logic ↔ topology (satisfiability as exactness)
 ├── Dynamics/       # Time evolution: diffusion, plasticity, topology change
 ├── Quantum/        # Complex extensions: Schrödinger, Berry phase, measurement
 └── Models/         # Concrete examples and named stories
@@ -241,6 +242,56 @@ Discrete calculus over finite cyclic groups (ZMod k).
 * `winding_number_is_topological_invariant` — adding exact form preserves winding.
 
 Interpretation: in phase fields, winding is **enforced by the type system** — you can't partially wind.
+
+### Logic: Satisfiability as Exactness
+
+**`Diaspora/Logic/Basic.lean`**
+
+The bridge between formal logic and topology.
+
+A `Theory` is a list of constraints, each demanding `ϕ(dst) - ϕ(src) = val`. A theory is `Satisfiable` if some potential ϕ satisfies all constraints. The key insight: this is exactly the question of whether a 1-cochain is exact.
+
+* `Constraint n`: a single demand `ϕ(dst) - ϕ(src) = val`
+* `Theory n`: a list of constraints
+* `Satisfiable T`: existence of a model (potential) satisfying all constraints
+* `LocallyConsistent T`: no direct contradictions (same edge, different values)
+* `theory_graph T`: the graph implied by a theory's constraints
+* `realize T`: converts a theory into a 1-cochain (the representational demand)
+
+**The Bridge Theorem:**
+
+```lean
+theorem satisfiable_iff_exact_on_graph (T : Theory n) (h_cons : LocallyConsistent T) :
+  Satisfiable T ↔ (realize T) ∈ ImGradient (theory_graph T)
+```
+
+Satisfiability *is* exactness. Logical consistency *is* trivial cohomology.
+
+**Corollary:** `inconsistency_implies_topology` — if a locally consistent theory is unsatisfiable, then its harmonic subspace is non-trivial. The logical contradiction has become geometric structure.
+
+**`Diaspora/Logic/Omega.lean`**
+
+Chaitin's Ω reframed: the probability that a random constraint program "halts" (is satisfiable).
+
+* `DiscreteVal`: constraints take values in {-1, +1}
+* `Program n`: a list of atomic constraints
+* `Halts P`: 1 if satisfiable, 0 otherwise
+* `Chaitins_Omega_Diaspora`: sum over all program lengths of halting probability
+
+The complementary quantity `1 - Ω` is the probability of genesis: randomly sampling constraint programs and landing in the non-exact sector.
+
+* `genesis_requires_topology`: if a locally consistent program doesn't halt, harmonic content exists
+
+**`Diaspora/Logic/Genesis.lean`**
+
+The simplest unsatisfiable program: three constraints demanding +1 around a triangle.
+
+* `rotational_program`: 0→1 (+1), 1→2 (+1), 2→0 (+1)
+* `genesis_is_unsatisfiable`: Kirchhoff says 0 = 3, contradiction
+* `genesis_is_consistent`: no local contradictions
+* `structure_is_mandatory`: therefore harmonic content must exist
+
+This is the "Escher staircase" — locally coherent, globally impossible. The impossibility isn't a bug; it's the birth of topology.
 
 ### Mechanisms of Relaxation & Measurement
 
@@ -448,7 +499,9 @@ Theorems:
 * `exact_forms_proper_subset`: There exist non-exact 1-cochains (sigma_forcing is a witness).
 * `random_field_has_harmonic_component`: Generic constraint fields have harmonic content.
 
-Interpretation: **closing the loop** is exactly the topological move that makes "irremovable frustration" possible. Generic noise creates topology. And thanks to the spectral gap, any such harmonic component comes with a fixed minimum energy bill `1/n` — “genesis” isn’t just generic, it’s **energetically chunky**.
+Interpretation: **closing the loop** is exactly the topological move that makes "irremovable frustration" possible. Generic noise creates topology. And thanks to the spectral gap, any such harmonic component comes with a fixed minimum energy bill `1/n` — "genesis" isn't just generic, it's **energetically chunky**.
+
+(See also `Logic/Genesis.lean` for the same phenomenon from the formal logic perspective: the rotational constraint is an unsatisfiable theory whose unsatisfiability *is* the harmonic content.)
 
 #### Self-measurement & "introspection"
 
@@ -493,6 +546,42 @@ Theorems:
 * `tailed_triangle_is_glassy` — the system has at least two distinct stable vacua.
 
 Interpretation: **glassy** = history-dependent: different break orders end in genuinely different topologies.
+
+#### The shape of contradiction
+
+**`Diaspora/Models/WeightedStrain.lean`**
+**`Diaspora/Models/StrainDynamics.lean`**
+
+When constraints conflict, *where* does the strain land? Weighted optimization and constraint-counting give different answers.
+
+Setup: a "bundle" graph with 5 nodes. One heavy edge (0↔1) demands flux 10. Six light edges (through witnesses 2,3,4) demand flux 0. The constraints contradict — you can't satisfy both.
+
+* `asymmetric_weights`: heavy edge weighted 100:1 against light edges
+* `lazy_phi`: optimal potential under weighted energy — satisfies the heavy edge perfectly
+* `heavy_edge_relaxed`: strain on heavy edge = 0
+* `light_edges_strained`: strain on light edges = 25
+
+**Theorem:** `weight_determines_breaking` — at threshold C_max = 20, light edges break first, even though they're the majority (6 vs 1).
+
+The second file explores how Hebbian plasticity responds:
+
+* `dominance_causes_strain_asymmetry`: if heavy dominates, light edges bear more strain
+* `hebbian_favors_strained`: strained edges grow faster under plasticity
+* `ratio_correction`: the light/heavy weight ratio increases each step
+
+Interpretation: weighted optimization localizes contradiction onto low-weight edges. But Hebbian dynamics provides a corrective — strain is attention, and attention builds capacity. The shape of contradiction shifts over time.
+
+#### Observation as structural reinforcement
+
+**`Diaspora/Models/ObserverEffect.lean`**
+
+Uses the kite graph (triangle 0-1-2 with tail 0-3) to show how observation reinforces topology.
+
+* `observer_probe_potential`: a potential that strains the cycle but not the tail
+* `observation_is_selective`: cycle edges strained > 0, tail edge strained = 0
+* `attention_is_structural_reinforcement`: after one Hebbian step, cycle edges outweigh tail
+
+Interpretation: repeated observation (probing with a potential) causes the observed structure to accumulate weight. Under fixed total capacity, unobserved edges atrophy. This is the topological **Zeno effect** — attention freezes the topology it touches.
 
 #### False vacuum & protection
 

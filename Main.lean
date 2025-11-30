@@ -41,3 +41,8 @@ import Diaspora.Models.ObserverEffect
 import Diaspora.Logic.Basic
 import Diaspora.Logic.Omega
 import Diaspora.Logic.Genesis
+import Diaspora.Logic.Inverse
+import Diaspora.Logic.Probabilistic
+import Diaspora.Logic.Foundations
+import Diaspora.Logic.Limit
+import Diaspora.Logic.Universal

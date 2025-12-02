@@ -83,18 +83,11 @@ abbrev ProgramsOfLength (n k : ℕ) := Fin k → AtomicConstraint n
 def toProgram {n k : ℕ} (f : ProgramsOfLength n k) : Program n :=
   List.ofFn f
 
-/--
-The Partial Omega for length k.
-Sum of weights of all programs of length k that Halt (Relax to Zero).
--/
+/-- The Partial Omega for length k. -/
 noncomputable def omega_at_length (k : ℕ) [∀ T : Theory n, Decidable (Satisfiable T)] : ℝ :=
   ∑ P : ProgramsOfLength n k, (program_weight (toProgram P)) * (Halts (toProgram P))
 
-/--
-The "Probability of Triviality".
-This number encodes the density of logical consistency in your topology.
-Defined as the infinite sum over all program lengths.
--/
+/-- The infinite sum over all program lengths. -/
 noncomputable def Chaitins_Omega_Diaspora
     (n : ℕ) [Fintype (Fin n)] [DecidableEq (Fin n)]
     [∀ T : Theory n, Decidable (Satisfiable T)] : ℝ :=
@@ -102,29 +95,19 @@ noncomputable def Chaitins_Omega_Diaspora
 
 /-! ## 5. The Meaning of Life (Metabiology) -/
 
-/--
-If Omega is the probability of Halting (Death/Stasis),
-then (1 - Omega) is the probability of Genesis.
--/
+/-- 1 - Omega. -/
 noncomputable def Probability_of_Genesis
   (omega : ℝ) : ℝ := 1 - omega
 
-/--
-If a locally consistent program does not halt (is unsatisfiable),
-then there exists non-trivial harmonic content (topology) in its graph.
-Local consistency ensures that unsatisfiability is due to global
-topological obstruction, not mere self-contradiction.
--/
+/-- If a locally consistent program does not halt, there exists non-trivial harmonic content. -/
 theorem genesis_requires_topology
   (P : Program n) [Decidable (Satisfiable (decode P))]
   (h_cons : LocallyConsistent (decode P)) :
   (Halts P = 0) → ∃ γ, γ ∈ Diaspora.Hodge.HarmonicSubspace (theory_graph (decode P)) ∧ γ ≠ 0 := by
   intro h_loops
-  -- If Halts = 0, then Satisfiable is false
   have h_unsat : ¬ Satisfiable (decode P) := by
     by_contra h_sat
     simp [Halts, h_sat] at h_loops
-  -- Therefore, topology exists
   exact inconsistency_implies_topology (decode P) h_cons h_unsat
 
 end Diaspora.Logic.Omega

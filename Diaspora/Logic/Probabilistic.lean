@@ -280,7 +280,6 @@ theorem void_is_fragile (T : Theory n)
                   rcases h_c'_matches with ⟨hs, hd⟩ | ⟨hs, hd⟩
                   · exact (h_dup c' h_c'_mem h_eq).2 hs hd
                   · exact (h_dup c' h_c'_mem h_eq).1 hs hd
-            -- Substitute using h_edge2
             obtain ⟨hi, hj⟩ := h_edge2
             subst hi hj
             simp only [h_find_c_rev, Option.map_some, ↓reduceIte, and_self]
@@ -315,8 +314,7 @@ theorem void_is_fragile (T : Theory n)
                      (if i = c.dst ∧ j = c.src then -γ.val.val i j else 0) := by
         intro i j
         by_cases h1 : i = c.src ∧ j = c.dst <;> by_cases h2 : i = c.dst ∧ j = c.src
-        · -- Both true: impossible since c.src ≠ c.dst
-          exfalso; exact h_c_no_loop (h1.1.symm.trans h2.1)
+        · exfalso; exact h_c_no_loop (h1.1.symm.trans h2.1)
         · simp only [if_pos h1, if_neg h2, add_zero]
         · simp only [if_neg h1, if_pos h2, zero_add]
         · simp only [if_neg h1, if_neg h2, add_zero]
@@ -332,7 +330,6 @@ theorem void_is_fragile (T : Theory n)
           intro j _
           simp only [hi, false_and, ↓reduceIte]
         · intro h; exact absurd (Finset.mem_univ _) h
-      -- Second sum: ∑ i, ∑ j, if i = c.dst ∧ j = c.src then -γ(i,j) else 0 = -γ(c.dst, c.src)
       have h_sum2 : ∑ i : Fin n, ∑ j : Fin n, (if i = c.dst ∧ j = c.src then -γ.val.val i j else 0) =
                     -γ.val.val c.dst c.src := by
         rw [Finset.sum_eq_single c.dst, Finset.sum_eq_single c.src]

@@ -42,7 +42,6 @@ theorem fossil_is_consistent (G : DynamicGraph n) (σ : ActiveForm G) :
   intro c1 h1 c2 h2
   unfold fossilize at h1 h2
   rw [List.mem_filterMap] at h1 h2
-  -- Extract the original edges (u1, v1) and (u2, v2)
   obtain ⟨⟨i1, j1⟩, hp1_mem, hp1_eq⟩ := h1
   obtain ⟨⟨i2, j2⟩, hp2_mem, hp2_eq⟩ := h2
   simp only at hp1_eq hp2_eq

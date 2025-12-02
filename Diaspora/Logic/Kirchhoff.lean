@@ -106,11 +106,7 @@ lemma dehn_twist_forward_val (i : Fin 3) :
 @[simp] lemma matrix_next_1 : (![1, 2, 0] : Fin 3 → Fin 3) 1 = 2 := rfl
 @[simp] lemma matrix_next_2 : (![1, 2, 0] : Fin 3 → Fin 3) 2 = 0 := rfl
 
-/-- **Main Theorem**: The realized genesis cochain equals 3 times the Dehn twist.
-
-This is the bridge between logic and topology: the constraint sum (3) becomes
-the scaling factor for the canonical harmonic form. -/
--- Helper: LHS values at each position
+/-- The realized genesis cochain equals 3 times the Dehn twist. -/
 lemma realize_genesis_00 : (realize (decode rotational_program)).val.val 0 0 = 0 := by
   simp only [realize, raw_flux, find_constraint, decode_genesis, List.find?]; rfl
 lemma realize_genesis_01 : (realize (decode rotational_program)).val.val 0 1 = 1 := by
@@ -129,20 +125,17 @@ lemma realize_genesis_21 : (realize (decode rotational_program)).val.val 2 1 = -
   simp only [realize, raw_flux, find_constraint, decode_genesis, List.find?]; rfl
 lemma realize_genesis_22 : (realize (decode rotational_program)).val.val 2 2 = 0 := by
   simp only [realize, raw_flux, find_constraint, decode_genesis, List.find?]; rfl
-
--- Helper: evaluate next at each vertex
 @[simp] lemma triangle_next_eq_0 : triangle_cycle.next 0 = 1 := rfl
 @[simp] lemma triangle_next_eq_1 : triangle_cycle.next 1 = 2 := rfl
 @[simp] lemma triangle_next_eq_2 : triangle_cycle.next 2 = 0 := rfl
 
--- Decidability facts for Fin 3 (equality)
 private lemma fin3_01 : (0 : Fin 3) = 1 ↔ False := by decide
 private lemma fin3_02 : (0 : Fin 3) = 2 ↔ False := by decide
 private lemma fin3_10 : (1 : Fin 3) = 0 ↔ False := by decide
 private lemma fin3_12 : (1 : Fin 3) = 2 ↔ False := by decide
 private lemma fin3_20 : (2 : Fin 3) = 0 ↔ False := by decide
 private lemma fin3_21 : (2 : Fin 3) = 1 ↔ False := by decide
--- Decidability facts for Fin 3 (inequality)
+
 private lemma fin3_ne_01 : (0 : Fin 3) ≠ 1 ↔ True := by decide
 private lemma fin3_ne_02 : (0 : Fin 3) ≠ 2 ↔ True := by decide
 private lemma fin3_ne_10 : (1 : Fin 3) ≠ 0 ↔ True := by decide
@@ -151,7 +144,6 @@ private lemma fin3_ne_20 : (2 : Fin 3) ≠ 0 ↔ True := by decide
 private lemma fin3_ne_21 : (2 : Fin 3) ≠ 1 ↔ True := by decide
 private lemma fin3_ne_self (i : Fin 3) : i ≠ i ↔ False := by simp
 
--- Helper: RHS values at each position
 lemma dehn_genesis_00 : (dehn_twist triangle_cycle).val 0 0 = 0 := by
   simp only [dehn_twist, triangle_next_eq_0, fin3_01, false_and, if_false]
 
@@ -185,7 +177,6 @@ lemma dehn_genesis_21 : (dehn_twist triangle_cycle).val 2 1 = -1 / 3 := by
 lemma dehn_genesis_22 : (dehn_twist triangle_cycle).val 2 2 = 0 := by
   simp only [dehn_twist, triangle_next_eq_2, fin3_20, false_and, if_false]
 
--- Helper to normalize Fin 3 literals
 private lemma fin3_mk_0 : (⟨0, by omega⟩ : Fin 3) = 0 := rfl
 private lemma fin3_mk_1 : (⟨1, by omega⟩ : Fin 3) = 1 := rfl
 private lemma fin3_mk_2 : (⟨2, by omega⟩ : Fin 3) = 2 := rfl
@@ -223,12 +214,9 @@ theorem genesis_realization_is_harmonic :
 theorem genesis_realization_energy :
     norm_sq (realize (decode rotational_program)).val = 3 := by
   have h_dehn_energy := dehn_twist_energy triangle_cycle (by omega : 3 ≥ 3)
-  -- σ = 3 * γ implies ||σ||² = 9 * ||γ||²
   have h_scaled : norm_sq (realize (decode rotational_program)).val =
                   9 * norm_sq (dehn_twist triangle_cycle) := by
     unfold norm_sq inner_product_C1
-    -- Show: Σᵢⱼ (realize i j)² = 9 * Σᵢⱼ (dehn i j)²
-    -- Using: realize i j = 3 * dehn i j, so (realize i j)² = 9 * (dehn i j)²
     have h_sq : ∀ i j, (realize (decode rotational_program)).val.val i j *
                        (realize (decode rotational_program)).val.val i j =
                        9 * ((dehn_twist triangle_cycle).val i j *
@@ -254,25 +242,14 @@ theorem genesis_winding_is_three :
     _ = 3 * 1 := by rw [h_dehn_winding]
     _ = 3 := by ring
 
-/-- **Alternative Unsatisfiability Proof**
-
-This proves genesis is unsatisfiable using the walk-sum perspective:
-- If satisfiable, the realized cochain would be exact
-- Exact forms have zero walk_sum on closed walks
-- But the realized cochain has winding 3 ≠ 0
-- Contradiction
-
-This is the geometric dual of the Kirchhoff telescoping argument in Genesis.lean. -/
+/-- Genesis is unsatisfiable via the walk-sum perspective. -/
 theorem genesis_unsatisfiable_geometric :
     ¬ Satisfiable (decode rotational_program) := by
   intro h_sat
-  -- Satisfiable implies exact
   have h_exact := (satisfiable_iff_exact_on_graph (decode rotational_program)
                     genesis_is_consistent).mp h_sat
-  -- Exact means there exists φ with d_G φ = realize T
   rw [ImGradient, LinearMap.mem_range] at h_exact
   obtain ⟨φ, h_eq⟩ := h_exact
-  -- Compute the winding of d_G φ (should be 0 by telescoping)
   have h_grad_winding : ∑ i : Fin 3,
       (d_G_linear (theory_graph (decode rotational_program)) φ).val.val i
         (triangle_cycle.next i) = 0 := by
@@ -284,12 +261,9 @@ theorem genesis_unsatisfiable_geometric :
       have h_edge := triangle_embedded_in_genesis i
       simp only [h_edge, ↓reduceIte]
     simp only [d_G_linear, LinearMap.coe_mk, AddHom.coe_mk, h_sum]
-    -- Telescoping: (φ1 - φ0) + (φ2 - φ1) + (φ0 - φ2) = 0
     simp only [Fin.sum_univ_three, triangle_next_0, triangle_next_1, triangle_next_2]
     ring
-  -- But the winding of realize T is 3
   have h_realize_winding := genesis_winding_is_three
-  -- h_eq says d_G_linear φ = realize T
   have h_winding_eq : ∑ i : Fin 3,
       (realize (decode rotational_program)).val.val i (triangle_cycle.next i) =
       ∑ i : Fin 3,
@@ -320,23 +294,13 @@ lemma triangle_orbit_bijective :
     · exact ⟨⟨1, by omega⟩, rfl⟩
     · exact ⟨⟨2, by omega⟩, rfl⟩
 
-/-- **Walk-Based Genesis Theorem**: Walking around the triangle accumulates 3 units of flux.
-
-This bridges:
-- `genesis_winding_is_three` (algebraic: ∑ᵢ σ(i, next i) = 3)
-- `walk_sum_eq_winding` (walk_sum = algebraic winding)
-
-Into a single geometric statement: following the path around the triangle
-accumulates exactly 3 - the geometric manifestation of the logical paradox.
--/
+/-- Walking around the triangle accumulates 3 units of flux. -/
 theorem genesis_walk_sum_is_three :
     walk_sum (theory_graph (decode rotational_program)) (realize (decode rotational_program))
       (canonical_cycle_walk triangle_cycle (theory_graph (decode rotational_program))
         triangle_embedded_in_genesis 0) = 3 := by
-  -- Apply walk_sum_eq_winding with the bijectivity condition
   rw [walk_sum_eq_winding triangle_cycle _ triangle_embedded_in_genesis _ 0
       triangle_orbit_bijective]
-  -- The algebraic winding is exactly what genesis_winding_is_three computes
   exact genesis_winding_is_three
 
 /-! ## 8. Uniqueness: The Harmonic Subspace is 1-Dimensional -/
@@ -426,43 +390,25 @@ lemma genesis_kernel_dim :
     simp at this
   exact finrank_span_singleton h_one_ne
 
-/-- **Main Uniqueness Theorem**: The harmonic subspace of the genesis graph is 1-dimensional.
-
-This means there is exactly ONE independent topological defect on a triangle.
-Combined with `genesis_is_three_dehn`, this shows that genesis creates exactly 3 copies
-of the unique fundamental defect. -/
+/-- The harmonic subspace of the genesis graph is 1-dimensional. -/
 theorem genesis_harmonic_dim_eq_one :
     Module.finrank ℝ (HarmonicSubspace (theory_graph (decode rotational_program))) = 1 := by
-  -- Use the dimension formula: dim(H) + |V| = |E| + dim(Ker d)
   have h_formula := harmonic_dimension_eq_cyclomatic (theory_graph (decode rotational_program))
-  -- |V| = 3, |E| = 3 (undirected), dim(Ker d) = 1
   rw [genesis_undirected_edge_count, genesis_kernel_dim] at h_formula
-  -- h_formula : dim(H) + 3 = 3 + 1 = 4
-  -- Therefore dim(H) = 1
   linarith
 
-/-- Every harmonic form on the genesis graph is a scalar multiple of the Dehn twist.
-
-This is the completion of the Kirchhoff picture: not only does genesis produce 3× the Dehn twist,
-but the Dehn twist is the ONLY harmonic mode available on the triangle (up to scaling).
-Topological uniqueness: a cycle has exactly one independent frustration mode. -/
+/-- Every harmonic form on the genesis graph is a scalar multiple of the Dehn twist. -/
 theorem genesis_harmonic_is_dehn_multiple :
     ∀ γ : HarmonicSubspace (theory_graph (decode rotational_program)),
     ∃ c : ℝ, (γ : ActiveForm (theory_graph (decode rotational_program))) =
              c • dehn_twist_active triangle_cycle _ triangle_embedded_in_genesis := by
   intro γ
-  -- The harmonic subspace is 1-dimensional
   have h_dim := genesis_harmonic_dim_eq_one
-  -- The Dehn twist is a nonzero element of this subspace
   have h_dehn_harm := dehn_twist_in_harmonic _ triangle_cycle triangle_embedded_in_genesis (by omega : 3 ≥ 3)
   have h_dehn_ne := dehn_twist_active_ne_zero _ triangle_cycle triangle_embedded_in_genesis (by omega : 3 ≥ 3)
-  -- Set up notation
   let dehn := dehn_twist_active triangle_cycle _ triangle_embedded_in_genesis
   let H := HarmonicSubspace (theory_graph (decode rotational_program))
-  -- The Dehn twist as an element of H
   let dehn_H : H := ⟨dehn, h_dehn_harm⟩
-  -- In a 1-dimensional space, every element is a multiple of a nonzero element
-  -- Use the fact that H is spanned by dehn_H
   have h_dehn_H_ne : dehn_H ≠ 0 := by
     intro h_zero
     apply h_dehn_ne
@@ -473,7 +419,6 @@ theorem genesis_harmonic_is_dehn_multiple :
     apply Submodule.eq_top_of_finrank_eq
     rw [finrank_span_singleton h_dehn_H_ne]
     exact h_dim.symm
-  -- γ viewed as element of H
   have h_in_span : γ ∈ Submodule.span ℝ ({dehn_H} : Set H) := by
     rw [h_span]
     exact Submodule.mem_top

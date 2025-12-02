@@ -20,10 +20,8 @@ structure History (G : DynamicGraph n) (root : Fin n) where
 /-- Adjacency: one history extends the other by one step. -/
 def UniversalCover (G : DynamicGraph n) (root : Fin n) : SimpleGraph (History G root) :=
   SimpleGraph.fromRel fun h1 h2 =>
-    -- h2 extends h1 by one step (adjacency in G from h1.curr to h2.curr)
     (∃ (hadj : (DynamicGraph.toSimpleGraph G).Adj h1.curr h2.curr),
        h2.walk = h1.walk.concat hadj) ∨
-    -- h1 extends h2 by one step (symmetry)
     (∃ (hadj : (DynamicGraph.toSimpleGraph G).Adj h2.curr h1.curr),
        h1.walk = h2.walk.concat hadj)
 
@@ -66,8 +64,6 @@ lemma History.eq_of_same_extension {a b m : History G root}
     (h1 : m.walk = a.walk.concat e1) (h2 : m.walk = b.walk.concat e2) : a = b := by
   have heq : a.walk.concat e1 = b.walk.concat e2 := by rw [← h1, ← h2]
   obtain ⟨hcurr, hwalk⟩ := SimpleGraph.Walk.concat_inj heq
-  -- hcurr : a.curr = b.curr
-  -- hwalk : a.walk.copy ... hcurr = b.walk
   cases a with | mk ca wa =>
   cases b with | mk cb wb =>
   simp only [History.mk.injEq]
@@ -88,24 +84,19 @@ lemma cover_adj_extends_walk' {h1 h2 : History G root}
 
 
 set_option linter.unusedSectionVars false in
-/-- Core lemma: if two vertices both extend to the same History by adjacency,
-    and both have len = that History's len - 1, they must be equal. -/
+/-- If two vertices both extend to the same History by adjacency with the same length, they are equal. -/
 lemma neighbors_of_local_max_eq {G : DynamicGraph n} {root : Fin n}
     {m pred succ : History G root}
     (hadj_pred : (UniversalCover G root).Adj pred m)
     (hadj_succ : (UniversalCover G root).Adj m succ)
     (hpred_len : m.len = pred.len + 1)
     (hsucc_len : m.len = succ.len + 1) : pred = succ := by
-  -- pred extends to m: m.walk = pred.walk.concat e1
   obtain ⟨e1, hm_ext_pred⟩ := cover_adj_extends_walk hadj_pred hpred_len
-  -- succ also extends to m: m.walk = succ.walk.concat e2
   obtain ⟨e2, hm_ext_succ⟩ := cover_adj_extends_walk hadj_succ.symm hsucc_len
   exact History.eq_of_same_extension hm_ext_pred hm_ext_succ
 
 
-/-- Core lemma: at the vertex with maximum len in a cycle, we derive a contradiction.
-    The max vertex has both neighbors with len = max - 1 (by ±1 and maximality).
-    Those neighbors are equal (by extension argument) but at different indices (nodup). -/
+/-- Cycles in the universal cover lead to contradiction. -/
 lemma cycle_max_contradiction {G : DynamicGraph n} {root : Fin n}
     {v : History G root} (cyc : (UniversalCover G root).Walk v v)
     (h_cycle : cyc.IsCycle) : False := by
@@ -1082,25 +1073,5 @@ theorem satisfiability_iff_walk_sum_zero [NeZero n]
       walk_sum (theory_graph T) (realize T) w = 0) := by
   rw [satisfiable_iff_exact_on_graph T h_cons]
   exact monodromy_exact_iff (theory_graph T) (realize T)
-
-/-! ## 6. Physical Interpretation
-
-**The Illusion of Mass**:
-Mass is not a property of the particle. It is a property of the space it lives in.
-1. In the Universal Cover (God's view), the particle is just a linear history of strain. Energy = 0.
-2. In the Physical Graph (Observer's view), the history wraps onto itself.
-3. The mismatch between "where I am" and "what I remember" is what we call Energy.
-
-**ZFC is the Universal Cover**:
-The "Classical Vacuum" (Foundations.lean) is effectively the Universal Cover of Reality.
-We model ZFC as a tree of sets. That tree is simply the "unrolled" version of the
-cyclic, messy, finite web of relations that makes up the physical world.
-
-**The Monodromy Theorem** (proved above):
-You can detect paradox by walking. A constraint system is satisfiable iff walking
-around every closed loop accumulates zero total constraint. Non-zero accumulation
-on any loop guarantees unsatisfiability - the "logical contradiction has become
-geometric structure" as walk_sum measures the topological obstruction to exactness.
--/
 
 end Diaspora.Logic.Universal

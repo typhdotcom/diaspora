@@ -97,21 +97,14 @@ noncomputable def σ_bundle : C1 n_bundle := (realize bundle_theory).val
 
 /-! ## 4. The Shape of Contradiction -/
 
-/--
-The heavy edge is satisfied: strain = 0.
-Weighted optimization found a potential that perfectly relaxes the dominant constraint.
--/
+/-- The heavy edge is satisfied: strain = 0. -/
 theorem heavy_edge_relaxed (i j : Fin n_bundle) (h : i=0 ∧ j=1) :
     edge_strain lazy_phi σ_bundle i j = 0 := by
   unfold edge_strain
   rcases h with ⟨rfl, rfl⟩
   simp [d0, lazy_phi, σ_bundle, realize, raw_flux, find_constraint, bundle_theory]
 
-/--
-The light edges bear all the strain.
-Flux demanded is 0, but the potential forced by the heavy edge creates differences of 5.
-Strain = (5 - 0)² = 25.
--/
+/-- The light edges bear the strain: edge_strain = 25. -/
 theorem light_edges_strained :
     edge_strain lazy_phi σ_bundle 0 2 = 25 ∧
     edge_strain lazy_phi σ_bundle 2 1 = 25 := by
@@ -120,31 +113,15 @@ theorem light_edges_strained :
    simp [d0, lazy_phi, σ_bundle, realize, raw_flux, find_constraint, bundle_theory]
    norm_num)
 
-/--
-Main Result: Weight determines breaking order.
-If the breaking threshold C_max is 20, the light edges break first,
-even though they constitute the majority of constraints (6 vs 1).
--/
+/-- If breaking threshold C_max = 20, light edges exceed threshold while heavy edge does not. -/
 theorem weight_determines_breaking (C_max : ℝ) (h_threshold : C_max = 20) :
-    -- The light edge (0,2) is overstressed
     edge_strain lazy_phi σ_bundle 0 2 > C_max ∧
-    -- The heavy edge (0,1) is safe
     edge_strain lazy_phi σ_bundle 0 1 < C_max := by
   rw [h_threshold]
   constructor
-  · -- 25 > 20
-    have h := (light_edges_strained).1
+  · have h := (light_edges_strained).1
     linarith
-  · -- 0 < 20
-    have h := heavy_edge_relaxed 0 1 ⟨rfl, rfl⟩
+  · have h := heavy_edge_relaxed 0 1 ⟨rfl, rfl⟩
     linarith
-
-/-!
-## Interpretation
-
-Weighted optimization and constraint-counting disagree on "what should break."
-The heavy edge persists (strain = 0), while light edges break (strain = 25).
-This is the shape of contradiction under asymmetric attention.
--/
 
 end Diaspora.Models

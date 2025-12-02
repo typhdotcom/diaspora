@@ -1,5 +1,5 @@
 import Diaspora.Logic.Probabilistic
-import Diaspora.Logic.Foundations
+import Diaspora.Logic.Classicality
 import Diaspora.Models.Void
 
 namespace Diaspora.Logic.Limit

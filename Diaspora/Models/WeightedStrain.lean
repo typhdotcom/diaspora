@@ -1,4 +1,4 @@
-import Diaspora.Logic.Basic
+import Diaspora.Logic.Theory
 import Diaspora.Core.Weighted
 import Diaspora.Dynamics.Transition
 import Mathlib.Tactic.Linarith

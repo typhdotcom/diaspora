@@ -1,4 +1,4 @@
-import Diaspora.Logic.Basic
+import Diaspora.Logic.Theory
 import Diaspora.Hodge.Decomposition
 
 namespace Diaspora.Logic.Probabilistic

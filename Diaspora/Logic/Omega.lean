@@ -1,4 +1,4 @@
-import Diaspora.Logic.Basic
+import Diaspora.Logic.Theory
 import Mathlib.Analysis.SpecificLimits.Basic
 import Mathlib.Data.Real.Basic
 import Mathlib.Algebra.BigOperators.Group.Finset.Basic

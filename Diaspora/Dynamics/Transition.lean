@@ -410,6 +410,107 @@ noncomputable def dynamic_strain_energy {n : ℕ} [Fintype (Fin n)]
   (1/2) * ∑ i, ∑ j, if (i, j) ∈ G.active_edges then edge_strain ϕ σ i j else 0
 
 /--
+Irreducible Strain Theorem:
+If an ActiveForm has a non-zero harmonic component γ, then no matter how we
+tune the potential ϕ, the strain energy is bounded below by ‖γ‖² > 0.
+
+This is the bridge between Hodge theory and physical dynamics:
+"Whatever you cannot relax is topological" - the harmonic component represents
+irreducible frustration that manifests as a positive energy floor.
+-/
+theorem harmonic_component_gives_energy_floor
+    {n : ℕ} [Fintype (Fin n)] [DecidableEq (Fin n)]
+    (G : DynamicGraph n) (σ : ActiveForm G)
+    (φ_opt : C0 n) (γ : ActiveForm G)
+    (h_decomp : σ = d_G G φ_opt + γ)
+    (h_harmonic : γ ∈ HarmonicSubspace G)
+    (h_nonzero : γ ≠ 0) :
+    ∃ E_min : ℝ, E_min > 0 ∧ ∀ ϕ : C0 n, dynamic_strain_energy G ϕ σ.val ≥ E_min := by
+  -- The energy floor is ‖γ‖²
+  use ‖γ‖ ^ 2
+  constructor
+  · -- Show ‖γ‖² > 0 since γ ≠ 0
+    apply sq_pos_of_ne_zero
+    rw [norm_ne_zero_iff]
+    exact h_nonzero
+  · -- Show that for any ϕ, energy ≥ ‖γ‖²
+    intro ϕ
+
+    -- Simplify using the decomposition: σ = d_G G φ_opt + γ
+    -- So dynamic_strain_energy G ϕ σ.val = energy of (d_G G ϕ - d_G G φ_opt - γ)
+    have h_resid_decomp : d_G G ϕ - σ = d_G G ϕ - d_G G φ_opt - γ := by
+      rw [h_decomp]
+      abel
+
+    -- Use linearity: d_G_linear is a linear map
+    have h_d_sub : d_G G ϕ - d_G G φ_opt = d_G G (fun i => ϕ i - φ_opt i) := by
+      change d_G_linear G ϕ - d_G_linear G φ_opt = d_G_linear G (fun i => ϕ i - φ_opt i)
+      rw [←LinearMap.map_sub]
+      rfl
+
+    -- γ is orthogonal to the image of d_G
+    have h_orth : Diaspora.Core.ActiveForm.inner (d_G G (fun i => ϕ i - φ_opt i)) γ = 0 := by
+      rw [HarmonicSubspace, Submodule.mem_orthogonal] at h_harmonic
+      have h_in_im : d_G G (fun i => ϕ i - φ_opt i) ∈ ImGradient G := by
+        change d_G_linear G (fun i => ϕ i - φ_opt i) ∈ LinearMap.range (d_G_linear G)
+        exact LinearMap.mem_range_self _ _
+      exact h_harmonic _ h_in_im
+
+    -- By Pythagorean theorem: ‖a - γ‖² = ‖a‖² + ‖γ‖² when a ⊥ γ
+    -- Here a = d_G G (ϕ - φ_opt)
+    have h_pythagorean : ‖d_G G (fun i => ϕ i - φ_opt i) - γ‖ ^ 2 =
+                         ‖d_G G (fun i => ϕ i - φ_opt i)‖ ^ 2 + ‖γ‖ ^ 2 := by
+      let a := d_G G (fun i => ϕ i - φ_opt i)
+      -- Use norm_sub_sq when inner product is 0
+      have h_inner_zero : @inner ℝ (ActiveForm G) _ a γ = 0 := h_orth
+      rw [norm_sub_sq_real, h_inner_zero]
+      ring
+
+    -- Now relate the dynamic_strain_energy to the norm
+    have h_energy_is_norm : dynamic_strain_energy G ϕ σ.val = ‖d_G G ϕ - σ‖ ^ 2 := by
+      unfold dynamic_strain_energy edge_strain
+      have h_norm : ‖d_G G ϕ - σ‖ ^ 2 = Diaspora.Core.ActiveForm.inner (d_G G ϕ - σ) (d_G G ϕ - σ) := by
+        rw [sq]
+        show ‖d_G G ϕ - σ‖ * ‖d_G G ϕ - σ‖ = Diaspora.Core.ActiveForm.inner (d_G G ϕ - σ) (d_G G ϕ - σ)
+        simp only [Norm.norm]
+        have h_inner_nn : 0 ≤ Diaspora.Core.ActiveForm.inner (d_G G ϕ - σ) (d_G G ϕ - σ) := by
+          apply Diaspora.Core.ActiveForm.inner_self_nonneg
+        calc Real.sqrt (Diaspora.Core.ActiveForm.inner (d_G G ϕ - σ) (d_G G ϕ - σ)) *
+             Real.sqrt (Diaspora.Core.ActiveForm.inner (d_G G ϕ - σ) (d_G G ϕ - σ))
+           _ = (Real.sqrt (Diaspora.Core.ActiveForm.inner (d_G G ϕ - σ) (d_G G ϕ - σ)))^2 := by ring
+           _ = Diaspora.Core.ActiveForm.inner (d_G G ϕ - σ) (d_G G ϕ - σ) := Real.sq_sqrt h_inner_nn
+      rw [h_norm]
+      unfold Diaspora.Core.ActiveForm.inner inner_product_C1
+      congr 1
+      congr 1
+      ext i
+      congr 1
+      ext j
+      by_cases h : (i, j) ∈ G.active_edges
+      · simp only [h, ↓reduceIte]
+        have h1 : (d_G G ϕ).val.val i j = ϕ j - ϕ i := by simp [d_G, h]
+        have h2 : (d0 ϕ).val i j = ϕ j - ϕ i := rfl
+        have h3 : (d_G G ϕ - σ).val.val i j = ϕ j - ϕ i - σ.val.val i j := by
+          show (d_G G ϕ).val.val i j - σ.val.val i j = ϕ j - ϕ i - σ.val.val i j
+          rw [h1]
+        simp only [h2, h3, sq]
+      · simp only [h, ↓reduceIte]
+        have : (d_G G ϕ - σ).val.val i j = 0 := by
+          have h1 : (d_G G ϕ).val.val i j = 0 := by simp [d_G, h]
+          have h2 : σ.val.val i j = 0 := σ.2 i j h
+          show (d_G G ϕ).val.val i j - σ.val.val i j = 0
+          rw [h1, h2]
+          ring
+        rw [this]
+        ring
+
+    rw [h_energy_is_norm]
+    rw [h_resid_decomp, h_d_sub, h_pythagorean]
+    -- Goal: ‖d_G G (ϕ - φ_opt)‖² + ‖γ‖² ≥ ‖γ‖²
+    have : ‖d_G G (fun i => ϕ i - φ_opt i)‖ ^ 2 ≥ 0 := sq_nonneg _
+    linarith
+
+/--
 Energy Drop Theorem:
 When an edge breaks, the total strain energy decreases by exactly the amount
 that was stored in that edge.

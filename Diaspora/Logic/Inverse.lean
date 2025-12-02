@@ -1,4 +1,4 @@
-import Diaspora.Logic.Basic
+import Diaspora.Logic.Theory
 
 namespace Diaspora.Logic.Inverse
 

@@ -36,43 +36,31 @@ At the core is a simple idea:
 
 This is formalized in two layers:
 
-1. **The Mathematical Ideal (Global):**
-   In `Hodge/Decomposition.lean`, we use global linear algebra to prove that a perfect potential `ϕ` exists and compute **Betti numbers** via the dimension formula
-   `dim(H) + |V| = |E| + dim(Ker d)`.
+1. **The Mathematical Ideal (Global):**  
+   In `Hodge/Decomposition.lean`, we use global linear algebra to prove that a perfect potential `ϕ` exists and compute **Betti numbers** via the dimension formula  
+   `dim(H) + |V| = |E| + dim(Ker d)`.  
    For a connected graph this recovers the usual cyclomatic number: `dim(H) = |E| - |V| + 1`.
 
-2. **The Physical Mechanism (Local):**
+2. **The Physical Mechanism (Local):**  
    In `Dynamics/Diffusion.lean`, we show that the system doesn't *need* a global solver to find this state. Nodes simply push against their neighbors (Heat Equation) to minimize local strain. Observers measure topology locally via **Holonomy** (walking in loops).
 
 Then we prove (for the complete graph) a discrete **Hodge decomposition**:
 
-> Every 1-cochain `σ` splits as
-> `σ = d0 ϕ + γ`
+> Every 1-cochain `σ` splits as  
+> `σ = d0 ϕ + γ`  
 > where `d0 ϕ` is exact and `γ` is divergence-free (harmonic), and the two parts are orthogonal.
 
-That’s standard math, but we make it formal in Lean and then build a whole story-universe out of the consequences.
+That's standard math, but we make it formal in Lean and then build a whole story-universe out of the consequences.
 
 A key quantitative result: **topological defects have a mass gap**. If γ has non-trivial winding around an n-cycle, then ‖γ‖² ≥ 1/n. This minimum energy is the "nucleation barrier" - you can't have a little bit of topology. Once your Betti number is non-zero, every nontrivial cycle carries a **discrete, quantized** minimum cost in the energy landscape.
 
----
+This Hodge machinery admits two natural interpretations:
 
-## Under the hood: representational density
+* **Physical**: Strain, relaxation, and topology change. Exact forms are relaxable strain; harmonic forms are irreducible frustration that localizes as "mass" and drives graph evolution.
 
-One way to read all of this is: the primitive object isn’t really the graph, it’s the
-**representational demand** living on would-be edges.
+* **Logical**: Constraints and satisfiability. Exact forms correspond to satisfiable theories; harmonic forms correspond to locally consistent but globally unsatisfiable paradoxes. The bridge theorem: satisfiability ↔ exactness.
 
-* A 1-cochain `σ : C1 n` is "how much relation" each ordered pair of vertices wants to carry.
-* The inner product / norm on 1-cochains is the total "capacity" of that demand.
-* A `DynamicGraph G` just says which of those edges are currently allowed to exist.
-
-Given `G` and `σ`, you can split the capacity into:
-
-* realized capacity on active edges, and
-* latent capacity on edges that are currently broken.
-
-In parallel, `PhaseField.lean` repeats this story for **phase-valued** constraints in `ZMod k`, with geodesic distance on the phase circle playing the role of strain.
-
-This is formalized in `WeightedGraph` via `total_capacity_fixed`, forcing a zero-sum competition for existence: edges must "pay rent" (carry strain) to survive renormalization.
+Both perspectives give you the same mathematics: structure creation, quantization, dynamics, and an arrow of time.
 
 ---
 
@@ -84,11 +72,398 @@ The codebase is organized into six layers:
 Diaspora/
 ├── Core/           # Foundations: calculus, phase fields, weighted graphs
 ├── Hodge/          # Static theory: decomposition, harmonic analysis, spectral gap
-├── Logic/          # Bridge: formal logic ↔ topology (satisfiability as exactness)
+├── Logic/          # Foundational semantics: constraints, paradox, Universe (Paradox → Mass → Gravity)
 ├── Dynamics/       # Time evolution: diffusion, plasticity, topology change
 ├── Quantum/        # Complex extensions: Schrödinger, Berry phase, measurement
 └── Models/         # Concrete examples and named stories
 ```
+
+---
+
+## Logic: constraints, paradox, and topology
+
+The `Logic` layer provides a logical interpretation of the Hodge machinery. Exact cochains become models (satisfiable theories); harmonic content becomes paradox (locally consistent but globally unsatisfiable contradictions). This reframing reveals that Hodge decomposition on finite graphs is **isomorphic** to constraint satisfaction theory.
+
+### The Grand Unification
+
+`Diaspora/Logic/Universe.lean` synthesizes this interpretation into a single causal chain:
+
+**Paradox → Topology → Mass → Gravity**
+
+A `Universe` bundles a Logic layer (Theory T with constraints), a Geometry layer (DynamicGraph derived from T), and a State (potential ϕ). When T is locally consistent but globally unsatisfiable (`IsParadox`), the theorems prove:
+
+1. `paradox_implies_deficit`: Topological deficit > 0
+2. `paradox_creates_mass`: Non-zero matter content (harmonic component)
+3. `matter_creates_gravity`: Irreducible strain energy > 0
+
+The key result in `Dynamics/Transition.lean` is `harmonic_component_gives_energy_floor`: if an ActiveForm has non-zero harmonic component γ, the strain energy is bounded below by ‖γ‖² > 0, **regardless of how the potential is tuned**. This proves that harmonic content represents irreducible frustration - "whatever you cannot relax is topological."
+
+`the_diaspora_correspondence` theorem chains these together: logical contradiction forces information deficit, which manifests as mass, which generates gravitational strain. Matter appears as the physical symptom of trapped logical inconsistency.
+
+### The Logic files
+
+Roughly, the logic files walk through:
+
+1. **Local theories ↔ exact cochains** (`Theory`, `Genesis`, `Omega`)
+2. **Geometric interpretation of genesis** (`Kirchhoff`)
+3. **Classicality and acyclicity** (`Classicality`)
+4. **Matter as fossilized contradiction** (`Inverse`)
+5. **How generic topology is** (`Probabilistic`, `Limit`)
+6. **Universal cover and resolution of paradox** (`Universal`)
+7. **The grand synthesis** (`Universe` - implementing the causal chain above)
+
+### `Diaspora/Logic/Theory.lean`
+
+The bridge between formal logic and topology.
+
+A `Theory` is a list of constraints, each demanding `ϕ(dst) - ϕ(src) = val`. A theory is `Satisfiable` if some potential ϕ satisfies all constraints. This is exactly the question of whether a 1-cochain is exact.
+
+* `Constraint n`: a single demand `ϕ(dst) - ϕ(src) = val`
+* `Theory n`: a list of constraints
+* `Satisfiable T`: existence of a model (potential) satisfying all constraints
+* `LocallyConsistent T`: no direct contradictions (same edge, different values)
+* `theory_graph T`: the graph implied by a theory's constraints
+* `realize T`: converts a theory into a 1-cochain (the representational demand)
+
+**The Bridge Theorem:**
+
+```lean
+theorem satisfiable_iff_exact_on_graph (T : Theory n) (h_cons : LocallyConsistent T) :
+  Satisfiable T ↔ (realize T) ∈ ImGradient (theory_graph T)
+```
+
+Satisfiability is exactness. Logical consistency is trivial cohomology.
+
+**Corollary:** `inconsistency_implies_topology` - if a locally consistent theory is unsatisfiable, then its harmonic subspace is non-trivial. The logical contradiction has become geometric structure.
+
+### `Diaspora/Logic/Omega.lean`
+
+Chaitin's Ω reframed: the probability that a random constraint program "halts" (is satisfiable).
+
+* `DiscreteVal`: constraints take values in {-1, +1}.
+* `Program n`: a list of atomic constraints.
+* `Halts P`: 1 if satisfiable, 0 otherwise.
+* `Chaitins_Omega_Diaspora`: sum over all program lengths of halting probability.
+
+The complementary quantity `1 - Ω` is the probability of **genesis**: randomly sampling constraint programs and landing in the non-exact sector.
+
+* `genesis_requires_topology`: if a locally consistent program doesn't halt, harmonic content exists.
+
+### `Diaspora/Logic/Genesis.lean`
+
+The simplest unsatisfiable program: three constraints demanding +1 around a triangle.
+
+* `rotational_program`: 0→1 (+1), 1→2 (+1), 2→0 (+1).
+* `genesis_is_unsatisfiable`: Kirchhoff says 0 = 3, contradiction.
+* `genesis_is_consistent`: no local contradictions.
+* `structure_is_mandatory`: therefore harmonic content must exist.
+
+This is the "Escher staircase" - locally coherent, globally impossible. The impossibility isn't a bug; it's the birth of topology.
+
+### `Diaspora/Logic/Kirchhoff.lean`
+
+The geometric interpretation of genesis: the "3" in Kirchhoff's law becomes the scaling factor for the canonical harmonic form.
+
+* `triangle_cycle`: The standard cycle 0→1→2→0 as a `SimpleCycle 3`.
+* `triangle_embedded_in_genesis`: The triangle is embedded in the genesis theory graph.
+
+**The Main Theorem:**
+
+```lean
+theorem genesis_is_three_dehn :
+    ∀ i j : Fin 3,
+      (realize (decode rotational_program)).val.val i j =
+      3 * (dehn_twist triangle_cycle).val i j
+```
+
+The realized genesis cochain equals **exactly 3 times the Dehn twist**. This bridges "logical obstruction" (constraint sum = 3) with "topological winding" (holonomy = 3).
+
+Corollaries:
+
+* `genesis_realization_is_harmonic`: The realized cochain is divergence-free.
+* `genesis_realization_energy`: Energy = 3 (since 3² × 1/3 = 3).
+* `genesis_winding_is_three`: Winding number around the triangle = 3.
+* `genesis_unsatisfiable_geometric`: Alternative unsatisfiability proof via walk-sum - if satisfiable, the winding would be 0, but it's 3.
+* `genesis_walk_sum_is_three`: Walking around the triangle accumulates exactly 3 units of flux - the geometric manifestation of the logical paradox.
+
+**Uniqueness of the Dehn Twist:**
+
+But *why* the Dehn twist specifically? Is it just one possible harmonic form, or is it *the* harmonic form? This file answers definitively:
+
+```lean
+theorem genesis_harmonic_dim_eq_one :
+    Module.finrank ℝ (HarmonicSubspace (theory_graph (decode rotational_program))) = 1
+
+theorem genesis_harmonic_is_dehn_multiple :
+    ∀ γ : HarmonicSubspace (theory_graph (decode rotational_program)),
+    ∃ c : ℝ, (γ : ActiveForm _) = c • dehn_twist_active triangle_cycle _ _
+```
+
+The harmonic subspace of the genesis graph is **exactly 1-dimensional**, spanned by the Dehn twist. Every harmonic form is a scalar multiple of the Dehn twist - there is no other independent mode of topological frustration on a triangle.
+
+The proof uses the dimension formula `dim(H) = |E| - |V| + dim(Ker d)`. For the genesis graph (a 3-cycle):
+
+* 3 undirected edges, 3 vertices
+* The kernel of the gradient is 1-dimensional (constant functions, since the graph is connected)
+* Therefore `dim(H) = 3 - 3 + 1 = 1`
+
+Interpretation: The Kirchhoff telescoping argument (Genesis.lean) says the constraint sum is 3. The Dehn twist (Twist.lean) is the canonical harmonic form with winding 1 and energy 1/3. This file proves they're the same object up to scaling: **genesis creates exactly 3 units of the unique minimal topological defect**. The "3" isn't arbitrary - it's the constraint sum measuring how many times we wind around the single fundamental defect available on a triangle. The walk-based theorem bridges the algebraic winding (`genesis_winding_is_three`) with the path-following perspective (`walk_sum_eq_winding` from `WalkHolonomy.lean`).
+
+### `Diaspora/Logic/Classicality.lean`
+
+The connection between **set-theoretic well-foundedness** and **topological acyclicity**.
+
+* `IsClassical G`: `dim(HarmonicSubspace G) = 0` - no harmonic modes, tree-like universe.
+* `IsMember G ϕ child parent`: membership defined by gradient flow (parent at higher potential).
+* `IsFaithfulPotential G ϕ`: the potential orients every edge (no ties).
+* `GeneralCycle`: a cycle on k ≤ n distinct vertices within `Fin n`.
+
+Key results:
+
+* `matter_is_paradox`: A cycle on n vertices creates harmonic energy exactly 1/n.
+* `russell_loop_creates_mass`: Embedded cycle ⟹ `finrank(H) ≥ 1`.
+* `cycle_implies_nonclassical`: Cycles contradict classicality.
+* `classical_implies_acyclic`: `dim(H) = 0` ⟹ the graph is acyclic.
+* `classical_universe_admits_intrinsic_hierarchy`: Classical + connected ⟹ canonical height function gives well-founded membership.
+* `classical_universe_admits_no_paradoxes`: In a classical universe, every ActiveForm is exact.
+
+Interpretation: ZFC-style classical set theory plays the role of a vacuum. A classical universe admits well-founded membership hierarchies with no Russell-like paradoxes. Closing a loop is exactly the move that leaves this classical phase.
+
+### `Diaspora/Logic/Inverse.lean`
+
+The reverse direction: **topology → logic**. Every particle is a fossil of contradiction.
+
+* `fossilize G σ`: Convert a physical 1-cochain into a constraint theory.
+
+Key results:
+
+* `fossil_is_consistent`: Fossilized theories are always locally consistent.
+* `matter_is_fossilized_logic`: The realized theory matches the harmonic form on active edges.
+* `harmonic_yields_unsatisfiable`: Non-zero harmonic ⟹ the fossil is unsatisfiable.
+* `particle_is_paradox`: Every nonzero "particle" (harmonic form) corresponds to a locally consistent but globally unsatisfiable theory.
+
+Read backwards, the theorems say that nonzero harmonic content always comes from an unsatisfiable but locally consistent theory. In Diaspora, mass is frozen logical contradiction: harmonic forms are **fossils** of impossible demands, and you can read the paradox back out of the geometry.
+
+### `Diaspora/Logic/Probabilistic.lean`
+
+How "generic" is topology in the space of all constraints?
+
+* `dimensional_gap`: `dim(ActiveForm) − dim(ImGradient) = dim(HarmonicSubspace)`.
+* `RobustlySatisfiable T`: the theory survives arbitrary single-constraint perturbation.
+
+Key results:
+
+* `genesis_is_generic`: Non-trivial topology ⟹ satisfiable constraints form a proper subspace.
+* `void_is_fragile`: If a satisfiable theory has cycles (non-zero harmonic subspace), it is **not robustly satisfiable** - any perturbation breaks it.
+
+Interpretation: the "void" (satisfiable vacuum) sits on a knife-edge in constraint space. Satisfiable theories live in a proper subspace, so generic noise pushes you into the non-exact sector, where harmonic content - and therefore mass - shows up almost automatically.
+
+### `Diaspora/Logic/Information.lean`
+
+Information-theoretic interpretation of the Hodge decomposition: topology as incompressible data.
+
+* `Capacity V`: Information capacity of a subspace = its dimension (degrees of freedom).
+* `RawCapacity G`: Total information needed to describe arbitrary constraint fields.
+* `ClassicalCapacity G`: Information needed to describe satisfiable (exact) universes.
+* `TopologicalDeficit G`: The gap between raw and classical capacity.
+
+**The Deficit Theorem:**
+
+```lean
+theorem topological_deficit_eq_harmonic_dim :
+    TopologicalDeficit G = Module.finrank ℝ (HarmonicSubspace G)
+```
+
+The information lost when enforcing satisfiability equals the dimension of the harmonic subspace. **Harmonic forms represent incompressible information** - data that cannot compress into potentials.
+
+Key results:
+
+* `information_leak_is_inevitable`: As systems grow (density increases), information *must* leak into the harmonic sector. The compression ratio drops; states cannot be described purely via potentials.
+* `matter_is_incompressible_complexity`: When topological deficit > 0, some states cannot be described by potentials alone. They require the "mass" term in Hodge decomposition.
+
+**Algorithmic perspective:**
+
+* `StateDescription`: A state decomposes into `(potential, harmonic_part)` via Hodge.
+* `DescriptionCost`: Potentials are cheap (scaling with |V|); harmonic forms are expensive (irreducible topology).
+
+Interpretation: In classical universes, state compresses into potentials. When |E| > |V|, excess data cannot compress and must be stored as topology. Matter is frozen complexity - the algorithmic cost of incompressible information that cannot be relaxed away. The "3" in genesis isn't mystical; it's the literal information-theoretic cost of the topological deficit.
+
+**Kolmogorov Complexity of Topology:**
+
+This section bridges Omega (algorithmic enumeration of programs) with Information (topological complexity), proving tight bounds on the relationship between program length and topological deficit.
+
+* `MinimumGenesisLength k n`: The minimum "algorithmic complexity" of genesis = `n + k - 1`.
+* `MaximumDeficit m n`: The maximum achievable deficit = `m - n + 1`.
+* `program_edge_count_bound`: A program of length m creates at most m undirected edges.
+
+**Lower Bound (Minimum Complexity):**
+
+```lean
+theorem minimum_complexity_of_genesis_connected
+    (P : Omega.Program n) (k : ℕ)
+    (h_deficit : TopologicalDeficit (theory_graph (Omega.decode P)) ≥ (k : ℝ))
+    (h_connected : Module.finrank ℝ (LinearMap.ker (d_G_linear ...)) = 1) :
+    (P.length : ℝ) ≥ MinimumGenesisLength k n
+```
+
+To create topological deficit k on a **connected graph**, any constraint program must have length at least `n + k - 1`.
+
+**Upper Bound (Maximum Deficit):**
+
+```lean
+theorem maximum_deficit_bound
+    (P : Omega.Program n)
+    (h_connected : Module.finrank ℝ (LinearMap.ker (d_G_linear ...)) = 1) :
+    TopologicalDeficit (theory_graph (Omega.decode P)) ≤ MaximumDeficit P.length n
+```
+
+A program of length m on a **connected graph** creates topological deficit at most `m - n + 1`.
+
+**The Complexity Sandwich:**
+
+The bounds are perfectly dual and tight:
+
+* **Lower**: Creating deficit k requires ≥ n + k - 1 constraints
+* **Upper**: Using m constraints creates ≤ m - n + 1 deficit
+
+The proof strategy mirrors the lower bound:
+
+1. **Hodge theory**: For connected graphs, `harmonic_dim = |E| - n + 1`
+2. **Combinatorics**: Each constraint creates at most one edge: `|E| ≤ m`
+3. **Arithmetic**: Therefore `deficit ≤ m - n + 1`
+
+**Tightness:** The triangle (n=3, m=3, k=1) saturates both bounds simultaneously:
+
+* Lower: k=1 requires ≥ 3 + 1 - 1 = **3** constraints ✓
+* Upper: m=3 creates ≤ 3 - 3 + 1 = **1** deficit ✓
+
+The triangle is proven to be the **unique minimum viable genesis** - the simplest non-trivial topology that simultaneously saturates both fundamental algorithmic bounds.
+
+Interpretation: Topology has a precise **exchange rate** between algorithmic complexity (program length) and information content (deficit). For connected graphs, this rate is exactly 1:1 after the n-vertex baseline. You cannot "cheat" and create harmonic structure more cheaply, nor can you pack arbitrary topology into a fixed program length. The information cost to encode a program creating deficit k is at least `(n + k - 1) * log(alphabet_size)` bits. Genesis is quantized at the algorithmic level, with both floor and ceiling.
+
+### `Diaspora/Logic/Limit.lean`
+
+What happens as the universe grows?
+
+* `bettiOne G`: first Betti number (cyclomatic complexity).
+* `IsComplex G`: `bettiOne > 0` - the universe has cycles.
+* `UniverseSequence`: a growing family of graphs indexed by ℕ.
+* `HasAdditiveGrowth`: `|E| − n → ∞` (edges outpace vertices).
+* `HasMultiplicativeGrowth`: `|E|/n → ∞` (edge density explodes).
+* `classicalRatio G`: `dim(ImGradient) / dim(ActiveForm)` - the "probability" of landing in the exact sector.
+
+Key results:
+
+* `complexity_threshold`: `|E| ≥ n` + connected ⟹ `IsComplex`.
+* `eventual_genesis`: Additive superlinear growth ⟹ eventually complex.
+* `inevitable_genesis`: Multiplicative growth ⟹ `classicalRatio → 0` as `n → ∞`.
+
+This is Diaspora’s **big bang**: as the universe grows under these connectivity assumptions, genesis becomes inevitable. The probability of staying in the classical (exact) sector goes to zero. Structure isn’t an accident here - it’s a statistical consequence of growth.
+
+### `Diaspora/Logic/Universal.lean`
+
+The **universal cover** of a graph and the resolution of paradox.
+
+* `History G root`: A walk from root to current vertex - your "history" of how you arrived.
+* `UniversalCover G root`: SimpleGraph on histories; two histories are adjacent if one extends the other by one step.
+* `lift_form G σ root`: Lift a constraint field to the cover.
+* `history_potential G σ root h`: Potential = cumulative strain along your history.
+* `walk_sum G σ p`: Sum of σ values along a walk's edges.
+
+Key results:
+
+* `universal_cover_is_classical`: The universal cover is **acyclic** (a tree).
+* `paradox_dissolves_in_cover`: Every constraint field becomes exact when lifted to the cover.
+* `walk_sum_reverse`: Reversing a walk negates its sum (by skew-symmetry).
+* `history_potential_diff_is_holonomy`: **The potential difference between two histories reaching the same vertex equals the holonomy around their loop.**
+
+**The Walk-Based Stokes Theorem** connects the walk perspective with Hodge theory:
+
+* `walk_stokes`: For a gradient dφ and any walk w from u to v: `walk_sum G (d_G G φ) w = φ v - φ u`. This is the **discrete fundamental theorem of calculus** - the path integral of a gradient telescopes to the potential difference.
+* `exact_walk_closed`: Immediate corollary - exact forms have zero walk_sum around closed walks.
+* `walk_sum_add`: Walk_sum is additive in the form.
+* `walk_sum_factors_through_harmonic`: For any form σ and closed walk w, by Hodge decomposition σ = dφ + γ, we have `walk_sum G σ w = walk_sum G γ w`. **The walk integral around a closed loop depends only on the harmonic component.**
+
+**The Walk Detector for Paradox** provides a direct criterion for unsatisfiability:
+
+* `walk_sum_implies_unsatisfiable`: If a locally consistent theory T has any closed walk with non-zero walk_sum, then T is unsatisfiable. **You can detect logical paradox by walking.**
+* `satisfiable_implies_walk_sum_zero`: Conversely, satisfiable theories have zero walk_sum on all closed walks.
+
+This generalizes `genesis_unsatisfiable_geometric` (from Kirchhoff.lean) to a universal principle: the "3" in genesis isn't mystical—it's the sum of constraints around the triangle, and any non-zero sum suffices to guarantee unsatisfiability.
+
+**The Discrete Monodromy Theorem** completes the walk-based characterization of exactness:
+
+* `exact_implies_walk_sum_zero`: Forward direction - exact forms have zero walk_sum on all closed walks.
+* `harmonic_zero_on_edges_acyclic` (Leaf Lemma): On acyclic graphs, harmonic forms must be zero on every edge. Uses the **bridge indicator construction**: since every edge in a tree is a bridge, we can construct a potential that's 1 on one side and 0 on the other, forcing γ(u,v) = 0 via orthogonality.
+* `divergence_free_on_acyclic_implies_zero`: Harmonic forms on acyclic graphs are identically zero.
+* `acyclic_implies_classical`: Forests have trivial harmonic subspace (`dim H = 0`).
+* `walk_sum_zero_implies_exact`: The crucial reverse direction - if walk_sum = 0 on all closed walks, the form is exact. The proof constructs a potential via path integration, with path independence guaranteed by zero holonomy.
+* `monodromy_exact_iff`: **The full iff characterization** - exactness is equivalent to zero walk_sum on all closed walks.
+* `satisfiability_iff_walk_sum_zero`: Application to theories - a locally consistent theory is satisfiable iff its realization has zero walk_sum on all closed walks.
+
+This is the discrete analogue of the classical monodromy theorem from differential geometry: a 1-form is exact iff it integrates to zero around every closed loop. The proof of the reverse direction is constructive - given zero holonomy everywhere, we build the potential explicitly by choosing a base vertex per connected component and integrating along paths.
+
+This explains why the universal cover dissolves paradox: acyclic graphs have no closed walks, so there's no opportunity for harmonic content to accumulate non-zero walk_sum. The Leaf Lemma makes this precise: on a tree, harmonic forms must vanish edge-by-edge because every edge is a bridge.
+
+The `history_potential_diff_is_holonomy` theorem formalizes the "memory mismatch" interpretation: if h1 and h2 are two histories ending at the same vertex v, then:
+
+```
+Φ(h1) - Φ(h2) = ∮ σ around (h1.walk ++ h2.walk.reverse)
+```
+
+This is the holonomy of σ around the closed loop formed by following h1 forward and h2 backward. In the cover, every history has a unique potential. When we project down to the physical graph, histories that took different paths to reach v may disagree about what the potential "should be" there. That disagreement is precisely the winding number around the cycle they span — which is precisely the harmonic content that cannot be relaxed away.
+
+Interpretation: the universal cover is a kind of **God's-eye view** - reality unrolled into a tree, with no loops and no paradox. Distinct histories never collide upstairs, so every constraint field lifts to an exact form. When you project back down, different histories can land on the same vertex; their "memory mismatch" is what shows up as energy. Diaspora treats ZFC-style foundations as something like a universal cover: a classical tree of sets that we mistake for the messy, cyclic, finite web of relations underneath.
+
+### `Diaspora/Logic/WalkHolonomy.lean`
+
+The **Walk-Chain Holonomy Correspondence**: proves that walk_sum around a cycle equals the algebraic winding number.
+
+This file bridges two perspectives on holonomy:
+
+* **Walk-based** (from `Universal.lean`): summing edge values along a path
+* **Algebraic** (from `Twist.lean`): the winding number abstraction
+
+Key constructions:
+
+* `cycle_walk_aux`: Recursively builds a k-step walk following `next`.
+* `canonical_cycle_walk`: The full closed walk traversing a SimpleCycle once.
+
+Key results:
+
+* `next_iterate_n`: Applying `next` n times returns to the start (cyclic property).
+* `walk_holonomy_eq_sum`: For the canonical cycle walk, walk_sum equals the sum over all edges.
+* `walk_sum_eq_winding`: When orbit covers all vertices bijectively, walk_sum equals SimpleCycleWinding.
+* `dehn_twist_walk_sum_one`: **The Dehn twist has walk_sum = 1 around its cycle.**
+
+The final theorem ties everything together: the Dehn twist constructed in `Twist.lean` (with algebraic winding 1) has walk_sum exactly 1 when measured by walking around the cycle. This is a discrete analog of the classical result that integrating a 1-form around a closed loop gives the winding/monodromy.
+
+### `Diaspora/Logic/Universe.lean`
+
+The synthesis of the entire project inside the Logic foundation layer. Defines `Universe n` as a bundle of logic (Theory T), geometry (DynamicGraph), and state (potential ϕ).
+
+Core definitions:
+
+* `Universe`: A structure containing a locally consistent Theory T and a potential ϕ.
+* `Universe.G`: The graph derived from the theory's constraints.
+* `Universe.σ`: The realized constraint field (1-cochain).
+* `IsParadox U`: The theory is locally consistent but globally unsatisfiable.
+* `matter_content U`: The harmonic component from Hodge decomposition (γ).
+* `total_strain_energy U`: The physical energy of the system.
+
+The causal chain (all proven):
+
+* `paradox_implies_deficit`: `IsParadox U` ⟹ `TopologicalDeficit U.G > 0`
+* `paradox_creates_mass`: `IsParadox U` ⟹ `matter_content U ≠ 0`
+* `matter_creates_gravity`: `IsParadox U` ⟹ `total_strain_energy U > 0`
+
+Main theorem:
+
+* `the_diaspora_correspondence`: Chains all three together. If U is a paradox, then it has positive topological deficit, non-zero mass, and positive strain energy.
+
+The proof uses `harmonic_component_gives_energy_floor` from `Dynamics/Transition.lean`, which proves that harmonic content creates an irreducible energy floor - you cannot tune the potential to eliminate strain when γ ≠ 0.
+
+Interpretation: In this universe, matter is not fundamental. It emerges as the fossilized remnant of logical contradiction. Gravity (strain) is the system's futile attempt to resolve that contradiction. "We are living in the stress fracture of a logical inconsistency."
 
 ---
 
@@ -99,16 +474,20 @@ Diaspora/
 Foundations:
 
 * `DynamicGraph n`: graph with `n` fixed vertices and a *dynamic* set of active edges.
+
 * 0- and 1-cochains:
 
   * `C0 n := Fin n → ℝ`
   * `C1 n`: skew-symmetric `Fin n → Fin n → ℝ`
+
 * Classical coboundary / gradient:
 
   * `d0 : C0 n → C1 n`
+
 * Inner product and norm on 1-cochains:
 
   * `inner_product_C1`, `norm_sq`
+
 * **Active forms**:
 
   * `ActiveForm G`: 1-cochains that vanish on broken edges of a `DynamicGraph G`.
@@ -265,152 +644,6 @@ Interpretation: in phase fields, winding is enforced by the type system - you ca
 
 ---
 
-## Logic: constraints, paradox, and topology
-
-The `Logic` layer rephrases everything in terms of **finite theories of constraints** and their satisfiability. Exact cochains become models; harmonic content becomes paradox that can’t be resolved away.
-
-Roughly, the logic files walk through:
-
-1. **Local theories ↔ exact cochains** (`Basic`, `Genesis`, `Omega`)
-2. **Classicality and acyclicity** (`Foundations`)
-3. **Matter as fossilized contradiction** (`Inverse`)
-4. **How generic topology is** (`Probabilistic`, `Limit`)
-5. **Universal cover and resolution of paradox** (`Universal`)
-
-### `Diaspora/Logic/Basic.lean`
-
-The bridge between formal logic and topology.
-
-A `Theory` is a list of constraints, each demanding `ϕ(dst) - ϕ(src) = val`. A theory is `Satisfiable` if some potential ϕ satisfies all constraints. This is exactly the question of whether a 1-cochain is exact.
-
-* `Constraint n`: a single demand `ϕ(dst) - ϕ(src) = val`
-* `Theory n`: a list of constraints
-* `Satisfiable T`: existence of a model (potential) satisfying all constraints
-* `LocallyConsistent T`: no direct contradictions (same edge, different values)
-* `theory_graph T`: the graph implied by a theory's constraints
-* `realize T`: converts a theory into a 1-cochain (the representational demand)
-
-**The Bridge Theorem:**
-
-```lean
-theorem satisfiable_iff_exact_on_graph (T : Theory n) (h_cons : LocallyConsistent T) :
-  Satisfiable T ↔ (realize T) ∈ ImGradient (theory_graph T)
-```
-
-Satisfiability is exactness. Logical consistency is trivial cohomology.
-
-**Corollary:** `inconsistency_implies_topology` - if a locally consistent theory is unsatisfiable, then its harmonic subspace is non-trivial. The logical contradiction has become geometric structure.
-
-### `Diaspora/Logic/Omega.lean`
-
-Chaitin's Ω reframed: the probability that a random constraint program "halts" (is satisfiable).
-
-* `DiscreteVal`: constraints take values in {-1, +1}.
-* `Program n`: a list of atomic constraints.
-* `Halts P`: 1 if satisfiable, 0 otherwise.
-* `Chaitins_Omega_Diaspora`: sum over all program lengths of halting probability.
-
-The complementary quantity `1 - Ω` is the probability of **genesis**: randomly sampling constraint programs and landing in the non-exact sector.
-
-* `genesis_requires_topology`: if a locally consistent program doesn't halt, harmonic content exists.
-
-### `Diaspora/Logic/Genesis.lean`
-
-The simplest unsatisfiable program: three constraints demanding +1 around a triangle.
-
-* `rotational_program`: 0→1 (+1), 1→2 (+1), 2→0 (+1).
-* `genesis_is_unsatisfiable`: Kirchhoff says 0 = 3, contradiction.
-* `genesis_is_consistent`: no local contradictions.
-* `structure_is_mandatory`: therefore harmonic content must exist.
-
-This is the "Escher staircase" - locally coherent, globally impossible. The impossibility isn’t a bug; it’s the birth of topology.
-
-### `Diaspora/Logic/Foundations.lean`
-
-The connection between **set-theoretic well-foundedness** and **topological acyclicity**.
-
-* `IsClassical G`: `dim(HarmonicSubspace G) = 0` - no harmonic modes, tree-like universe.
-* `IsMember G ϕ child parent`: membership defined by gradient flow (parent at higher potential).
-* `IsFaithfulPotential G ϕ`: the potential orients every edge (no ties).
-* `GeneralCycle`: a cycle on k ≤ n distinct vertices within `Fin n`.
-
-Key results:
-
-* `matter_is_paradox`: A cycle on n vertices creates harmonic energy exactly 1/n.
-* `russell_loop_creates_mass`: Embedded cycle ⟹ `finrank(H) ≥ 1`.
-* `cycle_implies_nonclassical`: Cycles contradict classicality.
-* `classical_implies_acyclic`: `dim(H) = 0` ⟹ the graph is acyclic.
-* `classical_universe_admits_intrinsic_hierarchy`: Classical + connected ⟹ canonical height function gives well-founded membership.
-* `classical_universe_admits_no_paradoxes`: In a classical universe, every ActiveForm is exact.
-
-Interpretation: ZFC-style classical set theory plays the role of a vacuum. A classical universe admits well-founded membership hierarchies with no Russell-like paradoxes. Closing a loop is exactly the move that leaves this classical phase.
-
-### `Diaspora/Logic/Inverse.lean`
-
-The reverse direction: **topology → logic**. Every particle is a fossil of contradiction.
-
-* `fossilize G σ`: Convert a physical 1-cochain into a constraint theory.
-
-Key results:
-
-* `fossil_is_consistent`: Fossilized theories are always locally consistent.
-* `matter_is_fossilized_logic`: The realized theory matches the harmonic form on active edges.
-* `harmonic_yields_unsatisfiable`: Non-zero harmonic ⟹ the fossil is unsatisfiable.
-* `particle_is_paradox`: Every nonzero "particle" (harmonic form) corresponds to a locally consistent but globally unsatisfiable theory.
-
-Read backwards, the theorems say that nonzero harmonic content always comes from an unsatisfiable but locally consistent theory. In Diaspora, mass is frozen logical contradiction: harmonic forms are **fossils** of impossible demands, and you can read the paradox back out of the geometry.
-
-### `Diaspora/Logic/Probabilistic.lean`
-
-How "generic" is topology in the space of all constraints?
-
-* `dimensional_gap`: `dim(ActiveForm) − dim(ImGradient) = dim(HarmonicSubspace)`.
-* `RobustlySatisfiable T`: the theory survives arbitrary single-constraint perturbation.
-
-Key results:
-
-* `genesis_is_generic`: Non-trivial topology ⟹ satisfiable constraints form a proper subspace.
-* `void_is_fragile`: If a satisfiable theory has cycles (non-zero harmonic subspace), it is **not robustly satisfiable** - any perturbation breaks it.
-
-Interpretation: the "void" (satisfiable vacuum) sits on a knife-edge in constraint space. Satisfiable theories live in a proper subspace, so generic noise pushes you into the non-exact sector, where harmonic content - and therefore mass - shows up almost automatically.
-
-### `Diaspora/Logic/Limit.lean`
-
-What happens as the universe grows?
-
-* `bettiOne G`: first Betti number (cyclomatic complexity).
-* `IsComplex G`: `bettiOne > 0` - the universe has cycles.
-* `UniverseSequence`: a growing family of graphs indexed by ℕ.
-* `HasAdditiveGrowth`: `|E| − n → ∞` (edges outpace vertices).
-* `HasMultiplicativeGrowth`: `|E|/n → ∞` (edge density explodes).
-* `classicalRatio G`: `dim(ImGradient) / dim(ActiveForm)` - the "probability" of landing in the exact sector.
-
-Key results:
-
-* `complexity_threshold`: `|E| ≥ n` + connected ⟹ `IsComplex`.
-* `eventual_genesis`: Additive superlinear growth ⟹ eventually complex.
-* `inevitable_genesis`: Multiplicative growth ⟹ `classicalRatio → 0` as `n → ∞`.
-
-This is Diaspora’s **big bang**: as the universe grows under these connectivity assumptions, genesis becomes inevitable. The probability of staying in the classical (exact) sector goes to zero. Structure isn’t an accident here - it’s a statistical consequence of growth.
-
-### `Diaspora/Logic/Universal.lean`
-
-The **universal cover** of a graph and the resolution of paradox.
-
-* `History G root`: A walk from root to current vertex - your "history" of how you arrived.
-* `UniversalCover G root`: SimpleGraph on histories; two histories are adjacent if one extends the other by one step.
-* `lift_form G σ root`: Lift a constraint field to the cover.
-* `history_potential G σ root h`: Potential = cumulative strain along your history.
-
-Key results:
-
-* `universal_cover_is_classical`: The universal cover is **acyclic** (a tree).
-* `paradox_dissolves_in_cover`: Every constraint field becomes exact when lifted to the cover.
-
-Interpretation: the universal cover is a kind of **God’s-eye view** - reality unrolled into a tree, with no loops and no paradox. Distinct histories never collide upstairs, so every constraint field lifts to an exact form. When you project back down, different histories can land on the same edge; their "memory mismatch" is what shows up as energy. Diaspora treats ZFC-style foundations as something like a universal cover: a classical tree of sets that we mistake for the messy, cyclic, finite web of relations underneath.
-
----
-
 ## Mechanisms of relaxation & measurement
 
 ### `Diaspora/Dynamics/Diffusion.lean`
@@ -425,10 +658,12 @@ Together they say: scalar potentials relax toward the Hodge optimum, while phase
 
 ### `Diaspora/Quantum/Witness.lean`
 
-A local alternative to global energy summation.
+A local alternative to global energy summation, built on the rigorous walk infrastructure from `Logic/WalkHolonomy.lean`.
 
-* `measure_loop_distortion`: An observer walking a cycle tracks their internal phase shift.
-* **Theorem:** `local_holonomy_predicts_global_energy` - the phase shift detected by a local walker predicts the total energy of the topological defect.
+* `measure_phase_shift`: The complex exponential of accumulated potential drops along a graph walk.
+* **Theorem:** `local_holonomy_predicts_global_energy` - for an observer walking a cycle embedded in a dynamic graph, the measured phase shift determines the global energy of the topological defect.
+
+The proof uses `walk_sum_factors_through_harmonic` (Stokes' theorem for walks) to show that the exact component of σ is invisible to the observer - only the harmonic γ contributes to the measurement.
 
 ### `Diaspora/Dynamics/Local.lean`
 
@@ -451,6 +686,12 @@ These files turn the math into a dynamics:
 * Show **strain must localize** if total frustration is high:
 
   * `strain_must_localize`: a pigeonhole principle on edges.
+
+* **Irreducible Strain Theorem**:
+
+  * `harmonic_component_gives_energy_floor`: If an ActiveForm σ decomposes as `σ = d_G φ + γ` with γ ∈ HarmonicSubspace and γ ≠ 0, then for **any** potential ϕ, the strain energy satisfies `dynamic_strain_energy G ϕ σ.val ≥ ‖γ‖² > 0`.
+  * This is the bridge between Hodge theory and physical dynamics: harmonic content represents irreducible frustration that cannot be relaxed away by tuning the potential.
+  * The proof uses Pythagorean decomposition and orthogonality: `‖d_G ϕ - σ‖² = ‖d_G(ϕ - φ_opt)‖² + ‖γ‖²`, where the exact part can be minimized to zero but the harmonic part remains.
 
 * `BreakingThreshold` and `C_max`: when strain exceeds this, an edge “breaks”.
 
@@ -526,11 +767,15 @@ This layer moves from binary topology (active/inactive) to continuous capacity. 
 Foundations:
 
 * `WeightedGraph n`: edges have continuous weights `w_ij ≥ 0`.
+
 * **Conservation of attention**: the total capacity of the universe is fixed at `n²`.
 
   * `∑ w_ij = n²`
+
 * `raw_strain`: the pure potential difference `(d0 ϕ - σ)²`, unmitigated by capacity.
+
 * `phase_strain`: geodesic-aware strain for cyclic phase fields (respects `ZMod k` topology).
+
 * `to_dynamic`: thresholding a weighted graph converts it back to a `DynamicGraph` (emergent topology).
 
 The plasticity cycle: evolution happens in a loop of Growth, Scarcity, and Pruning (`plasticity_cycle`):
@@ -569,7 +814,7 @@ Interpretation: harmonic content protects the topology that carries it. Self-ref
 
 ## Toy systems and named stories
 
-These are the narrative / physics-inspired models built on top.
+These are the narrative / physics-inspired models built on top of the Logic + Dynamics machinery.
 
 ### The void: observation vs reality
 
@@ -736,9 +981,11 @@ Interpretation: repeated observation (probing with a potential) causes the obser
 #### `Diaspora/Models/FalseVacuum.lean`
 
 * A θ-graph (two loops sharing a pair of nodes).
+
 * Parameterized constraints:
 
   * `Ft` (trap flux), `Fs` (smart edge flux), `Fa` (anchor tension).
+
 * `make_sigma`, `make_phi` construct constraints and relaxation potentials.
 
 Theorems:
@@ -757,7 +1004,9 @@ Interpretation: a toy model of **false vacuum protection** via relaxation.
 * Two disjoint triangles `{0,1,2}` and `{3,4,5}`:
 
   * `disjoint_worlds`
+
 * One bridge → `bridged_worlds`
+
 * Two bridges → `fused_worlds`
 
 Using a simple Betti-number proxy, we prove:
@@ -799,4 +1048,3 @@ This project targets **Lean 4 + mathlib**.
 # Then from the project root:
 lake build
 ```
-

@@ -692,6 +692,32 @@ Interpretation: This completes the Hodge story. We now have three equivalent vie
 
 The McKean-Singer formula says you can measure the total "paradox content" of the universe by observing how it relaxes - at any moment in time.
 
+### `Diaspora/Hodge/CompleteGraph.lean`
+
+Closed-form Betti numbers for the complete graph K_n.
+
+The complete graph is the maximally connected structure: every vertex is adjacent to every other. This file proves its first Betti number has a beautiful closed form:
+
+```
+b₁(K_n) = (n-1)(n-2)/2
+```
+
+Key results:
+
+* `complete_graph_directed_edge_count`: K_n has exactly n(n-1) directed edges (all off-diagonal pairs).
+* `complete_graph_kernel_dim`: The gradient kernel is 1-dimensional (only constant functions, since every vertex is connected).
+* `betti_algebra_key`: The algebraic identity linking edge count to Betti number.
+* `complete_graph_betti_1`: **Main theorem** - the harmonic subspace has dimension (n-1)(n-2)/2.
+
+Concrete instances:
+
+* `K2_is_tree`: K₂ is a tree (b₁ = 0).
+* `K3_betti_one`: K₃ (triangle) has exactly one independent cycle (b₁ = 1).
+* `K4_betti_three`: K₄ has three independent cycles (b₁ = 3).
+* `complete_graph_has_cycles`: For n ≥ 3, K_n always has cycles.
+
+Interpretation: The complete graph achieves the maximum possible first Betti number for any graph on n vertices. It saturates the dimension formula: with n(n-1)/2 undirected edges and a 1-dimensional kernel (connected), the harmonic subspace absorbs all remaining degrees of freedom. This is the "most topologically complex" graph on n vertices - every possible cycle is present.
+
 ---
 
 ## Phase fields and cyclic constraints

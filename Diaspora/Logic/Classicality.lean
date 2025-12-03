@@ -512,6 +512,173 @@ lemma general_cycle_form_harmonic {n : ℕ} [Fintype (Fin n)] [NeZero n] (c : Ge
       exact List.get_mem c.verts _
     simp only [h_no_fwd, h_no_rev, ↓reduceIte]
 
+/-- **Cycle Energy Theorem**: A cycle of length k has energy exactly 1/k.
+
+    This generalizes dehn_twist_energy (which requires SimpleCycle covering all n vertices)
+    to arbitrary embedded cycles. The energy depends only on cycle length, not on the
+    ambient graph size.
+
+    Physical interpretation: Smaller cycles have higher energy barriers. A triangle (k=3)
+    costs 1/3 units of energy; a square (k=4) costs 1/4. The "nucleation barrier" for
+    topology depends on the shortest cycle available, not the total vertex count.
+-/
+theorem general_cycle_form_energy {n : ℕ} [Fintype (Fin n)] [NeZero n] (c : GeneralCycle n) :
+    norm_sq (general_cycle_form c) = 1 / c.len := by
+  -- The general_cycle_form assigns ±1/k to cycle edges, 0 elsewhere.
+  -- Each of k edges contributes 2*(1/k)² (once as (i,j), once as (j,i)).
+  -- Total sum = 2k * (1/k)². With factor 1/2: energy = (1/2)(2k)(1/k)² = 1/k.
+  have h_len_ge_3 := c.len_ge_3
+  have h_len_pos : (0 : ℝ) < c.len := by simp only [GeneralCycle.len]; positivity
+  have h_len_ne : (c.len : ℝ) ≠ 0 := by positivity
+  have h_len_pos' : 0 < c.verts.length := Nat.lt_of_lt_of_le (by omega : 0 < 3) h_len_ge_3
+  -- Value on forward edges
+  have h_val_fwd : ∀ k : Fin c.verts.length,
+      (general_cycle_form c).val (c.vertex k.val) (c.nextVertex k.val) = 1 / c.len := by
+    intro k
+    unfold general_cycle_form
+    have h_ex : ∃ k' : Fin c.verts.length, c.vertex k'.val = c.vertex k.val ∧
+                c.nextVertex k'.val = c.nextVertex k.val := ⟨k, rfl, rfl⟩
+    simp only [h_ex, ↓reduceIte]
+  -- Value on reverse edges (by skew-symmetry)
+  have h_val_rev : ∀ k : Fin c.verts.length,
+      (general_cycle_form c).val (c.nextVertex k.val) (c.vertex k.val) = -(1 / c.len) := by
+    intro k
+    have h := (general_cycle_form c).skew (c.vertex k.val) (c.nextVertex k.val)
+    rw [h_val_fwd] at h
+    linarith
+  -- Value is zero off cycle
+  have h_val_zero : ∀ i j : Fin n,
+      (¬∃ k : Fin c.verts.length, c.vertex k.val = i ∧ c.nextVertex k.val = j) →
+      (¬∃ k : Fin c.verts.length, c.vertex k.val = j ∧ c.nextVertex k.val = i) →
+      (general_cycle_form c).val i j = 0 := by
+    intro i j h1 h2
+    unfold general_cycle_form
+    simp only [h1, h2, ↓reduceIte]
+  -- Injection for edge pairs
+  have h_edges_inj : Function.Injective (fun k : Fin c.verts.length =>
+      (c.vertex k.val, c.nextVertex k.val)) := by
+    intro k1 k2 h_eq
+    simp only [Prod.mk.injEq] at h_eq
+    unfold GeneralCycle.vertex at h_eq
+    have := c.nodup.get_inj_iff.mp h_eq.1
+    ext
+    simpa [Fin.ext_iff, Nat.mod_eq_of_lt k1.isLt, Nat.mod_eq_of_lt k2.isLt] using this
+  unfold norm_sq inner_product_C1
+  -- Convert each term to indicator
+  have h_indicator : ∀ i j : Fin n,
+      (general_cycle_form c).val i j * (general_cycle_form c).val i j =
+      if (∃ k : Fin c.verts.length, c.vertex k.val = i ∧ c.nextVertex k.val = j) ∨
+         (∃ k : Fin c.verts.length, c.vertex k.val = j ∧ c.nextVertex k.val = i)
+      then (1 / (c.len : ℝ))^2 else 0 := by
+    intro i j
+    split_ifs with h
+    · cases h with
+      | inl h_fwd =>
+        obtain ⟨k, hk⟩ := h_fwd
+        rw [← hk.1, ← hk.2, h_val_fwd]
+        simp only [one_div]
+        ring
+      | inr h_rev =>
+        obtain ⟨k, hk⟩ := h_rev
+        rw [← hk.1, ← hk.2, h_val_rev]
+        simp only [one_div, neg_mul]
+        ring
+    · have h1 : ¬∃ k : Fin c.verts.length, c.vertex k.val = i ∧ c.nextVertex k.val = j := by
+        push_neg at h; exact fun ⟨k, hk⟩ => h.1 k hk.1 hk.2
+      have h2 : ¬∃ k : Fin c.verts.length, c.vertex k.val = j ∧ c.nextVertex k.val = i := by
+        push_neg at h; exact fun ⟨k, hk⟩ => h.2 k hk.1 hk.2
+      rw [h_val_zero i j h1 h2, zero_mul]
+  simp_rw [h_indicator]
+  -- Count the edges
+  rw [← Finset.sum_product']
+  have h_rev_inj : Function.Injective (fun k : Fin c.verts.length =>
+      (c.nextVertex k.val, c.vertex k.val)) := by
+    intro k1 k2 h_eq
+    simp only [Prod.mk.injEq] at h_eq
+    unfold GeneralCycle.vertex at h_eq
+    have := c.nodup.get_inj_iff.mp h_eq.2
+    ext
+    simpa [Fin.ext_iff, Nat.mod_eq_of_lt k1.isLt, Nat.mod_eq_of_lt k2.isLt] using this
+  let fwd := Finset.univ.image (fun k : Fin c.verts.length => (c.vertex k.val, c.nextVertex k.val))
+  let rev := Finset.univ.image (fun k : Fin c.verts.length => (c.nextVertex k.val, c.vertex k.val))
+  have h_fwd_card : fwd.card = c.verts.length := by
+    rw [Finset.card_image_of_injective _ h_edges_inj, Finset.card_fin]
+  have h_rev_card : rev.card = c.verts.length := by
+    rw [Finset.card_image_of_injective _ h_rev_inj, Finset.card_fin]
+  -- Show fwd and rev are disjoint
+  have h_disjoint : Disjoint fwd rev := by
+    rw [Finset.disjoint_iff_ne]
+    intro p1 hp1 p2 hp2
+    simp only [fwd, rev, Finset.mem_image, Finset.mem_univ, true_and] at hp1 hp2
+    obtain ⟨k1, hk1⟩ := hp1
+    obtain ⟨k2, hk2⟩ := hp2
+    intro h_eq
+    rw [← hk1, ← hk2, Prod.mk.injEq] at h_eq
+    -- k1's vertex = k2's next, k1's next = k2's vertex => period 2
+    unfold GeneralCycle.nextVertex GeneralCycle.vertex at h_eq
+    have h1 := c.nodup.get_inj_iff.mp h_eq.1
+    have h2 := c.nodup.get_inj_iff.mp h_eq.2
+    simp only [Fin.ext_iff, Nat.mod_eq_of_lt k1.isLt, Nat.mod_eq_of_lt k2.isLt] at h1 h2
+    have h_k1_eq : k1.val = (k2.val + 1) % c.verts.length := by simpa using h1
+    have h_k2_eq : k2.val = (k1.val + 1) % c.verts.length := by simpa using h2.symm
+    rw [h_k1_eq] at h_k2_eq
+    cases Nat.lt_or_ge (k2.val + 1) c.verts.length with
+    | inl h_small =>
+      rw [Nat.mod_eq_of_lt h_small] at h_k2_eq
+      cases Nat.lt_or_ge (k2.val + 2) c.verts.length with
+      | inl h_small2 => rw [Nat.mod_eq_of_lt h_small2] at h_k2_eq; omega
+      | inr h_big2 =>
+        have : k2.val = c.verts.length - 2 := by omega
+        rw [this] at h_k2_eq
+        simp only [Nat.sub_add_cancel (by omega : 2 ≤ c.verts.length)] at h_k2_eq
+        rw [Nat.mod_self] at h_k2_eq; omega
+    | inr h_big =>
+      have : k2.val = c.verts.length - 1 := by omega
+      rw [this, Nat.sub_add_cancel (by omega : 1 ≤ c.verts.length), Nat.mod_self,
+          Nat.zero_add, Nat.mod_eq_of_lt (by omega : 1 < c.verts.length)] at h_k2_eq
+      omega
+  -- The filter equals fwd ∪ rev
+  have h_filter_eq : Finset.univ.filter (fun p : Fin n × Fin n =>
+      (∃ k : Fin c.verts.length, c.vertex k.val = p.1 ∧ c.nextVertex k.val = p.2) ∨
+      (∃ k : Fin c.verts.length, c.vertex k.val = p.2 ∧ c.nextVertex k.val = p.1)) =
+      fwd ∪ rev := by
+    ext p
+    simp only [Finset.mem_filter, Finset.mem_univ, true_and, Finset.mem_union,
+              fwd, rev, Finset.mem_image]
+    constructor
+    · intro h_or
+      cases h_or with
+      | inl hf =>
+        left
+        obtain ⟨k, hk1, hk2⟩ := hf
+        exact ⟨k, Prod.ext hk1 hk2⟩
+      | inr hr =>
+        right
+        obtain ⟨k, hk1, hk2⟩ := hr
+        exact ⟨k, Prod.ext hk2 hk1⟩
+    · intro h_union
+      cases h_union with
+      | inl hf =>
+        left
+        obtain ⟨k, hk_eq⟩ := hf
+        exact ⟨k, congr_arg Prod.fst hk_eq, congr_arg Prod.snd hk_eq⟩
+      | inr hr =>
+        right
+        obtain ⟨k, hk_eq⟩ := hr
+        exact ⟨k, congr_arg Prod.snd hk_eq, congr_arg Prod.fst hk_eq⟩
+  have h_count : (Finset.univ.filter (fun p : Fin n × Fin n =>
+      (∃ k : Fin c.verts.length, c.vertex k.val = p.1 ∧ c.nextVertex k.val = p.2) ∨
+      (∃ k : Fin c.verts.length, c.vertex k.val = p.2 ∧ c.nextVertex k.val = p.1))).card =
+      2 * c.verts.length := by
+    rw [h_filter_eq, Finset.card_union_of_disjoint h_disjoint, h_fwd_card, h_rev_card]; ring
+  conv_lhs =>
+    rw [Finset.sum_ite, Finset.sum_const_zero, add_zero, Finset.sum_const,
+        Finset.univ_product_univ, h_count]
+  have h_len_eq : (c.verts.length : ℝ) = c.len := rfl
+  simp only [nsmul_eq_mul]
+  field_simp [h_len_ne]
+  simp only [Nat.cast_mul, Nat.cast_ofNat, h_len_eq]
+
 /-- The general cycle form has positive energy. -/
 lemma general_cycle_form_positive_energy {n : ℕ} [Fintype (Fin n)] [NeZero n] (c : GeneralCycle n) :
     norm_sq (general_cycle_form c) > 0 := by

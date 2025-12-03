@@ -212,32 +212,55 @@ The proof uses the dimension formula `dim(H) = |E| - |V| + dim(Ker d)`. For the 
 
 Interpretation: The Kirchhoff telescoping argument (Genesis.lean) says the constraint sum is 3. The Dehn twist (Twist.lean) is the canonical harmonic form with winding 1 and energy 1/3. This file proves they're the same object up to scaling: **genesis creates exactly 3 units of the unique minimal topological defect**. The "3" isn't arbitrary - it's the constraint sum measuring how many times we wind around the single fundamental defect available on a triangle. The walk-based theorem bridges the algebraic winding (`genesis_winding_is_three`) with the path-following perspective (`walk_sum_eq_winding` from `WalkHolonomy.lean`).
 
-### `Diaspora/Logic/Classicality.lean`
+### `Diaspora/Logic/Classicality/`
 
-The connection between **set-theoretic well-foundedness** and **topological acyclicity**.
+The connection between **set-theoretic well-foundedness** and **topological acyclicity**, organized into focused submodules:
+
+```text
+Classicality/
+├── Basic.lean        # Core definitions: IsClassical, IsMember, IsFaithfulPotential
+├── Cycles.lean       # SimpleCycle and GeneralCycle theorems, cycle embeddings
+├── Classical.lean    # Classical universe properties: acyclic, hierarchy, no paradoxes
+├── Orthogonality.lean # Vertex/edge-disjoint cycle orthogonality
+└── Dimension.lean    # Dimension bounds, spectral gap for general cycles
+```
+
+Core definitions (`Basic.lean`):
 
 * `IsClassical G`: `dim(HarmonicSubspace G) = 0` - no harmonic modes, tree-like universe.
 * `IsMember G ϕ child parent`: membership defined by gradient flow (parent at higher potential).
 * `IsFaithfulPotential G ϕ`: the potential orients every edge (no ties).
+* `isMember_wellFounded`: membership relation is well-founded for any potential.
+
+Cycle theorems (`Cycles.lean`):
+
 * `GeneralCycle`: a cycle on k ≤ n distinct vertices within `Fin n`.
-
-Key results:
-
-* `general_cycle_form_energy`: A cycle of length k has energy exactly 1/k, regardless of ambient graph size. Generalizes `dehn_twist_energy` (which required SimpleCycle covering all n vertices) to arbitrary embedded cycles.
-* `general_cycle_form_winding_one`: The winding number of general_cycle_form is 1.
-* `general_cycle_spectral_gap`: Generalized spectral gap - 1/k is the minimum nonzero energy for k-cycles.
-* `shorter_cycle_higher_energy`: Shorter cycles require more energy. Triangles (k=3) have minimum energy 1/3; long cycles (k→∞) approach zero.
-* `matter_is_paradox`: A cycle on n vertices creates harmonic energy exactly 1/n.
+* `general_cycle_form`: canonical harmonic form with value 1/k on each forward edge.
+* `general_cycle_form_energy`: A cycle of length k has energy exactly 1/k.
+* `matter_is_paradox`: A SimpleCycle on n vertices creates harmonic energy exactly 1/n.
 * `russell_loop_creates_mass`: Embedded cycle ⟹ `finrank(H) ≥ 1`.
 * `cycle_implies_nonclassical`: Cycles contradict classicality.
+
+Classical universe properties (`Classical.lean`):
+
 * `classical_implies_acyclic`: `dim(H) = 0` ⟹ the graph is acyclic.
 * `classical_universe_admits_intrinsic_hierarchy`: Classical + connected ⟹ canonical height function gives well-founded membership.
+* `classical_universe_admits_rank`: Classical universes admit a faithful potential (extrinsic version).
 * `classical_universe_admits_no_paradoxes`: In a classical universe, every ActiveForm is exact.
+
+Orthogonality (`Orthogonality.lean`):
+
 * `disjoint_cycles_orthogonal`: Vertex-disjoint cycles have orthogonal harmonic forms.
 * `disjoint_cycles_energy_additive`: Their energies add (Pythagorean).
 * `edge_disjoint_cycles_orthogonal`: Edge-disjoint cycles have orthogonal harmonic forms (generalizes vertex-disjoint case).
 * `vertex_disjoint_implies_edge_disjoint`: Vertex-disjointness ⟹ edge-disjointness.
+
+Dimension and spectral gap (`Dimension.lean`):
+
 * `edge_disjoint_cycles_dimension_bound`: k pairwise edge-disjoint embedded cycles ⟹ `dim(H) ≥ k`.
+* `general_cycle_form_winding_one`: The winding number of general_cycle_form is 1.
+* `general_cycle_spectral_gap`: Generalized spectral gap - 1/k is the minimum nonzero energy for k-cycles.
+* `shorter_cycle_higher_energy`: Shorter cycles require more energy. Triangles (k=3) have minimum energy 1/3; long cycles (k→∞) approach zero.
 
 Interpretation: ZFC-style classical set theory plays the role of a vacuum. A classical universe admits well-founded membership hierarchies with no Russell-like paradoxes. Closing a loop is exactly the move that leaves this classical phase. Spatially separated paradoxes don't interact - mass from one frozen contradiction doesn't feel another unless they share edges. Cycles that meet at vertices but use different edges (like the communication cycle in a fused pair of triangles) remain orthogonal - what matters is channel-disjointness, not junction-disjointness. The dimension bound shows that independent cycles contribute independent modes: the harmonic subspace has room for at least as many degrees of freedom as there are edge-disjoint cycles.
 

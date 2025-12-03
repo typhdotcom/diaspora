@@ -745,6 +745,31 @@ Concrete instances:
 
 Interpretation: The formula (m-1)(n-1) counts "fundamental squares" - independent 4-cycles formed by choosing two vertices from each partition. Unlike the complete graph which maximizes connectivity, the bipartite graph maximizes *structured* connectivity while maintaining a clean partition. The star graph K_{1,n} is the degenerate case: a single hub connecting n leaves, with no cycles at all. K_{2,2} is the 4-cycle - the simplest bipartite graph with nontrivial topology. K_{3,3} (the utility graph) achieves 4 independent cycles from its 9 edges and 6 vertices.
 
+### `Diaspora/Hodge/CycleGraph.lean`
+
+Closed-form Betti number for the cycle graph C_n.
+
+The cycle graph is the simplest graph with non-trivial topology: n vertices arranged in a ring, each adjacent to its two neighbors. This file proves its first Betti number is constant:
+
+```
+b₁(C_n) = 1
+```
+
+Key results:
+
+* `cycleGraph n`: Definition of C_n on n vertices, where vertex i is adjacent to (i±1) mod n.
+* `cycle_graph_directed_edge_count`: C_n has exactly 2n directed edges (n undirected).
+* `cycle_graph_kernel_dim`: The gradient kernel is 1-dimensional (connected graph).
+* `cycle_graph_betti_1`: **Main theorem** - the harmonic subspace has dimension 1.
+
+Concrete instances:
+
+* `C3_betti_one`: The triangle has b₁ = 1.
+* `C4_betti_one`: The square has b₁ = 1.
+* `C5_betti_one`: The pentagon has b₁ = 1.
+
+Interpretation: The cycle graph is topologically minimal - exactly one independent cycle, regardless of size. Unlike K_n and K_{m,n} whose Betti numbers grow quadratically with vertex count, C_n always has b₁ = 1. This reflects the fundamental difference: adding vertices to a cycle extends it rather than creating new independent loops. The proof uses the dimension formula: n edges, n vertices, connected ⟹ dim(H) = n - n + 1 = 1. The cycle graph is also the natural home of the Dehn twist - the canonical harmonic form with winding 1 and energy 1/n lives precisely on C_n.
+
 ---
 
 ## Phase fields and cyclic constraints

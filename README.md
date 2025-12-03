@@ -228,8 +228,10 @@ Key results:
 * `classical_universe_admits_no_paradoxes`: In a classical universe, every ActiveForm is exact.
 * `disjoint_cycles_orthogonal`: Vertex-disjoint cycles have orthogonal harmonic forms.
 * `disjoint_cycles_energy_additive`: Their energies add (Pythagorean).
+* `edge_disjoint_cycles_orthogonal`: Edge-disjoint cycles have orthogonal harmonic forms (generalizes vertex-disjoint case).
+* `vertex_disjoint_implies_edge_disjoint`: Vertex-disjointness ⟹ edge-disjointness.
 
-Interpretation: ZFC-style classical set theory plays the role of a vacuum. A classical universe admits well-founded membership hierarchies with no Russell-like paradoxes. Closing a loop is exactly the move that leaves this classical phase. Spatially separated paradoxes don't interact - mass from one frozen contradiction doesn't feel another unless they share vertices.
+Interpretation: ZFC-style classical set theory plays the role of a vacuum. A classical universe admits well-founded membership hierarchies with no Russell-like paradoxes. Closing a loop is exactly the move that leaves this classical phase. Spatially separated paradoxes don't interact - mass from one frozen contradiction doesn't feel another unless they share edges. Cycles that meet at vertices but use different edges (like the communication cycle in a fused pair of triangles) remain orthogonal - what matters is channel-disjointness, not junction-disjointness.
 
 ### `Diaspora/Logic/Inverse.lean`
 

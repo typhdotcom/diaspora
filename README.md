@@ -718,6 +718,33 @@ Concrete instances:
 
 Interpretation: The complete graph achieves the maximum possible first Betti number for any graph on n vertices. It saturates the dimension formula: with n(n-1)/2 undirected edges and a 1-dimensional kernel (connected), the harmonic subspace absorbs all remaining degrees of freedom. This is the "most topologically complex" graph on n vertices - every possible cycle is present.
 
+### `Diaspora/Hodge/BipartiteGraph.lean`
+
+Closed-form Betti numbers for the complete bipartite graph K_{m,n}.
+
+The complete bipartite graph partitions vertices into two sets A (size m) and B (size n), with edges only between the sets - every vertex in A connects to every vertex in B. This file proves its first Betti number:
+
+```
+b₁(K_{m,n}) = (m-1)(n-1)
+```
+
+Key results:
+
+* `completeBipartite m n`: Definition of K_{m,n} on m+n vertices, with parts A = {0..m-1} and B = {m..m+n-1}.
+* `bipartite_directed_edge_count`: K_{m,n} has exactly 2mn directed edges (mn undirected).
+* `bipartite_kernel_dim`: The gradient kernel is 1-dimensional (connected graph).
+* `betti_algebra_bipartite`: The algebraic identity `mn + 1 = (m-1)(n-1) + (m+n)`.
+* `bipartite_betti_1`: **Main theorem** - the harmonic subspace has dimension (m-1)(n-1).
+
+Concrete instances:
+
+* `star_is_tree`: K_{1,n} (star graph) is a tree (b₁ = 0).
+* `K22_is_cycle`: K_{2,2} is a 4-cycle (b₁ = 1).
+* `K33_betti_four`: K_{3,3} has four independent cycles (b₁ = 4).
+* `bipartite_has_cycles`: For m,n ≥ 2, K_{m,n} always has cycles.
+
+Interpretation: The formula (m-1)(n-1) counts "fundamental squares" - independent 4-cycles formed by choosing two vertices from each partition. Unlike the complete graph which maximizes connectivity, the bipartite graph maximizes *structured* connectivity while maintaining a clean partition. The star graph K_{1,n} is the degenerate case: a single hub connecting n leaves, with no cycles at all. K_{2,2} is the 4-cycle - the simplest bipartite graph with nontrivial topology. K_{3,3} (the utility graph) achieves 4 independent cycles from its 9 edges and 6 vertices.
+
 ---
 
 ## Phase fields and cyclic constraints

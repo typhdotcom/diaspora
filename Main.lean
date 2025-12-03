@@ -12,6 +12,7 @@ import Diaspora.Hodge.Spectral
 import Diaspora.Hodge.Twist
 import Diaspora.Hodge.IndexTheorem
 import Diaspora.Hodge.CompleteGraph
+import Diaspora.Hodge.BipartiteGraph
 
 -- Dynamics: Time Evolution
 import Diaspora.Dynamics.Diffusion

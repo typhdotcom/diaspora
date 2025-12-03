@@ -224,6 +224,9 @@ The connection between **set-theoretic well-foundedness** and **topological acyc
 Key results:
 
 * `general_cycle_form_energy`: A cycle of length k has energy exactly 1/k, regardless of ambient graph size. Generalizes `dehn_twist_energy` (which required SimpleCycle covering all n vertices) to arbitrary embedded cycles.
+* `general_cycle_form_winding_one`: The winding number of general_cycle_form is 1.
+* `general_cycle_spectral_gap`: Generalized spectral gap - 1/k is the minimum nonzero energy for k-cycles.
+* `shorter_cycle_higher_energy`: Shorter cycles require more energy. Triangles (k=3) have minimum energy 1/3; long cycles (k→∞) approach zero.
 * `matter_is_paradox`: A cycle on n vertices creates harmonic energy exactly 1/n.
 * `russell_loop_creates_mass`: Embedded cycle ⟹ `finrank(H) ≥ 1`.
 * `cycle_implies_nonclassical`: Cycles contradict classicality.

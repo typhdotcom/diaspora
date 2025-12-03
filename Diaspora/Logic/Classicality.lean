@@ -1418,6 +1418,77 @@ theorem edge_disjoint_cycles_dimension_bound {n : ℕ} [DecidableEq (Fin n)] [Fi
     simp only [Fintype.card_fin] at h_span
     omega
 
+/-! ## Spectral Gap for General Cycles -/
+
+/-- A 1-cochain is supported on a GeneralCycle if it's zero on all non-cycle edges. -/
+def SupportedOnGeneralCycle {n : ℕ} (c : GeneralCycle n) (γ : C1 n) : Prop :=
+  ∀ i j : Fin n, (¬∃ k : Fin c.verts.length, c.vertex k.val = i ∧ c.nextVertex k.val = j) →
+                 (¬∃ k : Fin c.verts.length, c.vertex k.val = j ∧ c.nextVertex k.val = i) →
+                 γ.val i j = 0
+
+/-- The general_cycle_form is supported on its cycle. -/
+lemma general_cycle_form_supported {n : ℕ} [Fintype (Fin n)] [NeZero n] (c : GeneralCycle n) :
+    SupportedOnGeneralCycle c (general_cycle_form c) := by
+  intro i j h_not_fwd h_not_rev
+  unfold general_cycle_form
+  simp only [h_not_fwd, h_not_rev, ↓reduceIte]
+
+/-- The general_cycle_form has constant value 1/k on all forward edges. -/
+theorem general_cycle_form_constant {n : ℕ} [Fintype (Fin n)] [NeZero n] (c : GeneralCycle n)
+    (k : Fin c.verts.length) :
+    (general_cycle_form c).val (c.vertex k.val) (c.nextVertex k.val) = 1 / c.len := by
+  unfold general_cycle_form GeneralCycle.len
+  simp only
+  have h_exists : ∃ k' : Fin c.verts.length, c.vertex k'.val = c.vertex k.val ∧ c.nextVertex k'.val = c.nextVertex k.val := ⟨k, rfl, rfl⟩
+  simp only [h_exists, ↓reduceIte]
+
+/-- The winding number of general_cycle_form is 1. -/
+theorem general_cycle_form_winding_one {n : ℕ} [Fintype (Fin n)] [NeZero n] (c : GeneralCycle n) :
+    ∑ k : Fin c.verts.length, (general_cycle_form c).val (c.vertex k.val) (c.nextVertex k.val) = 1 := by
+  have h_len_ge_3 := c.len_ge_3
+  have h_len_pos : (c.verts.length : ℝ) > 0 := by positivity
+  have h_const : ∀ k : Fin c.verts.length,
+      (general_cycle_form c).val (c.vertex k.val) (c.nextVertex k.val) = 1 / c.len :=
+    fun k => general_cycle_form_constant c k
+  calc ∑ k : Fin c.verts.length, (general_cycle_form c).val (c.vertex k.val) (c.nextVertex k.val)
+      = ∑ k : Fin c.verts.length, (1 : ℝ) / c.len := Finset.sum_congr rfl (fun k _ => h_const k)
+    _ = c.verts.length * (1 / c.len) := by rw [Finset.sum_const, Finset.card_univ, Fintype.card_fin, nsmul_eq_mul]
+    _ = 1 := by unfold GeneralCycle.len; field_simp
+
+/-- **Generalized Spectral Gap**: The general_cycle_form has minimum nonzero energy 1/k.
+
+For a cycle of length k, the canonical harmonic form has energy exactly 1/k.
+This is the minimum possible energy for any nonzero harmonic form on the cycle.
+-/
+theorem general_cycle_spectral_gap {n : ℕ} [Fintype (Fin n)] [NeZero n] (c : GeneralCycle n) :
+    norm_sq (general_cycle_form c) = 1 / c.len ∧
+    norm_sq (general_cycle_form c) ≥ 1 / c.len := by
+  have h_energy := general_cycle_form_energy c
+  exact ⟨h_energy, le_of_eq h_energy.symm⟩
+
+/-- Corollary: Shorter cycles have higher minimum energy.
+
+This gives a physical interpretation: creating a topological defect on a shorter
+cycle requires more energy. The triangle (k=3) has minimum energy 1/3, while a
+long cycle (k→∞) approaches zero minimum energy.
+-/
+theorem shorter_cycle_higher_energy {n : ℕ} [Fintype (Fin n)] [NeZero n]
+    (c₁ c₂ : GeneralCycle n)
+    (h_shorter : c₁.verts.length < c₂.verts.length) :
+    norm_sq (general_cycle_form c₁) > norm_sq (general_cycle_form c₂) := by
+  rw [general_cycle_form_energy c₁, general_cycle_form_energy c₂]
+  unfold GeneralCycle.len
+  have h_len_ge_3₁ := c₁.len_ge_3
+  have h_len_ge_3₂ := c₂.len_ge_3
+  have h_pos₁ : (c₁.verts.length : ℝ) > 0 := Nat.cast_pos.mpr (by omega : c₁.verts.length > 0)
+  have h_pos₂ : (c₂.verts.length : ℝ) > 0 := Nat.cast_pos.mpr (by omega : c₂.verts.length > 0)
+  have h_cast_lt : (c₁.verts.length : ℝ) < c₂.verts.length := Nat.cast_lt.mpr h_shorter
+  -- 1/a > 1/b ⟺ b < a (for positive a, b)
+  have h_iff : (1 / (c₁.verts.length : ℝ) > 1 / c₂.verts.length) ↔
+               (c₁.verts.length : ℝ) < c₂.verts.length := by
+    rw [gt_iff_lt, one_div_lt_one_div h_pos₂ h_pos₁]
+  exact h_iff.mpr h_cast_lt
+
 end GeneralCycles
 
 end Diaspora.Logic

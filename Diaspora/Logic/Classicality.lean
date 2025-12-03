@@ -828,6 +828,135 @@ theorem classical_universe_admits_no_paradoxes [DecidableEq (Fin n)]
   rw [ImGradient, LinearMap.mem_range]
   exact ⟨ϕ, h_eq.symm⟩
 
+/-! ## Orthogonality of Disjoint Cycles -/
+
+/-- Two GeneralCycles are vertex-disjoint if they share no vertices. -/
+def GeneralCycle.VertexDisjoint {n : ℕ} (c₁ c₂ : GeneralCycle n) : Prop :=
+  ∀ v : Fin n, v ∈ c₁.verts → v ∉ c₂.verts
+
+/-- If cycles are vertex-disjoint, cycle forms are supported on disjoint edge sets. -/
+lemma disjoint_cycles_disjoint_support {n : ℕ} [Fintype (Fin n)] [NeZero n]
+    (c₁ c₂ : GeneralCycle n)
+    (h_disjoint : GeneralCycle.VertexDisjoint c₁ c₂) :
+    ∀ i j, (general_cycle_form c₁).val i j ≠ 0 →
+           (general_cycle_form c₂).val i j = 0 := by
+  intro i j h_c1_nonzero
+  unfold general_cycle_form at h_c1_nonzero ⊢
+  simp only at h_c1_nonzero ⊢
+  -- If c₁ has nonzero value on (i,j), then i or j is in c₁.verts
+  split_ifs at h_c1_nonzero with h1 h2
+  · -- Forward edge of c₁: i is in c₁
+    obtain ⟨k, hk⟩ := h1
+    have h_i_in_c1 : i ∈ c₁.verts := by
+      rw [← hk.1]
+      unfold GeneralCycle.vertex
+      exact List.get_mem c₁.verts _
+    have h_i_not_in_c2 : i ∉ c₂.verts := h_disjoint i h_i_in_c1
+    have h_j_in_c1 : j ∈ c₁.verts := by
+      rw [← hk.2]
+      unfold GeneralCycle.nextVertex GeneralCycle.vertex
+      exact List.get_mem c₁.verts _
+    have h_j_not_in_c2 : j ∉ c₂.verts := h_disjoint j h_j_in_c1
+    -- Now show c₂ form is 0 on (i,j) since neither i nor j is in c₂
+    split_ifs with h3 h4
+    · exfalso
+      obtain ⟨k2, hk2⟩ := h3
+      apply h_i_not_in_c2
+      rw [← hk2.1]
+      unfold GeneralCycle.vertex
+      exact List.get_mem c₂.verts _
+    · exfalso
+      obtain ⟨k2, hk2⟩ := h4
+      apply h_j_not_in_c2
+      rw [← hk2.1]
+      unfold GeneralCycle.vertex
+      exact List.get_mem c₂.verts _
+    · rfl
+  · -- Reverse edge of c₁: j and i are in c₁
+    obtain ⟨k, hk⟩ := h2
+    have h_j_in_c1 : j ∈ c₁.verts := by
+      rw [← hk.1]
+      unfold GeneralCycle.vertex
+      exact List.get_mem c₁.verts _
+    have h_j_not_in_c2 : j ∉ c₂.verts := h_disjoint j h_j_in_c1
+    have h_i_in_c1 : i ∈ c₁.verts := by
+      rw [← hk.2]
+      unfold GeneralCycle.nextVertex GeneralCycle.vertex
+      exact List.get_mem c₁.verts _
+    have h_i_not_in_c2 : i ∉ c₂.verts := h_disjoint i h_i_in_c1
+    split_ifs with h3 h4
+    · exfalso
+      obtain ⟨k2, hk2⟩ := h3
+      apply h_i_not_in_c2
+      rw [← hk2.1]
+      unfold GeneralCycle.vertex
+      exact List.get_mem c₂.verts _
+    · exfalso
+      obtain ⟨k2, hk2⟩ := h4
+      apply h_j_not_in_c2
+      rw [← hk2.1]
+      unfold GeneralCycle.vertex
+      exact List.get_mem c₂.verts _
+    · rfl
+  · -- c₁ form is 0 at (i,j), contradiction
+    exfalso
+    exact h_c1_nonzero rfl
+
+/-- **Independence of Topological Defects**:
+    Disjoint cycles have orthogonal harmonic forms.
+
+    Physical interpretation: topological defects localized in different regions
+    of the graph do not interact energetically. Their contributions to the
+    total energy are additive (Pythagorean).
+-/
+theorem disjoint_cycles_orthogonal {n : ℕ} [Fintype (Fin n)] [NeZero n]
+    (c₁ c₂ : GeneralCycle n)
+    (h_disjoint : GeneralCycle.VertexDisjoint c₁ c₂) :
+    inner_product_C1 (general_cycle_form c₁) (general_cycle_form c₂) = 0 := by
+  unfold inner_product_C1
+  apply mul_eq_zero_of_right
+  apply Finset.sum_eq_zero
+  intro i _
+  apply Finset.sum_eq_zero
+  intro j _
+  by_cases h : (general_cycle_form c₁).val i j = 0
+  · simp [h]
+  · have h2 := disjoint_cycles_disjoint_support c₁ c₂ h_disjoint i j h
+    simp [h2]
+
+/-- Corollary: The energy of two disjoint cycles is additive. -/
+theorem disjoint_cycles_energy_additive {n : ℕ} [Fintype (Fin n)] [NeZero n]
+    (c₁ c₂ : GeneralCycle n)
+    (h_disjoint : GeneralCycle.VertexDisjoint c₁ c₂) :
+    let σ_sum : C1 n := {
+      val := fun i j => (general_cycle_form c₁).val i j + (general_cycle_form c₂).val i j,
+      skew := by intro i j; rw [(general_cycle_form c₁).skew, (general_cycle_form c₂).skew]; ring
+    }
+    norm_sq σ_sum = norm_sq (general_cycle_form c₁) + norm_sq (general_cycle_form c₂) := by
+  intro σ_sum
+  have h_orth := disjoint_cycles_orthogonal c₁ c₂ h_disjoint
+  unfold norm_sq inner_product_C1 at h_orth ⊢
+  have h_expand : ∀ i j, σ_sum.val i j * σ_sum.val i j =
+      (general_cycle_form c₁).val i j * (general_cycle_form c₁).val i j +
+      2 * (general_cycle_form c₁).val i j * (general_cycle_form c₂).val i j +
+      (general_cycle_form c₂).val i j * (general_cycle_form c₂).val i j := by
+    intro i j; ring
+  have h_sum_expand : ∑ i, ∑ j, σ_sum.val i j * σ_sum.val i j =
+      ∑ i, ∑ j, (general_cycle_form c₁).val i j * (general_cycle_form c₁).val i j +
+      2 * ∑ i, ∑ j, (general_cycle_form c₁).val i j * (general_cycle_form c₂).val i j +
+      ∑ i, ∑ j, (general_cycle_form c₂).val i j * (general_cycle_form c₂).val i j := by
+    simp_rw [h_expand, Finset.sum_add_distrib]
+    congr 1; congr 1
+    rw [Finset.mul_sum]; apply Finset.sum_congr rfl; intro i _
+    rw [Finset.mul_sum]; apply Finset.sum_congr rfl; intro j _
+    ring
+  have h_cross_zero : ∑ i, ∑ j, (general_cycle_form c₁).val i j * (general_cycle_form c₂).val i j = 0 := by
+    have := h_orth
+    simp only [one_div, mul_eq_zero, inv_eq_zero, OfNat.ofNat_ne_zero, false_or] at this
+    exact this
+  rw [h_sum_expand, h_cross_zero]
+  ring
+
 end GeneralCycles
 
 end Diaspora.Logic

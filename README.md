@@ -226,8 +226,10 @@ Key results:
 * `classical_implies_acyclic`: `dim(H) = 0` ⟹ the graph is acyclic.
 * `classical_universe_admits_intrinsic_hierarchy`: Classical + connected ⟹ canonical height function gives well-founded membership.
 * `classical_universe_admits_no_paradoxes`: In a classical universe, every ActiveForm is exact.
+* `disjoint_cycles_orthogonal`: Vertex-disjoint cycles have orthogonal harmonic forms.
+* `disjoint_cycles_energy_additive`: Their energies add (Pythagorean).
 
-Interpretation: ZFC-style classical set theory plays the role of a vacuum. A classical universe admits well-founded membership hierarchies with no Russell-like paradoxes. Closing a loop is exactly the move that leaves this classical phase.
+Interpretation: ZFC-style classical set theory plays the role of a vacuum. A classical universe admits well-founded membership hierarchies with no Russell-like paradoxes. Closing a loop is exactly the move that leaves this classical phase. Spatially separated paradoxes don't interact - mass from one frozen contradiction doesn't feel another unless they share vertices.
 
 ### `Diaspora/Logic/Inverse.lean`
 
@@ -1020,7 +1022,7 @@ Then we define a **communication cycle** and prove the “handshake theorem”:
 
 * There exists a harmonic γ on the fused graph with non-zero holonomy around the cross-world cycle.
 
-Interpretation: one bridge is just contact; two bridges create shared topology.
+Interpretation: one bridge is just contact; two bridges create shared topology. Before fusion, the triangles are orthogonal (`disjoint_cycles_orthogonal`). Fusion creates a cycle sharing vertices with both, enabling coupling.
 
 ---
 

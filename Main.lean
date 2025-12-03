@@ -10,6 +10,7 @@ import Diaspora.Hodge.Decomposition
 import Diaspora.Hodge.Harmonic
 import Diaspora.Hodge.Spectral
 import Diaspora.Hodge.Twist
+import Diaspora.Hodge.IndexTheorem
 
 -- Dynamics: Time Evolution
 import Diaspora.Dynamics.Diffusion

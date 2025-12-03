@@ -34,15 +34,18 @@ At the core is a simple idea:
 > Try to relax away as much strain as possible. Whatever you *cannot* relax
 > is topological and shows up as a harmonic form.
 
-This is formalized in two layers:
+This is formalized in three layers:
 
-1. **The Mathematical Ideal (Global):**  
-   In `Hodge/Decomposition.lean`, we use global linear algebra to prove that a perfect potential `ϕ` exists and compute **Betti numbers** via the dimension formula  
-   `dim(H) + |V| = |E| + dim(Ker d)`.  
+1. **The Mathematical Ideal (Global):**
+   In `Hodge/Decomposition.lean`, we use global linear algebra to prove that a perfect potential `ϕ` exists and compute **Betti numbers** via the dimension formula
+   `dim(H) + |V| = |E| + dim(Ker d)`.
    For a connected graph this recovers the usual cyclomatic number: `dim(H) = |E| - |V| + 1`.
 
-2. **The Physical Mechanism (Local):**  
+2. **The Physical Mechanism (Local):**
    In `Dynamics/Diffusion.lean`, we show that the system doesn't *need* a global solver to find this state. Nodes simply push against their neighbors (Heat Equation) to minimize local strain. Observers measure topology locally via **Holonomy** (walking in loops).
+
+3. **The Bridge (Index Theorem):**
+   In `Hodge/IndexTheorem.lean`, we prove these views are equivalent via the discrete **McKean-Singer formula**: `b₀ - b₁ = |V| - |E|`. The supertrace of the heat kernel is constant for all time - watching diffusion at *any* instant reveals the Euler characteristic. Non-zero eigenvalues of the Laplacians on vertices and edges cancel in pairs; only the harmonic modes survive.
 
 Then we prove (for the complete graph) a discrete **Hodge decomposition**:
 
@@ -630,6 +633,37 @@ Canonical construction of harmonic forms with specified winding.
 * `dehn_twist_winding_one`: Total winding around cycle = 1.
 * `dehn_twist_energy`: **‖dehn_twist‖² = 1/n** (minimum non-zero energy).
 * `dehn_twist_is_canonical`: Any harmonic form with winding 1 equals the Dehn twist.
+
+### `Diaspora/Hodge/IndexTheorem.lean`
+
+The discrete McKean-Singer formula - the "baby Atiyah-Singer" for finite graphs.
+
+This file bridges the spectral and topological perspectives. The central identity:
+
+```
+b₀ - b₁ = |V| - |E| = χ(G)
+```
+
+where b₀ = dim(H⁰) counts connected components and b₁ = dim(H¹) counts independent cycles.
+
+The McKean-Singer interpretation: imagine watching heat diffuse on the graph. At t=0, the "supertrace" (trace on vertices minus trace on edges) is just |V| - |E|. As t→∞, the heat kernel projects onto harmonic modes, and the supertrace becomes b₀ - b₁. The theorem says these are equal - **non-zero eigenvalues of Δ₀ and Δ₁ cancel in pairs**.
+
+Key results:
+
+* `mckean_singer`: The analytic index equals the Euler characteristic.
+* `betti_1_connected_add`: For connected graphs: b₁ + |V| = |E| + 1.
+* `spectral_pairing_principle`: d maps μ-eigenvectors of Δ₀ to μ-eigenvectors of Δ₁.
+* `supertrace_conservation`: The supertrace is constant across all time scales.
+
+The proof is almost trivial given the existing machinery - it's a direct consequence of `harmonic_dimension_eq_cyclomatic` from `Decomposition.lean`. What the file adds is the *interpretation*: the heat equation "sees" topology because the excited modes decay away while the zero modes persist. The supersymmetry (d intertwining the two Laplacians) ensures the decay rates match on both sides.
+
+Interpretation: This completes the Hodge story. We now have three equivalent views of the same phenomenon:
+
+1. **Static (Decomposition)**: dim(H) counts the gap between edges and vertices.
+2. **Energetic (Spectral)**: Harmonic forms carry quantized energy ≥ 1/n.
+3. **Dynamic (Index)**: Watching diffusion at any instant reveals the Euler characteristic.
+
+The McKean-Singer formula says you can measure the total "paradox content" of the universe by observing how it relaxes - at any moment in time.
 
 ---
 

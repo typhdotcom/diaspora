@@ -397,6 +397,7 @@ This generalizes `genesis_unsatisfiable_geometric` (from Kirchhoff.lean) to a un
 * `harmonic_zero_on_edges_acyclic` (Leaf Lemma): On acyclic graphs, harmonic forms must be zero on every edge. Uses the **bridge indicator construction**: since every edge in a tree is a bridge, we can construct a potential that's 1 on one side and 0 on the other, forcing γ(u,v) = 0 via orthogonality.
 * `divergence_free_on_acyclic_implies_zero`: Harmonic forms on acyclic graphs are identically zero.
 * `acyclic_implies_classical`: Forests have trivial harmonic subspace (`dim H = 0`).
+* `acyclic_implies_satisfiable`: On trees, every locally consistent theory is satisfiable.
 * `walk_sum_zero_implies_exact`: The crucial reverse direction - if walk_sum = 0 on all closed walks, the form is exact. The proof constructs a potential via path integration, with path independence guaranteed by zero holonomy.
 * `monodromy_exact_iff`: **The full iff characterization** - exactness is equivalent to zero walk_sum on all closed walks.
 * `satisfiability_iff_walk_sum_zero`: Application to theories - a locally consistent theory is satisfiable iff its realization has zero walk_sum on all closed walks.

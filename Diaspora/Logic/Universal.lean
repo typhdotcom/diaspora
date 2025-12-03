@@ -525,12 +525,7 @@ Their difference is precisely the holonomy of σ around the loop they form.
 -/
 
 set_option linter.unusedSectionVars false in
-/-- Potential difference between histories equals holonomy around their loop.
-
-If two histories h1, h2 both end at the same vertex, then:
-  Φ(h1) - Φ(h2) = ∮ σ around (h1.walk ++ h2.walk.reverse)
-
-This is the "memory mismatch" that becomes energy when we project down. -/
+/-- Potential difference between histories equals holonomy around their loop. -/
 theorem history_potential_diff_is_holonomy (G : DynamicGraph n) (σ : ActiveForm G) (root : Fin n)
     (h1 h2 : History G root) (h_same : h1.curr = h2.curr) :
     history_potential G σ root h1 - history_potential G σ root h2 =
@@ -575,22 +570,10 @@ theorem paradox_dissolves_in_cover (G : DynamicGraph n) (σ : ActiveForm G) (roo
   · exact case_u_extends_v hadj heq
   · exact case_v_extends_u hadj heq
 
-/-! ## 4. The Walk-Based Stokes Theorem
-
-The following theorem connects the walk-based perspective (accumulating potential
-along paths) with the algebraic perspective (exactness as being in ImGradient).
-
-**Key Insight**: For exact forms (gradients d_G φ), the walk_sum telescopes.
-This is the discrete analog of the fundamental theorem of calculus.
--/
+/-! ## 4. The Walk-Based Stokes Theorem -/
 
 set_option linter.unusedSectionVars false in
-/-- Walk-based Stokes Theorem: walk_sum of a gradient equals the potential difference.
-
-This is the fundamental theorem of calculus for discrete paths:
-  ∮ dφ = φ(end) - φ(start)
-
-The proof proceeds by induction on the walk, using the telescoping property. -/
+/-- Walk-based Stokes Theorem: walk_sum of a gradient equals the potential difference. -/
 theorem walk_stokes (G : DynamicGraph n) (φ : C0 n) {u v : Fin n}
     (w : (DynamicGraph.toSimpleGraph G).Walk u v) :
     walk_sum G (d_G G φ) w = φ v - φ u := by
@@ -626,10 +609,7 @@ lemma walk_sum_add (G : DynamicGraph n) (σ τ : ActiveForm G) {u v : Fin n}
     simp only [add_comm, add_left_comm, add_assoc]; rfl
 
 set_option linter.unusedSectionVars false in
-/-- The connection to holonomy: walk_sum around a closed walk equals walk_sum
-    of the harmonic projection.
-
-    This bridges Universal.lean's walk_sum with Harmonic.lean's holonomy. -/
+/-- walk_sum around a closed walk equals walk_sum of the harmonic projection. -/
 theorem walk_sum_factors_through_harmonic (G : DynamicGraph n) (σ : ActiveForm G) {v : Fin n}
     (w : (DynamicGraph.toSimpleGraph G).Walk v v) :
     ∃ (φ : C0 n) (γ : ActiveForm G),
@@ -641,26 +621,10 @@ theorem walk_sum_factors_through_harmonic (G : DynamicGraph n) (σ : ActiveForm 
   -- σ = d_G φ + γ, so walk_sum σ = walk_sum (d_G φ) + walk_sum γ = 0 + walk_sum γ
   rw [h_decomp, walk_sum_add, exact_walk_closed, zero_add]
 
-/-! ## 4a. The Walk Detector for Paradox
-
-The walk_sum provides a detector for logical paradox: if walking around any
-closed loop in the theory graph accumulates non-zero flux, the theory cannot
-be satisfied by any potential.
-
-This generalizes the specific argument used in `genesis_unsatisfiable_geometric`
-(Kirchhoff.lean) to a universal principle.
--/
+/-! ## 4a. The Walk Detector for Paradox -/
 
 set_option linter.unusedSectionVars false in
-/-- **The Walk Detector Theorem**: Non-zero walk_sum implies unsatisfiability.
-
-If a locally consistent theory T has any closed walk w in theory_graph(T) with
-walk_sum (realize T) w ≠ 0, then T is not satisfiable.
-
-This is the contrapositive of: satisfiable → exact → zero walk_sum (by Stokes).
-
-Philosophically: you can detect logical paradox by walking. If accumulating
-constraints around a loop gives a non-zero total, no consistent assignment exists. -/
+/-- Non-zero walk_sum implies unsatisfiability. -/
 theorem walk_sum_implies_unsatisfiable
     (T : Theory n) (h_cons : LocallyConsistent T)
     {v : Fin n} (w : (DynamicGraph.toSimpleGraph (theory_graph T)).Walk v v)
@@ -684,9 +648,7 @@ theorem walk_sum_implies_unsatisfiable
   rw [h_walk_eq, h_zero] at h_nonzero
   exact h_nonzero rfl
 
-/-- **Corollary**: The converse of walk_sum_implies_unsatisfiable.
-
-If a theory is satisfiable, then every closed walk has zero walk_sum. -/
+/-- If a theory is satisfiable, then every closed walk has zero walk_sum. -/
 theorem satisfiable_implies_walk_sum_zero
     (T : Theory n) (h_cons : LocallyConsistent T) (h_sat : Satisfiable T)
     {v : Fin n} (w : (DynamicGraph.toSimpleGraph (theory_graph T)).Walk v v) :
@@ -694,22 +656,9 @@ theorem satisfiable_implies_walk_sum_zero
   by_contra h_nonzero
   exact walk_sum_implies_unsatisfiable T h_cons w h_nonzero h_sat
 
-/-! ## 5. The Discrete Monodromy Theorem
+/-! ## 5. The Discrete Monodromy Theorem -/
 
-The following theorem completes the walk-based characterization of exactness.
-It is the discrete analogue of the classical monodromy theorem: a 1-form is exact
-iff its integral around every closed loop vanishes.
-
-**Key insight**: For a harmonic form γ with zero walk_sum on all closed walks,
-the harmonic subspace structure forces γ = 0. On acyclic graphs this is automatic
-(dim H = 0). On graphs with cycles, zero walk_sum implies the form is in the
-kernel of all cycle functionals, which for harmonic forms means γ = 0.
--/
-
-/-- **The Discrete Monodromy Theorem (Forward Direction for ActiveForm)**:
-    Exact forms have zero walk_sum on all closed walks.
-
-    This extends exact_walk_closed to the ActiveForm/d_G setting. -/
+/-- Exact forms have zero walk_sum on all closed walks. -/
 theorem exact_implies_walk_sum_zero (G : DynamicGraph n) (σ : ActiveForm G)
     (h_exact : σ ∈ ImGradient G)
     {v : Fin n} (w : (DynamicGraph.toSimpleGraph G).Walk v v) :
@@ -736,15 +685,7 @@ lemma walk_sum_smul (G : DynamicGraph n) (c : ℝ) (σ : ActiveForm G) {u v : Fi
     rw [smul_active_form_val, ih]
     ring
 
-/-- **Leaf Lemma**: On an acyclic graph, a nonzero divergence-free form is impossible.
-
-The proof uses the bridge indicator construction: for any edge (u,v) in an acyclic graph,
-we construct a potential φ that is 1 on the v-side of the edge and 0 on the u-side.
-Then d_G(φ) is the "indicator" of that edge, and ⟨γ, d_G(φ)⟩ = γ(u,v).
-Since γ ⊥ ImGradient, this forces γ(u,v) = 0 for all edges, hence γ = 0.
-
-**Key insight**: In an acyclic graph, every edge is a bridge (removing it disconnects
-the endpoints). This allows constructing an indicator potential for each edge. -/
+/-- On an acyclic graph, harmonic forms vanish on all edges (every edge is a bridge). -/
 lemma harmonic_zero_on_edges_acyclic
     (G : DynamicGraph n) (h_acyclic : (DynamicGraph.toSimpleGraph G).IsAcyclic)
     (γ : ActiveForm G) (h_harm : γ ∈ HarmonicSubspace G)
@@ -869,12 +810,7 @@ lemma harmonic_zero_on_edges_acyclic
   rw [h_sum] at h_orth
   linarith
 
-/-- **Leaf Lemma**: On an acyclic graph, a nonzero divergence-free form is impossible.
-
-The proof uses the bridge indicator construction: for any edge (u,v) in an acyclic graph,
-we construct a potential φ that is 1 on the v-side of the edge and 0 on the u-side.
-Then d_G(φ) is the "indicator" of that edge, and ⟨γ, d_G(φ)⟩ = γ(u,v).
-Since γ ⊥ ImGradient, this forces γ(u,v) = 0 for all edges, hence γ = 0. -/
+/-- On an acyclic graph, a nonzero harmonic form is impossible. -/
 lemma divergence_free_on_acyclic_implies_zero [NeZero n]
     (G : DynamicGraph n) (h_acyclic : (DynamicGraph.toSimpleGraph G).IsAcyclic)
     (γ : ActiveForm G) (h_harm : γ ∈ HarmonicSubspace G) :
@@ -887,14 +823,7 @@ lemma divergence_free_on_acyclic_implies_zero [NeZero n]
     have h_not_active : (i, j) ∉ G.active_edges := h_adj
     exact γ.property i j h_not_active
 
-/-- **Acyclic-Classical Equivalence (Acyclic → Classical direction)**
-
-This is the converse of `classical_implies_acyclic`: acyclic ↔ classical.
-
-**Theorem**: If G is acyclic (a forest), then dim(HarmonicSubspace G) = 0.
-
-**Proof**: By the leaf lemma, every element of HarmonicSubspace is zero.
--/
+/-- If G is acyclic (a forest), then dim(HarmonicSubspace G) = 0. -/
 theorem acyclic_implies_classical [NeZero n] (G : DynamicGraph n)
     (h_acyclic : (DynamicGraph.toSimpleGraph G).IsAcyclic) :
     Diaspora.Logic.IsClassical G := by
@@ -904,19 +833,7 @@ theorem acyclic_implies_classical [NeZero n] (G : DynamicGraph n)
   simp only [Submodule.mk_eq_zero]
   exact divergence_free_on_acyclic_implies_zero G h_acyclic γ hγ
 
-/-- **The Discrete Monodromy Theorem (Reverse Direction)**:
-
-If walk_sum(σ, w) = 0 for all closed walks w, then σ is exact.
-
-This is the crucial converse: zero holonomy everywhere implies exactness.
-The proof uses Hodge decomposition and the equivalence between classicality
-and acyclicity.
-
-**Proof strategy**:
-1. Decompose σ = d_G φ + γ (Hodge)
-2. walk_sum(σ) = walk_sum(γ) on closed walks (since exact part integrates to zero)
-3. So walk_sum(γ, w) = 0 for all closed walks
-4. Show γ = 0: if γ ≠ 0, then G has cycles, and γ has nonzero walk_sum on some cycle -/
+/-- If walk_sum(σ, w) = 0 for all closed walks w, then σ is exact. -/
 theorem walk_sum_zero_implies_exact [NeZero n] (G : DynamicGraph n) (σ : ActiveForm G)
     (h_zero : ∀ v : Fin n, ∀ w : (DynamicGraph.toSimpleGraph G).Walk v v, walk_sum G σ w = 0) :
     σ ∈ ImGradient G := by
@@ -1048,12 +965,7 @@ theorem walk_sum_zero_implies_exact [NeZero n] (G : DynamicGraph n) (σ : Active
   -- ⟨γ, γ⟩ = 0 implies γ = 0
   exact inner_self_eq_zero.mp h_inner_zero
 
-/-- **The Full Discrete Monodromy Theorem**:
-
-For an ActiveForm σ on G, exactness is equivalent to zero walk_sum on all closed walks.
-
-This is the discrete analogue of the classical monodromy theorem for 1-forms:
-a form is exact iff it integrates to zero around every closed loop. -/
+/-- Discrete Monodromy: exactness ↔ zero walk_sum on all closed walks. -/
 theorem monodromy_exact_iff [NeZero n] (G : DynamicGraph n) (σ : ActiveForm G) :
     σ ∈ ImGradient G ↔ (∀ v : Fin n, ∀ w : (DynamicGraph.toSimpleGraph G).Walk v v, walk_sum G σ w = 0) := by
   constructor
@@ -1062,10 +974,7 @@ theorem monodromy_exact_iff [NeZero n] (G : DynamicGraph n) (σ : ActiveForm G) 
   · intro h_zero
     exact walk_sum_zero_implies_exact G σ h_zero
 
-/-- **Corollary for Theories**: The full monodromy characterization of satisfiability.
-
-A locally consistent theory is satisfiable iff its realization has zero walk_sum
-on all closed walks. This completes the walk-based detector for logical paradox. -/
+/-- A theory is satisfiable iff its realization has zero walk_sum on all closed walks. -/
 theorem satisfiability_iff_walk_sum_zero [NeZero n]
     (T : Theory n) (h_cons : LocallyConsistent T) :
     Satisfiable T ↔
@@ -1073,5 +982,32 @@ theorem satisfiability_iff_walk_sum_zero [NeZero n]
       walk_sum (theory_graph T) (realize T) w = 0) := by
   rw [satisfiable_iff_exact_on_graph T h_cons]
   exact monodromy_exact_iff (theory_graph T) (realize T)
+
+/-! ## 6. Trees Cannot Support Paradox -/
+
+/-- On an acyclic graph, every locally consistent theory is satisfiable. -/
+theorem acyclic_implies_satisfiable [NeZero n]
+    (T : Theory n) (h_cons : LocallyConsistent T)
+    (h_acyclic : (DynamicGraph.toSimpleGraph (theory_graph T)).IsAcyclic) :
+    Satisfiable T := by
+  -- Step 1: Acyclic implies classical (dim H = 0)
+  have h_classical := acyclic_implies_classical (theory_graph T) h_acyclic
+
+  -- Step 2: Classical means every ActiveForm is exact
+  have h_all_exact : ∀ σ : ActiveForm (theory_graph T), σ ∈ ImGradient (theory_graph T) :=
+    Diaspora.Logic.classical_universe_admits_no_paradoxes (theory_graph T) h_classical
+
+  -- Step 3: In particular, realize T is exact
+  have h_exact := h_all_exact (realize T)
+
+  -- Step 4: Apply the bridge theorem
+  exact (satisfiable_iff_exact_on_graph T h_cons).mpr h_exact
+
+/-- For theories on acyclic graphs, local consistency implies satisfiability. -/
+theorem tree_satisfiability_decidable [NeZero n]
+    (T : Theory n)
+    (h_acyclic : (DynamicGraph.toSimpleGraph (theory_graph T)).IsAcyclic) :
+    LocallyConsistent T → Satisfiable T :=
+  fun h_cons => acyclic_implies_satisfiable T h_cons h_acyclic
 
 end Diaspora.Logic.Universal

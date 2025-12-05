@@ -1027,6 +1027,40 @@ Interpretation: closing the loop is exactly the topological move that makes "irr
 
 ---
 
+### Naming as symmetry breaking
+
+#### `Diaspora/Models/Naming.lean`
+
+Models the act of **naming** - creating an internal reference to an external stimulus - as a topological transition that breaks symmetry.
+
+Setup: a perceiver P observes two identical stimuli S1 and S2.
+
+* `G_pre`: Pre-naming state. A star graph with P at center, connected to S1 and S2. This is a tree (b₁ = 0), hence "classical" in Diaspora's sense.
+
+* `G_named`: Post-naming state. A memory node M is added, and the edge P-M-S1 forms a cycle. Now b₁ = 1.
+
+Pre-naming symmetry:
+
+* `swap_stimuli`: The permutation exchanging S1 ↔ S2 while fixing P.
+* `swap_is_automorphism`: This swap is a valid graph automorphism of `G_pre`.
+* `G_pre_is_classical`: The harmonic subspace is trivial (dim H = 0).
+
+Post-naming asymmetry:
+
+* `degree_S1_eq_two`, `degree_S2_eq_one`: S1 now has degree 2 (connected to both P and M), while S2 has degree 1.
+* `stimuli_are_distinguishable`: No automorphism of `G_named` can swap S1' and S2'. The proof uses degree preservation - automorphisms can't map a degree-2 vertex to a degree-1 vertex.
+* `G_named_betti_one`: The naming action creates exactly one independent cycle (b₁ = 1).
+
+Harmonic witness:
+
+* `exists_harmonic_discriminator`: There exists a harmonic form γ that "sees" S1 but not S2. Specifically, γ(M,S1) ≠ 0 while γ(S2,v) = 0 for all v.
+
+The proof constructs the Dehn twist on the P-M-S1 cycle: value 1/3 on forward edges, -1/3 on backward edges, zero elsewhere. The harmonicity proof shows the inner product with any gradient telescopes to zero (discrete Stokes).
+
+Interpretation: Before naming, the stimuli are interchangeable - there's no internal structure to distinguish them. The act of naming one stimulus (creating an internal reference M connected to S1) breaks this symmetry in two ways: combinatorially (different degrees) and topologically (a cycle that threads through S1 but not S2). The harmonic form is a "memory trace" - irreducible information that cannot be relaxed away. In Diaspora's language, naming creates mass: the harmonic content is the frozen residue of the referential act.
+
+---
+
 ### Self-measurement & "introspection"
 
 #### `Diaspora/Quantum/Measurement.lean`

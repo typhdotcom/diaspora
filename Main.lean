@@ -41,6 +41,8 @@ import Diaspora.Models.Genesis
 import Diaspora.Models.WeightedStrain
 import Diaspora.Models.StrainDynamics
 import Diaspora.Models.ObserverEffect
+import Diaspora.Models.Naming
+
 -- Logic
 import Diaspora.Logic.Theory
 import Diaspora.Logic.Omega

@@ -770,6 +770,34 @@ Concrete instances:
 
 Interpretation: The cycle graph is topologically minimal - exactly one independent cycle, regardless of size. Unlike K_n and K_{m,n} whose Betti numbers grow quadratically with vertex count, C_n always has b₁ = 1. This reflects the fundamental difference: adding vertices to a cycle extends it rather than creating new independent loops. The proof uses the dimension formula: n edges, n vertices, connected ⟹ dim(H) = n - n + 1 = 1. The cycle graph is also the natural home of the Dehn twist - the canonical harmonic form with winding 1 and energy 1/n lives precisely on C_n.
 
+### `Diaspora/Hodge/PathGraph.lean`
+
+Closed-form Betti number for the path graph P_n.
+
+The path graph is the **classical vacuum**: n vertices arranged in a line, each adjacent only to its immediate neighbors (no wraparound). This file proves its first Betti number is always zero:
+
+```
+b₁(P_n) = 0
+```
+
+Key results:
+
+* `pathGraph n`: Definition of P_n on n vertices, where vertex i is adjacent to i±1 (when they exist).
+* `path_graph_directed_edge_count`: P_n has exactly 2(n-1) directed edges (n-1 undirected).
+* `path_graph_kernel_dim`: The gradient kernel is 1-dimensional (connected graph).
+* `path_graph_betti_0`: **Main theorem** - the harmonic subspace is trivial.
+* `path_graph_is_classical`: P_n is a classical universe (dim H = 0).
+* `path_graph_all_exact`: Every ActiveForm on P_n is exact (satisfiable).
+
+The Genesis Gap:
+
+* `genesis_costs_one_edge`: The edge count difference between C_n and P_n is exactly 1.
+* `genesis_creates_one_cycle`: The Betti number jump from P_n to C_n is exactly 1.
+
+Interpretation: The path graph is the archetype of the classical universe - no cycles, no paradoxes, no irreducible frustration. Every constraint is satisfiable; information flows from one end to the other without getting trapped. The path is a tree, and trees admit well-founded membership hierarchies with no Russell-like loops. This is the "vacuum state" - the baseline against which all topological complexity is measured.
+
+The Genesis Gap theorems capture a fundamental truth: closing the loop creates the paradox. P_n has n-1 edges and b₁ = 0; C_n has n edges and b₁ = 1. That single edge - the "genesis edge" connecting the endpoints - transforms the classical vacuum into a non-classical universe with irreducible harmonic content. One edge is the minimum cost of genesis.
+
 ### `Diaspora/Hodge/WheelGraph.lean`
 
 Closed-form Betti number for the wheel graph W_n.

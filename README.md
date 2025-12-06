@@ -798,6 +798,30 @@ Interpretation: The path graph is the archetype of the classical universe - no c
 
 The Genesis Gap theorems capture a fundamental truth: closing the loop creates the paradox. P_n has n-1 edges and b₁ = 0; C_n has n edges and b₁ = 1. That single edge - the "genesis edge" connecting the endpoints - transforms the classical vacuum into a non-classical universe with irreducible harmonic content. One edge is the minimum cost of genesis.
 
+### `Diaspora/Hodge/EdgeAddition.lean`
+
+The **Edge Addition Theorem**: the atomic unit of topology creation.
+
+The path-to-cycle transition is the canonical example of genesis, but it's an instance of a universal principle. This file proves that adding any edge to any connected graph increases b₁ by exactly 1:
+
+```
+b₁(G + edge) = b₁(G) + 1
+```
+
+Key results:
+
+* `addEdge G i j`: Definition of adding edge (i,j) to a DynamicGraph.
+* `addEdge_card`: Edge count increases by exactly 2 (one directed edge each way).
+* `addEdge_preserves_connectivity`: Adding an edge to a connected graph preserves connectivity.
+* `edge_addition_increases_betti`: **Main theorem** - b₁ increases by exactly 1.
+* `genesis_gap_via_edge_addition`: The P_n → C_n transition as an instance of edge addition.
+* `betti_counts_excess_edges`: b₁ + (n-1) = |E|/2 for connected graphs.
+* `tree_characterization`: A connected graph is a tree iff |E|/2 = n-1.
+
+Interpretation: Genesis is **quantized** at the edge level. Every cycle in a graph traces back to one "genesis edge" that closed a loop. You cannot add "half a cycle" - topology comes in discrete units. The complete graph K_n achieves its maximum Betti number (n-1)(n-2)/2 via exactly that many "excess edges" beyond its spanning tree. Each excess edge contributes precisely one independent cycle.
+
+This theorem reveals the atomic structure of the topological phase transition. The vacuum (tree) sits at b₁ = 0 with exactly n-1 edges. Every additional edge beyond the tree baseline creates exactly one new mode of irreducible frustration. The path-to-cycle transition isn't special - it's just the first step in a universal staircase where each edge lifts b₁ by one.
+
 ### `Diaspora/Hodge/WheelGraph.lean`
 
 Closed-form Betti number for the wheel graph W_n.

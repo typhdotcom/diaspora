@@ -29,6 +29,7 @@ import Diaspora.Hodge.CartesianProduct
 import Diaspora.Hodge.MaximumTopology
 import Diaspora.Hodge.EdgeAddition
 import Diaspora.Hodge.BookGraph
+import Diaspora.Hodge.TripartiteGraph
 
 -- Dynamics: Time Evolution
 import Diaspora.Dynamics.Diffusion

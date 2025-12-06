@@ -745,6 +745,33 @@ Concrete instances:
 
 Interpretation: The formula (m-1)(n-1) counts "fundamental squares" - independent 4-cycles formed by choosing two vertices from each partition. Unlike the complete graph which maximizes connectivity, the bipartite graph maximizes *structured* connectivity while maintaining a clean partition. The star graph K_{1,n} is the degenerate case: a single hub connecting n leaves, with no cycles at all. K_{2,2} is the 4-cycle - the simplest bipartite graph with nontrivial topology. K_{3,3} (the utility graph) achieves 4 independent cycles from its 9 edges and 6 vertices.
 
+### `Diaspora/Hodge/TripartiteGraph.lean`
+
+Closed-form Betti numbers for the complete tripartite graph K_{a,b,c}.
+
+The complete tripartite graph partitions vertices into three sets A (size a), B (size b), and C (size c), with edges between all pairs of vertices in *different* sets - but no edges within the same set. This file proves its first Betti number:
+
+```
+b₁(K_{a,b,c}) = ab + bc + ca - (a + b + c) + 1
+```
+
+Key results:
+
+* `octahedron`: Definition of K_{2,2,2} on 6 vertices, with parts A = {0,1}, B = {2,3}, C = {4,5}.
+* `octahedron_edge_count`: K_{2,2,2} has 24 directed edges (12 undirected).
+* `octahedron_kernel_dim`: The gradient kernel is 1-dimensional (connected graph).
+* `octahedron_betti_seven`: **Main theorem** - the octahedron has b₁ = 7.
+* `octahedron_formula`: Verification that 2·2 + 2·2 + 2·2 - 6 + 1 = 7.
+
+Concrete instances:
+
+* `triangle_as_tripartite`: K_{1,1,1} = K₃ (the triangle) with b₁ = 1.
+* `octahedron_vs_K4`: K_{2,2,2} has more cycles than K₄ (7 > 3).
+* `octahedron_vs_cube`: K_{2,2,2} has more cycles than the 3-cube (7 > 5).
+* `tripartite_vs_bipartite`: K_{2,2,2} has more cycles than K_{3,3} (7 > 4).
+
+Interpretation: The tripartite structure represents *threefold opposition* - three groups where each member sees every member of the other groups but is blind to their own kind. Adding a third partition dramatically increases the cycle space compared to bipartite graphs: K_{3,3} has 4 cycles, but K_{2,2,2} has 7. The formula shows topology grows quadratically with partition sizes. The octahedron (dual of the cube) is the most symmetric tripartite graph, with every vertex having degree 4 and the graph being vertex-transitive. The triangle K_{1,1,1} is the degenerate case where each partition has one vertex.
+
 ### `Diaspora/Hodge/CycleGraph.lean`
 
 Closed-form Betti number for the cycle graph C_n.

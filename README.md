@@ -1491,7 +1491,39 @@ Interpretation: every edge break is both thermodynamic (irreversible heat releas
 
   1. Some edge must break under high frustration.
   2. A harmonic form with positive norm appears.
-  3. External observers measuring holonomy “see only γ” (no-hair analogue).
+  3. External observers measuring holonomy "see only γ" (no-hair analogue).
+
+#### `Diaspora/Dynamics/Stability.lean`
+
+Which cycles can exist without breaking? The Dehn twist on an n-cycle carries per-edge strain `(1/n)²`. A universe with breaking threshold `C_max` can only stably support cycles where this strain doesn't exceed the threshold.
+
+The **critical cycle length** emerges:
+
+* `criticalCycleLength C_max = ⌈1/√C_max⌉₊`
+
+This is the minimum cycle length that can exist stably given the universe's tolerance for per-edge strain. Shorter cycles exceed the threshold and must break.
+
+Main theorems:
+
+* `dehn_twist_per_edge_strain`: The per-edge strain of a Dehn twist is exactly `1/n²`.
+
+* `short_cycle_unstable`: Cycles shorter than the critical length have at least one edge exceeding `C_max`.
+
+* `long_cycle_stable`: Cycles at or above the critical length have all edges within `C_max`.
+
+* `triangle_threshold`: Triangles are stable iff `C_max ≥ 1/9`. The triangle, as the smallest cycle, demands the highest tolerance.
+
+* `threshold_monotonicity`: Lower thresholds require longer cycles. A pickier universe has coarser topology.
+
+* `zero_threshold_classical`: As `C_max → 0`, the critical length grows without bound. In the limit of zero tolerance, no finite cycle survives.
+
+* `triangle_is_minimum_paradox`: Among all cycles, the triangle has the highest per-edge strain (`1/9`). It is the densest form of paradox.
+
+* `long_cycle_limit`: Per-edge strain vanishes as cycle length grows. Infinite cycles are infinitely gentle.
+
+Interpretation: the breaking threshold is a kind of **Planck scale for topology**. It determines the granularity of paradox that can exist in the universe. A high-tolerance universe (large `C_max`) can sustain triangles - the most concentrated form of logical contradiction. A low-tolerance universe (small `C_max`) can only sustain large, diffuse cycles where the paradox is spread thin. In the classical limit (`C_max → 0`), no paradox survives; the universe is a tree.
+
+This connects the dynamics (when does strain cause breaking?) to the statics (which Betti numbers are achievable?). The topology of a universe is not arbitrary - it is constrained by the physics of what can persist.
 
 ---
 

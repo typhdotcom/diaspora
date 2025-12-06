@@ -1023,6 +1023,48 @@ The formula `b₁(T_{m,n}) - b₁(G_{m,n}) = m + n` generalizes the genesis gap 
 
 This is the topological cost of eliminating boundaries: you trade edge effects for global topology. The extra cycles represent information that is globally encoded but locally invisible - a discrete analog of the cosmological topology question in real physics. In Diaspora's language, a boundaryless universe must pay rent in irreducible frustration.
 
+### `Diaspora/Hodge/HypercubeGraph.lean`
+
+Closed-form Betti numbers for the n-dimensional hypercube Q_n.
+
+The hypercube Q_n has 2^n vertices (binary strings of length n), with two vertices adjacent iff they differ in exactly one bit:
+
+```
+Q_1:  0 — 1                     (path, b₁ = 0)
+
+Q_2:  00 — 01                   (square, b₁ = 1)
+       |    |
+      10 — 11
+
+Q_3:  the cube                  (b₁ = 5)
+
+Q_4:  the tesseract             (b₁ = 17)
+```
+
+This file proves:
+
+```
+b₁(Q_n) = n·2^{n-1} - 2^n + 1 = 2^{n-1}(n - 2) + 1
+```
+
+Key results:
+
+* `hypercube2`, `hypercube3`, `hypercube4`: Concrete definitions of Q_2, Q_3, Q_4.
+* `hypercube2_betti_one`: Q_2 (square) has b₁ = 1.
+* `hypercube3_betti_five`: Q_3 (cube) has b₁ = 5.
+* `hypercube4_betti_seventeen`: **Main theorem** - Q_4 (tesseract) has b₁ = 17.
+* `hypercube3_eq_prism4_betti`: Q_3 ≅ Prism_4 (isomorphic graphs, same Betti number).
+
+The Dimensional Doubling Theorem:
+
+* `doubling_2_to_3`: Going from Q_2 to Q_3 creates 3 new cycles (beyond 2× the original).
+* `doubling_3_to_4`: Going from Q_3 to Q_4 creates 7 new cycles.
+* `doubling_increment_pattern_3`, `doubling_increment_pattern_4`: The increment follows 2^{n-1} - 1.
+
+Interpretation: The hypercube is the n-dimensional extension of the closure pattern. Q_1 (path) is the classical vacuum. Q_2 (square) is the first non-trivial topology - closing the path into a cycle. Q_3 (cube) is two squares connected, and Q_4 (tesseract) is two cubes connected. Each dimension doubles the structure and connects corresponding vertices, creating 2^{n-1} - 1 new independent cycles beyond what doubling alone would produce.
+
+The formula b₁ = 2^{n-1}(n-2) + 1 shows that topology grows exponentially with dimension. Higher-dimensional spaces are "topologically denser" - the ratio b₁/|V| ≈ n/2 grows without bound. This is the discrete analog of how higher-dimensional manifolds can support richer cohomology. In Diaspora's language, each new dimension multiplies the channels for irreducible frustration rather than merely adding to them.
+
 ### `Diaspora/Hodge/ConeGraph.lean`
 
 The **Cone Graph Theorem**: a unifying result that explains the wheel graph and introduces the fan graph family.

@@ -823,6 +823,47 @@ Concrete instances:
 
 Interpretation: Adding a "central observer" to a cycle doesn't simplify the topology - it **multiplies** it. The n-cycle alone has b₁ = 1 (one independent cycle). Adding a hub creates n independent cycles, because each spoke forms a new cycle with part of the rim. The hub cannot relax the cycle because every shortcut it provides creates a new cycle. In Diaspora's language: an observer that "sees everything" creates n channels of irreducible frustration. Observation amplifies rather than resolves the harmonic content.
 
+### `Diaspora/Hodge/FriendshipGraph.lean`
+
+Closed-form Betti number for the friendship graph (windmill graph) F_n.
+
+The friendship graph F_n consists of n triangles all sharing a single central vertex. Each triangle has its own pair of "outer" vertices connected to the hub:
+
+```
+        1       3       5
+         \     / \     /
+          \   /   \   /
+           \ /     \ /
+    F_3:    0 ————— 0 ————— 0   (same vertex 0)
+           / \     / \
+          /   \   /   \
+         /     \ /     \
+        2       4       6
+```
+
+This file proves:
+
+```
+b₁(F_n) = n
+```
+
+Key results:
+
+* `friendship1`, `friendship2`, `friendship3`: Concrete definitions of F_1, F_2, F_3.
+* `friendship1_betti_one`: **Main theorem** - F_1 (single triangle) has b₁ = 1.
+* `friendship2_betti_two`: **Main theorem** - F_2 (two triangles) has b₁ = 2.
+* `friendship3_betti_three`: **Main theorem** - F_3 (three triangles) has b₁ = 3.
+
+Philosophical corollaries:
+
+* `junction_is_sterile`: Sharing a vertex doesn't create interaction - F_2 has the same Betti number as two isolated triangles.
+* `paradox_additivity`: Edge-disjoint paradoxes contribute additively to dim(H).
+* `wheel_vs_friendship_same_betti`: W_3 and F_3 have equal Betti numbers (both = 3), but by different mechanisms.
+
+Interpretation: The friendship graph demonstrates the principle from `Orthogonality.lean`: **what matters for independence is channel-disjointness (edges), not junction-disjointness (vertices)**. The n triangles share the central vertex but no edges, so by `edge_disjoint_cycles_orthogonal`, their harmonic forms are orthogonal. Each triangle carries its own irreducible frustration independently - n paradoxes coexisting at a single point without interference.
+
+This contrasts with the wheel graph: both W_n and F_n have b₁ = n, but the wheel's hub *creates* new cycles (observation amplifies), while the friendship hub merely *hosts* pre-existing cycles (junction colocates). The friendship graph is also known as the Dutch windmill Wd(3,n), and satisfies the graph-theoretic "Friendship Theorem": if any two people have exactly one mutual friend, the social graph must be a friendship graph.
+
 ### `Diaspora/Hodge/PrismGraph.lean`
 
 Closed-form Betti numbers for the prism graph (circular ladder) Prism_n.

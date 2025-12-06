@@ -447,7 +447,7 @@ The `history_potential_diff_is_holonomy` theorem formalizes the "memory mismatch
 Φ(h1) - Φ(h2) = ∮ σ around (h1.walk ++ h2.walk.reverse)
 ```
 
-This is the holonomy of σ around the closed loop formed by following h1 forward and h2 backward. In the cover, every history has a unique potential. When we project down to the physical graph, histories that took different paths to reach v may disagree about what the potential "should be" there. That disagreement is the winding number around the cycle they span — the harmonic content that cannot be relaxed away.
+This is the holonomy of σ around the closed loop formed by following h1 forward and h2 backward. In the cover, every history has a unique potential. When we project down to the physical graph, histories that took different paths to reach v may disagree about what the potential "should be" there. That disagreement is the winding number around the cycle they span - the harmonic content that cannot be relaxed away.
 
 Interpretation: the universal cover is a kind of **God's-eye view** - reality unrolled into a tree, with no loops and no paradox. Distinct histories never collide upstairs, so every constraint field lifts to an exact form. When you project back down, different histories can land on the same vertex; their "memory mismatch" is what shows up as energy. Diaspora treats ZFC-style foundations as something like a universal cover: a classical tree of sets that we mistake for the messy, cyclic, finite web of relations underneath.
 
@@ -796,7 +796,7 @@ The Genesis Gap:
 
 Interpretation: The path graph is the archetype of the classical universe - no cycles, no paradoxes, no irreducible frustration. Every constraint is satisfiable; information flows from one end to the other without getting trapped. The path is a tree, and trees admit well-founded membership hierarchies with no Russell-like loops. This is the "vacuum state" - the baseline against which all topological complexity is measured.
 
-The Genesis Gap theorems capture a fundamental truth: closing the loop creates the paradox. P_n has n-1 edges and b₁ = 0; C_n has n edges and b₁ = 1. That single edge - the "genesis edge" connecting the endpoints - transforms the classical vacuum into a non-classical universe with irreducible harmonic content. One edge is the minimum cost of genesis.
+The Genesis Gap theorems formalize this: closing the loop creates the paradox. P_n has n-1 edges and b₁ = 0; C_n has n edges and b₁ = 1. That single edge - the "genesis edge" connecting the endpoints - transforms the classical vacuum into a non-classical universe with irreducible harmonic content. One edge is the minimum cost of genesis.
 
 ### `Diaspora/Hodge/EdgeAddition.lean`
 
@@ -818,9 +818,9 @@ Key results:
 * `betti_counts_excess_edges`: b₁ + (n-1) = |E|/2 for connected graphs.
 * `tree_characterization`: A connected graph is a tree iff |E|/2 = n-1.
 
-Interpretation: Genesis is **quantized** at the edge level. Every cycle in a graph traces back to one "genesis edge" that closed a loop. You cannot add "half a cycle" - topology comes in discrete units. The complete graph K_n achieves its maximum Betti number (n-1)(n-2)/2 via exactly that many "excess edges" beyond its spanning tree. Each excess edge contributes precisely one independent cycle.
+Interpretation: Genesis is **quantized** at the edge level. Every cycle in a graph traces back to one "genesis edge" that closed a loop. You cannot add "half a cycle" - topology comes in discrete units. The complete graph K_n achieves its maximum Betti number (n-1)(n-2)/2 via exactly that many "excess edges" beyond its spanning tree. Each excess edge contributes one independent cycle.
 
-This theorem reveals the atomic structure of the topological phase transition. The vacuum (tree) sits at b₁ = 0 with exactly n-1 edges. Every additional edge beyond the tree baseline creates exactly one new mode of irreducible frustration. The path-to-cycle transition isn't special - it's just the first step in a universal staircase where each edge lifts b₁ by one.
+This is the atomic structure of the topological phase transition. The vacuum (tree) sits at b₁ = 0 with exactly n-1 edges. Every additional edge beyond the tree baseline creates exactly one new mode of irreducible frustration. The path-to-cycle transition is the first step in a staircase where each edge lifts b₁ by one.
 
 ### `Diaspora/Hodge/WheelGraph.lean`
 
@@ -858,7 +858,7 @@ The friendship graph F_n consists of n triangles all sharing a single central ve
          \     / \     /
           \   /   \   /
            \ /     \ /
-    F_3:    0 ————— 0 ————— 0   (same vertex 0)
+    F_3:    0 ----- 0 ----- 0   (same vertex 0)
            / \     / \
           /   \   /   \
          /     \ /     \
@@ -895,9 +895,9 @@ Closed-form Betti numbers for the prism graph (circular ladder) Prism_n.
 The prism graph consists of two n-cycles connected by n "rungs" matching corresponding vertices:
 
 ```
-Top:    0 — 1 — 2 — ... — (n-1) — 0
+Top:    0 - 1 - 2 - ... - (n-1) - 0
         |   |   |           |
-Bottom: n — n+1— n+2— ... — (2n-1)— n
+Bottom: n - n+1- n+2- ... - (2n-1)- n
 ```
 
 This file proves:
@@ -936,9 +936,9 @@ Closed-form Betti numbers for the ladder graph (rectangular ladder) L_n.
 The ladder graph consists of two parallel paths of n vertices, connected by n "rungs":
 
 ```
-Top:    0 — 1 — 2 — ... — (n-1)
+Top:    0 - 1 - 2 - ... - (n-1)
         |   |   |           |
-Bottom: n — n+1— n+2— ... — (2n-1)
+Bottom: n - n+1- n+2- ... - (2n-1)
 ```
 
 This file proves:
@@ -971,9 +971,9 @@ Closed-form Betti numbers for the grid graph G_{m,n}.
 The m×n grid graph arranges m·n vertices in a rectangular lattice, with each vertex connected to its horizontal and vertical neighbors:
 
 ```
-Row 0:    0 — 1 — 2 — ... — (n-1)
+Row 0:    0 - 1 - 2 - ... - (n-1)
           |   |   |           |
-Row 1:    n — n+1— n+2— ... — (2n-1)
+Row 1:    n - n+1- n+2- ... - (2n-1)
           |   |   |           |
 ...
 ```
@@ -1014,9 +1014,9 @@ Closed-form Betti numbers for the torus graph T_{m,n}.
 The torus graph is the grid with wraparound in both dimensions - each row forms a cycle, each column forms a cycle. This creates a finite universe with no boundary:
 
 ```
-Row 0:    0 — 1 — 2 — ... — (n-1) —┐
+Row 0:    0 - 1 - 2 - ... - (n-1) -┐
           |   |   |           |    |
-Row 1:    n — n+1— ...        ...  |
+Row 1:    n - n+1- ...        ...  |
           |   |   |           |    |
 ...       └───┴───┴───────────┴────┘
 ```
@@ -1054,11 +1054,11 @@ Closed-form Betti numbers for the n-dimensional hypercube Q_n.
 The hypercube Q_n has 2^n vertices (binary strings of length n), with two vertices adjacent iff they differ in exactly one bit:
 
 ```
-Q_1:  0 — 1                     (path, b₁ = 0)
+Q_1:  0 - 1                     (path, b₁ = 0)
 
-Q_2:  00 — 01                   (square, b₁ = 1)
+Q_2:  00 - 01                   (square, b₁ = 1)
        |    |
-      10 — 11
+      10 - 11
 
 Q_3:  the cube                  (b₁ = 5)
 
@@ -1124,7 +1124,7 @@ Observation theorems:
 * `observation_amplification`: Adding an apex to a connected graph G increases b₁ by |V(G)| - 1.
 * `coning_preserves_topology`: Coning never reduces Betti number.
 
-Interpretation: The cone theorem reveals a deep truth about observation. An apex that connects to every vertex transforms the graph's edge count into its cycle count. Each original edge becomes the base of a triangle with the apex, and these triangles create |V| - 1 new independent cycles. Perfect observation doesn't simplify topology - it **crystallizes** existing structure into new harmonic modes. The number of new frustration channels equals the number of relationships the observer witnesses, minus the tree-like baseline. This explains the wheel graph result: an observer at the center of a cycle doesn't resolve the frustration; it multiplies it by creating n new cycles, one for each spoke-rim triangle.
+Interpretation: The cone theorem exposes observation's effect on topology. An apex that connects to every vertex transforms the graph's edge count into its cycle count. Each original edge becomes the base of a triangle with the apex, and these triangles create |V| - 1 new independent cycles. Perfect observation doesn't simplify topology - it **crystallizes** existing structure into new harmonic modes. The number of new frustration channels equals the number of relationships the observer witnesses, minus the tree-like baseline. This explains the wheel graph result: an observer at the center of a cycle doesn't resolve the frustration; it multiplies it by creating n new cycles, one for each spoke-rim triangle.
 
 ### `Diaspora/Hodge/SuspensionGraph.lean`
 
@@ -1161,7 +1161,7 @@ Dual observation theorems:
 * `dual_observation_additivity`: b₁(susp(G)) - b₁(G) = 2 × (b₁(cone(G)) - b₁(G)). Two observers add double the topology.
 * `pole_isolation_maximizes_topology`: The poles contribute independently because they can't communicate directly.
 
-Interpretation: The suspension represents **dual observation** - two independent observers watching the same system from opposite vantage points. Unlike the cone (single observer), the suspension has two poles that each contribute n - 1 new cycles, and since they can't see each other, their contributions are perfectly additive.
+Interpretation: The suspension represents **dual observation** - two independent observers watching the same system from opposite vantage points. Unlike the cone (single observer), the suspension has two poles that each contribute n - 1 new cycles, and since they can't see each other, their contributions are additive.
 
 This models situations where two distinct perspectives on the same underlying reality create compounding rather than canceling topology. Each observer's measurement contributes its own irreducible frustration, and these frustrations don't interfere because the observers are isolated. The poles can only "know" about each other through the system they both observe - they share no direct channel.
 
@@ -1169,7 +1169,7 @@ The comparison with the cone is precise:
 * **Cone** (single observer): adds n - 1 cycles
 * **Suspension** (two isolated observers): adds 2(n - 1) cycles
 
-The formula b₁(susp(G)) = b₁(cone(G)) + (n - 1) says the second observer contributes exactly as much as the first. If the poles were connected, we'd lose one cycle (the triangle through both poles and any original vertex would become exact). Their isolation is precisely what maximizes the topological yield.
+The formula b₁(susp(G)) = b₁(cone(G)) + (n - 1) says the second observer contributes exactly as much as the first. If the poles were connected, we'd lose one cycle (the triangle through both poles and any original vertex would become exact). Their isolation maximizes the topological yield.
 
 ### `Diaspora/Hodge/PetersenGraph.lean`
 
@@ -1189,7 +1189,7 @@ Key results:
 * `petersen_kernel_dim`: The graph is connected (kernel dimension 1).
 * `petersen_betti_six`: **Main theorem** - the harmonic subspace has dimension 6.
 
-Interpretation: The Petersen graph represents **democratic paradox**. Its 6 independent cycles are uniformly distributed across all 10 vertices - no vertex is more "responsible" for the topology than any other. Compare this to the wheel (where the hub is central) or the friendship graph (where the junction hosts all triangles). The Petersen graph is famous as a counterexample to many plausible conjectures precisely because its uniform structure defeats naive optimization strategies. In Diaspora's language, this is a structure where blame cannot be assigned to individuals - the paradox is genuinely collective.
+Interpretation: The Petersen graph represents **democratic paradox**. Its 6 independent cycles are uniformly distributed across all 10 vertices - no vertex is more "responsible" for the topology than any other. Compare this to the wheel (where the hub is central) or the friendship graph (where the junction hosts all triangles). The Petersen graph is famous as a counterexample to many plausible conjectures precisely because its uniform structure defeats naive optimization strategies. In Diaspora's language, this is a structure where blame cannot be assigned to individuals - the paradox is collective.
 
 ### `Diaspora/Hodge/CartesianProduct.lean`
 
@@ -1221,13 +1221,13 @@ Key results:
 * `hypercube_recurrence_2_to_3`, `hypercube_recurrence_3_to_4`: The recurrence b₁(Q_{n+1}) = 2·b₁(Q_n) + 2^n - 1.
 * `genesis_of_combination`: Two trees (paths) combine to produce cycles.
 
-Interpretation: The Cartesian product formula reveals a deep truth about **emergent topology**. The term (|V(G)|-1)(|V(H)|-1) shows that topology can arise purely from combination. Even when G and H are both trees (b₁ = 0), their product has cycles:
+Interpretation: The Cartesian product formula captures **emergent topology**. The term (|V(G)|-1)(|V(H)|-1) shows that topology can arise purely from combination. Even when G and H are both trees (b₁ = 0), their product has cycles:
 
 ```
 b₁(P_m □ P_n) = 0 + 0 + (m-1)(n-1) = (m-1)(n-1)
 ```
 
-This is the Grid formula - the "Genesis of Combination". Two classical systems with no paradox combine to produce irreducible frustration. The product cycles exist in neither factor alone; they emerge from the pattern of interaction. This formalizes a key intuition: some topology is genuinely relational - it cannot be reduced to properties of the parts.
+This is the Grid formula - the "Genesis of Combination". Two classical systems with no paradox combine to produce irreducible frustration. The product cycles exist in neither factor alone; they emerge from the pattern of interaction. This formalizes a key intuition: some topology is relational - it cannot be reduced to properties of the parts.
 
 ### `Diaspora/Hodge/MaximumTopology.lean`
 
@@ -1237,7 +1237,7 @@ The **Maximum Topology Theorem**: among all connected graphs on n vertices, the 
 b₁(G) ≤ b₁(K_n) = (n-1)(n-2)/2
 ```
 
-This theorem reveals a profound truth: **maximum connectivity creates maximum frustration**.
+**Maximum connectivity creates maximum frustration.**
 
 Key results:
 

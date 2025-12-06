@@ -899,6 +899,49 @@ The Closure Theorem:
 
 Interpretation: The ladder is the "open" version of the prism - what you get when you cut the prism open at both ends. It reveals the **Closure Theorem**: closing the ladder into a prism adds exactly 2 to the Betti number, one for each path that becomes a cycle. This generalizes the genesis gap (path→cycle adds 1) to higher dimensions: closing TWO paths into TWO cycles adds 2. The exchange rate is exactly 1:1 - each "closing edge" contributes one unit of harmonic content. The ladder sits between the fully classical (two disjoint paths) and the fully topological (prism), representing partial closure. The rungs create topology, but the open ends prevent the full "prism frustration" from manifesting.
 
+### `Diaspora/Hodge/GridGraph.lean`
+
+Closed-form Betti numbers for the grid graph G_{m,n}.
+
+The m×n grid graph arranges m·n vertices in a rectangular lattice, with each vertex connected to its horizontal and vertical neighbors:
+
+```
+Row 0:    0 — 1 — 2 — ... — (n-1)
+          |   |   |           |
+Row 1:    n — n+1— n+2— ... — (2n-1)
+          |   |   |           |
+...
+```
+
+This file proves:
+
+```
+b₁(G_{m,n}) = (m-1)(n-1)
+```
+
+Key results:
+
+* `grid2x3`, `grid3x3`: Concrete definitions of G_{2,3} and G_{3,3}.
+* `grid2x3_edge_count`, `grid3x3_edge_count`: Edge counts (14 and 24 directed edges respectively).
+* `grid2x3_kernel_dim`, `grid3x3_kernel_dim`: The gradient kernel is 1-dimensional (connected graphs).
+* `grid2x3_betti_two`: **Main theorem** - G_{2,3} has b₁ = 2.
+* `grid3x3_betti_four`: **Main theorem** - G_{3,3} has b₁ = 4.
+
+The Bipartite Coincidence:
+
+* `grid_bipartite_coincidence_2_3`: b₁(G_{2,3}) = b₁(K_{2,3}) = 2.
+* `grid_bipartite_coincidence_3_3`: b₁(G_{3,3}) = b₁(K_{3,3}) = 4.
+
+Connection to the ladder:
+
+* `grid_is_ladder_2_3`: G_{2,n} = L_n in terms of Betti number (the 2-row grid is the ladder).
+
+Interpretation: The grid graph achieves the same Betti number as the complete bipartite graph - `(m-1)(n-1)` - despite having a completely different structure. The grid is sparse and planar with only local connections; K_{m,n} is dense and (for m,n ≥ 3) non-planar with global bipartite connectivity. Yet they create the same dimension of harmonic space.
+
+This is the **Bipartite Coincidence**: local frustration can be just as rich as global frustration. The grid builds its cycles from unit squares - each cell in the (m-1)×(n-1) interior contributes one independent cycle. K_{m,n} builds its cycles from cross-partition 4-cycles - choosing 2 vertices from each side. Different mechanisms, same dimension.
+
+The coincidence is sharpest for K_{3,3} and G_{3,3}: the former is one of Kuratowski's forbidden minors (non-planar), while the latter is trivially drawable on paper. Yet both have b₁ = 4. Topology doesn't care whether paradox is spread locally across a lattice or concentrated in cross-partition demands - only the total quantity matters.
+
 ### `Diaspora/Hodge/ConeGraph.lean`
 
 The **Cone Graph Theorem**: a unifying result that explains the wheel graph and introduces the fan graph family.

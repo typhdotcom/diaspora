@@ -161,7 +161,7 @@ The simplest unsatisfiable program: three constraints demanding +1 around a tria
 * `genesis_is_consistent`: no local contradictions.
 * `structure_is_mandatory`: therefore harmonic content must exist.
 
-This is the "Escher staircase" - locally coherent, globally impossible. The impossibility isn't a bug; it's the birth of topology.
+This is the "Escher staircase" - locally coherent, globally impossible. Closing the loop creates topology.
 
 ### `Diaspora/Logic/Kirchhoff.lean`
 
@@ -191,7 +191,7 @@ Corollaries:
 
 **Uniqueness of the Dehn Twist:**
 
-But *why* the Dehn twist specifically? Is it just one possible harmonic form, or is it *the* harmonic form? This file answers definitively:
+The Dehn twist is the unique harmonic form (up to scaling):
 
 ```lean
 theorem genesis_harmonic_dim_eq_one :
@@ -321,7 +321,7 @@ Key results:
 * `StateDescription`: A state decomposes into `(potential, harmonic_part)` via Hodge.
 * `DescriptionCost`: Potentials are cheap (scaling with |V|); harmonic forms are expensive (irreducible topology).
 
-Interpretation: In classical universes, state compresses into potentials. When |E| > |V|, excess data cannot compress and must be stored as topology. Matter is frozen complexity - the algorithmic cost of incompressible information that cannot be relaxed away. The "3" in genesis isn't mystical; it's the literal information-theoretic cost of the topological deficit.
+Interpretation: In classical universes, state compresses into potentials. When |E| > |V|, excess data cannot compress and must be stored as topology. Matter is frozen complexity - the algorithmic cost of incompressible information that cannot be relaxed away. The "3" in genesis is the information-theoretic cost of the topological deficit.
 
 **Kolmogorov Complexity of Topology:**
 
@@ -372,7 +372,7 @@ The proof strategy mirrors the lower bound:
 * Lower: k=1 requires ≥ 3 + 1 - 1 = **3** constraints ✓
 * Upper: m=3 creates ≤ 3 - 3 + 1 = **1** deficit ✓
 
-The triangle is proven to be the **unique minimum viable genesis** - the simplest non-trivial topology that simultaneously saturates both fundamental algorithmic bounds.
+The triangle is the **simplest genesis** - the simplest non-trivial topology that simultaneously saturates both fundamental algorithmic bounds.
 
 Interpretation: Topology has a precise **exchange rate** between algorithmic complexity (program length) and information content (deficit). For connected graphs, this rate is exactly 1:1 after the n-vertex baseline. You cannot "cheat" and create harmonic structure more cheaply, nor can you pack arbitrary topology into a fixed program length. The information cost to encode a program creating deficit k is at least `(n + k - 1) * log(alphabet_size)` bits. Genesis is quantized at the algorithmic level, with both floor and ceiling.
 
@@ -424,7 +424,7 @@ Key results:
 * `walk_sum_implies_unsatisfiable`: If a locally consistent theory T has any closed walk with non-zero walk_sum, then T is unsatisfiable. **You can detect logical paradox by walking.**
 * `satisfiable_implies_walk_sum_zero`: Conversely, satisfiable theories have zero walk_sum on all closed walks.
 
-This generalizes `genesis_unsatisfiable_geometric` (from Kirchhoff.lean) to a universal principle: the "3" in genesis isn't mystical—it's the sum of constraints around the triangle, and any non-zero sum suffices to guarantee unsatisfiability.
+This generalizes `genesis_unsatisfiable_geometric` (from Kirchhoff.lean) to a universal principle: the "3" in genesis is the sum of constraints around the triangle, and any non-zero sum suffices to guarantee unsatisfiability.
 
 **The Discrete Monodromy Theorem** completes the walk-based characterization of exactness:
 
@@ -447,7 +447,7 @@ The `history_potential_diff_is_holonomy` theorem formalizes the "memory mismatch
 Φ(h1) - Φ(h2) = ∮ σ around (h1.walk ++ h2.walk.reverse)
 ```
 
-This is the holonomy of σ around the closed loop formed by following h1 forward and h2 backward. In the cover, every history has a unique potential. When we project down to the physical graph, histories that took different paths to reach v may disagree about what the potential "should be" there. That disagreement is precisely the winding number around the cycle they span — which is precisely the harmonic content that cannot be relaxed away.
+This is the holonomy of σ around the closed loop formed by following h1 forward and h2 backward. In the cover, every history has a unique potential. When we project down to the physical graph, histories that took different paths to reach v may disagree about what the potential "should be" there. That disagreement is the winding number around the cycle they span — the harmonic content that cannot be relaxed away.
 
 Interpretation: the universal cover is a kind of **God's-eye view** - reality unrolled into a tree, with no loops and no paradox. Distinct histories never collide upstairs, so every constraint field lifts to an exact form. When you project back down, different histories can land on the same vertex; their "memory mismatch" is what shows up as energy. Diaspora treats ZFC-style foundations as something like a universal cover: a classical tree of sets that we mistake for the messy, cyclic, finite web of relations underneath.
 
@@ -472,7 +472,7 @@ Key results:
 * `walk_sum_eq_winding`: When orbit covers all vertices bijectively, walk_sum equals SimpleCycleWinding.
 * `dehn_twist_walk_sum_one`: **The Dehn twist has walk_sum = 1 around its cycle.**
 
-The final theorem ties everything together: the Dehn twist constructed in `Twist.lean` (with algebraic winding 1) has walk_sum exactly 1 when measured by walking around the cycle. This is a discrete analog of the classical result that integrating a 1-form around a closed loop gives the winding/monodromy.
+The Dehn twist's algebraic winding (from `Twist.lean`) equals its walk_sum - a discrete analog of integrating a 1-form around a closed loop.
 
 ### `Diaspora/Logic/Universe.lean`
 
@@ -696,7 +696,7 @@ The McKean-Singer formula says you can measure the total "paradox content" of th
 
 Closed-form Betti numbers for the complete graph K_n.
 
-The complete graph is the maximally connected structure: every vertex is adjacent to every other. This file proves its first Betti number has a beautiful closed form:
+The complete graph is the maximally connected structure: every vertex is adjacent to every other. This file proves its first Betti number has the closed form:
 
 ```
 b₁(K_n) = (n-1)(n-2)/2
@@ -774,7 +774,7 @@ Interpretation: The cycle graph is topologically minimal - exactly one independe
 
 Closed-form Betti number for the wheel graph W_n.
 
-The wheel graph is a hub vertex (vertex 0) connected to every vertex of an n-cycle (vertices 1..n). This file proves a striking result:
+The wheel graph is a hub vertex (vertex 0) connected to every vertex of an n-cycle (vertices 1..n). This file proves:
 
 ```
 b₁(W_n) = n
@@ -911,7 +911,7 @@ Main structural statement:
 
 * `simulation_entropy_nondecreasing` - latent capacity with respect to `σ`
   never decreases along this simulation. Once capacity has moved to broken edges,
-  it doesn’t come back; the “time” of the universe is literally the accumulation
+  it doesn't come back; the "time" of the universe is the accumulation
   of irreversibly latent strain.
 
 (See `Dynamics/Local.lean` for the concrete implementation where the "Solver" is just local heat diffusion.)
@@ -1012,7 +1012,7 @@ Cyclomatic condition:
 * `HasObserver G`: `|E| ≥ |V|` (at least one extra edge beyond spanning tree).
 * `observer_creates_mass`: `HasObserver` + connected ⟹ `AllowsGenesis`.
 
-In other words, wiring in “enough” connectivity to host an observer also creates room in H for **mass-carrying topological modes**.
+Wiring in "enough" connectivity to host an observer also creates room in H for **mass-carrying topological modes**.
 
 Main theorem:
 
@@ -1046,7 +1046,7 @@ Genesis from noise:
 * `exact_forms_proper_subset`: there exist non-exact 1-cochains (`sigma_forcing` is a witness).
 * `random_field_has_harmonic_component`: generic constraint fields have harmonic content.
 
-Interpretation: closing the loop is exactly the topological move that makes "irremovable frustration" possible. Generic noise creates topology. Thanks to the spectral gap, any such harmonic component comes with a fixed minimum energy bill `1/n` - genesis isn’t just generic, it’s **energetically chunky**.
+Interpretation: closing the loop is exactly the topological move that makes "irremovable frustration" possible. Generic noise creates topology. Thanks to the spectral gap, any such harmonic component comes with a fixed minimum energy bill `1/n` - genesis is both generic and **energetically chunky**.
 
 (Compare `Logic/Genesis.lean` for the same phenomenon from the formal logic perspective: the rotational constraint is an unsatisfiable theory whose unsatisfiability *is* the harmonic content.)
 
@@ -1101,7 +1101,7 @@ Theorems:
 * `zombie_cannot_see_self`: if `σ` is exact (`σ = d0 ϕ`), going around the loop returns the same phase. No observable holonomy → “no self-awareness”.
 * `self_aware_detection`: if there is a harmonic component with winding number 3, then transport around the loop multiplies the phase by `exp(i·3)`.
 
-This is a poetic way of saying: holonomy is the obstruction to being globally exact, recast as “self-measurement”.
+Holonomy is the obstruction to being globally exact, recast here as "self-measurement".
 
 ---
 

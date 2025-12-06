@@ -1102,6 +1102,51 @@ Observation theorems:
 
 Interpretation: The cone theorem reveals a deep truth about observation. An apex that connects to every vertex transforms the graph's edge count into its cycle count. Each original edge becomes the base of a triangle with the apex, and these triangles create |V| - 1 new independent cycles. Perfect observation doesn't simplify topology - it **crystallizes** existing structure into new harmonic modes. The number of new frustration channels equals the number of relationships the observer witnesses, minus the tree-like baseline. This explains the wheel graph result: an observer at the center of a cycle doesn't resolve the frustration; it multiplies it by creating n new cycles, one for each spoke-rim triangle.
 
+### `Diaspora/Hodge/SuspensionGraph.lean`
+
+The **Suspension Graph Theorem**: what happens when two independent observers watch the same system.
+
+The suspension of a graph G, denoted susp(G), adds two new vertices (north and south poles) both connected to all vertices of G but **not to each other**. This file proves:
+
+```
+b₁(susp(G)) = |E(G)|/2 + (n - 1)
+```
+
+Equivalently:
+
+```
+b₁(susp(G)) = b₁(cone(G)) + (n - 1)
+```
+
+Key results:
+
+* `suspensionGraph G`: Definition of susp(G) on n+2 vertices, with poles at 0 and 1, and original vertices shifted to 2..n+1.
+* `suspension_graph_directed_edge_count`: susp(G) has 4n + |E(G)| directed edges (2n edges to each pole, plus lifted original edges).
+* `suspension_graph_kernel_dim`: The suspension of any graph is connected (kernel dimension 1).
+* `suspension_betti`: **Main theorem** - b₁(susp(G)) = |E(G)|/2 + (n - 1).
+* `suspension_vs_cone`: The suspension adds exactly n - 1 more cycles than the cone.
+* `suspension_betti_increase`: Suspending adds 2(n - 1) cycles to G.
+
+Concrete examples:
+
+* `suspension_path_betti`: susp(P_n) has b₁ = 2n - 2.
+* `suspension_cycle_betti`: susp(C_n) has b₁ = 2n - 1 (compare wheel W_n = cone(C_n) with b₁ = n).
+
+Dual observation theorems:
+
+* `dual_observation_additivity`: b₁(susp(G)) - b₁(G) = 2 × (b₁(cone(G)) - b₁(G)). Two observers add double the topology.
+* `pole_isolation_maximizes_topology`: The poles contribute independently because they can't communicate directly.
+
+Interpretation: The suspension represents **dual observation** - two independent observers watching the same system from opposite vantage points. Unlike the cone (single observer), the suspension has two poles that each contribute n - 1 new cycles, and since they can't see each other, their contributions are perfectly additive.
+
+This models situations where two distinct perspectives on the same underlying reality create compounding rather than canceling topology. Each observer's measurement contributes its own irreducible frustration, and these frustrations don't interfere because the observers are isolated. The poles can only "know" about each other through the system they both observe - they share no direct channel.
+
+The comparison with the cone is precise:
+* **Cone** (single observer): adds n - 1 cycles
+* **Suspension** (two isolated observers): adds 2(n - 1) cycles
+
+The formula b₁(susp(G)) = b₁(cone(G)) + (n - 1) says the second observer contributes exactly as much as the first. If the poles were connected, we'd lose one cycle (the triangle through both poles and any original vertex would become exact). Their isolation is precisely what maximizes the topological yield.
+
 ---
 
 ## Phase fields and cyclic constraints

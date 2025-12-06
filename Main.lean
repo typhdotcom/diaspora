@@ -23,6 +23,7 @@ import Diaspora.Hodge.GridGraph
 import Diaspora.Hodge.TorusGraph
 import Diaspora.Hodge.FriendshipGraph
 import Diaspora.Hodge.HypercubeGraph
+import Diaspora.Hodge.SuspensionGraph
 
 -- Dynamics: Time Evolution
 import Diaspora.Dynamics.Diffusion

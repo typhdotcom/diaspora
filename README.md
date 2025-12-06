@@ -864,6 +864,41 @@ Interpretation: The prism graph extends the "handshake theorem" from `Interactio
 
 The shared frustration grows **linearly** with the interface size. Each point of contact beyond connectivity adds a new channel of irreducible constraint. This is the topological cost of mirroring - fusing two worlds at n points creates n-1 new cycles of entanglement.
 
+### `Diaspora/Hodge/LadderGraph.lean`
+
+Closed-form Betti numbers for the ladder graph (rectangular ladder) L_n.
+
+The ladder graph consists of two parallel paths of n vertices, connected by n "rungs":
+
+```
+Top:    0 — 1 — 2 — ... — (n-1)
+        |   |   |           |
+Bottom: n — n+1— n+2— ... — (2n-1)
+```
+
+This file proves:
+
+```
+b₁(L_n) = n - 1
+```
+
+Key results:
+
+* `ladder3`, `ladder4`: Concrete definitions of L_3 and L_4.
+* `ladder3_edge_count`, `ladder4_edge_count`: Edge counts (14 and 20 directed edges respectively).
+* `ladder3_kernel_dim`, `ladder4_kernel_dim`: The gradient kernel is 1-dimensional (connected graphs).
+* `ladder3_betti_two`: **Main theorem** - L_3 has b₁ = 2.
+* `ladder4_betti_three`: **Main theorem** - L_4 has b₁ = 3.
+
+The Closure Theorem:
+
+* `closure_theorem_3`: b₁(Prism_3) - b₁(L_3) = 4 - 2 = 2.
+* `closure_theorem_4`: b₁(Prism_4) - b₁(L_4) = 5 - 3 = 2.
+* `closure_edge_cost_3`, `closure_edge_cost_4`: The edge difference is exactly 2.
+* `closure_exchange_rate_3`, `closure_exchange_rate_4`: Each closing edge buys exactly one cycle.
+
+Interpretation: The ladder is the "open" version of the prism - what you get when you cut the prism open at both ends. It reveals the **Closure Theorem**: closing the ladder into a prism adds exactly 2 to the Betti number, one for each path that becomes a cycle. This generalizes the genesis gap (path→cycle adds 1) to higher dimensions: closing TWO paths into TWO cycles adds 2. The exchange rate is exactly 1:1 - each "closing edge" contributes one unit of harmonic content. The ladder sits between the fully classical (two disjoint paths) and the fully topological (prism), representing partial closure. The rungs create topology, but the open ends prevent the full "prism frustration" from manifesting.
+
 ### `Diaspora/Hodge/ConeGraph.lean`
 
 The **Cone Graph Theorem**: a unifying result that explains the wheel graph and introduces the fan graph family.

@@ -888,6 +888,56 @@ Interpretation: The friendship graph demonstrates the principle from `Orthogonal
 
 This contrasts with the wheel graph: both W_n and F_n have b₁ = n, but the wheel's hub *creates* new cycles (observation amplifies), while the friendship hub merely *hosts* pre-existing cycles (junction colocates). The friendship graph is also known as the Dutch windmill Wd(3,n), and satisfies the graph-theoretic "Friendship Theorem": if any two people have exactly one mutual friend, the social graph must be a friendship graph.
 
+### `Diaspora/Hodge/BookGraph.lean`
+
+Closed-form Betti number for the book graph (stacked triangles) B_n.
+
+The book graph B_n consists of n triangles all sharing a single edge (the "spine"). Each triangle has its own "page" vertex connected to both spine endpoints:
+
+```
+              2
+             /|\
+            / | \
+           /  |  \
+    B_3:  0---+---1   (spine edge 0-1)
+           \  |  /
+            \ | /
+             \|/
+              3
+              |
+              4
+```
+
+This file proves:
+
+```
+b₁(B_n) = n
+```
+
+Key results:
+
+* `book1`, `book2`, `book3`: Concrete definitions of B_1, B_2, B_3.
+* `book1_betti_one`: **Main theorem** - B_1 (single triangle) has b₁ = 1.
+* `book2_betti_two`: **Main theorem** - B_2 (two triangles) has b₁ = 2.
+* `book3_betti_three`: **Main theorem** - B_3 (three triangles) has b₁ = 3.
+
+Philosophical corollaries:
+
+* `channel_is_transparent`: Sharing an edge doesn't create coupling - B_2 has the same Betti number as two isolated triangles.
+* `triad_same_betti`: W_3, F_3, and B_3 all achieve b₁ = 3.
+* `vertex_vs_edge_same_result`: Whether triangles share a vertex (friendship) or an edge (book), the result is the same.
+* `book_is_economical`: B_3 achieves b₁ = 3 with fewer vertices and edges than F_3.
+
+Interpretation: The book graph completes a **triad of mechanisms** for achieving b₁ = n:
+
+| Graph | Sharing | Mechanism |
+|-------|---------|-----------|
+| Wheel W_n | hub sees rim | observation **creates** cycles |
+| Friendship F_n | vertex (junction) | junction **hosts** cycles |
+| Book B_n | edge (channel) | channel **transmits** cycles |
+
+The book graph shows that even when paradoxes share a *communication channel* (edge) rather than just a *junction point* (vertex), they remain independent. The spine doesn't couple the triangles - each page's harmonic mode flows through the shared channel without interference. Edge-sharing is also more economical: B_n achieves the same b₁ as F_n with fewer vertices (n+2 vs 2n+1) and edges (2n+1 vs 3n).
+
 ### `Diaspora/Hodge/PrismGraph.lean`
 
 Closed-form Betti numbers for the prism graph (circular ladder) Prism_n.

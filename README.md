@@ -770,6 +770,31 @@ Concrete instances:
 
 Interpretation: The cycle graph is topologically minimal - exactly one independent cycle, regardless of size. Unlike K_n and K_{m,n} whose Betti numbers grow quadratically with vertex count, C_n always has b₁ = 1. This reflects the fundamental difference: adding vertices to a cycle extends it rather than creating new independent loops. The proof uses the dimension formula: n edges, n vertices, connected ⟹ dim(H) = n - n + 1 = 1. The cycle graph is also the natural home of the Dehn twist - the canonical harmonic form with winding 1 and energy 1/n lives precisely on C_n.
 
+### `Diaspora/Hodge/WheelGraph.lean`
+
+Closed-form Betti number for the wheel graph W_n.
+
+The wheel graph is a hub vertex (vertex 0) connected to every vertex of an n-cycle (vertices 1..n). This file proves a striking result:
+
+```
+b₁(W_n) = n
+```
+
+Key results:
+
+* `wheelGraph n`: Definition of W_n on n+1 vertices, with hub at 0 and rim forming a cycle.
+* `wheel_graph_directed_edge_count`: W_n has exactly 4n directed edges (2n undirected: n spokes + n rim edges).
+* `wheel_graph_kernel_dim`: The gradient kernel is 1-dimensional (the hub connects to everything).
+* `wheel_graph_betti_1`: **Main theorem** - the harmonic subspace has dimension n.
+
+Concrete instances:
+
+* `W3_betti_three`: W₃ (tetrahedron minus one face) has b₁ = 3.
+* `W4_betti_four`: W₄ (square with center) has b₁ = 4.
+* `W5_betti_five`: W₅ (pentagon with center) has b₁ = 5.
+
+Interpretation: Adding a "central observer" to a cycle doesn't simplify the topology - it **multiplies** it. The n-cycle alone has b₁ = 1 (one independent cycle). Adding a hub creates n independent cycles, because each spoke forms a new cycle with part of the rim. The hub cannot relax the cycle because every shortcut it provides creates a new cycle. In Diaspora's language: an observer that "sees everything" creates n channels of irreducible frustration. Observation amplifies rather than resolves the harmonic content.
+
 ---
 
 ## Phase fields and cyclic constraints

@@ -942,6 +942,46 @@ This is the **Bipartite Coincidence**: local frustration can be just as rich as 
 
 The coincidence is sharpest for K_{3,3} and G_{3,3}: the former is one of Kuratowski's forbidden minors (non-planar), while the latter is trivially drawable on paper. Yet both have b₁ = 4. Topology doesn't care whether paradox is spread locally across a lattice or concentrated in cross-partition demands - only the total quantity matters.
 
+### `Diaspora/Hodge/TorusGraph.lean`
+
+Closed-form Betti numbers for the torus graph T_{m,n}.
+
+The torus graph is the grid with wraparound in both dimensions - each row forms a cycle, each column forms a cycle. This creates a finite universe with no boundary:
+
+```
+Row 0:    0 — 1 — 2 — ... — (n-1) —┐
+          |   |   |           |    |
+Row 1:    n — n+1— ...        ...  |
+          |   |   |           |    |
+...       └───┴───┴───────────┴────┘
+```
+
+This file proves:
+
+```
+b₁(T_{m,n}) = mn + 1
+```
+
+Key results:
+
+* `torus2x3`, `torus3x3`: Concrete definitions of T_{2,3} and T_{3,3}.
+* `torus3x3_edge_count`: T_{3,3} has 36 directed edges (18 undirected: 9 horizontal + 9 vertical).
+* `torus3x3_kernel_dim`: The gradient kernel is 1-dimensional (connected graph).
+* `torus3x3_betti_ten`: **Main theorem** - T_{3,3} has b₁ = 10.
+* `torus3x3_formula`: Confirms the formula 3×3 + 1 = 10.
+
+The Torus Closure Theorem:
+
+* `torus_closure_theorem_3x3`: b₁(T_{3,3}) - b₁(G_{3,3}) = 10 - 4 = 6 = 3 + 3.
+* `torus_more_cycles_than_grid`: The torus always has more cycles than the corresponding grid.
+* `torus_closure_exchange_rate_3x3`: Each wrapping edge creates exactly one new cycle.
+
+Interpretation: The torus represents a **boundaryless finite universe**. The grid has edge effects - vertices on the boundary have fewer neighbors. The torus eliminates these by wrapping around, making every position equivalent. But this comes at a topological cost: exactly m + n new independent cycles that wrap around the entire universe.
+
+The formula `b₁(T_{m,n}) - b₁(G_{m,n}) = m + n` generalizes the genesis gap to two dimensions. Closing the grid into a torus adds m horizontal wrapping cycles (one per row) and n vertical wrapping cycles (one per column), minus one for linear dependence. These "cosmological" cycles wrap the entire universe and cannot be detected by any local observer - only by measuring holonomy around the full circumference.
+
+This is the topological cost of eliminating boundaries: you trade edge effects for global topology. The extra cycles represent information that is globally encoded but locally invisible - a discrete analog of the cosmological topology question in real physics. In Diaspora's language, a boundaryless universe must pay rent in irreducible frustration.
+
 ### `Diaspora/Hodge/ConeGraph.lean`
 
 The **Cone Graph Theorem**: a unifying result that explains the wheel graph and introduces the fan graph family.

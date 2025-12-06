@@ -26,6 +26,7 @@ import Diaspora.Hodge.HypercubeGraph
 import Diaspora.Hodge.SuspensionGraph
 import Diaspora.Hodge.PetersenGraph
 import Diaspora.Hodge.CartesianProduct
+import Diaspora.Hodge.MaximumTopology
 
 -- Dynamics: Time Evolution
 import Diaspora.Dynamics.Diffusion

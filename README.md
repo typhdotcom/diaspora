@@ -1205,6 +1205,41 @@ b₁(P_m □ P_n) = 0 + 0 + (m-1)(n-1) = (m-1)(n-1)
 
 This is the Grid formula - the "Genesis of Combination". Two classical systems with no paradox combine to produce irreducible frustration. The product cycles exist in neither factor alone; they emerge from the pattern of interaction. This formalizes a key intuition: some topology is genuinely relational - it cannot be reduced to properties of the parts.
 
+### `Diaspora/Hodge/MaximumTopology.lean`
+
+The **Maximum Topology Theorem**: among all connected graphs on n vertices, the complete graph K_n achieves the maximum first Betti number.
+
+```
+b₁(G) ≤ b₁(K_n) = (n-1)(n-2)/2
+```
+
+This theorem reveals a profound truth: **maximum connectivity creates maximum frustration**.
+
+Key results:
+
+* `edge_count_le_complete`: Every simple graph on n vertices has at most n(n-1)/2 undirected edges.
+* `betti_one_le_complete`: **Main theorem** - for any connected graph G, b₁(G) ≤ b₁(K_n).
+* `betti_one_le_formula`: The explicit bound b₁(G) ≤ (n-1)(n-2)/2.
+* `betti_monotone_in_edges`: If G ⊆ H as edge sets, then b₁(G) ≤ b₁(H). Topology is monotonic in connectivity.
+
+Extremal characterizations:
+
+* `cycle_is_minimal_non_classical`: C_n achieves the minimum non-zero Betti number (b₁ = 1).
+* `complete_is_maximal`: K_n achieves the maximum Betti number ((n-1)(n-2)/2).
+* `betti_range_achievable_endpoints`: For n ≥ 3, there exist connected graphs achieving b₁ = 0 (path), b₁ = 1 (cycle), and b₁ = (n-1)(n-2)/2 (complete graph).
+
+The Maximum Frustration Principle:
+
+* `maximum_frustration_principle`: K_n dominates all connected graphs in harmonic dimension.
+
+Interpretation: The complete graph is the topology maximizer - the "most paradoxical" possible structure on n vertices. Every pair of vertices is connected, creating the maximum number of opportunities for circular constraint dependencies. At the other extreme, the cycle C_n is the topology minimizer among non-classical graphs - the simplest possible genesis with just one independent cycle.
+
+The topology density ratio b₁/|E| measures efficiency:
+* For K_n: (n-2)/n → 1 as n → ∞ (nearly every edge creates a cycle)
+* For C_n: 1/n → 0 as n → ∞ (adding vertices increases edges but not cycles)
+
+This connects the graph-specific results to a universal principle: you cannot escape topology in a fully connected network. The "vacuum" (tree-like, satisfiable) phase becomes increasingly rare as connectivity grows. Maximum connectivity forces maximum irreducible frustration - there is no way to arrange all those edges without creating the maximum possible dimension of harmonic space.
+
 ---
 
 ## Phase fields and cyclic constraints

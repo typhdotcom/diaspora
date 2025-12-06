@@ -864,6 +864,43 @@ Interpretation: The prism graph extends the "handshake theorem" from `Interactio
 
 The shared frustration grows **linearly** with the interface size. Each point of contact beyond connectivity adds a new channel of irreducible constraint. This is the topological cost of mirroring - fusing two worlds at n points creates n-1 new cycles of entanglement.
 
+### `Diaspora/Hodge/ConeGraph.lean`
+
+The **Cone Graph Theorem**: a unifying result that explains the wheel graph and introduces the fan graph family.
+
+The cone of a graph G, denoted cone(G), adds a new apex vertex connected to all vertices of G. This file proves:
+
+```
+b₁(cone(G)) = |E(G)|
+```
+
+Key results:
+
+* `coneGraph G`: Definition of cone(G) on n+1 vertices, with apex at 0 and original vertices shifted to 1..n.
+* `cone_graph_directed_edge_count`: cone(G) has 2n + |E(G)| directed edges (n spokes in each direction, plus lifted original edges).
+* `cone_graph_kernel_dim`: The cone of any graph is connected (kernel dimension 1).
+* `cone_betti_eq_original_edges`: **Main theorem** - b₁(cone(G)) = |E(G)|.
+* `cone_betti_increase`: Coning increases Betti number by exactly |V| - 1.
+
+The Fan Graph (cone of a path):
+
+* `fanGraph n`: Definition of F_n = cone(P_n), creating a "Chinese folding fan" shape.
+* `fan_graph_betti`: **b₁(F_n) = n - 1** (the path has n-1 edges).
+* `fan2_betti_one`: F₂ is a triangle (b₁ = 1).
+* `fan3_betti_two`: F₃ has b₁ = 2.
+* `fan4_betti_three`: F₄ has b₁ = 3.
+
+Connections to existing results:
+
+* `wheel_is_cone_of_cycle`: W_n = cone(C_n), explaining why b₁(W_n) = n (the cycle has n edges).
+
+Observation theorems:
+
+* `observation_amplification`: Adding an apex to a connected graph G increases b₁ by |V(G)| - 1.
+* `coning_preserves_topology`: Coning never reduces Betti number.
+
+Interpretation: The cone theorem reveals a deep truth about observation. An apex that connects to every vertex transforms the graph's edge count into its cycle count. Each original edge becomes the base of a triangle with the apex, and these triangles create |V| - 1 new independent cycles. Perfect observation doesn't simplify topology - it **crystallizes** existing structure into new harmonic modes. The number of new frustration channels equals the number of relationships the observer witnesses, minus the tree-like baseline. This explains the wheel graph result: an observer at the center of a cycle doesn't resolve the frustration; it multiplies it by creating n new cycles, one for each spoke-rim triangle.
+
 ---
 
 ## Phase fields and cyclic constraints

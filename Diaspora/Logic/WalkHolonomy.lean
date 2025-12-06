@@ -17,7 +17,7 @@ variable {n : ℕ} [Fintype (Fin n)] [DecidableEq (Fin n)]
 
 /-! ## 1. Iteration Commutativity -/
 
-set_option linter.unusedSectionVars false in
+omit [Fintype (Fin n)] [DecidableEq (Fin n)] in
 /-- Key lemma: iteration commutes with next. -/
 lemma iterate_next_comm (cycle : SimpleCycle n) (k : ℕ) (v : Fin n) :
     cycle.next^[k] (cycle.next v) = cycle.next (cycle.next^[k] v) := by
@@ -27,6 +27,7 @@ lemma iterate_next_comm (cycle : SimpleCycle n) (k : ℕ) (v : Fin n) :
     simp only [Function.iterate_succ_apply']
     rw [ih]
 
+omit [Fintype (Fin n)] [DecidableEq (Fin n)] in
 /-- Helper: permutation power equals function iteration. -/
 lemma perm_pow_eq_iterate (cycle : SimpleCycle n) (h_bij : Function.Bijective cycle.next)
     (k : ℕ) (x : Fin n) :
@@ -38,6 +39,7 @@ lemma perm_pow_eq_iterate (cycle : SimpleCycle n) (h_bij : Function.Bijective cy
                Equiv.ofBijective_apply]
     rw [ih, iterate_next_comm]
 
+omit [DecidableEq (Fin n)] in
 /-- next^[n] = id for a SimpleCycle (uses that next is a bijection on Fin n). -/
 lemma next_iterate_n [NeZero n] (cycle : SimpleCycle n) (v : Fin n) :
     cycle.next^[n] v = v := by
@@ -89,6 +91,7 @@ noncomputable def canonical_cycle_walk [NeZero n] (cycle : SimpleCycle n)
 
 /-! ## 3. Walk Sum on Auxiliary Walk -/
 
+omit [Fintype (Fin n)] [DecidableEq (Fin n)] in
 /-- walk_sum of the auxiliary walk equals the partial sum. -/
 lemma walk_sum_cycle_aux (cycle : SimpleCycle n) (G : DynamicGraph n)
     (h_embedded : cycleEmbeddedIn cycle G) (σ : ActiveForm G) (v : Fin n) (k : ℕ) :
@@ -118,6 +121,7 @@ lemma walk_sum_cycle_aux (cycle : SimpleCycle n) (G : DynamicGraph n)
 
 /-! ## 4. Main Theorem -/
 
+omit [DecidableEq (Fin n)] in
 /-- **Main Theorem:** For the canonical cycle walk, walk_sum equals sum over edges.
     This connects the walk-based holonomy with the algebraic winding. -/
 theorem walk_holonomy_eq_sum [NeZero n] (cycle : SimpleCycle n)
@@ -130,6 +134,7 @@ theorem walk_holonomy_eq_sum [NeZero n] (cycle : SimpleCycle n)
 
 /-! ## 5. Connection to Winding -/
 
+omit [DecidableEq (Fin n)] in
 /-- When the orbit of v covers all of Fin n bijectively, we recover SimpleCycleWinding. -/
 theorem walk_sum_eq_winding [NeZero n] (cycle : SimpleCycle n)
     (G : DynamicGraph n) (h_embedded : cycleEmbeddedIn cycle G)
@@ -156,6 +161,7 @@ theorem walk_sum_eq_winding [NeZero n] (cycle : SimpleCycle n)
 
 /-! ## 6. Consequence: Dehn Twist Detection -/
 
+omit [DecidableEq (Fin n)] in
 /-- The Dehn twist has walk_sum = 1 around its cycle. -/
 theorem dehn_twist_walk_sum_one [NeZero n] (h_n_ge_3 : n ≥ 3)
     (cycle : SimpleCycle n) (G : DynamicGraph n)

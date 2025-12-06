@@ -10,9 +10,8 @@ namespace Diaspora.Logic
 
 open Diaspora.Core Diaspora.Hodge
 
-variable {n : ℕ} [Fintype (Fin n)]
+variable {n : ℕ}
 
-set_option linter.unusedSectionVars false in
 /-- Classical universes have no cycles: dim(H) = 0 ⟹ acyclic. -/
 theorem classical_implies_acyclic [DecidableEq (Fin n)] [NeZero n]
     (G : DynamicGraph n) (h_class : IsClassical G) :
@@ -24,7 +23,6 @@ theorem classical_implies_acyclic [DecidableEq (Fin n)] [NeZero n]
 noncomputable def canonical_height [NeZero n] (G : DynamicGraph n) : C0 n :=
   fun v => (DynamicGraph.toSimpleGraph G).dist ⟨0, Nat.pos_of_ne_zero (NeZero.ne n)⟩ v
 
-set_option linter.unusedSectionVars false in
 /-- In a tree, adjacent vertices have distances differing by 1. -/
 lemma tree_adjacent_dist_diff [NeZero n] {G : SimpleGraph (Fin n)}
     (h_acyclic : G.IsAcyclic) (h_conn : G.Connected)
@@ -107,7 +105,7 @@ theorem classical_universe_admits_rank [NeZero n] (G : DynamicGraph n) (_h_class
   · exact isMember_wellFounded G _
 
 /-- Classical universes admit no paradoxes: every ActiveForm is exact. -/
-theorem classical_universe_admits_no_paradoxes [DecidableEq (Fin n)]
+theorem classical_universe_admits_no_paradoxes [Fintype (Fin n)] [DecidableEq (Fin n)]
     (G : DynamicGraph n) (h_class : IsClassical G) :
     ∀ σ : ActiveForm G, σ ∈ ImGradient G := by
   intro σ

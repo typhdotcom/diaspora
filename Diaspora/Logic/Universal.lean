@@ -83,7 +83,7 @@ lemma cover_adj_extends_walk' {h1 h2 : History G root}
   exact cover_adj_extends_walk hadj' hlen'
 
 
-set_option linter.unusedSectionVars false in
+omit [Fintype (Fin n)] [DecidableEq (Fin n)] in
 /-- If two vertices both extend to the same History by adjacency with the same length, they are equal. -/
 lemma neighbors_of_local_max_eq {G : DynamicGraph n} {root : Fin n}
     {m pred succ : History G root}
@@ -96,6 +96,7 @@ lemma neighbors_of_local_max_eq {G : DynamicGraph n} {root : Fin n}
   exact History.eq_of_same_extension hm_ext_pred hm_ext_succ
 
 
+omit [Fintype (Fin n)] [DecidableEq (Fin n)] in
 /-- Cycles in the universal cover lead to contradiction. -/
 lemma cycle_max_contradiction {G : DynamicGraph n} {root : Fin n}
     {v : History G root} (cyc : (UniversalCover G root).Walk v v)
@@ -342,7 +343,7 @@ lemma cycle_max_contradiction {G : DynamicGraph n} {root : Fin n}
       simp only [Fin.ext_iff] at h_idx_eq
       omega
 
-set_option linter.unusedSectionVars false in
+omit [Fintype (Fin n)] [DecidableEq (Fin n)] in
 /-- The Universal Cover is acyclic. -/
 theorem universal_cover_is_classical (G : DynamicGraph n) (root : Fin n) :
     (UniversalCover G root).IsAcyclic := by
@@ -476,7 +477,7 @@ noncomputable def history_potential (G : DynamicGraph n) (σ : ActiveForm G) (ro
     (h : History G root) : ℝ :=
   walk_sum G σ h.walk
 
-set_option linter.unusedSectionVars false in
+omit [Fintype (Fin n)] [DecidableEq (Fin n)] in
 /-- walk_sum of an appended walk equals sum of both parts. -/
 lemma walk_sum_append (G : DynamicGraph n) (σ : ActiveForm G) {u v w : Fin n}
     (p : (DynamicGraph.toSimpleGraph G).Walk u v) (q : (DynamicGraph.toSimpleGraph G).Walk v w) :
@@ -487,7 +488,7 @@ lemma walk_sum_append (G : DynamicGraph n) (σ : ActiveForm G) {u v w : Fin n}
     simp only [SimpleGraph.Walk.append, walk_sum, ih]
     ring
 
-set_option linter.unusedSectionVars false in
+omit [Fintype (Fin n)] [DecidableEq (Fin n)] in
 /-- walk_sum of a concatenated walk equals original sum plus the new edge value. -/
 lemma walk_sum_concat (G : DynamicGraph n) (σ : ActiveForm G) {u v w : Fin n}
     (p : (DynamicGraph.toSimpleGraph G).Walk u v) (hadj : (DynamicGraph.toSimpleGraph G).Adj v w) :
@@ -496,7 +497,7 @@ lemma walk_sum_concat (G : DynamicGraph n) (σ : ActiveForm G) {u v w : Fin n}
   rw [walk_sum_append]
   simp [walk_sum]
 
-set_option linter.unusedSectionVars false in
+omit [Fintype (Fin n)] [DecidableEq (Fin n)] in
 /-- Reversing a walk negates its sum (by skew-symmetry of σ). -/
 lemma walk_sum_reverse (G : DynamicGraph n) (σ : ActiveForm G) {u v : Fin n}
     (p : (DynamicGraph.toSimpleGraph G).Walk u v) :
@@ -510,7 +511,7 @@ lemma walk_sum_reverse (G : DynamicGraph n) (σ : ActiveForm G) {u v : Fin n}
     rw [σ.val.skew]
     ring
 
-set_option linter.unusedSectionVars false in
+omit [Fintype (Fin n)] [DecidableEq (Fin n)] in
 /-- Copying a walk preserves its sum. -/
 lemma walk_sum_copy (G : DynamicGraph n) (σ : ActiveForm G) {u v u' v' : Fin n}
     (p : (DynamicGraph.toSimpleGraph G).Walk u v) (hu : u = u') (hv : v = v') :
@@ -524,7 +525,7 @@ Two histories reaching the same vertex may have different potentials.
 Their difference is precisely the holonomy of σ around the loop they form.
 -/
 
-set_option linter.unusedSectionVars false in
+omit [Fintype (Fin n)] [DecidableEq (Fin n)] in
 /-- Potential difference between histories equals holonomy around their loop. -/
 theorem history_potential_diff_is_holonomy (G : DynamicGraph n) (σ : ActiveForm G) (root : Fin n)
     (h1 h2 : History G root) (h_same : h1.curr = h2.curr) :
@@ -534,6 +535,7 @@ theorem history_potential_diff_is_holonomy (G : DynamicGraph n) (σ : ActiveForm
   rw [walk_sum_append, walk_sum_copy, walk_sum_reverse]
   ring
 
+omit [Fintype (Fin n)] [DecidableEq (Fin n)] in
 /-- Every field becomes exact in the Universal Cover. -/
 theorem paradox_dissolves_in_cover (G : DynamicGraph n) (σ : ActiveForm G) (root : Fin n) :
     ∃ (Φ : History G root → ℝ),
@@ -572,7 +574,7 @@ theorem paradox_dissolves_in_cover (G : DynamicGraph n) (σ : ActiveForm G) (roo
 
 /-! ## 4. The Walk-Based Stokes Theorem -/
 
-set_option linter.unusedSectionVars false in
+omit [Fintype (Fin n)] [DecidableEq (Fin n)] in
 /-- Walk-based Stokes Theorem: walk_sum of a gradient equals the potential difference. -/
 theorem walk_stokes (G : DynamicGraph n) (φ : C0 n) {u v : Fin n}
     (w : (DynamicGraph.toSimpleGraph G).Walk u v) :
@@ -587,7 +589,7 @@ theorem walk_stokes (G : DynamicGraph n) (φ : C0 n) {u v : Fin n}
     simp only [hadj, if_true]
     ring
 
-set_option linter.unusedSectionVars false in
+omit [Fintype (Fin n)] [DecidableEq (Fin n)] in
 /-- Corollary: walk_sum of a gradient around any closed walk is zero. -/
 theorem exact_walk_closed (G : DynamicGraph n) (φ : C0 n) {v : Fin n}
     (w : (DynamicGraph.toSimpleGraph G).Walk v v) :
@@ -595,7 +597,7 @@ theorem exact_walk_closed (G : DynamicGraph n) (φ : C0 n) {v : Fin n}
   rw [walk_stokes]
   ring
 
-set_option linter.unusedSectionVars false in
+omit [Fintype (Fin n)] [DecidableEq (Fin n)] in
 /-- walk_sum is additive in the form. -/
 lemma walk_sum_add (G : DynamicGraph n) (σ τ : ActiveForm G) {u v : Fin n}
     (w : (DynamicGraph.toSimpleGraph G).Walk u v) :
@@ -608,7 +610,7 @@ lemma walk_sum_add (G : DynamicGraph n) (σ τ : ActiveForm G) {u v : Fin n}
     -- (σ + τ).val.val a b = σ.val.val a b + τ.val.val a b by definition
     simp only [add_comm, add_left_comm, add_assoc]; rfl
 
-set_option linter.unusedSectionVars false in
+omit [DecidableEq (Fin n)] in
 /-- walk_sum around a closed walk equals walk_sum of the harmonic projection. -/
 theorem walk_sum_factors_through_harmonic (G : DynamicGraph n) (σ : ActiveForm G) {v : Fin n}
     (w : (DynamicGraph.toSimpleGraph G).Walk v v) :
@@ -623,7 +625,6 @@ theorem walk_sum_factors_through_harmonic (G : DynamicGraph n) (σ : ActiveForm 
 
 /-! ## 4a. The Walk Detector for Paradox -/
 
-set_option linter.unusedSectionVars false in
 /-- Non-zero walk_sum implies unsatisfiability. -/
 theorem walk_sum_implies_unsatisfiable
     (T : Theory n) (h_cons : LocallyConsistent T)
@@ -658,6 +659,7 @@ theorem satisfiable_implies_walk_sum_zero
 
 /-! ## 5. The Discrete Monodromy Theorem -/
 
+omit [DecidableEq (Fin n)] in
 /-- Exact forms have zero walk_sum on all closed walks. -/
 theorem exact_implies_walk_sum_zero (G : DynamicGraph n) (σ : ActiveForm G)
     (h_exact : σ ∈ ImGradient G)

@@ -74,7 +74,6 @@ theorem quenched_instability (Ft Fs Fa : ℝ)
   · apply sq_lt_sq.mpr; rw [abs_of_pos h_pos.1, abs_of_pos h_pos.2.1]; exact h_trap_dominant.1
   · apply sq_lt_sq.mpr; rw [abs_of_pos h_pos.1, abs_of_pos h_pos.2.2]; exact h_trap_dominant.2
 
-set_option linter.unusedSimpArgs false in
 /-- Relaxation can invert which edge fails first. -/
 theorem annealed_crossover (Ft Fs Fa : ℝ) (P : ℝ)
   (h_relax : P = Ft / 2 + 1)
@@ -84,7 +83,7 @@ theorem annealed_crossover (Ft Fs Fa : ℝ) (P : ℝ)
   edge_strain ϕ σ 1 2 < edge_strain ϕ σ 1 3 := by
   intro σ ϕ
   unfold edge_strain d0
-  simp only [C1.val]
+  dsimp only
   have hϕ1 : ϕ 1 = -P := rfl
   have hϕ2 : ϕ 2 = P := rfl
   have hϕ3 : ϕ 3 = 0 := rfl

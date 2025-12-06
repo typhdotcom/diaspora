@@ -125,7 +125,7 @@ theorem evolve_preserves_origin {n : ℕ} [Fintype (Fin n)] [DecidableEq (Dynami
   · rename_i i j h_find
     have h_active : (i, j) ∈ G.active_edges :=
       (find_overstressed_edge_spec G (solver G σ) σ C_max i j h_find).1
-    set_option linter.unusedSimpArgs false in simp only [EvolutionChain.origin]
+    dsimp only
     have _h_card : (remove_edge G i j).active_edges.card < G.active_edges.card := by
       simp only [remove_edge]
       calc ((G.active_edges.erase (i, j)).erase (j, i)).card

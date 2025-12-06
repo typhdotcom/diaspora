@@ -16,6 +16,7 @@ import Diaspora.Hodge.BipartiteGraph
 import Diaspora.Hodge.CycleGraph
 import Diaspora.Hodge.WheelGraph
 import Diaspora.Hodge.PathGraph
+import Diaspora.Hodge.PrismGraph
 
 -- Dynamics: Time Evolution
 import Diaspora.Dynamics.Diffusion

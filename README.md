@@ -823,6 +823,47 @@ Concrete instances:
 
 Interpretation: Adding a "central observer" to a cycle doesn't simplify the topology - it **multiplies** it. The n-cycle alone has b₁ = 1 (one independent cycle). Adding a hub creates n independent cycles, because each spoke forms a new cycle with part of the rim. The hub cannot relax the cycle because every shortcut it provides creates a new cycle. In Diaspora's language: an observer that "sees everything" creates n channels of irreducible frustration. Observation amplifies rather than resolves the harmonic content.
 
+### `Diaspora/Hodge/PrismGraph.lean`
+
+Closed-form Betti numbers for the prism graph (circular ladder) Prism_n.
+
+The prism graph consists of two n-cycles connected by n "rungs" matching corresponding vertices:
+
+```
+Top:    0 — 1 — 2 — ... — (n-1) — 0
+        |   |   |           |
+Bottom: n — n+1— n+2— ... — (2n-1)— n
+```
+
+This file proves:
+
+```
+b₁(Prism_n) = n + 1
+```
+
+Key results:
+
+* `prism3`, `prism4`: Concrete definitions of Prism_3 (triangular prism) and Prism_4 (cube).
+* `prism3_edge_count`, `prism4_edge_count`: Edge counts (18 and 24 directed edges respectively).
+* `prism3_kernel_dim`, `prism4_kernel_dim`: The gradient kernel is 1-dimensional (connected graphs).
+* `prism3_betti_four`: **Main theorem** - Prism_3 has b₁ = 4.
+* `prism4_betti_five`: **Main theorem** - Prism_4 (cube) has b₁ = 5.
+
+Fusion amplification:
+
+* `fusion_amplifies_topology_3`: b₁(Prism_3) = 2 + (3 - 1) = 4.
+* `fusion_amplifies_topology_4`: b₁(Prism_4) = 2 + (4 - 1) = 5.
+* `mirror_world_topology_cost_3`: Prism_3 has 2 more cycles than isolated triangles.
+* `mirror_world_topology_cost_4`: Prism_4 has 3 more cycles than isolated squares.
+
+Interpretation: The prism graph extends the "handshake theorem" from `Interaction.lean` to complete fusion. Two isolated n-cycles have total b₁ = 2 (each contributes 1). Fusing them at all n vertices creates n-1 **additional** independent cycles, for a total of n+1. The pattern is precise:
+
+* 2 triangles + 2 bridges → 1 new cycle (Interaction.lean)
+* 2 triangles + 3 bridges (full fusion) → 2 new cycles (Prism_3)
+* 2 squares + 4 bridges (full fusion) → 3 new cycles (Prism_4)
+
+The shared frustration grows **linearly** with the interface size. Each point of contact beyond connectivity adds a new channel of irreducible constraint. This is the topological cost of mirroring - fusing two worlds at n points creates n-1 new cycles of entanglement.
+
 ---
 
 ## Phase fields and cyclic constraints

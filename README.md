@@ -1525,6 +1525,43 @@ Interpretation: the breaking threshold is a kind of **Planck scale for topology*
 
 This connects the dynamics (when does strain cause breaking?) to the statics (which Betti numbers are achievable?). The topology of a universe is not arbitrary - it is constrained by the physics of what can persist.
 
+#### `Diaspora/Dynamics/GirthStability.lean`
+
+The extension from individual cycles to entire graphs. While Stability.lean asks "which cycles can survive?", this file asks "which graphs can survive?" - and proves the two questions are equivalent.
+
+The **girth** of a graph is the length of its shortest embedded cycle. A forest has girth 0 (no cycles). The triangle has girth 3. The key insight: the shortest cycle is the "weakest link" - if it survives, all cycles survive.
+
+* `girth G`: The minimum cycle length embedded in G, or 0 if G is a forest.
+* `cycleLengths G`: The set of all embedded cycle lengths.
+
+**The Girth-Stability Correspondence**:
+
+```lean
+theorem minimum_stable_threshold (G : DynamicGraph n) (h_girth_pos : girth G > 0) (C_max : ℝ) :
+    (∀ c, generalCycleEmbeddedIn c G → ∀ i, per_edge_strain c i ≤ C_max) ↔
+    C_max ≥ 1 / (girth G)^2
+```
+
+A graph is stable under threshold `C_max` if and only if `C_max ≥ 1/girth²`. The girth completely determines the minimum tolerance required.
+
+Main theorems:
+
+* `general_cycle_per_edge_strain`: The per-edge strain of a k-cycle is exactly `1/k²`.
+
+* `girth_unstable`: If girth < critical length, some cycle edge exceeds the threshold.
+
+* `girth_stable`: If girth ≥ critical length, all cycle edges are within threshold.
+
+* `classical_always_stable`: Forests (girth = 0) are stable under any positive threshold.
+
+* `complete_graph_threshold`: Graphs with triangles require `C_max ≥ 1/9` to be stable.
+
+* `shorter_girth_higher_threshold`: Smaller girth means higher required threshold.
+
+Interpretation: the girth is the graph-level analog of the critical cycle length. Where Stability.lean proves that individual cycles break when too short, this file proves that graphs break at their shortest cycle. The girth is a topological invariant; the threshold is a dynamical parameter. Yet they lock together precisely: `1/girth²` is the exact boundary between stability and instability.
+
+This completes the picture: **topology determines dynamics**. The abstract structure of a graph (its girth) uniquely determines its physical behavior (its stability threshold). You cannot know the graph's resilience without knowing its shortest cycle; you cannot infer its shortest cycle without testing its resilience.
+
 ---
 
 ## Weighted graphs and plasticity

@@ -41,6 +41,7 @@ import Diaspora.Dynamics.Sim
 import Diaspora.Dynamics.Local
 import Diaspora.Dynamics.Resolution
 import Diaspora.Dynamics.Stability
+import Diaspora.Dynamics.GirthStability
 
 -- Quantum: Complex Extensions
 import Diaspora.Quantum.Evolution

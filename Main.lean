@@ -24,6 +24,8 @@ import Diaspora.Hodge.TorusGraph
 import Diaspora.Hodge.FriendshipGraph
 import Diaspora.Hodge.HypercubeGraph
 import Diaspora.Hodge.SuspensionGraph
+import Diaspora.Hodge.PetersenGraph
+import Diaspora.Hodge.CartesianProduct
 
 -- Dynamics: Time Evolution
 import Diaspora.Dynamics.Diffusion

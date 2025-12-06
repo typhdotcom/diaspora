@@ -1147,6 +1147,64 @@ The comparison with the cone is precise:
 
 The formula b₁(susp(G)) = b₁(cone(G)) + (n - 1) says the second observer contributes exactly as much as the first. If the poles were connected, we'd lose one cycle (the triangle through both poles and any original vertex would become exact). Their isolation is precisely what maximizes the topological yield.
 
+### `Diaspora/Hodge/PetersenGraph.lean`
+
+The **Petersen graph**: the most famous small graph in mathematics.
+
+The Petersen graph has 10 vertices and 15 edges, arranged as an outer pentagon connected to an inner pentagram. It's 3-regular (every vertex has degree 3) and vertex-transitive (every vertex looks the same). This file proves:
+
+```
+b₁(Petersen) = 6
+```
+
+Key results:
+
+* `petersen`: Definition of the Petersen graph on 10 vertices.
+* `petersen_edge_count`: 30 directed edges (15 undirected).
+* `petersen_is_3_regular`: Every vertex has exactly 3 neighbors.
+* `petersen_kernel_dim`: The graph is connected (kernel dimension 1).
+* `petersen_betti_six`: **Main theorem** - the harmonic subspace has dimension 6.
+
+Interpretation: The Petersen graph represents **democratic paradox**. Its 6 independent cycles are uniformly distributed across all 10 vertices - no vertex is more "responsible" for the topology than any other. Compare this to the wheel (where the hub is central) or the friendship graph (where the junction hosts all triangles). The Petersen graph is famous as a counterexample to many plausible conjectures precisely because its uniform structure defeats naive optimization strategies. In Diaspora's language, this is a structure where blame cannot be assigned to individuals - the paradox is genuinely collective.
+
+### `Diaspora/Hodge/CartesianProduct.lean`
+
+The **Cartesian Product Theorem**: a unifying principle for graph families.
+
+The Cartesian product G □ H creates a new graph where vertices are pairs (v, w), with edges connecting pairs that differ in exactly one coordinate. This file proves that all the following graph families are instances of a single formula:
+
+```
+b₁(G □ H) = b₁(G)|V(H)| + b₁(H)|V(G)| + (|V(G)| - 1)(|V(H)| - 1)
+```
+
+The grand unification:
+
+| Graph Family | Construction      | Formula Result    |
+|--------------|-------------------|-------------------|
+| Ladder L_n   | P_n □ K_2         | n - 1             |
+| Prism_n      | C_n □ K_2         | n + 1             |
+| Grid G_{m,n} | P_m □ P_n         | (m-1)(n-1)        |
+| Torus T_{m,n}| C_m □ C_n         | mn + 1            |
+| Hypercube Q_n| K_2 □ ... □ K_2   | 2^{n-1}(n-2) + 1  |
+
+Key results:
+
+* `ladder_formula_n3`, `ladder_formula_n4`: Formula matches LadderGraph results.
+* `prism_formula_n3`, `prism_formula_n4`: Formula matches PrismGraph results.
+* `grid_formula_2x3`, `grid_formula_3x3`: Formula matches GridGraph results.
+* `torus_formula_3x3`: Formula matches TorusGraph results.
+* `hypercube_formula_n2`, `hypercube_formula_n3`, `hypercube_formula_n4`: Formula matches HypercubeGraph results.
+* `hypercube_recurrence_2_to_3`, `hypercube_recurrence_3_to_4`: The recurrence b₁(Q_{n+1}) = 2·b₁(Q_n) + 2^n - 1.
+* `genesis_of_combination`: Two trees (paths) combine to produce cycles.
+
+Interpretation: The Cartesian product formula reveals a deep truth about **emergent topology**. The term (|V(G)|-1)(|V(H)|-1) shows that topology can arise purely from combination. Even when G and H are both trees (b₁ = 0), their product has cycles:
+
+```
+b₁(P_m □ P_n) = 0 + 0 + (m-1)(n-1) = (m-1)(n-1)
+```
+
+This is the Grid formula - the "Genesis of Combination". Two classical systems with no paradox combine to produce irreducible frustration. The product cycles exist in neither factor alone; they emerge from the pattern of interaction. This formalizes a key intuition: some topology is genuinely relational - it cannot be reduced to properties of the parts.
+
 ---
 
 ## Phase fields and cyclic constraints

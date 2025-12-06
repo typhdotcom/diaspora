@@ -849,6 +849,8 @@ Interpretation: Genesis is **quantized** at the edge level. Every cycle in a gra
 
 This is the atomic structure of the topological phase transition. The vacuum (tree) sits at b₁ = 0 with exactly n-1 edges. Every additional edge beyond the tree baseline creates exactly one new mode of irreducible frustration. The path-to-cycle transition is the first step in a staircase where each edge lifts b₁ by one.
 
+The dual theorem - that removing a non-bridge edge *decreases* b₁ by exactly 1 - is proved in `Dynamics/Resolution.lean`, connecting this static result to the dynamics of evolution.
+
 ### `Diaspora/Hodge/WheelGraph.lean`
 
 Closed-form Betti number for the wheel graph W_n.
@@ -1462,7 +1464,28 @@ Main structural statement:
 
 (See `Dynamics/Local.lean` for the concrete implementation where the "Solver" is just local heat diffusion.)
 
-“Black hole” metaphor (in the topology-change layer):
+#### `Diaspora/Dynamics/Resolution.lean`
+
+The arrow of time has two faces. While `Sim.lean` tracks entropy (latent capacity increases), Resolution proves the dual: **paradox decreases**.
+
+The key distinction is between bridges and non-bridges:
+
+* **Bridge edge**: removing it disconnects the graph (increases kernel dimension).
+* **Non-bridge edge**: removing it preserves connectivity (part of a cycle).
+
+Main theorems:
+
+* `edge_removal_decreases_betti`: Removing a non-bridge edge from a connected graph decreases b₁ by exactly 1. This is the precise dual of `edge_addition_increases_betti`.
+
+* `evolution_dual_arrow`: When evolution breaks a non-bridge edge:
+  1. Entropy increases (latent capacity grows by σ(i,j)²)
+  2. Paradox decreases (topological deficit drops by 1)
+
+* `betti_counts_nonbridge_edges`: b₁ = |E|/2 - (n-1). The Betti number counts exactly how many edges exceed the spanning tree - these are the non-bridges, the cycle edges, the carriers of paradox.
+
+Interpretation: every edge break is both thermodynamic (irreversible heat release) and logical (resolution of contradiction). The universe evolves toward the classical vacuum (b₁ = 0) by shedding cycles one at a time. When b₁ reaches zero, the graph is a tree: every remaining edge is a bridge, and further breaks would fragment rather than simplify.
+
+"Black hole" metaphor (in the topology-change layer):
 
 * `black_hole_formation` packages:
 

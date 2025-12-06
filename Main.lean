@@ -39,7 +39,7 @@ import Diaspora.Dynamics.Transition
 import Diaspora.Dynamics.Glass
 import Diaspora.Dynamics.Sim
 import Diaspora.Dynamics.Local
-import Diaspora.Dynamics.Transition
+import Diaspora.Dynamics.Resolution
 
 -- Quantum: Complex Extensions
 import Diaspora.Quantum.Evolution

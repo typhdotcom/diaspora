@@ -221,8 +221,10 @@ Interpretation: Topological Zeno effect - attention freezes the topology it touc
 * `strainToConnection`: Maps a real 1-cochain σ to a U(1) connection via exp(i·σ).
 * `holonomy_eq_exp_winding`: Holonomy of exp(i·σ) equals exp(i · winding).
 * `exact_implies_trivial_holonomy`: Zero winding ⟹ trivial holonomy.
+* `hodge_gauge_correspondence`: Holonomy of σ = holonomy of its harmonic projection γ. The exact part d₀φ contributes no phase.
+* `harmonic_holonomy_quantized`: Integer winding m ⟹ holonomy = exp(i·m).
 
-Interpretation: A particle acquires phase from encircling a region, even when the field is zero on its path. Gauge invariance of holonomy parallels the Hodge principle: local choices wash out, topology remains.
+Interpretation: A particle acquires phase from encircling a region, even when the field is zero on its path. The Hodge decomposition σ = d₀φ + γ is the gauge decomposition: exact forms are pure gauge (locally observable, globally trivial), harmonic forms carry the gauge-invariant content. Satisfiable theories produce trivial holonomy; paradox produces phase.
 
 ---
 

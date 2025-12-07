@@ -558,4 +558,143 @@ theorem interference_phase_difference {n : ℕ} [Fintype (Fin n)]
   rw [Complex.inv_eq_conj h]
   rfl
 
+/-! ## 11. The Hodge-Gauge Correspondence -/
+
+/--
+Exact forms have zero winding around any SimpleCycle.
+This is the discrete Stokes theorem: ∑ᵢ (ϕ(next i) - ϕ(i)) = 0 by telescoping.
+-/
+theorem exact_winding_zero {n : ℕ} [Fintype (Fin n)]
+    (ϕ : C0 n) (cycle : SimpleCycle n) :
+    ∑ i : Fin n, (d0 ϕ).val i (cycle.next i) = 0 := by
+  -- (d0 ϕ)(i, next i) = ϕ(next i) - ϕ(i)
+  simp only [d0]
+  -- The sum telescopes: ∑ (ϕ(next i) - ϕ(i)) = ∑ ϕ(next i) - ∑ ϕ(i)
+  rw [Finset.sum_sub_distrib]
+  -- Since next is a bijection, ∑ ϕ(next i) = ∑ ϕ(i)
+  have h_bij := next_bijective cycle
+  have h_reindex : ∑ i : Fin n, ϕ (cycle.next i) = ∑ i : Fin n, ϕ i := by
+    exact Equiv.sum_comp (Equiv.ofBijective cycle.next h_bij) ϕ
+  rw [h_reindex]
+  ring
+
+/--
+**The Hodge-Gauge Correspondence**
+
+The holonomy of a U(1) connection induced by a strain field σ depends only on
+the harmonic component of σ. The exact part (d₀φ) is gauge-trivial and
+contributes no phase.
+
+This theorem establishes the deepest connection between Hodge theory and gauge theory:
+
+- **Hodge perspective**: Every 1-cochain decomposes as σ = d₀φ + γ, where d₀φ is
+  the "relaxable" fluctuation and γ is the irreducible harmonic content.
+
+- **Gauge perspective**: The connection exp(i·σ) is gauge-equivalent to exp(i·γ).
+  Local phase choices (gauge transformations) can remove the exact part but
+  cannot touch the harmonic content.
+
+- **Physical interpretation**: The harmonic component γ carries the topology.
+  It is the "matter" that cannot be gauged away. The exact part d₀φ is
+  pure gauge—locally observable but globally trivial.
+
+This unifies:
+- Diaspora's "paradox" (non-exactness) with Aharonov-Bohm's "phase" (holonomy)
+- Hodge's "harmonic forms" with gauge theory's "gauge-invariant observables"
+- The nucleation barrier (‖γ‖² ≥ 1/n) with topological quantization of phase
+-/
+theorem hodge_gauge_correspondence {n : ℕ} [Fintype (Fin n)]
+    (σ γ : C1 n) (ϕ : C0 n) (cycle : SimpleCycle n)
+    (h_decomp : ∀ i j, σ.val i j = (d0 ϕ).val i j + γ.val i j)
+    (_h_harm : IsHarmonic γ) :
+    connectionHolonomy (strainToConnection σ) cycle =
+    connectionHolonomy (strainToConnection γ) cycle := by
+  -- Convert connection holonomies to exponentials of winding sums
+  rw [holonomy_eq_exp_winding, holonomy_eq_exp_winding]
+  -- The exponentials are equal iff the sums are equal
+  congr 1
+  congr 1
+  -- Decompose σ = d₀ϕ + γ in the sum
+  have h_sigma_sum : ∑ i : Fin n, σ.val i (cycle.next i) =
+      ∑ i : Fin n, (d0 ϕ).val i (cycle.next i) + ∑ i : Fin n, γ.val i (cycle.next i) := by
+    rw [← Finset.sum_add_distrib]
+    apply Finset.sum_congr rfl
+    intro i _
+    exact h_decomp i (cycle.next i)
+  -- The exact part vanishes (Stokes theorem)
+  have h_exact_vanish : ∑ i : Fin n, (d0 ϕ).val i (cycle.next i) = 0 :=
+    exact_winding_zero ϕ cycle
+  rw [h_sigma_sum, h_exact_vanish, zero_add]
+
+/--
+**Corollary: Topology Determines Phase**
+
+The quantum phase acquired around a cycle is determined entirely by the
+topological content (harmonic component) of the strain field. Two strain
+fields with the same harmonic component produce identical phases.
+-/
+theorem topology_determines_phase {n : ℕ} [Fintype (Fin n)]
+    (σ₁ σ₂ : C1 n) (γ : C1 n) (ϕ₁ ϕ₂ : C0 n) (cycle : SimpleCycle n)
+    (h_decomp₁ : ∀ i j, σ₁.val i j = (d0 ϕ₁).val i j + γ.val i j)
+    (h_decomp₂ : ∀ i j, σ₂.val i j = (d0 ϕ₂).val i j + γ.val i j)
+    (h_harm : IsHarmonic γ) :
+    connectionHolonomy (strainToConnection σ₁) cycle =
+    connectionHolonomy (strainToConnection σ₂) cycle := by
+  rw [hodge_gauge_correspondence σ₁ γ ϕ₁ cycle h_decomp₁ h_harm]
+  rw [hodge_gauge_correspondence σ₂ γ ϕ₂ cycle h_decomp₂ h_harm]
+
+/--
+**Corollary: Zero Harmonic ⟹ Trivial Holonomy**
+
+A strain field with zero harmonic component (i.e., an exact form σ = d₀φ)
+produces trivial holonomy (phase = 1). This is the gauge-theoretic statement
+that pure gauge configurations are physically trivial.
+
+In diaspora terms: a satisfiable theory creates no topological defect.
+-/
+theorem exact_has_trivial_holonomy {n : ℕ} [Fintype (Fin n)]
+    (ϕ : C0 n) (cycle : SimpleCycle n) :
+    connectionHolonomy (strainToConnection (d0 ϕ)) cycle = 1 := by
+  rw [holonomy_eq_exp_winding, exact_winding_zero]
+  simp
+
+/--
+**The Quantization Bridge**
+
+For a harmonic form γ with integer winding m around a SimpleCycle of length n,
+the induced holonomy is exp(2πi·m/n) raised to the n-th power—a root of unity.
+
+This connects the diaspora quantization (‖γ‖² = m²/n) to the Aharonov-Bohm
+quantization (holonomy = e^{iΘ} for discrete Θ).
+-/
+theorem harmonic_holonomy_quantized {n : ℕ} [Fintype (Fin n)] [NeZero n]
+    (γ : C1 n) (cycle : SimpleCycle n)
+    (h_harm : IsHarmonic γ)
+    (h_support : SupportedOnCycle cycle γ)
+    (m : ℤ)
+    (h_winding : holonomy γ (SimpleCycle.toChain1 cycle) = m)
+    (h_n_ge_3 : n ≥ 3) :
+    connectionHolonomy (strainToConnection γ) cycle = cexp (I * (m : ℂ)) := by
+  rw [holonomy_eq_exp_winding]
+  congr 1
+  congr 1
+  -- Need: ∑ γ(i, next i) = holonomy γ cycle.toChain1 = m
+  classical
+  haveI : Inhabited (Fin n) := ⟨0, Nat.zero_lt_of_lt (by omega : 0 < n)⟩
+  obtain ⟨k, h_const⟩ := harmonic_constant_on_simple_cycle cycle γ h_harm h_support
+  -- The sum equals n * k
+  have h_sum_eq : ∑ i : Fin n, γ.val i (cycle.next i) = (Fintype.card (Fin n)) * k := by
+    simp_rw [h_const, Finset.sum_const, Finset.card_univ]
+    ring
+  -- And holonomy = n * k = m
+  have h_hol_eq := holonomy_of_constant_harmonic cycle γ k h_const
+  rw [h_winding] at h_hol_eq
+  -- So ∑ γ = m
+  have h_card : (Fintype.card (Fin n) : ℝ) ≠ 0 := by simp
+  have h_k_eq : k = m / Fintype.card (Fin n) := by field_simp [h_card] at h_hol_eq ⊢; linarith
+  rw [h_sum_eq, h_k_eq]
+  field_simp [h_card]
+  -- Now need to show (m : ℝ) = (m : ℂ) as a Complex.ofReal
+  simp only [Complex.ofReal_intCast]
+
 end Diaspora.Quantum.AharonovBohm

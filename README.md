@@ -51,6 +51,8 @@ Both perspectives give you the same mathematics: structure creation, quantizatio
 
 `the_diaspora_correspondence` chains the full picture: **Paradox → Topology → Mass → Gravity**. Matter is the physical symptom of trapped logical inconsistency.
 
+Gravity emerges from edge-sharing. Two cycles traversing shared edges in opposite directions have lower combined energy than the sum of their parts. Systems evolve toward this minimum. `gravity_is_edge_sharing` formalizes this: binding energy = 2k/(n₁·n₂) for k shared edges.
+
 ---
 
 ## Logic: Constraints as Geometry
@@ -75,7 +77,14 @@ The `Logic` layer proves an isomorphism between Constraint Satisfaction Problems
 * `IsClassical G`: `dim(HarmonicSubspace G) = 0` - tree-like universe.
 * `classical_implies_acyclic`: dim(H) = 0 ⟹ acyclic.
 * `cycle_implies_nonclassical`: Cycles contradict classicality.
-* `disjoint_cycles_orthogonal`: Edge-disjoint cycles have orthogonal harmonic forms (energies add).
+
+### Orthogonality & Overlap
+
+* `edge_disjoint_cycles_orthogonal`: Edge-disjoint cycles have orthogonal harmonic forms (energies add).
+* `signedOverlap`: Net shared edges (same-direction minus opposite-direction).
+* `cycle_inner_product_formula`: ⟨γ₁, γ₂⟩ = signedOverlap / (len₁ × len₂).
+* `reverse_negates_form`: Reversing a cycle negates its harmonic form.
+* `opposite_orientation_minimizes`: Overlapping cycles prefer opposite orientation (anti-ferromagnetic coupling).
 
 ### Information Theory
 
@@ -133,6 +142,15 @@ Strain creates topology change. Topology change creates entropy.
 
 * `plasticity_atrophy_of_unstressed`: Zero-strain edges shrink.
 * `harmonic_cycle_resists_atrophy`: Harmonic content creates strain, hence reinforcement.
+
+### Gravity (`Gravity.lean`)
+
+* `sharing_reduces_energy`: Opposite-direction edge sharing reduces combined energy below the sum.
+* `gravity_binding_energy`: Energy saved = 2k/(n₁·n₂) for k shared edges.
+* `complete_overlap_annihilation`: Same cycle, opposite direction → zero combined energy.
+* `disjoint_additive_energy`: No shared edges → energies add independently.
+
+Interpretation: Attraction arises from energy minimization. Cycles sharing edges in opposite directions cancel strain on those edges.
 
 ### Simulation (`Sim.lean`)
 

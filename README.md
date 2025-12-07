@@ -145,12 +145,16 @@ Strain creates topology change. Topology change creates entropy.
 
 ### Gravity (`Gravity.lean`)
 
-* `sharing_reduces_energy`: Opposite-direction edge sharing reduces combined energy below the sum.
+* `sharing_reduces_energy`: Opposite-direction edge sharing reduces combined energy.
 * `gravity_binding_energy`: Energy saved = 2k/(n₁·n₂) for k shared edges.
 * `complete_overlap_annihilation`: Same cycle, opposite direction → zero combined energy.
-* `disjoint_additive_energy`: No shared edges → energies add independently.
+* `three_cycle_energy_pairwise`: No 3-body forces; energy decomposes into pairwise interactions.
+* `gravitational_force_is_product_of_masses`: F = 2·m₁·m₂, where m = 1/n for an n-cycle.
+* `mass_energy_equivalence`: Energy of a cycle equals its mass.
+* `repulsion_is_same_direction`: Same-direction sharing increases energy.
+* `mass_gap`: Mass spectrum is discrete: 1/3, 1/4, 1/5, ... with gaps 1/(n·(n+1)).
 
-Interpretation: Attraction arises from energy minimization. Cycles sharing edges in opposite directions cancel strain on those edges.
+Interpretation: Cycles sharing edges in opposite directions cancel strain. Force is proportional to the product of masses. Same-direction repels; opposite-direction attracts.
 
 ### Simulation (`Sim.lean`)
 

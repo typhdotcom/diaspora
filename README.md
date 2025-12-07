@@ -6,22 +6,7 @@
 
 *A toy universe of topology*
 
-Diaspora is a Lean 4 project that builds a discrete Hodge-theoretic toy model on finite graphs. It's an amateur effort, with LLM help, built solely to explore philosophical intuitions through topology.
-
-* **Graphs** whose edges can break under strain
-* **Diffusion** as the local mechanism for relaxation (Heat Equation)
-* **Holonomy** as the local mechanism for measurement (Parallel Transport)
-* **Constraints** living as 1-cochains (flux / tension)
-* **Potentials** as 0-cochains (relaxation fields)
-* **Harmonic forms** as the “irreducible frustration” left over when you’ve relaxed everything you can
-* **Topology change** when edges snap
-* **Plasticity** where edges strengthen under strain and atrophy from disuse (Hebbian learning + scarcity)
-* A “**glassy**” landscape with multiple non-isomorphic stable vacua
-* Quantum add-ons: discrete Schrödinger evolution, Berry phase, and holonomy-as-measurement
-* **Spectral gap**: topological defects require minimum energy 1/n
-* **Phase fields**: discrete calculus over cyclic groups (ZMod k)
-
-Everything here is proved inside Lean + mathlib. The physics (`black hole`, `handshake`, `false vacuum`, `observer`, etc.) are metaphors layered on top of finite-dimensional linear algebra and graph theory.
+Diaspora is a Lean 4 project that builds a discrete Hodge-theoretic toy model on finite graphs. It's an amateur effort, with LLM help, built solely to explore philosophical intuitions through topology. Everything is proved inside Lean + mathlib; the physics vocabulary is metaphor layered on linear algebra and graph theory.
 
 ---
 
@@ -29,8 +14,8 @@ Everything here is proved inside Lean + mathlib. The physics (`black hole`, `han
 
 At the core is a simple idea:
 
-> Take a finite graph. Put a “desired flux” on each edge (a 1-cochain).
-> Let the vertices carry a “relaxation potential” (a 0-cochain).
+> Take a finite graph. Put a "desired flux" on each edge (a 1-cochain).
+> Let the vertices carry a "relaxation potential" (a 0-cochain).
 > Try to relax away as much strain as possible. Whatever you *cannot* relax
 > is topological and shows up as a harmonic form.
 
@@ -45,17 +30,14 @@ This is formalized in three layers:
    In `Dynamics/Diffusion.lean`, we show that the system doesn't *need* a global solver to find this state. Nodes simply push against their neighbors (Heat Equation) to minimize local strain. Observers measure topology locally via **Holonomy** (walking in loops).
 
 3. **The Bridge (Index Theorem):**
-   In `Hodge/IndexTheorem.lean`, we prove these views are equivalent via the discrete **McKean-Singer formula**: `b₀ - b₁ = |V| - |E|`. The supertrace of the heat kernel is constant for all time - watching diffusion at *any* instant reveals the Euler characteristic. Non-zero eigenvalues of the Laplacians on vertices and edges cancel in pairs; only the harmonic modes survive.
+   In `Hodge/IndexTheorem.lean`, we prove these views are equivalent via the discrete **McKean-Singer formula**: `b₀ - b₁ = |V| - |E|`. The supertrace of the heat kernel is constant for all time - watching diffusion at *any* instant reveals the Euler characteristic.
 
-Then we prove (for the complete graph) a discrete **Hodge decomposition**:
+Then we prove a discrete **Hodge decomposition**:
 
-> Every 1-cochain `σ` splits as  
-> `σ = d0 ϕ + γ`  
+> Every 1-cochain `σ` splits as `σ = d0 ϕ + γ`
 > where `d0 ϕ` is exact and `γ` is divergence-free (harmonic), and the two parts are orthogonal.
 
-That's standard math, but we make it formal in Lean and then build a whole story-universe out of the consequences.
-
-A key quantitative result: **topological defects have a mass gap**. If γ has non-trivial winding around an n-cycle, then ‖γ‖² ≥ 1/n. This minimum energy is the "nucleation barrier" - you can't have a little bit of topology. Once your Betti number is non-zero, every nontrivial cycle carries a **discrete, quantized** minimum cost in the energy landscape.
+A key quantitative result: **topological defects have a mass gap**. If γ has non-trivial winding around an n-cycle, then ‖γ‖² ≥ 1/n. This minimum energy is the "nucleation barrier" - you can't have a little bit of topology.
 
 This Hodge machinery admits two natural interpretations:
 
@@ -65,1819 +47,175 @@ This Hodge machinery admits two natural interpretations:
 
 Both perspectives give you the same mathematics: structure creation, quantization, dynamics, and an arrow of time.
 
+### The Grand Synthesis
+
+`the_diaspora_correspondence` chains the full picture: **Paradox → Topology → Mass → Gravity**. Matter is the physical symptom of trapped logical inconsistency.
+
+---
+
+## Logic: Constraints as Geometry
+
+The `Logic` layer proves an isomorphism between Constraint Satisfaction Problems (CSP) and Hodge Theory.
+
+### The Central Isomorphisms
+
+* **The Bridge Theorem** (`satisfiable_iff_exact_on_graph`): A theory is satisfiable iff its constraint cochain is Exact (`d_0 φ`).
+* **The Paradox Theorem** (`inconsistency_implies_topology`): Locally consistent but globally unsatisfiable theories have non-trivial Harmonic content.
+* **The Genesis Theorem** (`genesis_is_three_dehn`): The simplest paradox (triangle 0→1→2→0 with +1 strain) creates a harmonic form equal to exactly 3× the Dehn Twist.
+* **The Monodromy Theorem** (`monodromy_exact_iff`): Exactness ↔ zero walk_sum on all closed walks.
+
+### Universal Cover
+
+* `universal_cover_is_classical`: The universal cover is acyclic (a tree).
+* `paradox_dissolves_in_cover`: Every constraint field becomes exact when lifted.
+* `history_potential_diff_is_holonomy`: Potential difference between histories = holonomy around their loop.
+
+### Classicality
+
+* `IsClassical G`: `dim(HarmonicSubspace G) = 0` - tree-like universe.
+* `classical_implies_acyclic`: dim(H) = 0 ⟹ acyclic.
+* `cycle_implies_nonclassical`: Cycles contradict classicality.
+* `disjoint_cycles_orthogonal`: Edge-disjoint cycles have orthogonal harmonic forms (energies add).
+
+### Information Theory
+
+* `topological_deficit_eq_harmonic_dim`: Information lost when enforcing satisfiability = dim(HarmonicSubspace).
+* `matter_is_incompressible_complexity`: When topological deficit > 0, some states cannot be described by potentials alone.
+* `minimum_complexity_of_genesis_connected`: Creating deficit k requires program length ≥ n + k - 1.
+* `maximum_deficit_bound`: Program length m creates deficit ≤ m - n + 1.
+
+---
+
+## The Topological Zoo
+
+We derive closed-form Betti numbers (b₁) for graph families. These confirm that topology scales with connectivity and dimension.
+
+| Family | Notation | b₁ Formula | Interpretation |
+| :--- | :--- | :--- | :--- |
+| **Complete** | K_n | (n-1)(n-2)/2 | Max frustration; dominates all graphs on n vertices. |
+| **Bipartite** | K_{m,n} | (m-1)(n-1) | "Fundamental squares" count; coincides with Grid formula. |
+| **Tripartite** | K_{a,b,c} | ab+bc+ca-(a+b+c)+1 | Threefold opposition; octahedron K_{2,2,2} has b₁=7. |
+| **Cycle** | C_n | 1 | Minimal non-trivial topology; home of the Dehn twist. |
+| **Path** | P_n | 0 | Classical vacuum (tree); no paradox. |
+| **Wheel** | W_n = cone(C_n) | n | Observation amplifies topology. Hub creates n cycles. |
+| **Friendship** | F_n | n | Vertex-sharing is sterile; paradoxes stack additively. |
+| **Book** | B_n | n | Edge-sharing (channels) is transparent; non-interacting pages. |
+| **Prism** | Prism_n | n+1 | Fusing two n-cycles creates n-1 new entanglement cycles. |
+| **Ladder** | L_n | n-1 | Open prism; closing adds 2 cycles (one per end). |
+| **Grid** | G_{m,n} | (m-1)(n-1) | Local frustration matches global bipartite frustration. |
+| **Torus** | T_{m,n} | mn+1 | Boundary removal adds m+n wrapping cycles. |
+| **Hypercube** | Q_n | 2^{n-1}(n-2)+1 | Dimensions multiply frustration exponentially. |
+| **Cone** | cone(G) | \|E(G)\| | Observation crystallizes edges into cycles. |
+| **Suspension** | susp(G) | \|E(G)\|/2+(n-1) | Two isolated observers double the topology. |
+| **Petersen** | - | 6 | Democratic paradox; blame cannot be assigned. |
+
+---
+
+## Dynamics & Stability
+
+Strain creates topology change. Topology change creates entropy.
+
+### Stability (`Stability.lean`, `GirthStability.lean`)
+
+* `criticalCycleLength C_max = ⌈1/√C_max⌉`: Minimum cycle length that can exist stably.
+* `minimum_stable_threshold`: Stability ↔ C_max ≥ 1/(girth G)².
+* `triangle_threshold`: Triangles require C_max ≥ 1/9 (densest paradox).
+* `evolution_dual_arrow`: b₁ drops by 1 per non-bridge break; entropy increases.
+
+### Strain & Diffusion (`Strain.lean`, `Diffusion.lean`)
+
+* `nucleation_barrier n := 1/n`: Minimum energy to sustain a topological defect.
+* `harmonic_component_gives_energy_floor`: If γ ≠ 0, strain energy ≥ ‖γ‖² for any potential.
+* `diffusion_step`: Discrete heat equation.
+* `stationary_diffusion_is_optimal`: Local balance ⟹ global Hodge minimum.
+
+### Plasticity (`Plasticity.lean`)
+
+* `plasticity_atrophy_of_unstressed`: Zero-strain edges shrink.
+* `harmonic_cycle_resists_atrophy`: Harmonic content creates strain, hence reinforcement.
+
+### Simulation (`Sim.lean`)
+
+* `simulation_entropy_nondecreasing`: Time is irreversible.
+
+---
+
+## Models and Stories
+
+### Genesis (`Models/Genesis.lean`)
+
+Two graphs on 3 nodes: open line vs closed cycle.
+
+* `open_state_is_exact`: On the line, constraint is exact.
+* `closed_state_is_not_exact`: On the cycle, no potential satisfies all edges.
+* `harmonic_genesis`: Hodge decomposition produces γ with holonomy 3.
+
+Interpretation: Closing the loop creates "irremovable frustration." Generic noise creates topology.
+
+### Naming (`Models/Naming.lean`)
+
+Models naming as topological symmetry breaking.
+
+* Pre-naming: Star graph (b₁=0), stimuli interchangeable.
+* Post-naming: Memory node creates cycle (b₁=1), stimuli distinguishable.
+* `exists_harmonic_discriminator`: Harmonic form "sees" named stimulus but not others.
+
+Interpretation: Naming creates mass - the harmonic content is frozen residue of the referential act.
+
+### Interaction (`Models/Interaction.lean`)
+
+Two disjoint triangles:
+
+* `isolation_betti_number`: Total b₁ = 2.
+* `contact_is_sterile`: One bridge keeps b₁ the same.
+* `fusion_creates_shared_reality`: Two bridges create a new cross-world cycle.
+
+Interpretation: One bridge is contact; two bridges create shared topology. **The handshake theorem.**
+
+### Glass (`Models/Triangle.lean`, `Dynamics/Glass.lean`)
+
+* `IsGlassySystem`: Multiple non-isomorphic stable equilibria.
+* Tailed triangle: breaking different edges produces star vs line (non-isomorphic).
+
+Interpretation: Glassy = history-dependent. Different break orders end in genuinely different topologies.
+
+### Void (`Models/Void.lean`)
+
+* `Microstate`: Full state (weighted graph + fields).
+* `Macrostate`: Observable state (thresholded topology + spectrum).
+* `observable_present_undetermines_future`: Same observation now, different observations later.
+
+Interpretation: Observation doesn't commute with dynamics.
+
+### Observer Effect (`Models/ObserverEffect.lean`)
+
+* `attention_is_structural_reinforcement`: Repeated observation builds weight on observed structure.
+
+Interpretation: Topological Zeno effect - attention freezes the topology it touches.
+
+---
+
+## Quantum (`Quantum/`)
+
+* `SchrodingerEvolution`: Discrete Schrödinger with H = -Δ + V.
+* `DiscreteBerryConnection`, `BerryPhase`: Berry phase on finite parameter graphs.
+* `introspection_operator`: Transport phase around a cycle.
+* `zombie_cannot_see_self`: Exact σ ⟹ no observable holonomy.
+* `self_aware_detection`: Harmonic component ⟹ measurable phase shift.
+
 ---
 
 ## Project Structure
-
-The codebase is organized into six layers:
 
 ```text
 Diaspora/
 ├── Core/           # Foundations: calculus, phase fields, weighted graphs
 ├── Hodge/          # Static theory: decomposition, harmonic analysis, spectral gap
-├── Logic/          # Foundational semantics: constraints, paradox, Universe (Paradox → Mass → Gravity)
+├── Logic/          # Foundational semantics: constraints, paradox, Universe
 ├── Dynamics/       # Time evolution: diffusion, plasticity, topology change
 ├── Quantum/        # Complex extensions: Schrödinger, Berry phase, measurement
 └── Models/         # Concrete examples and named stories
 ```
-
----
-
-## Logic: constraints, paradox, and topology
-
-The `Logic` layer provides a logical interpretation of the Hodge machinery. Exact cochains become models (satisfiable theories); harmonic content becomes paradox (locally consistent but globally unsatisfiable contradictions). This reframing reveals that Hodge decomposition on finite graphs is **isomorphic** to constraint satisfaction theory.
-
-### The Grand Unification
-
-`Diaspora/Logic/Universe.lean` synthesizes this interpretation into a single causal chain:
-
-**Paradox → Topology → Mass → Gravity**
-
-A `Universe` bundles a Logic layer (Theory T with constraints), a Geometry layer (DynamicGraph derived from T), and a State (potential ϕ). When T is locally consistent but globally unsatisfiable (`IsParadox`), the theorems prove:
-
-1. `paradox_implies_deficit`: Topological deficit > 0
-2. `paradox_creates_mass`: Non-zero matter content (harmonic component)
-3. `matter_creates_gravity`: Irreducible strain energy > 0
-
-The key result in `Dynamics/Transition.lean` is `harmonic_component_gives_energy_floor`: if an ActiveForm has non-zero harmonic component γ, the strain energy is bounded below by ‖γ‖² > 0, **regardless of how the potential is tuned**. This proves that harmonic content represents irreducible frustration - "whatever you cannot relax is topological."
-
-`the_diaspora_correspondence` theorem chains these together: logical contradiction forces information deficit, which manifests as mass, which generates gravitational strain. Matter appears as the physical symptom of trapped logical inconsistency.
-
-### The Logic files
-
-Roughly, the logic files walk through:
-
-1. **Local theories ↔ exact cochains** (`Theory`, `Genesis`, `Omega`)
-2. **Geometric interpretation of genesis** (`Kirchhoff`)
-3. **Classicality and acyclicity** (`Classicality`)
-4. **Matter as fossilized contradiction** (`Inverse`)
-5. **How generic topology is** (`Probabilistic`, `Limit`)
-6. **Universal cover and resolution of paradox** (`Universal`)
-7. **The grand synthesis** (`Universe` - implementing the causal chain above)
-
-### `Diaspora/Logic/Theory.lean`
-
-The bridge between formal logic and topology.
-
-A `Theory` is a list of constraints, each demanding `ϕ(dst) - ϕ(src) = val`. A theory is `Satisfiable` if some potential ϕ satisfies all constraints. This is exactly the question of whether a 1-cochain is exact.
-
-* `Constraint n`: a single demand `ϕ(dst) - ϕ(src) = val`
-* `Theory n`: a list of constraints
-* `Satisfiable T`: existence of a model (potential) satisfying all constraints
-* `LocallyConsistent T`: no direct contradictions (same edge, different values)
-* `theory_graph T`: the graph implied by a theory's constraints
-* `realize T`: converts a theory into a 1-cochain (the representational demand)
-
-**The Bridge Theorem:**
-
-```lean
-theorem satisfiable_iff_exact_on_graph (T : Theory n) (h_cons : LocallyConsistent T) :
-  Satisfiable T ↔ (realize T) ∈ ImGradient (theory_graph T)
-```
-
-Satisfiability is exactness. Logical consistency is trivial cohomology.
-
-**Corollary:** `inconsistency_implies_topology` - if a locally consistent theory is unsatisfiable, then its harmonic subspace is non-trivial. The logical contradiction has become geometric structure.
-
-### `Diaspora/Logic/Omega.lean`
-
-Chaitin's Ω reframed: the probability that a random constraint program "halts" (is satisfiable).
-
-* `DiscreteVal`: constraints take values in {-1, +1}.
-* `Program n`: a list of atomic constraints.
-* `Halts P`: 1 if satisfiable, 0 otherwise.
-* `Chaitins_Omega_Diaspora`: sum over all program lengths of halting probability.
-
-The complementary quantity `1 - Ω` is the probability of **genesis**: randomly sampling constraint programs and landing in the non-exact sector.
-
-* `genesis_requires_topology`: if a locally consistent program doesn't halt, harmonic content exists.
-
-### `Diaspora/Logic/Genesis.lean`
-
-The simplest unsatisfiable program: three constraints demanding +1 around a triangle.
-
-* `rotational_program`: 0→1 (+1), 1→2 (+1), 2→0 (+1).
-* `genesis_is_unsatisfiable`: Kirchhoff says 0 = 3, contradiction.
-* `genesis_is_consistent`: no local contradictions.
-* `structure_is_mandatory`: therefore harmonic content must exist.
-
-This is the "Escher staircase" - locally coherent, globally impossible. Closing the loop creates topology.
-
-### `Diaspora/Logic/Kirchhoff.lean`
-
-The geometric interpretation of genesis: the "3" in Kirchhoff's law becomes the scaling factor for the canonical harmonic form.
-
-* `triangle_cycle`: The standard cycle 0→1→2→0 as a `SimpleCycle 3`.
-* `triangle_embedded_in_genesis`: The triangle is embedded in the genesis theory graph.
-
-**The Main Theorem:**
-
-```lean
-theorem genesis_is_three_dehn :
-    ∀ i j : Fin 3,
-      (realize (decode rotational_program)).val.val i j =
-      3 * (dehn_twist triangle_cycle).val i j
-```
-
-The realized genesis cochain equals **exactly 3 times the Dehn twist**. This bridges "logical obstruction" (constraint sum = 3) with "topological winding" (holonomy = 3).
-
-Corollaries:
-
-* `genesis_realization_is_harmonic`: The realized cochain is divergence-free.
-* `genesis_realization_energy`: Energy = 3 (since 3² × 1/3 = 3).
-* `genesis_winding_is_three`: Winding number around the triangle = 3.
-* `genesis_unsatisfiable_geometric`: Alternative unsatisfiability proof via walk-sum - if satisfiable, the winding would be 0, but it's 3.
-* `genesis_walk_sum_is_three`: Walking around the triangle accumulates exactly 3 units of flux - the geometric manifestation of the logical paradox.
-
-**Uniqueness of the Dehn Twist:**
-
-The Dehn twist is the unique harmonic form (up to scaling):
-
-```lean
-theorem genesis_harmonic_dim_eq_one :
-    Module.finrank ℝ (HarmonicSubspace (theory_graph (decode rotational_program))) = 1
-
-theorem genesis_harmonic_is_dehn_multiple :
-    ∀ γ : HarmonicSubspace (theory_graph (decode rotational_program)),
-    ∃ c : ℝ, (γ : ActiveForm _) = c • dehn_twist_active triangle_cycle _ _
-```
-
-The harmonic subspace of the genesis graph is **exactly 1-dimensional**, spanned by the Dehn twist. Every harmonic form is a scalar multiple of the Dehn twist - there is no other independent mode of topological frustration on a triangle.
-
-The proof uses the dimension formula `dim(H) = |E| - |V| + dim(Ker d)`. For the genesis graph (a 3-cycle):
-
-* 3 undirected edges, 3 vertices
-* The kernel of the gradient is 1-dimensional (constant functions, since the graph is connected)
-* Therefore `dim(H) = 3 - 3 + 1 = 1`
-
-Interpretation: The Kirchhoff telescoping argument (Genesis.lean) says the constraint sum is 3. The Dehn twist (Twist.lean) is the canonical harmonic form with winding 1 and energy 1/3. This file proves they're the same object up to scaling: **genesis creates exactly 3 units of the unique minimal topological defect**. The "3" isn't arbitrary - it's the constraint sum measuring how many times we wind around the single fundamental defect available on a triangle. The walk-based theorem bridges the algebraic winding (`genesis_winding_is_three`) with the path-following perspective (`walk_sum_eq_winding` from `WalkHolonomy.lean`).
-
-### `Diaspora/Logic/Classicality/`
-
-The connection between **set-theoretic well-foundedness** and **topological acyclicity**, organized into focused submodules:
-
-```text
-Classicality/
-├── Basic.lean        # Core definitions: IsClassical, IsMember, IsFaithfulPotential
-├── Cycles.lean       # SimpleCycle and GeneralCycle theorems, cycle embeddings
-├── Classical.lean    # Classical universe properties: acyclic, hierarchy, no paradoxes
-├── Orthogonality.lean # Vertex/edge-disjoint cycle orthogonality
-└── Dimension.lean    # Dimension bounds, spectral gap for general cycles
-```
-
-Core definitions (`Basic.lean`):
-
-* `IsClassical G`: `dim(HarmonicSubspace G) = 0` - no harmonic modes, tree-like universe.
-* `IsMember G ϕ child parent`: membership defined by gradient flow (parent at higher potential).
-* `IsFaithfulPotential G ϕ`: the potential orients every edge (no ties).
-* `isMember_wellFounded`: membership relation is well-founded for any potential.
-
-Cycle theorems (`Cycles.lean`):
-
-* `GeneralCycle`: a cycle on k ≤ n distinct vertices within `Fin n`.
-* `general_cycle_form`: canonical harmonic form with value 1/k on each forward edge.
-* `general_cycle_form_energy`: A cycle of length k has energy exactly 1/k.
-* `matter_is_paradox`: A SimpleCycle on n vertices creates harmonic energy exactly 1/n.
-* `russell_loop_creates_mass`: Embedded cycle ⟹ `finrank(H) ≥ 1`.
-* `cycle_implies_nonclassical`: Cycles contradict classicality.
-
-Classical universe properties (`Classical.lean`):
-
-* `classical_implies_acyclic`: `dim(H) = 0` ⟹ the graph is acyclic.
-* `classical_universe_admits_intrinsic_hierarchy`: Classical + connected ⟹ canonical height function gives well-founded membership.
-* `classical_universe_admits_rank`: Classical universes admit a faithful potential (extrinsic version).
-* `classical_universe_admits_no_paradoxes`: In a classical universe, every ActiveForm is exact.
-
-Orthogonality (`Orthogonality.lean`):
-
-* `disjoint_cycles_orthogonal`: Vertex-disjoint cycles have orthogonal harmonic forms.
-* `disjoint_cycles_energy_additive`: Their energies add (Pythagorean).
-* `edge_disjoint_cycles_orthogonal`: Edge-disjoint cycles have orthogonal harmonic forms (generalizes vertex-disjoint case).
-* `vertex_disjoint_implies_edge_disjoint`: Vertex-disjointness ⟹ edge-disjointness.
-
-Dimension and spectral gap (`Dimension.lean`):
-
-* `edge_disjoint_cycles_dimension_bound`: k pairwise edge-disjoint embedded cycles ⟹ `dim(H) ≥ k`.
-* `general_cycle_form_winding_one`: The winding number of general_cycle_form is 1.
-* `general_cycle_spectral_gap`: Generalized spectral gap - 1/k is the minimum nonzero energy for k-cycles.
-* `shorter_cycle_higher_energy`: Shorter cycles require more energy. Triangles (k=3) have minimum energy 1/3; long cycles (k→∞) approach zero.
-
-Interpretation: ZFC-style classical set theory plays the role of a vacuum. A classical universe admits well-founded membership hierarchies with no Russell-like paradoxes. Closing a loop is exactly the move that leaves this classical phase. Spatially separated paradoxes don't interact - mass from one frozen contradiction doesn't feel another unless they share edges. Cycles that meet at vertices but use different edges (like the communication cycle in a fused pair of triangles) remain orthogonal - what matters is channel-disjointness, not junction-disjointness. The dimension bound shows that independent cycles contribute independent modes: the harmonic subspace has room for at least as many degrees of freedom as there are edge-disjoint cycles.
-
-### `Diaspora/Logic/Inverse.lean`
-
-The reverse direction: **topology → logic**. Every particle is a fossil of contradiction.
-
-* `fossilize G σ`: Convert a physical 1-cochain into a constraint theory.
-
-Key results:
-
-* `fossil_is_consistent`: Fossilized theories are always locally consistent.
-* `matter_is_fossilized_logic`: The realized theory matches the harmonic form on active edges.
-* `harmonic_yields_unsatisfiable`: Non-zero harmonic ⟹ the fossil is unsatisfiable.
-* `particle_is_paradox`: Every nonzero "particle" (harmonic form) corresponds to a locally consistent but globally unsatisfiable theory.
-
-Read backwards, the theorems say that nonzero harmonic content always comes from an unsatisfiable but locally consistent theory. In Diaspora, mass is frozen logical contradiction: harmonic forms are **fossils** of impossible demands, and you can read the paradox back out of the geometry.
-
-### `Diaspora/Logic/Probabilistic.lean`
-
-How "generic" is topology in the space of all constraints?
-
-* `dimensional_gap`: `dim(ActiveForm) − dim(ImGradient) = dim(HarmonicSubspace)`.
-* `RobustlySatisfiable T`: the theory survives arbitrary single-constraint perturbation.
-
-Key results:
-
-* `genesis_is_generic`: Non-trivial topology ⟹ satisfiable constraints form a proper subspace.
-* `void_is_fragile`: If a satisfiable theory has cycles (non-zero harmonic subspace), it is **not robustly satisfiable** - any perturbation breaks it.
-
-Interpretation: the "void" (satisfiable vacuum) sits on a knife-edge in constraint space. Satisfiable theories live in a proper subspace, so generic noise pushes you into the non-exact sector, where harmonic content - and therefore mass - shows up almost automatically.
-
-### `Diaspora/Logic/Information.lean`
-
-Information-theoretic interpretation of the Hodge decomposition: topology as incompressible data.
-
-* `Capacity V`: Information capacity of a subspace = its dimension (degrees of freedom).
-* `RawCapacity G`: Total information needed to describe arbitrary constraint fields.
-* `ClassicalCapacity G`: Information needed to describe satisfiable (exact) universes.
-* `TopologicalDeficit G`: The gap between raw and classical capacity.
-
-**The Deficit Theorem:**
-
-```lean
-theorem topological_deficit_eq_harmonic_dim :
-    TopologicalDeficit G = Module.finrank ℝ (HarmonicSubspace G)
-```
-
-The information lost when enforcing satisfiability equals the dimension of the harmonic subspace. **Harmonic forms represent incompressible information** - data that cannot compress into potentials.
-
-Key results:
-
-* `information_leak_is_inevitable`: As systems grow (density increases), information *must* leak into the harmonic sector. The compression ratio drops; states cannot be described purely via potentials.
-* `matter_is_incompressible_complexity`: When topological deficit > 0, some states cannot be described by potentials alone. They require the "mass" term in Hodge decomposition.
-
-**Algorithmic perspective:**
-
-* `StateDescription`: A state decomposes into `(potential, harmonic_part)` via Hodge.
-* `DescriptionCost`: Potentials are cheap (scaling with |V|); harmonic forms are expensive (irreducible topology).
-
-Interpretation: In classical universes, state compresses into potentials. When |E| > |V|, excess data cannot compress and must be stored as topology. Matter is frozen complexity - the algorithmic cost of incompressible information that cannot be relaxed away. The "3" in genesis is the information-theoretic cost of the topological deficit.
-
-**Kolmogorov Complexity of Topology:**
-
-This section bridges Omega (algorithmic enumeration of programs) with Information (topological complexity), proving tight bounds on the relationship between program length and topological deficit.
-
-* `MinimumGenesisLength k n`: The minimum "algorithmic complexity" of genesis = `n + k - 1`.
-* `MaximumDeficit m n`: The maximum achievable deficit = `m - n + 1`.
-* `program_edge_count_bound`: A program of length m creates at most m undirected edges.
-
-**Lower Bound (Minimum Complexity):**
-
-```lean
-theorem minimum_complexity_of_genesis_connected
-    (P : Omega.Program n) (k : ℕ)
-    (h_deficit : TopologicalDeficit (theory_graph (Omega.decode P)) ≥ (k : ℝ))
-    (h_connected : Module.finrank ℝ (LinearMap.ker (d_G_linear ...)) = 1) :
-    (P.length : ℝ) ≥ MinimumGenesisLength k n
-```
-
-To create topological deficit k on a **connected graph**, any constraint program must have length at least `n + k - 1`.
-
-**Upper Bound (Maximum Deficit):**
-
-```lean
-theorem maximum_deficit_bound
-    (P : Omega.Program n)
-    (h_connected : Module.finrank ℝ (LinearMap.ker (d_G_linear ...)) = 1) :
-    TopologicalDeficit (theory_graph (Omega.decode P)) ≤ MaximumDeficit P.length n
-```
-
-A program of length m on a **connected graph** creates topological deficit at most `m - n + 1`.
-
-**The Complexity Sandwich:**
-
-The bounds are perfectly dual and tight:
-
-* **Lower**: Creating deficit k requires ≥ n + k - 1 constraints
-* **Upper**: Using m constraints creates ≤ m - n + 1 deficit
-
-The proof strategy mirrors the lower bound:
-
-1. **Hodge theory**: For connected graphs, `harmonic_dim = |E| - n + 1`
-2. **Combinatorics**: Each constraint creates at most one edge: `|E| ≤ m`
-3. **Arithmetic**: Therefore `deficit ≤ m - n + 1`
-
-**Tightness:** The triangle (n=3, m=3, k=1) saturates both bounds simultaneously:
-
-* Lower: k=1 requires ≥ 3 + 1 - 1 = **3** constraints ✓
-* Upper: m=3 creates ≤ 3 - 3 + 1 = **1** deficit ✓
-
-The triangle is the **simplest genesis** - the simplest non-trivial topology that simultaneously saturates both fundamental algorithmic bounds.
-
-Interpretation: Topology has a precise **exchange rate** between algorithmic complexity (program length) and information content (deficit). For connected graphs, this rate is exactly 1:1 after the n-vertex baseline. You cannot "cheat" and create harmonic structure more cheaply, nor can you pack arbitrary topology into a fixed program length. The information cost to encode a program creating deficit k is at least `(n + k - 1) * log(alphabet_size)` bits. Genesis is quantized at the algorithmic level, with both floor and ceiling.
-
-### `Diaspora/Logic/Limit.lean`
-
-What happens as the universe grows?
-
-* `bettiOne G`: first Betti number (cyclomatic complexity).
-* `IsComplex G`: `bettiOne > 0` - the universe has cycles.
-* `UniverseSequence`: a growing family of graphs indexed by ℕ.
-* `HasAdditiveGrowth`: `|E| − n → ∞` (edges outpace vertices).
-* `HasMultiplicativeGrowth`: `|E|/n → ∞` (edge density explodes).
-* `classicalRatio G`: `dim(ImGradient) / dim(ActiveForm)` - the "probability" of landing in the exact sector.
-
-Key results:
-
-* `complexity_threshold`: `|E| ≥ n` + connected ⟹ `IsComplex`.
-* `eventual_genesis`: Additive superlinear growth ⟹ eventually complex.
-* `inevitable_genesis`: Multiplicative growth ⟹ `classicalRatio → 0` as `n → ∞`.
-
-This is Diaspora’s **big bang**: as the universe grows under these connectivity assumptions, genesis becomes inevitable. The probability of staying in the classical (exact) sector goes to zero. Structure isn’t an accident here - it’s a statistical consequence of growth.
-
-### `Diaspora/Logic/Universal.lean`
-
-The **universal cover** of a graph and the resolution of paradox.
-
-* `History G root`: A walk from root to current vertex - your "history" of how you arrived.
-* `UniversalCover G root`: SimpleGraph on histories; two histories are adjacent if one extends the other by one step.
-* `lift_form G σ root`: Lift a constraint field to the cover.
-* `history_potential G σ root h`: Potential = cumulative strain along your history.
-* `walk_sum G σ p`: Sum of σ values along a walk's edges.
-
-Key results:
-
-* `universal_cover_is_classical`: The universal cover is **acyclic** (a tree).
-* `paradox_dissolves_in_cover`: Every constraint field becomes exact when lifted to the cover.
-* `walk_sum_reverse`: Reversing a walk negates its sum (by skew-symmetry).
-* `history_potential_diff_is_holonomy`: **The potential difference between two histories reaching the same vertex equals the holonomy around their loop.**
-
-**The Walk-Based Stokes Theorem** connects the walk perspective with Hodge theory:
-
-* `walk_stokes`: For a gradient dφ and any walk w from u to v: `walk_sum G (d_G G φ) w = φ v - φ u`. This is the **discrete fundamental theorem of calculus** - the path integral of a gradient telescopes to the potential difference.
-* `exact_walk_closed`: Immediate corollary - exact forms have zero walk_sum around closed walks.
-* `walk_sum_add`: Walk_sum is additive in the form.
-* `walk_sum_factors_through_harmonic`: For any form σ and closed walk w, by Hodge decomposition σ = dφ + γ, we have `walk_sum G σ w = walk_sum G γ w`. **The walk integral around a closed loop depends only on the harmonic component.**
-
-**The Walk Detector for Paradox** provides a direct criterion for unsatisfiability:
-
-* `walk_sum_implies_unsatisfiable`: If a locally consistent theory T has any closed walk with non-zero walk_sum, then T is unsatisfiable. **You can detect logical paradox by walking.**
-* `satisfiable_implies_walk_sum_zero`: Conversely, satisfiable theories have zero walk_sum on all closed walks.
-
-This generalizes `genesis_unsatisfiable_geometric` (from Kirchhoff.lean) to a universal principle: the "3" in genesis is the sum of constraints around the triangle, and any non-zero sum suffices to guarantee unsatisfiability.
-
-**The Discrete Monodromy Theorem** completes the walk-based characterization of exactness:
-
-* `exact_implies_walk_sum_zero`: Forward direction - exact forms have zero walk_sum on all closed walks.
-* `harmonic_zero_on_edges_acyclic` (Leaf Lemma): On acyclic graphs, harmonic forms must be zero on every edge. Uses the **bridge indicator construction**: since every edge in a tree is a bridge, we can construct a potential that's 1 on one side and 0 on the other, forcing γ(u,v) = 0 via orthogonality.
-* `divergence_free_on_acyclic_implies_zero`: Harmonic forms on acyclic graphs are identically zero.
-* `acyclic_implies_classical`: Forests have trivial harmonic subspace (`dim H = 0`).
-* `acyclic_implies_satisfiable`: On trees, every locally consistent theory is satisfiable.
-* `walk_sum_zero_implies_exact`: The crucial reverse direction - if walk_sum = 0 on all closed walks, the form is exact. The proof constructs a potential via path integration, with path independence guaranteed by zero holonomy.
-* `monodromy_exact_iff`: **The full iff characterization** - exactness is equivalent to zero walk_sum on all closed walks.
-* `satisfiability_iff_walk_sum_zero`: Application to theories - a locally consistent theory is satisfiable iff its realization has zero walk_sum on all closed walks.
-
-This is the discrete analogue of the classical monodromy theorem from differential geometry: a 1-form is exact iff it integrates to zero around every closed loop. The proof of the reverse direction is constructive - given zero holonomy everywhere, we build the potential explicitly by choosing a base vertex per connected component and integrating along paths.
-
-This explains why the universal cover dissolves paradox: acyclic graphs have no closed walks, so there's no opportunity for harmonic content to accumulate non-zero walk_sum. The Leaf Lemma makes this precise: on a tree, harmonic forms must vanish edge-by-edge because every edge is a bridge.
-
-The `history_potential_diff_is_holonomy` theorem formalizes the "memory mismatch" interpretation: if h1 and h2 are two histories ending at the same vertex v, then:
-
-```
-Φ(h1) - Φ(h2) = ∮ σ around (h1.walk ++ h2.walk.reverse)
-```
-
-This is the holonomy of σ around the closed loop formed by following h1 forward and h2 backward. In the cover, every history has a unique potential. When we project down to the physical graph, histories that took different paths to reach v may disagree about what the potential "should be" there. That disagreement is the winding number around the cycle they span - the harmonic content that cannot be relaxed away.
-
-Interpretation: the universal cover is a kind of **God's-eye view** - reality unrolled into a tree, with no loops and no paradox. Distinct histories never collide upstairs, so every constraint field lifts to an exact form. When you project back down, different histories can land on the same vertex; their "memory mismatch" is what shows up as energy. Diaspora treats ZFC-style foundations as something like a universal cover: a classical tree of sets that we mistake for the messy, cyclic, finite web of relations underneath.
-
-### `Diaspora/Logic/WalkHolonomy.lean`
-
-The **Walk-Chain Holonomy Correspondence**: proves that walk_sum around a cycle equals the algebraic winding number.
-
-This file bridges two perspectives on holonomy:
-
-* **Walk-based** (from `Universal.lean`): summing edge values along a path
-* **Algebraic** (from `Twist.lean`): the winding number abstraction
-
-Key constructions:
-
-* `cycle_walk_aux`: Recursively builds a k-step walk following `next`.
-* `canonical_cycle_walk`: The full closed walk traversing a SimpleCycle once.
-
-Key results:
-
-* `next_iterate_n`: Applying `next` n times returns to the start (cyclic property).
-* `walk_holonomy_eq_sum`: For the canonical cycle walk, walk_sum equals the sum over all edges.
-* `walk_sum_eq_winding`: When orbit covers all vertices bijectively, walk_sum equals SimpleCycleWinding.
-* `dehn_twist_walk_sum_one`: **The Dehn twist has walk_sum = 1 around its cycle.**
-
-The Dehn twist's algebraic winding (from `Twist.lean`) equals its walk_sum - a discrete analog of integrating a 1-form around a closed loop.
-
-### `Diaspora/Logic/Universe.lean`
-
-The synthesis of the entire project inside the Logic foundation layer. Defines `Universe n` as a bundle of logic (Theory T), geometry (DynamicGraph), and state (potential ϕ).
-
-Core definitions:
-
-* `Universe`: A structure containing a locally consistent Theory T and a potential ϕ.
-* `Universe.G`: The graph derived from the theory's constraints.
-* `Universe.σ`: The realized constraint field (1-cochain).
-* `IsParadox U`: The theory is locally consistent but globally unsatisfiable.
-* `matter_content U`: The harmonic component from Hodge decomposition (γ).
-* `total_strain_energy U`: The physical energy of the system.
-
-The causal chain (all proven):
-
-* `paradox_implies_deficit`: `IsParadox U` ⟹ `TopologicalDeficit U.G > 0`
-* `paradox_creates_mass`: `IsParadox U` ⟹ `matter_content U ≠ 0`
-* `matter_creates_gravity`: `IsParadox U` ⟹ `total_strain_energy U > 0`
-
-Main theorem:
-
-* `the_diaspora_correspondence`: Chains all three together. If U is a paradox, then it has positive topological deficit, non-zero mass, and positive strain energy.
-
-The proof uses `harmonic_component_gives_energy_floor` from `Dynamics/Transition.lean`, which proves that harmonic content creates an irreducible energy floor - you cannot tune the potential to eliminate strain when γ ≠ 0.
-
-Interpretation: In this universe, matter is not fundamental. It emerges as the fossilized remnant of logical contradiction. Gravity (strain) is the system's futile attempt to resolve that contradiction. "We are living in the stress fracture of a logical inconsistency."
-
----
-
-## Discrete calculus on graphs
-
-### `Diaspora/Core/Calculus.lean`
-
-Foundations:
-
-* `DynamicGraph n`: graph with `n` fixed vertices and a *dynamic* set of active edges.
-
-* 0- and 1-cochains:
-
-  * `C0 n := Fin n → ℝ`
-  * `C1 n`: skew-symmetric `Fin n → Fin n → ℝ`
-
-* Classical coboundary / gradient:
-
-  * `d0 : C0 n → C1 n`
-
-* Inner product and norm on 1-cochains:
-
-  * `inner_product_C1`, `norm_sq`
-
-* **Active forms**:
-
-  * `ActiveForm G`: 1-cochains that vanish on broken edges of a `DynamicGraph G`.
-  * Equipped with an inner product, norm, and turned into an `InnerProductSpace`.
-
-Graph-aware operators:
-
-* `d_G : C0 n → ActiveForm G` - gradient respecting which edges exist.
-* `δ_G : ActiveForm G → C0 n` - divergence.
-* `Δ_G := δ_G ∘ d_G` - graph Laplacian.
-* `IsHarmonic σ` - divergence-free 1-cochains.
-
-Quantum flavor:
-
-* `QC0 n`, `QC1 n` - complex analogues.
-* Hermitian inner products `inner_QC0`, `inner_QC1`.
-* `quantum_laplacian` and `IsEnergyEigenstate`.
-
-### `Diaspora/Models/Duality.lean`
-
-A small companion file:
-
-* Defines a discrete Hodge-star–style operation on complete graphs.
-* Proves basic duality lemmas that make the harmonic / energy statements cleaner.
-* You can safely skip it on a first pass; it’s part of the underlying toolkit rather than a story file.
-
----
-
-## Hodge decomposition (the heavy lifting)
-
-### `Diaspora/Hodge/Decomposition.lean`
-
-The core decomposition theorem with explicit algebraic topology.
-
-Structure:
-
-1. **Geometry of Active Forms** - inner product space on `ActiveForm G`
-2. **Gradient Subspace** - `ImGradient G` (exact forms)
-3. **Harmonic Subspace** - `HarmonicSubspace G := (ImGradient G)ᗮ`
-4. **Decomposition Theorem** - `σ = d_G φ + γ` with `γ ⟂ ImGradient`
-5. **Algebraic Topology (Betti Numbers)** - dimension formulas
-
-Key results:
-
-* `active_form_dimension`: dim(ActiveForm G) = |E| (undirected edge count)
-* `harmonic_dimension_eq_cyclomatic`: `dim(H) + |V| = |E| + dim(Ker d)`
-
-  * This is the "Algebraic Bridge" connecting linear algebra to graph topology.
-  * For connected graphs: `dim(H) = |E| - |V| + 1` (cyclomatic number).
-
-Specialization to the **complete graph** transfers everything to plain `C1 n`.
-
-Main theorem:
-
-```lean
-theorem hodge_decomposition {n : ℕ} [Fintype (Fin n)] (σ : C1 n) :
-  ∃ (ϕ : C0 n) (γ : C1 n),
-    (∀ i j, σ.val i j = (d0 ϕ).val i j + γ.val i j) ∧
-    IsHarmonic γ ∧
-    inner_product_C1 (d0 ϕ) γ = 0
-```
-
----
-
-## Harmonic analysis and physical interpretations
-
-### `Diaspora/Hodge/Harmonic.lean`
-
-Once we have Hodge, we get a bunch of physical-sounding theorems:
-
-* Energy as cohomological distance:
-
-  * `V_int_is_cohomological_distance`
-    expresses `‖d0 ϕ - σ‖²` explicitly as a sum over edges.
-
-* Minimal energy achieved when you project onto exact forms:
-
-  * `minimum_V_int_is_harmonic_norm`
-
-* Linearity properties:
-
-  * `harmonic_projection_is_linear`
-  * `inheritance_is_linearity`
-
-* “Pythagorean theorem” for cochains:
-
-  * `‖σ‖² = ‖exact part‖² + ‖harmonic part‖²`
-
-Stokes / holonomy:
-
-* Chains `Chain1 n` represent directed cycles.
-* `eval` / `holonomy`: pairings of cochains with chains.
-* **Stokes theorem in this discrete setting**:
-
-  * Exact forms vanish on cycles.
-  * Holonomy of `σ` on a cycle depends only on its harmonic component.
-
-Simple cycles & quantization:
-
-* `SimpleCycle` structure encodes a simple loop.
-* Harmonic forms supported on such a cycle are **constant along the loop**.
-* Get **topological quantization** statements:
-
-  * Winding number `m` implies energy levels like `m² / n`.
-  * The fully sharpened “no small topology” and mass-gap bounds live in `Spectral.lean`.
-
-Quantum:
-
-* `quantum_laplacian_hermitian` - the discrete Laplacian is self-adjoint.
-* `constant_is_zero_energy` - constant phases are zero-energy eigenstates.
-* `quantum_exact_vanishes_on_cycles` - quantum version of Stokes.
-
----
-
-## Spectral gap and quantization
-
-### `Diaspora/Hodge/Spectral.lean`
-
-Non-trivial topology implies a minimum energy cost.
-
-* `HasNontrivialCohomology` - harmonic form with non-zero holonomy on some cycle.
-* `spectral_gap_qualitative`: Non-trivial cohomology ⟹ ‖γ‖² > 0.
-* `spectral_gap_quantitative`: For cycle-supported harmonic with winding m ≠ 0, **‖γ‖² ≥ 1/n**.
-* `soliton_lower_bound`: Combines exact formula ‖γ‖² = m²/n with the lower bound.
-
-Interpretation: topological defects have quantized energy levels with a **mass gap**. The `Twist` module then shows this lower bound is sharp by constructing a canonical winding-1 defect with energy exactly `1/n`.
-
-### `Diaspora/Hodge/Twist.lean`
-
-Canonical construction of harmonic forms with specified winding.
-
-* `dehn_twist cycle`: Creates harmonic form with value 1/n on each forward edge.
-* `dehn_twist_is_harmonic`: Divergence-free for n ≥ 3.
-* `dehn_twist_winding_one`: Total winding around cycle = 1.
-* `dehn_twist_energy`: **‖dehn_twist‖² = 1/n** (minimum non-zero energy).
-* `dehn_twist_is_canonical`: Any harmonic form with winding 1 equals the Dehn twist.
-
-### `Diaspora/Hodge/IndexTheorem.lean`
-
-The discrete McKean-Singer formula - the "baby Atiyah-Singer" for finite graphs.
-
-This file bridges the spectral and topological perspectives. The central identity:
-
-```
-b₀ - b₁ = |V| - |E| = χ(G)
-```
-
-where b₀ = dim(H⁰) counts connected components and b₁ = dim(H¹) counts independent cycles.
-
-The McKean-Singer interpretation: imagine watching heat diffuse on the graph. At t=0, the "supertrace" (trace on vertices minus trace on edges) is just |V| - |E|. As t→∞, the heat kernel projects onto harmonic modes, and the supertrace becomes b₀ - b₁. The theorem says these are equal - **non-zero eigenvalues of Δ₀ and Δ₁ cancel in pairs**.
-
-Key results:
-
-* `mckean_singer`: The analytic index equals the Euler characteristic.
-* `betti_1_connected_add`: For connected graphs: b₁ + |V| = |E| + 1.
-* `spectral_pairing_principle`: d maps μ-eigenvectors of Δ₀ to μ-eigenvectors of Δ₁.
-* `supertrace_conservation`: The supertrace is constant across all time scales.
-
-The proof is almost trivial given the existing machinery - it's a direct consequence of `harmonic_dimension_eq_cyclomatic` from `Decomposition.lean`. What the file adds is the *interpretation*: the heat equation "sees" topology because the excited modes decay away while the zero modes persist. The supersymmetry (d intertwining the two Laplacians) ensures the decay rates match on both sides.
-
-Interpretation: This completes the Hodge story. We now have three equivalent views of the same phenomenon:
-
-1. **Static (Decomposition)**: dim(H) counts the gap between edges and vertices.
-2. **Energetic (Spectral)**: Harmonic forms carry quantized energy ≥ 1/n.
-3. **Dynamic (Index)**: Watching diffusion at any instant reveals the Euler characteristic.
-
-The McKean-Singer formula says you can measure the total "paradox content" of the universe by observing how it relaxes - at any moment in time.
-
-### `Diaspora/Hodge/CompleteGraph.lean`
-
-Closed-form Betti numbers for the complete graph K_n.
-
-The complete graph is the maximally connected structure: every vertex is adjacent to every other. This file proves its first Betti number has the closed form:
-
-```
-b₁(K_n) = (n-1)(n-2)/2
-```
-
-Key results:
-
-* `complete_graph_directed_edge_count`: K_n has exactly n(n-1) directed edges (all off-diagonal pairs).
-* `complete_graph_kernel_dim`: The gradient kernel is 1-dimensional (only constant functions, since every vertex is connected).
-* `betti_algebra_key`: The algebraic identity linking edge count to Betti number.
-* `complete_graph_betti_1`: **Main theorem** - the harmonic subspace has dimension (n-1)(n-2)/2.
-
-Concrete instances:
-
-* `K2_is_tree`: K₂ is a tree (b₁ = 0).
-* `K3_betti_one`: K₃ (triangle) has exactly one independent cycle (b₁ = 1).
-* `K4_betti_three`: K₄ has three independent cycles (b₁ = 3).
-* `complete_graph_has_cycles`: For n ≥ 3, K_n always has cycles.
-
-Interpretation: The complete graph achieves the maximum possible first Betti number for any graph on n vertices. It saturates the dimension formula: with n(n-1)/2 undirected edges and a 1-dimensional kernel (connected), the harmonic subspace absorbs all remaining degrees of freedom. This is the "most topologically complex" graph on n vertices - every possible cycle is present.
-
-### `Diaspora/Hodge/BipartiteGraph.lean`
-
-Closed-form Betti numbers for the complete bipartite graph K_{m,n}.
-
-The complete bipartite graph partitions vertices into two sets A (size m) and B (size n), with edges only between the sets - every vertex in A connects to every vertex in B. This file proves its first Betti number:
-
-```
-b₁(K_{m,n}) = (m-1)(n-1)
-```
-
-Key results:
-
-* `completeBipartite m n`: Definition of K_{m,n} on m+n vertices, with parts A = {0..m-1} and B = {m..m+n-1}.
-* `bipartite_directed_edge_count`: K_{m,n} has exactly 2mn directed edges (mn undirected).
-* `bipartite_kernel_dim`: The gradient kernel is 1-dimensional (connected graph).
-* `betti_algebra_bipartite`: The algebraic identity `mn + 1 = (m-1)(n-1) + (m+n)`.
-* `bipartite_betti_1`: **Main theorem** - the harmonic subspace has dimension (m-1)(n-1).
-
-Concrete instances:
-
-* `star_is_tree`: K_{1,n} (star graph) is a tree (b₁ = 0).
-* `K22_is_cycle`: K_{2,2} is a 4-cycle (b₁ = 1).
-* `K33_betti_four`: K_{3,3} has four independent cycles (b₁ = 4).
-* `bipartite_has_cycles`: For m,n ≥ 2, K_{m,n} always has cycles.
-
-Interpretation: The formula (m-1)(n-1) counts "fundamental squares" - independent 4-cycles formed by choosing two vertices from each partition. Unlike the complete graph which maximizes connectivity, the bipartite graph maximizes *structured* connectivity while maintaining a clean partition. The star graph K_{1,n} is the degenerate case: a single hub connecting n leaves, with no cycles at all. K_{2,2} is the 4-cycle - the simplest bipartite graph with nontrivial topology. K_{3,3} (the utility graph) achieves 4 independent cycles from its 9 edges and 6 vertices.
-
-### `Diaspora/Hodge/TripartiteGraph.lean`
-
-Closed-form Betti numbers for the complete tripartite graph K_{a,b,c}.
-
-The complete tripartite graph partitions vertices into three sets A (size a), B (size b), and C (size c), with edges between all pairs of vertices in *different* sets - but no edges within the same set. This file proves its first Betti number:
-
-```
-b₁(K_{a,b,c}) = ab + bc + ca - (a + b + c) + 1
-```
-
-Key results:
-
-* `octahedron`: Definition of K_{2,2,2} on 6 vertices, with parts A = {0,1}, B = {2,3}, C = {4,5}.
-* `octahedron_edge_count`: K_{2,2,2} has 24 directed edges (12 undirected).
-* `octahedron_kernel_dim`: The gradient kernel is 1-dimensional (connected graph).
-* `octahedron_betti_seven`: **Main theorem** - the octahedron has b₁ = 7.
-* `octahedron_formula`: Verification that 2·2 + 2·2 + 2·2 - 6 + 1 = 7.
-
-Concrete instances:
-
-* `triangle_as_tripartite`: K_{1,1,1} = K₃ (the triangle) with b₁ = 1.
-* `octahedron_vs_K4`: K_{2,2,2} has more cycles than K₄ (7 > 3).
-* `octahedron_vs_cube`: K_{2,2,2} has more cycles than the 3-cube (7 > 5).
-* `tripartite_vs_bipartite`: K_{2,2,2} has more cycles than K_{3,3} (7 > 4).
-
-Interpretation: The tripartite structure represents *threefold opposition* - three groups where each member sees every member of the other groups but is blind to their own kind. Adding a third partition dramatically increases the cycle space compared to bipartite graphs: K_{3,3} has 4 cycles, but K_{2,2,2} has 7. The formula shows topology grows quadratically with partition sizes. The octahedron (dual of the cube) is the most symmetric tripartite graph, with every vertex having degree 4 and the graph being vertex-transitive. The triangle K_{1,1,1} is the degenerate case where each partition has one vertex.
-
-### `Diaspora/Hodge/CycleGraph.lean`
-
-Closed-form Betti number for the cycle graph C_n.
-
-The cycle graph is the simplest graph with non-trivial topology: n vertices arranged in a ring, each adjacent to its two neighbors. This file proves its first Betti number is constant:
-
-```
-b₁(C_n) = 1
-```
-
-Key results:
-
-* `cycleGraph n`: Definition of C_n on n vertices, where vertex i is adjacent to (i±1) mod n.
-* `cycle_graph_directed_edge_count`: C_n has exactly 2n directed edges (n undirected).
-* `cycle_graph_kernel_dim`: The gradient kernel is 1-dimensional (connected graph).
-* `cycle_graph_betti_1`: **Main theorem** - the harmonic subspace has dimension 1.
-
-Concrete instances:
-
-* `C3_betti_one`: The triangle has b₁ = 1.
-* `C4_betti_one`: The square has b₁ = 1.
-* `C5_betti_one`: The pentagon has b₁ = 1.
-
-Interpretation: The cycle graph is topologically minimal - exactly one independent cycle, regardless of size. Unlike K_n and K_{m,n} whose Betti numbers grow quadratically with vertex count, C_n always has b₁ = 1. This reflects the fundamental difference: adding vertices to a cycle extends it rather than creating new independent loops. The proof uses the dimension formula: n edges, n vertices, connected ⟹ dim(H) = n - n + 1 = 1. The cycle graph is also the natural home of the Dehn twist - the canonical harmonic form with winding 1 and energy 1/n lives precisely on C_n.
-
-### `Diaspora/Hodge/PathGraph.lean`
-
-Closed-form Betti number for the path graph P_n.
-
-The path graph is the **classical vacuum**: n vertices arranged in a line, each adjacent only to its immediate neighbors (no wraparound). This file proves its first Betti number is always zero:
-
-```
-b₁(P_n) = 0
-```
-
-Key results:
-
-* `pathGraph n`: Definition of P_n on n vertices, where vertex i is adjacent to i±1 (when they exist).
-* `path_graph_directed_edge_count`: P_n has exactly 2(n-1) directed edges (n-1 undirected).
-* `path_graph_kernel_dim`: The gradient kernel is 1-dimensional (connected graph).
-* `path_graph_betti_0`: **Main theorem** - the harmonic subspace is trivial.
-* `path_graph_is_classical`: P_n is a classical universe (dim H = 0).
-* `path_graph_all_exact`: Every ActiveForm on P_n is exact (satisfiable).
-
-The Genesis Gap:
-
-* `genesis_costs_one_edge`: The edge count difference between C_n and P_n is exactly 1.
-* `genesis_creates_one_cycle`: The Betti number jump from P_n to C_n is exactly 1.
-
-Interpretation: The path graph is the archetype of the classical universe - no cycles, no paradoxes, no irreducible frustration. Every constraint is satisfiable; information flows from one end to the other without getting trapped. The path is a tree, and trees admit well-founded membership hierarchies with no Russell-like loops. This is the "vacuum state" - the baseline against which all topological complexity is measured.
-
-The Genesis Gap theorems formalize this: closing the loop creates the paradox. P_n has n-1 edges and b₁ = 0; C_n has n edges and b₁ = 1. That single edge - the "genesis edge" connecting the endpoints - transforms the classical vacuum into a non-classical universe with irreducible harmonic content. One edge is the minimum cost of genesis.
-
-### `Diaspora/Hodge/EdgeAddition.lean`
-
-The **Edge Addition Theorem**: the atomic unit of topology creation.
-
-The path-to-cycle transition is the canonical example of genesis, but it's an instance of a universal principle. This file proves that adding any edge to any connected graph increases b₁ by exactly 1:
-
-```
-b₁(G + edge) = b₁(G) + 1
-```
-
-Key results:
-
-* `addEdge G i j`: Definition of adding edge (i,j) to a DynamicGraph.
-* `addEdge_card`: Edge count increases by exactly 2 (one directed edge each way).
-* `addEdge_preserves_connectivity`: Adding an edge to a connected graph preserves connectivity.
-* `edge_addition_increases_betti`: **Main theorem** - b₁ increases by exactly 1.
-* `genesis_gap_via_edge_addition`: The P_n → C_n transition as an instance of edge addition.
-* `betti_counts_excess_edges`: b₁ + (n-1) = |E|/2 for connected graphs.
-* `tree_characterization`: A connected graph is a tree iff |E|/2 = n-1.
-
-Interpretation: Genesis is **quantized** at the edge level. Every cycle in a graph traces back to one "genesis edge" that closed a loop. You cannot add "half a cycle" - topology comes in discrete units. The complete graph K_n achieves its maximum Betti number (n-1)(n-2)/2 via exactly that many "excess edges" beyond its spanning tree. Each excess edge contributes one independent cycle.
-
-This is the atomic structure of the topological phase transition. The vacuum (tree) sits at b₁ = 0 with exactly n-1 edges. Every additional edge beyond the tree baseline creates exactly one new mode of irreducible frustration. The path-to-cycle transition is the first step in a staircase where each edge lifts b₁ by one.
-
-The dual theorem - that removing a non-bridge edge *decreases* b₁ by exactly 1 - is proved in `Dynamics/Resolution.lean`, connecting this static result to the dynamics of evolution.
-
-### `Diaspora/Hodge/WheelGraph.lean`
-
-Closed-form Betti number for the wheel graph W_n.
-
-The wheel graph is a hub vertex (vertex 0) connected to every vertex of an n-cycle (vertices 1..n). This file proves:
-
-```
-b₁(W_n) = n
-```
-
-Key results:
-
-* `wheelGraph n`: Definition of W_n on n+1 vertices, with hub at 0 and rim forming a cycle.
-* `wheel_graph_directed_edge_count`: W_n has exactly 4n directed edges (2n undirected: n spokes + n rim edges).
-* `wheel_graph_kernel_dim`: The gradient kernel is 1-dimensional (the hub connects to everything).
-* `wheel_graph_betti_1`: **Main theorem** - the harmonic subspace has dimension n.
-
-Concrete instances:
-
-* `W3_betti_three`: W₃ (tetrahedron minus one face) has b₁ = 3.
-* `W4_betti_four`: W₄ (square with center) has b₁ = 4.
-* `W5_betti_five`: W₅ (pentagon with center) has b₁ = 5.
-
-Interpretation: Adding a "central observer" to a cycle doesn't simplify the topology - it **multiplies** it. The n-cycle alone has b₁ = 1 (one independent cycle). Adding a hub creates n independent cycles, because each spoke forms a new cycle with part of the rim. The hub cannot relax the cycle because every shortcut it provides creates a new cycle. In Diaspora's language: an observer that "sees everything" creates n channels of irreducible frustration. Observation amplifies rather than resolves the harmonic content.
-
-### `Diaspora/Hodge/FriendshipGraph.lean`
-
-Closed-form Betti number for the friendship graph (windmill graph) F_n.
-
-The friendship graph F_n consists of n triangles all sharing a single central vertex. Each triangle has its own pair of "outer" vertices connected to the hub:
-
-```
-        1       3       5
-         \     / \     /
-          \   /   \   /
-           \ /     \ /
-    F_3:    0 ----- 0 ----- 0   (same vertex 0)
-           / \     / \
-          /   \   /   \
-         /     \ /     \
-        2       4       6
-```
-
-This file proves:
-
-```
-b₁(F_n) = n
-```
-
-Key results:
-
-* `friendship1`, `friendship2`, `friendship3`: Concrete definitions of F_1, F_2, F_3.
-* `friendship1_betti_one`: **Main theorem** - F_1 (single triangle) has b₁ = 1.
-* `friendship2_betti_two`: **Main theorem** - F_2 (two triangles) has b₁ = 2.
-* `friendship3_betti_three`: **Main theorem** - F_3 (three triangles) has b₁ = 3.
-
-Philosophical corollaries:
-
-* `junction_is_sterile`: Sharing a vertex doesn't create interaction - F_2 has the same Betti number as two isolated triangles.
-* `paradox_additivity`: Edge-disjoint paradoxes contribute additively to dim(H).
-* `wheel_vs_friendship_same_betti`: W_3 and F_3 have equal Betti numbers (both = 3), but by different mechanisms.
-
-Interpretation: The friendship graph demonstrates the principle from `Orthogonality.lean`: **what matters for independence is channel-disjointness (edges), not junction-disjointness (vertices)**. The n triangles share the central vertex but no edges, so by `edge_disjoint_cycles_orthogonal`, their harmonic forms are orthogonal. Each triangle carries its own irreducible frustration independently - n paradoxes coexisting at a single point without interference.
-
-This contrasts with the wheel graph: both W_n and F_n have b₁ = n, but the wheel's hub *creates* new cycles (observation amplifies), while the friendship hub merely *hosts* pre-existing cycles (junction colocates). The friendship graph is also known as the Dutch windmill Wd(3,n), and satisfies the graph-theoretic "Friendship Theorem": if any two people have exactly one mutual friend, the social graph must be a friendship graph.
-
-### `Diaspora/Hodge/BookGraph.lean`
-
-Closed-form Betti number for the book graph (stacked triangles) B_n.
-
-The book graph B_n consists of n triangles all sharing a single edge (the "spine"). Each triangle has its own "page" vertex connected to both spine endpoints:
-
-```
-              2
-             /|\
-            / | \
-           /  |  \
-    B_3:  0---+---1   (spine edge 0-1)
-           \  |  /
-            \ | /
-             \|/
-              3
-              |
-              4
-```
-
-This file proves:
-
-```
-b₁(B_n) = n
-```
-
-Key results:
-
-* `book1`, `book2`, `book3`: Concrete definitions of B_1, B_2, B_3.
-* `book1_betti_one`: **Main theorem** - B_1 (single triangle) has b₁ = 1.
-* `book2_betti_two`: **Main theorem** - B_2 (two triangles) has b₁ = 2.
-* `book3_betti_three`: **Main theorem** - B_3 (three triangles) has b₁ = 3.
-
-Philosophical corollaries:
-
-* `channel_is_transparent`: Sharing an edge doesn't create coupling - B_2 has the same Betti number as two isolated triangles.
-* `triad_same_betti`: W_3, F_3, and B_3 all achieve b₁ = 3.
-* `vertex_vs_edge_same_result`: Whether triangles share a vertex (friendship) or an edge (book), the result is the same.
-* `book_is_economical`: B_3 achieves b₁ = 3 with fewer vertices and edges than F_3.
-
-Interpretation: The book graph completes a **triad of mechanisms** for achieving b₁ = n:
-
-| Graph | Sharing | Mechanism |
-|-------|---------|-----------|
-| Wheel W_n | hub sees rim | observation **creates** cycles |
-| Friendship F_n | vertex (junction) | junction **hosts** cycles |
-| Book B_n | edge (channel) | channel **transmits** cycles |
-
-The book graph shows that even when paradoxes share a *communication channel* (edge) rather than just a *junction point* (vertex), they remain independent. The spine doesn't couple the triangles - each page's harmonic mode flows through the shared channel without interference. Edge-sharing is also more economical: B_n achieves the same b₁ as F_n with fewer vertices (n+2 vs 2n+1) and edges (2n+1 vs 3n).
-
-### `Diaspora/Hodge/PrismGraph.lean`
-
-Closed-form Betti numbers for the prism graph (circular ladder) Prism_n.
-
-The prism graph consists of two n-cycles connected by n "rungs" matching corresponding vertices:
-
-```
-Top:    0 - 1 - 2 - ... - (n-1) - 0
-        |   |   |           |
-Bottom: n - n+1- n+2- ... - (2n-1)- n
-```
-
-This file proves:
-
-```
-b₁(Prism_n) = n + 1
-```
-
-Key results:
-
-* `prism3`, `prism4`: Concrete definitions of Prism_3 (triangular prism) and Prism_4 (cube).
-* `prism3_edge_count`, `prism4_edge_count`: Edge counts (18 and 24 directed edges respectively).
-* `prism3_kernel_dim`, `prism4_kernel_dim`: The gradient kernel is 1-dimensional (connected graphs).
-* `prism3_betti_four`: **Main theorem** - Prism_3 has b₁ = 4.
-* `prism4_betti_five`: **Main theorem** - Prism_4 (cube) has b₁ = 5.
-
-Fusion amplification:
-
-* `fusion_amplifies_topology_3`: b₁(Prism_3) = 2 + (3 - 1) = 4.
-* `fusion_amplifies_topology_4`: b₁(Prism_4) = 2 + (4 - 1) = 5.
-* `mirror_world_topology_cost_3`: Prism_3 has 2 more cycles than isolated triangles.
-* `mirror_world_topology_cost_4`: Prism_4 has 3 more cycles than isolated squares.
-
-Interpretation: The prism graph extends the "handshake theorem" from `Interaction.lean` to complete fusion. Two isolated n-cycles have total b₁ = 2 (each contributes 1). Fusing them at all n vertices creates n-1 **additional** independent cycles, for a total of n+1. The pattern is precise:
-
-* 2 triangles + 2 bridges → 1 new cycle (Interaction.lean)
-* 2 triangles + 3 bridges (full fusion) → 2 new cycles (Prism_3)
-* 2 squares + 4 bridges (full fusion) → 3 new cycles (Prism_4)
-
-The shared frustration grows **linearly** with the interface size. Each point of contact beyond connectivity adds a new channel of irreducible constraint. This is the topological cost of mirroring - fusing two worlds at n points creates n-1 new cycles of entanglement.
-
-### `Diaspora/Hodge/LadderGraph.lean`
-
-Closed-form Betti numbers for the ladder graph (rectangular ladder) L_n.
-
-The ladder graph consists of two parallel paths of n vertices, connected by n "rungs":
-
-```
-Top:    0 - 1 - 2 - ... - (n-1)
-        |   |   |           |
-Bottom: n - n+1- n+2- ... - (2n-1)
-```
-
-This file proves:
-
-```
-b₁(L_n) = n - 1
-```
-
-Key results:
-
-* `ladder3`, `ladder4`: Concrete definitions of L_3 and L_4.
-* `ladder3_edge_count`, `ladder4_edge_count`: Edge counts (14 and 20 directed edges respectively).
-* `ladder3_kernel_dim`, `ladder4_kernel_dim`: The gradient kernel is 1-dimensional (connected graphs).
-* `ladder3_betti_two`: **Main theorem** - L_3 has b₁ = 2.
-* `ladder4_betti_three`: **Main theorem** - L_4 has b₁ = 3.
-
-The Closure Theorem:
-
-* `closure_theorem_3`: b₁(Prism_3) - b₁(L_3) = 4 - 2 = 2.
-* `closure_theorem_4`: b₁(Prism_4) - b₁(L_4) = 5 - 3 = 2.
-* `closure_edge_cost_3`, `closure_edge_cost_4`: The edge difference is exactly 2.
-* `closure_exchange_rate_3`, `closure_exchange_rate_4`: Each closing edge buys exactly one cycle.
-
-Interpretation: The ladder is the "open" version of the prism - what you get when you cut the prism open at both ends. It reveals the **Closure Theorem**: closing the ladder into a prism adds exactly 2 to the Betti number, one for each path that becomes a cycle. This generalizes the genesis gap (path→cycle adds 1) to higher dimensions: closing TWO paths into TWO cycles adds 2. The exchange rate is exactly 1:1 - each "closing edge" contributes one unit of harmonic content. The ladder sits between the fully classical (two disjoint paths) and the fully topological (prism), representing partial closure. The rungs create topology, but the open ends prevent the full "prism frustration" from manifesting.
-
-### `Diaspora/Hodge/GridGraph.lean`
-
-Closed-form Betti numbers for the grid graph G_{m,n}.
-
-The m×n grid graph arranges m·n vertices in a rectangular lattice, with each vertex connected to its horizontal and vertical neighbors:
-
-```
-Row 0:    0 - 1 - 2 - ... - (n-1)
-          |   |   |           |
-Row 1:    n - n+1- n+2- ... - (2n-1)
-          |   |   |           |
-...
-```
-
-This file proves:
-
-```
-b₁(G_{m,n}) = (m-1)(n-1)
-```
-
-Key results:
-
-* `grid2x3`, `grid3x3`: Concrete definitions of G_{2,3} and G_{3,3}.
-* `grid2x3_edge_count`, `grid3x3_edge_count`: Edge counts (14 and 24 directed edges respectively).
-* `grid2x3_kernel_dim`, `grid3x3_kernel_dim`: The gradient kernel is 1-dimensional (connected graphs).
-* `grid2x3_betti_two`: **Main theorem** - G_{2,3} has b₁ = 2.
-* `grid3x3_betti_four`: **Main theorem** - G_{3,3} has b₁ = 4.
-
-The Bipartite Coincidence:
-
-* `grid_bipartite_coincidence_2_3`: b₁(G_{2,3}) = b₁(K_{2,3}) = 2.
-* `grid_bipartite_coincidence_3_3`: b₁(G_{3,3}) = b₁(K_{3,3}) = 4.
-
-Connection to the ladder:
-
-* `grid_is_ladder_2_3`: G_{2,n} = L_n in terms of Betti number (the 2-row grid is the ladder).
-
-Interpretation: The grid graph achieves the same Betti number as the complete bipartite graph - `(m-1)(n-1)` - despite having a completely different structure. The grid is sparse and planar with only local connections; K_{m,n} is dense and (for m,n ≥ 3) non-planar with global bipartite connectivity. Yet they create the same dimension of harmonic space.
-
-This is the **Bipartite Coincidence**: local frustration can be just as rich as global frustration. The grid builds its cycles from unit squares - each cell in the (m-1)×(n-1) interior contributes one independent cycle. K_{m,n} builds its cycles from cross-partition 4-cycles - choosing 2 vertices from each side. Different mechanisms, same dimension.
-
-The coincidence is sharpest for K_{3,3} and G_{3,3}: the former is one of Kuratowski's forbidden minors (non-planar), while the latter is trivially drawable on paper. Yet both have b₁ = 4. Topology doesn't care whether paradox is spread locally across a lattice or concentrated in cross-partition demands - only the total quantity matters.
-
-### `Diaspora/Hodge/TorusGraph.lean`
-
-Closed-form Betti numbers for the torus graph T_{m,n}.
-
-The torus graph is the grid with wraparound in both dimensions - each row forms a cycle, each column forms a cycle. This creates a finite universe with no boundary:
-
-```
-Row 0:    0 - 1 - 2 - ... - (n-1) -┐
-          |   |   |           |    |
-Row 1:    n - n+1- ...        ...  |
-          |   |   |           |    |
-...       └───┴───┴───────────┴────┘
-```
-
-This file proves:
-
-```
-b₁(T_{m,n}) = mn + 1
-```
-
-Key results:
-
-* `torus2x3`, `torus3x3`: Concrete definitions of T_{2,3} and T_{3,3}.
-* `torus3x3_edge_count`: T_{3,3} has 36 directed edges (18 undirected: 9 horizontal + 9 vertical).
-* `torus3x3_kernel_dim`: The gradient kernel is 1-dimensional (connected graph).
-* `torus3x3_betti_ten`: **Main theorem** - T_{3,3} has b₁ = 10.
-* `torus3x3_formula`: Confirms the formula 3×3 + 1 = 10.
-
-The Torus Closure Theorem:
-
-* `torus_closure_theorem_3x3`: b₁(T_{3,3}) - b₁(G_{3,3}) = 10 - 4 = 6 = 3 + 3.
-* `torus_more_cycles_than_grid`: The torus always has more cycles than the corresponding grid.
-* `torus_closure_exchange_rate_3x3`: Each wrapping edge creates exactly one new cycle.
-
-Interpretation: The torus represents a **boundaryless finite universe**. The grid has edge effects - vertices on the boundary have fewer neighbors. The torus eliminates these by wrapping around, making every position equivalent. But this comes at a topological cost: exactly m + n new independent cycles that wrap around the entire universe.
-
-The formula `b₁(T_{m,n}) - b₁(G_{m,n}) = m + n` generalizes the genesis gap to two dimensions. Closing the grid into a torus adds m horizontal wrapping cycles (one per row) and n vertical wrapping cycles (one per column), minus one for linear dependence. These "cosmological" cycles wrap the entire universe and cannot be detected by any local observer - only by measuring holonomy around the full circumference.
-
-This is the topological cost of eliminating boundaries: you trade edge effects for global topology. The extra cycles represent information that is globally encoded but locally invisible - a discrete analog of the cosmological topology question in real physics. In Diaspora's language, a boundaryless universe must pay rent in irreducible frustration.
-
-### `Diaspora/Hodge/HypercubeGraph.lean`
-
-Closed-form Betti numbers for the n-dimensional hypercube Q_n.
-
-The hypercube Q_n has 2^n vertices (binary strings of length n), with two vertices adjacent iff they differ in exactly one bit:
-
-```
-Q_1:  0 - 1                     (path, b₁ = 0)
-
-Q_2:  00 - 01                   (square, b₁ = 1)
-       |    |
-      10 - 11
-
-Q_3:  the cube                  (b₁ = 5)
-
-Q_4:  the tesseract             (b₁ = 17)
-```
-
-This file proves:
-
-```
-b₁(Q_n) = n·2^{n-1} - 2^n + 1 = 2^{n-1}(n - 2) + 1
-```
-
-Key results:
-
-* `hypercube2`, `hypercube3`, `hypercube4`: Concrete definitions of Q_2, Q_3, Q_4.
-* `hypercube2_betti_one`: Q_2 (square) has b₁ = 1.
-* `hypercube3_betti_five`: Q_3 (cube) has b₁ = 5.
-* `hypercube4_betti_seventeen`: **Main theorem** - Q_4 (tesseract) has b₁ = 17.
-* `hypercube3_eq_prism4_betti`: Q_3 ≅ Prism_4 (isomorphic graphs, same Betti number).
-
-The Dimensional Doubling Theorem:
-
-* `doubling_2_to_3`: Going from Q_2 to Q_3 creates 3 new cycles (beyond 2× the original).
-* `doubling_3_to_4`: Going from Q_3 to Q_4 creates 7 new cycles.
-* `doubling_increment_pattern_3`, `doubling_increment_pattern_4`: The increment follows 2^{n-1} - 1.
-
-Interpretation: The hypercube is the n-dimensional extension of the closure pattern. Q_1 (path) is the classical vacuum. Q_2 (square) is the first non-trivial topology - closing the path into a cycle. Q_3 (cube) is two squares connected, and Q_4 (tesseract) is two cubes connected. Each dimension doubles the structure and connects corresponding vertices, creating 2^{n-1} - 1 new independent cycles beyond what doubling alone would produce.
-
-The formula b₁ = 2^{n-1}(n-2) + 1 shows that topology grows exponentially with dimension. Higher-dimensional spaces are "topologically denser" - the ratio b₁/|V| ≈ n/2 grows without bound. This is the discrete analog of how higher-dimensional manifolds can support richer cohomology. In Diaspora's language, each new dimension multiplies the channels for irreducible frustration rather than merely adding to them.
-
-### `Diaspora/Hodge/ConeGraph.lean`
-
-The **Cone Graph Theorem**: a unifying result that explains the wheel graph and introduces the fan graph family.
-
-The cone of a graph G, denoted cone(G), adds a new apex vertex connected to all vertices of G. This file proves:
-
-```
-b₁(cone(G)) = |E(G)|
-```
-
-Key results:
-
-* `coneGraph G`: Definition of cone(G) on n+1 vertices, with apex at 0 and original vertices shifted to 1..n.
-* `cone_graph_directed_edge_count`: cone(G) has 2n + |E(G)| directed edges (n spokes in each direction, plus lifted original edges).
-* `cone_graph_kernel_dim`: The cone of any graph is connected (kernel dimension 1).
-* `cone_betti_eq_original_edges`: **Main theorem** - b₁(cone(G)) = |E(G)|.
-* `cone_betti_increase`: Coning increases Betti number by exactly |V| - 1.
-
-The Fan Graph (cone of a path):
-
-* `fanGraph n`: Definition of F_n = cone(P_n), creating a "Chinese folding fan" shape.
-* `fan_graph_betti`: **b₁(F_n) = n - 1** (the path has n-1 edges).
-* `fan2_betti_one`: F₂ is a triangle (b₁ = 1).
-* `fan3_betti_two`: F₃ has b₁ = 2.
-* `fan4_betti_three`: F₄ has b₁ = 3.
-
-Connections to existing results:
-
-* `wheel_is_cone_of_cycle`: W_n = cone(C_n), explaining why b₁(W_n) = n (the cycle has n edges).
-
-Observation theorems:
-
-* `observation_amplification`: Adding an apex to a connected graph G increases b₁ by |V(G)| - 1.
-* `coning_preserves_topology`: Coning never reduces Betti number.
-
-Interpretation: The cone theorem exposes observation's effect on topology. An apex that connects to every vertex transforms the graph's edge count into its cycle count. Each original edge becomes the base of a triangle with the apex, and these triangles create |V| - 1 new independent cycles. Perfect observation doesn't simplify topology - it **crystallizes** existing structure into new harmonic modes. The number of new frustration channels equals the number of relationships the observer witnesses, minus the tree-like baseline. This explains the wheel graph result: an observer at the center of a cycle doesn't resolve the frustration; it multiplies it by creating n new cycles, one for each spoke-rim triangle.
-
-### `Diaspora/Hodge/SuspensionGraph.lean`
-
-The **Suspension Graph Theorem**: what happens when two independent observers watch the same system.
-
-The suspension of a graph G, denoted susp(G), adds two new vertices (north and south poles) both connected to all vertices of G but **not to each other**. This file proves:
-
-```
-b₁(susp(G)) = |E(G)|/2 + (n - 1)
-```
-
-Equivalently:
-
-```
-b₁(susp(G)) = b₁(cone(G)) + (n - 1)
-```
-
-Key results:
-
-* `suspensionGraph G`: Definition of susp(G) on n+2 vertices, with poles at 0 and 1, and original vertices shifted to 2..n+1.
-* `suspension_graph_directed_edge_count`: susp(G) has 4n + |E(G)| directed edges (2n edges to each pole, plus lifted original edges).
-* `suspension_graph_kernel_dim`: The suspension of any graph is connected (kernel dimension 1).
-* `suspension_betti`: **Main theorem** - b₁(susp(G)) = |E(G)|/2 + (n - 1).
-* `suspension_vs_cone`: The suspension adds exactly n - 1 more cycles than the cone.
-* `suspension_betti_increase`: Suspending adds 2(n - 1) cycles to G.
-
-Concrete examples:
-
-* `suspension_path_betti`: susp(P_n) has b₁ = 2n - 2.
-* `suspension_cycle_betti`: susp(C_n) has b₁ = 2n - 1 (compare wheel W_n = cone(C_n) with b₁ = n).
-
-Dual observation theorems:
-
-* `dual_observation_additivity`: b₁(susp(G)) - b₁(G) = 2 × (b₁(cone(G)) - b₁(G)). Two observers add double the topology.
-* `pole_isolation_maximizes_topology`: The poles contribute independently because they can't communicate directly.
-
-Interpretation: The suspension represents **dual observation** - two independent observers watching the same system from opposite vantage points. Unlike the cone (single observer), the suspension has two poles that each contribute n - 1 new cycles, and since they can't see each other, their contributions are additive.
-
-This models situations where two distinct perspectives on the same underlying reality create compounding rather than canceling topology. Each observer's measurement contributes its own irreducible frustration, and these frustrations don't interfere because the observers are isolated. The poles can only "know" about each other through the system they both observe - they share no direct channel.
-
-The comparison with the cone is precise:
-* **Cone** (single observer): adds n - 1 cycles
-* **Suspension** (two isolated observers): adds 2(n - 1) cycles
-
-The formula b₁(susp(G)) = b₁(cone(G)) + (n - 1) says the second observer contributes exactly as much as the first. If the poles were connected, we'd lose one cycle (the triangle through both poles and any original vertex would become exact). Their isolation maximizes the topological yield.
-
-### `Diaspora/Hodge/PetersenGraph.lean`
-
-The **Petersen graph**: the most famous small graph in mathematics.
-
-The Petersen graph has 10 vertices and 15 edges, arranged as an outer pentagon connected to an inner pentagram. It's 3-regular (every vertex has degree 3) and vertex-transitive (every vertex looks the same). This file proves:
-
-```
-b₁(Petersen) = 6
-```
-
-Key results:
-
-* `petersen`: Definition of the Petersen graph on 10 vertices.
-* `petersen_edge_count`: 30 directed edges (15 undirected).
-* `petersen_is_3_regular`: Every vertex has exactly 3 neighbors.
-* `petersen_kernel_dim`: The graph is connected (kernel dimension 1).
-* `petersen_betti_six`: **Main theorem** - the harmonic subspace has dimension 6.
-
-Interpretation: The Petersen graph represents **democratic paradox**. Its 6 independent cycles are uniformly distributed across all 10 vertices - no vertex is more "responsible" for the topology than any other. Compare this to the wheel (where the hub is central) or the friendship graph (where the junction hosts all triangles). The Petersen graph is famous as a counterexample to many plausible conjectures precisely because its uniform structure defeats naive optimization strategies. In Diaspora's language, this is a structure where blame cannot be assigned to individuals - the paradox is collective.
-
-### `Diaspora/Hodge/CartesianProduct.lean`
-
-The **Cartesian Product Theorem**: a unifying principle for graph families.
-
-The Cartesian product G □ H creates a new graph where vertices are pairs (v, w), with edges connecting pairs that differ in exactly one coordinate. This file proves that all the following graph families are instances of a single formula:
-
-```
-b₁(G □ H) = b₁(G)|V(H)| + b₁(H)|V(G)| + (|V(G)| - 1)(|V(H)| - 1)
-```
-
-The grand unification:
-
-| Graph Family | Construction      | Formula Result    |
-|--------------|-------------------|-------------------|
-| Ladder L_n   | P_n □ K_2         | n - 1             |
-| Prism_n      | C_n □ K_2         | n + 1             |
-| Grid G_{m,n} | P_m □ P_n         | (m-1)(n-1)        |
-| Torus T_{m,n}| C_m □ C_n         | mn + 1            |
-| Hypercube Q_n| K_2 □ ... □ K_2   | 2^{n-1}(n-2) + 1  |
-
-Key results:
-
-* `ladder_formula_n3`, `ladder_formula_n4`: Formula matches LadderGraph results.
-* `prism_formula_n3`, `prism_formula_n4`: Formula matches PrismGraph results.
-* `grid_formula_2x3`, `grid_formula_3x3`: Formula matches GridGraph results.
-* `torus_formula_3x3`: Formula matches TorusGraph results.
-* `hypercube_formula_n2`, `hypercube_formula_n3`, `hypercube_formula_n4`: Formula matches HypercubeGraph results.
-* `hypercube_recurrence_2_to_3`, `hypercube_recurrence_3_to_4`: The recurrence b₁(Q_{n+1}) = 2·b₁(Q_n) + 2^n - 1.
-* `genesis_of_combination`: Two trees (paths) combine to produce cycles.
-
-Interpretation: The Cartesian product formula captures **emergent topology**. The term (|V(G)|-1)(|V(H)|-1) shows that topology can arise purely from combination. Even when G and H are both trees (b₁ = 0), their product has cycles:
-
-```
-b₁(P_m □ P_n) = 0 + 0 + (m-1)(n-1) = (m-1)(n-1)
-```
-
-This is the Grid formula - the "Genesis of Combination". Two classical systems with no paradox combine to produce irreducible frustration. The product cycles exist in neither factor alone; they emerge from the pattern of interaction. This formalizes a key intuition: some topology is relational - it cannot be reduced to properties of the parts.
-
-### `Diaspora/Hodge/MaximumTopology.lean`
-
-The **Maximum Topology Theorem**: among all connected graphs on n vertices, the complete graph K_n achieves the maximum first Betti number.
-
-```
-b₁(G) ≤ b₁(K_n) = (n-1)(n-2)/2
-```
-
-**Maximum connectivity creates maximum frustration.**
-
-Key results:
-
-* `edge_count_le_complete`: Every simple graph on n vertices has at most n(n-1)/2 undirected edges.
-* `betti_one_le_complete`: **Main theorem** - for any connected graph G, b₁(G) ≤ b₁(K_n).
-* `betti_one_le_formula`: The explicit bound b₁(G) ≤ (n-1)(n-2)/2.
-* `betti_monotone_in_edges`: If G ⊆ H as edge sets, then b₁(G) ≤ b₁(H). Topology is monotonic in connectivity.
-
-Extremal characterizations:
-
-* `cycle_is_minimal_non_classical`: C_n achieves the minimum non-zero Betti number (b₁ = 1).
-* `complete_is_maximal`: K_n achieves the maximum Betti number ((n-1)(n-2)/2).
-* `betti_range_achievable_endpoints`: For n ≥ 3, there exist connected graphs achieving b₁ = 0 (path), b₁ = 1 (cycle), and b₁ = (n-1)(n-2)/2 (complete graph).
-
-The Maximum Frustration Principle:
-
-* `maximum_frustration_principle`: K_n dominates all connected graphs in harmonic dimension.
-
-Interpretation: The complete graph is the topology maximizer - the "most paradoxical" possible structure on n vertices. Every pair of vertices is connected, creating the maximum number of opportunities for circular constraint dependencies. At the other extreme, the cycle C_n is the topology minimizer among non-classical graphs - the simplest possible genesis with just one independent cycle.
-
-The topology density ratio b₁/|E| measures efficiency:
-* For K_n: (n-2)/n → 1 as n → ∞ (nearly every edge creates a cycle)
-* For C_n: 1/n → 0 as n → ∞ (adding vertices increases edges but not cycles)
-
-This connects the graph-specific results to a universal principle: you cannot escape topology in a fully connected network. The "vacuum" (tree-like, satisfiable) phase becomes increasingly rare as connectivity grows. Maximum connectivity forces maximum irreducible frustration - there is no way to arrange all those edges without creating the maximum possible dimension of harmonic space.
-
----
-
-## Phase fields and cyclic constraints
-
-### `Diaspora/Core/Phase.lean`
-
-Discrete calculus over finite cyclic groups (ZMod k).
-
-* `PC0 n k`, `PC1 n k` - phase 0- and 1-cochains valued in `ZMod k`.
-* `pd0` - phase coboundary operator.
-* `geodesic_dist` - shortest path distance on the cycle `ZMod k`.
-* `phase_winding_simple` - winding of a phase 1-cochain on a simple cycle.
-* `phase_exact_vanishes_on_simple_cycles` - **Phase Stokes theorem**.
-* `winding_number_is_topological_invariant` - adding an exact form preserves winding.
-
-Interpretation: in phase fields, winding is enforced by the type system - you can't partially wind.
-
----
-
-## Mechanisms of relaxation & measurement
-
-### `Diaspora/Dynamics/Diffusion.lean`
-
-A local alternative to the global solver.
-
-* `diffusion_step`: Discrete heat equation. Nodes adjust their potential based only on immediate neighbor strain.
-* **Theorem:** `stationary_diffusion_is_optimal` - if every node is locally balanced, the global system has reached the Hodge energy minimum.
-* `phase_synchronization_step`: **Kuramoto-style dynamics** for phase fields using geodesic distance.
-
-Together they say: scalar potentials relax toward the Hodge optimum, while phase fields synchronize along geodesics on `ZMod k` without ever breaking their winding constraints.
-
-### `Diaspora/Quantum/Witness.lean`
-
-A local alternative to global energy summation, built on the rigorous walk infrastructure from `Logic/WalkHolonomy.lean`.
-
-* `measure_phase_shift`: The complex exponential of accumulated potential drops along a graph walk.
-* **Theorem:** `local_holonomy_predicts_global_energy` - for an observer walking a cycle embedded in a dynamic graph, the measured phase shift determines the global energy of the topological defect.
-
-The proof uses `walk_sum_factors_through_harmonic` (Stokes' theorem for walks) to show that the exact component of σ is invisible to the observer - only the harmonic γ contributes to the measurement.
-
-### `Diaspora/Dynamics/Local.lean`
-
-* Runs the `Sim` simulation using `diffusion` as the solver, proving that local rules are sufficient to drive the global topology change.
-
----
-
-## Topology, strain, and graph evolution
-
-### `Diaspora/Dynamics/Strain.lean`
-
-### `Diaspora/Dynamics/Transition.lean`
-
-These files turn the math into a dynamics:
-
-* Define **edge strain**:
-
-  * `edge_strain ϕ σ i j := ((d0 ϕ).val i j - σ.val i j)²`
-
-* Show **strain must localize** if total frustration is high:
-
-  * `strain_must_localize`: a pigeonhole principle on edges.
-
-* **Irreducible Strain Theorem**:
-
-  * `harmonic_component_gives_energy_floor`: If an ActiveForm σ decomposes as `σ = d_G φ + γ` with γ ∈ HarmonicSubspace and γ ≠ 0, then for **any** potential ϕ, the strain energy satisfies `dynamic_strain_energy G ϕ σ.val ≥ ‖γ‖² > 0`.
-  * This is the bridge between Hodge theory and physical dynamics: harmonic content represents irreducible frustration that cannot be relaxed away by tuning the potential.
-  * The proof uses Pythagorean decomposition and orthogonality: `‖d_G ϕ - σ‖² = ‖d_G(ϕ - φ_opt)‖² + ‖γ‖²`, where the exact part can be minimized to zero but the harmonic part remains.
-
-* `BreakingThreshold` and `C_max`: when strain exceeds this, an edge “breaks”.
-
-Graph metrics:
-
-* `edge_count`
-* `cyclomatic_number` - counts cycles (for connected graphs).
-
-Edge removal and evolution:
-
-* `remove_edge` - deletes an undirected edge (both orientations).
-* `find_overstressed_edge` - pick an active edge with highest strain above threshold.
-* `evolve_step` - perform one "break" if needed.
-
-Dynamic energy:
-
-* `dynamic_strain_energy G ϕ σ` - strain summed only over active edges.
-* `energy_drop_on_break` - breaking an edge reduces this energy by exactly that edge’s strain.
-* `is_equilibrium` - no edge exceeds `C_max`; `equilibrium_is_stable` shows that in this case `evolve_step` is a no-op.
-
-Nucleation barrier:
-
-* `nucleation_barrier n := 1/n` - minimum energy to sustain a topological defect.
-* `vacuum_stability`: If ‖γ‖² < 1/n, then winding m = 0 (trapped in exact sector).
-* `nucleation_necessity`: If m ≠ 0, then ‖γ‖² ≥ 1/n (energy had to exceed barrier).
-
-So the universe can only “grow” genuine topological defects by first pushing enough strain through the graph to cross this barrier; below `1/n` you’re trapped in the exact (topologically trivial) sector.
-
-There’s a simple entropy-like quantity hiding here: the **latent capacity** of `σ`
-with respect to `G` (how much strain lives on broken edges). Along any valid
-evolution chain, latent capacity is non-decreasing; breaking an edge moves some
-capacity from "realized" to "latent" and never back. That gives a bare-bones
-arrow of time: a partial order on graphs where history is exactly which edges
-paid the price for the frustration.
-
-### Universe evolution (the main loop)
-
-#### `Diaspora/Dynamics/Sim.lean`
-
-This is the abstract proof-carrying simulation engine:
-
-* `EvolutionChain n σ G` - inductive type of valid histories, step-by-step edge breaks.
-* `evolve` - given a **Solver** (either the Global Ideal or the Local Diffusion), it resolves potentials and breaks the most overstressed edge.
-* `run_universe` - start from an initial graph `G₀` and run `evolve`.
-
-Main structural statement:
-
-* `simulation_entropy_nondecreasing` - latent capacity with respect to `σ`
-  never decreases along this simulation. Once capacity has moved to broken edges,
-  it doesn't come back; the "time" of the universe is the accumulation
-  of irreversibly latent strain.
-
-(See `Dynamics/Local.lean` for the concrete implementation where the "Solver" is just local heat diffusion.)
-
-#### `Diaspora/Dynamics/Resolution.lean`
-
-The arrow of time has two faces. While `Sim.lean` tracks entropy (latent capacity increases), Resolution proves the dual: **paradox decreases**.
-
-The key distinction is between bridges and non-bridges:
-
-* **Bridge edge**: removing it disconnects the graph (increases kernel dimension).
-* **Non-bridge edge**: removing it preserves connectivity (part of a cycle).
-
-Main theorems:
-
-* `edge_removal_decreases_betti`: Removing a non-bridge edge from a connected graph decreases b₁ by exactly 1. This is the precise dual of `edge_addition_increases_betti`.
-
-* `evolution_dual_arrow`: When evolution breaks a non-bridge edge:
-  1. Entropy increases (latent capacity grows by σ(i,j)²)
-  2. Paradox decreases (topological deficit drops by 1)
-
-* `betti_counts_nonbridge_edges`: b₁ = |E|/2 - (n-1). The Betti number counts exactly how many edges exceed the spanning tree - these are the non-bridges, the cycle edges, the carriers of paradox.
-
-Interpretation: every edge break is both thermodynamic (irreversible heat release) and logical (resolution of contradiction). The universe evolves toward the classical vacuum (b₁ = 0) by shedding cycles one at a time. When b₁ reaches zero, the graph is a tree: every remaining edge is a bridge, and further breaks would fragment rather than simplify.
-
-"Black hole" metaphor (in the topology-change layer):
-
-* `black_hole_formation` packages:
-
-  1. Some edge must break under high frustration.
-  2. A harmonic form with positive norm appears.
-  3. External observers measuring holonomy "see only γ" (no-hair analogue).
-
-#### `Diaspora/Dynamics/Stability.lean`
-
-Which cycles can exist without breaking? The Dehn twist on an n-cycle carries per-edge strain `(1/n)²`. A universe with breaking threshold `C_max` can only stably support cycles where this strain doesn't exceed the threshold.
-
-The **critical cycle length** emerges:
-
-* `criticalCycleLength C_max = ⌈1/√C_max⌉₊`
-
-This is the minimum cycle length that can exist stably given the universe's tolerance for per-edge strain. Shorter cycles exceed the threshold and must break.
-
-Main theorems:
-
-* `dehn_twist_per_edge_strain`: The per-edge strain of a Dehn twist is exactly `1/n²`.
-
-* `short_cycle_unstable`: Cycles shorter than the critical length have at least one edge exceeding `C_max`.
-
-* `long_cycle_stable`: Cycles at or above the critical length have all edges within `C_max`.
-
-* `triangle_threshold`: Triangles are stable iff `C_max ≥ 1/9`. The triangle, as the smallest cycle, demands the highest tolerance.
-
-* `threshold_monotonicity`: Lower thresholds require longer cycles. A pickier universe has coarser topology.
-
-* `zero_threshold_classical`: As `C_max → 0`, the critical length grows without bound. In the limit of zero tolerance, no finite cycle survives.
-
-* `triangle_is_minimum_paradox`: Among all cycles, the triangle has the highest per-edge strain (`1/9`). It is the densest form of paradox.
-
-* `long_cycle_limit`: Per-edge strain vanishes as cycle length grows. Infinite cycles are infinitely gentle.
-
-Interpretation: the breaking threshold is a kind of **Planck scale for topology**. It determines the granularity of paradox that can exist in the universe. A high-tolerance universe (large `C_max`) can sustain triangles - the most concentrated form of logical contradiction. A low-tolerance universe (small `C_max`) can only sustain large, diffuse cycles where the paradox is spread thin. In the classical limit (`C_max → 0`), no paradox survives; the universe is a tree.
-
-This connects the dynamics (when does strain cause breaking?) to the statics (which Betti numbers are achievable?). The topology of a universe is not arbitrary - it is constrained by the physics of what can persist.
-
-#### `Diaspora/Dynamics/GirthStability.lean`
-
-The extension from individual cycles to entire graphs. While Stability.lean asks "which cycles can survive?", this file asks "which graphs can survive?" - and proves the two questions are equivalent.
-
-The **girth** of a graph is the length of its shortest embedded cycle. A forest has girth 0 (no cycles). The triangle has girth 3. The key insight: the shortest cycle is the "weakest link" - if it survives, all cycles survive.
-
-* `girth G`: The minimum cycle length embedded in G, or 0 if G is a forest.
-* `cycleLengths G`: The set of all embedded cycle lengths.
-
-**The Girth-Stability Correspondence**:
-
-```lean
-theorem minimum_stable_threshold (G : DynamicGraph n) (h_girth_pos : girth G > 0) (C_max : ℝ) :
-    (∀ c, generalCycleEmbeddedIn c G → ∀ i, per_edge_strain c i ≤ C_max) ↔
-    C_max ≥ 1 / (girth G)^2
-```
-
-A graph is stable under threshold `C_max` if and only if `C_max ≥ 1/girth²`. The girth completely determines the minimum tolerance required.
-
-Main theorems:
-
-* `general_cycle_per_edge_strain`: The per-edge strain of a k-cycle is exactly `1/k²`.
-
-* `girth_unstable`: If girth < critical length, some cycle edge exceeds the threshold.
-
-* `girth_stable`: If girth ≥ critical length, all cycle edges are within threshold.
-
-* `classical_always_stable`: Forests (girth = 0) are stable under any positive threshold.
-
-* `complete_graph_threshold`: Graphs with triangles require `C_max ≥ 1/9` to be stable.
-
-* `shorter_girth_higher_threshold`: Smaller girth means higher required threshold.
-
-Interpretation: the girth is the graph-level analog of the critical cycle length. Where Stability.lean proves that individual cycles break when too short, this file proves that graphs break at their shortest cycle. The girth is a topological invariant; the threshold is a dynamical parameter. Yet they lock together precisely: `1/girth²` is the exact boundary between stability and instability.
-
-This completes the picture: **topology determines dynamics**. The abstract structure of a graph (its girth) uniquely determines its physical behavior (its stability threshold). You cannot know the graph's resilience without knowing its shortest cycle; you cannot infer its shortest cycle without testing its resilience.
-
----
-
-## Weighted graphs and plasticity
-
-### `Diaspora/Core/Weighted.lean`
-
-### `Diaspora/Dynamics/Plasticity.lean`
-
-This layer moves from binary topology (active/inactive) to continuous capacity. It treats the graph as an economic system with finite resources.
-
-Foundations:
-
-* `WeightedGraph n`: edges have continuous weights `w_ij ≥ 0`.
-
-* **Conservation of attention**: the total capacity of the universe is fixed at `n²`.
-
-  * `∑ w_ij = n²`
-
-* `raw_strain`: the pure potential difference `(d0 ϕ - σ)²`, unmitigated by capacity.
-
-* `phase_strain`: geodesic-aware strain for cyclic phase fields (respects `ZMod k` topology).
-
-* `to_dynamic`: thresholding a weighted graph converts it back to a `DynamicGraph` (emergent topology).
-
-The plasticity cycle: evolution happens in a loop of Growth, Scarcity, and Pruning (`plasticity_cycle`):
-
-1. **Hebbian phase**: edges under high strain grow stronger (`w' = w + η·strain`).
-2. **Scarcity phase**: the graph is renormalized to enforce the conservation of attention. If some edges grow, others must shrink.
-3. **Pruning**: weights falling below `ε` are zeroed out.
-
-Key theorem: "use it or lose it".
-
-* `plasticity_atrophy_of_unstressed`: if the system is under stress, any edge with *zero* local strain will strictly decrease in weight (it is "taxed" to pay for the growth of stressed edges).
-
-Dehn twists as attractors:
-
-* `dehn_twist_preserves_symmetry`: uniform weights + Dehn twist strain → weights stay uniform.
-* `dehn_twist_guarantees_existence`: positive learning rate ensures cycle edges remain active.
-
-### `Diaspora/Models/Resilience.lean`
-
-The converse question: what about edges *with* strain? This file proves that harmonic content is self-maintaining under plasticity.
-
-* At the optimal potential (from Hodge decomposition), `raw_strain = γ²` - strain equals the harmonic component squared.
-* Cycle edges with non-zero winding have `γ ≠ 0`, therefore positive strain.
-* Positive strain means Hebbian reinforcement, not atrophy.
-
-Main theorems:
-
-* `harmonic_cycle_resists_atrophy`: cycle edges with harmonic content have positive strain.
-* `zombie_stays_dead`: exact σ (no harmonic content) → dead edges stay dead. No "ghost strain" to resurrect them.
-* `harmonic_resurrects`: harmonic σ → dead cycle edges get pulled back toward positive weight.
-* `ghost_manifests` / `ghost_trapped`: whether a resurrecting edge survives pruning depends on whether `η * γ² ≥ ε`.
-
-Interpretation: harmonic content protects the topology that carries it. Self-reference, once established, is stable - the irreducible frustration creates the strain that pays the rent. Dehn twists are the cleanest example: they sit right at the nucleation barrier `1/n`, but Hebbian plasticity still treats them as **tax-paying residents**, not ghosts to be pruned.
-
----
-
-## Toy systems and named stories
-
-These are the narrative / physics-inspired models built on top of the Logic + Dynamics machinery.
-
-### The void: observation vs reality
-
-#### `Diaspora/Models/Void.lean`
-
-Formalizes the distinction between full state and observable state, plus dimensional analysis.
-
-Micro/macro framework:
-
-* `Microstate n`: weighted graph + constraint field σ + potential φ.
-* `Macrostate n`: thresholded topology + visible fields + Laplacian spectrum.
-* `observe`: projects microstate to macrostate via threshold ε.
-* `evolve_micro`: evolves microstate via plasticity (uses full σ, including sub-threshold).
-* `graphSpectrum`: eigenvalues of the graph Laplacian.
-
-Dimensional analysis:
-
-* `IsVoidTopology G`: `dim(HarmonicSubspace G) = 0` (tree/forest topology).
-* `AllowsGenesis G`: `dim(HarmonicSubspace G) > 0` (supports topological defects).
-* `void_implies_exactness`: in a tree, every constraint is exact - no frustration possible.
-* `structure_is_generic`: if `dim(H) > 0`, then `dim(Exact) < dim(Active)`.
-
-Cyclomatic condition:
-
-* `HasObserver G`: `|E| ≥ |V|` (at least one extra edge beyond spanning tree).
-* `observer_creates_mass`: `HasObserver` + connected ⟹ `AllowsGenesis`.
-
-Wiring in "enough" connectivity to host an observer also creates room in H for **mass-carrying topological modes**.
-
-Main theorem:
-
-* `observable_present_undetermines_future`: there exist microstates S₁, S₂ with same observation now but different observations after evolution.
-
-Interpretation: observation doesn't commute with dynamics.
-
----
-
-### Topological genesis: open vs closed line
-
-#### `Diaspora/Models/Genesis.lean`
-
-Two graphs on 3 nodes:
-
-* `G_open`: line `0–1–2`
-* `G_closed`: cycle `0–1–2–0`
-
-A uniform “rotational” forcing field `sigma_forcing` wants +1 flow around the triangle.
-
-Theorems:
-
-* `open_state_is_exact`: on the open line, `sigma_forcing` is exact (`d0 ϕ`).
-* `closed_state_is_not_exact`: on the closed loop, no `ϕ` can satisfy `d0 ϕ = σ` on all edges.
-* `harmonic_genesis`: in the closed case, Hodge decomposition produces a non-zero harmonic γ whose holonomy around the cycle is 3.
-
-Genesis from noise:
-
-* `C1.IsExact σ`: σ equals `d0 ϕ` for some potential.
-* `non_exact_has_nonzero_harmonic`: non-exact forms have positive-energy harmonic projection.
-* `exact_forms_proper_subset`: there exist non-exact 1-cochains (`sigma_forcing` is a witness).
-* `random_field_has_harmonic_component`: generic constraint fields have harmonic content.
-
-Interpretation: closing the loop is exactly the topological move that makes "irremovable frustration" possible. Generic noise creates topology. Thanks to the spectral gap, any such harmonic component comes with a fixed minimum energy bill `1/n` - genesis is both generic and **energetically chunky**.
-
-(Compare `Logic/Genesis.lean` for the same phenomenon from the formal logic perspective: the rotational constraint is an unsatisfiable theory whose unsatisfiability *is* the harmonic content.)
-
----
-
-### Naming as symmetry breaking
-
-#### `Diaspora/Models/Naming.lean`
-
-Models the act of **naming** - creating an internal reference to an external stimulus - as a topological transition that breaks symmetry.
-
-Setup: a perceiver P observes two identical stimuli S1 and S2.
-
-* `G_pre`: Pre-naming state. A star graph with P at center, connected to S1 and S2. This is a tree (b₁ = 0), hence "classical" in Diaspora's sense.
-
-* `G_named`: Post-naming state. A memory node M is added, and the edge P-M-S1 forms a cycle. Now b₁ = 1.
-
-Pre-naming symmetry:
-
-* `swap_stimuli`: The permutation exchanging S1 ↔ S2 while fixing P.
-* `swap_is_automorphism`: This swap is a valid graph automorphism of `G_pre`.
-* `G_pre_is_classical`: The harmonic subspace is trivial (dim H = 0).
-
-Post-naming asymmetry:
-
-* `degree_S1_eq_two`, `degree_S2_eq_one`: S1 now has degree 2 (connected to both P and M), while S2 has degree 1.
-* `stimuli_are_distinguishable`: No automorphism of `G_named` can swap S1' and S2'. The proof uses degree preservation - automorphisms can't map a degree-2 vertex to a degree-1 vertex.
-* `G_named_betti_one`: The naming action creates exactly one independent cycle (b₁ = 1).
-
-Harmonic witness:
-
-* `exists_harmonic_discriminator`: There exists a harmonic form γ that "sees" S1 but not S2. Specifically, γ(M,S1) ≠ 0 while γ(S2,v) = 0 for all v.
-
-The proof constructs the Dehn twist on the P-M-S1 cycle: value 1/3 on forward edges, -1/3 on backward edges, zero elsewhere. The harmonicity proof shows the inner product with any gradient telescopes to zero (discrete Stokes).
-
-Interpretation: Before naming, the stimuli are interchangeable - there's no internal structure to distinguish them. The act of naming one stimulus (creating an internal reference M connected to S1) breaks this symmetry in two ways: combinatorially (different degrees) and topologically (a cycle that threads through S1 but not S2). The harmonic form is a "memory trace" - irreducible information that cannot be relaxed away. In Diaspora's language, naming creates mass: the harmonic content is the frozen residue of the referential act.
-
----
-
-### Self-measurement & "introspection"
-
-#### `Diaspora/Quantum/Measurement.lean`
-
-* Parallel transport operator:
-
-  * `transport_step σ i j ψ = exp(i σ_ij) ψ`
-
-* `introspection_operator`: transport a phase around a fundamental cycle and compare.
-
-Theorems:
-
-* `zombie_cannot_see_self`: if `σ` is exact (`σ = d0 ϕ`), going around the loop returns the same phase. No observable holonomy → “no self-awareness”.
-* `self_aware_detection`: if there is a harmonic component with winding number 3, then transport around the loop multiplies the phase by `exp(i·3)`.
-
-Holonomy is the obstruction to being globally exact, recast here as "self-measurement".
-
----
-
-### Glassy dynamics
-
-#### `Diaspora/Dynamics/Glass.lean`
-
-#### `Diaspora/Models/Triangle.lean`
-
-Formal notion of **graph isomorphism** and “glassy system”:
-
-* `IsIsomorphic G₁ G₂`: existence of a vertex permutation preserving edges.
-* `StableLandscape σ C_max`: graphs that are equilibria for the constraints.
-* `IsGlassySystem`: existence of at least two non-isomorphic stable graphs.
-
-Tailed triangle example:
-
-* A triangle `0–1–2` with a tail `0–3`.
-* A frustrated constraint `frustrated_sigma` around the loop.
-
-Two candidate vacua after one edge breaks:
-
-* `star_graph`: break (1,2) → everything hangs off vertex 0.
-* `line_graph`: break (0,1) → a 3–0–2–1 path.
-
-Theorems:
-
-* `star_has_zero_strain`, `line_has_zero_strain` - both have perfect local relaxation.
-* `star_ne_line` - they are not isomorphic (different degree profiles).
-* `tailed_triangle_is_glassy` - the system has at least two distinct stable vacua.
-
-Interpretation: **glassy** = history-dependent: different break orders end in genuinely different topologies.
-
----
-
-### The shape of contradiction
-
-#### `Diaspora/Models/WeightedStrain.lean`
-
-#### `Diaspora/Models/StrainDynamics.lean`
-
-When constraints conflict, *where* does the strain land? Weighted optimization and constraint-counting give different answers.
-
-Setup: a "bundle" graph with 5 nodes. One heavy edge (0↔1) demands flux 10. Six light edges (through witnesses 2,3,4) demand flux 0. The constraints contradict - you can't satisfy both.
-
-* `asymmetric_weights`: heavy edge weighted 100:1 against light edges.
-* `lazy_phi`: optimal potential under weighted energy - satisfies the heavy edge perfectly.
-* `heavy_edge_relaxed`: strain on heavy edge = 0.
-* `light_edges_strained`: strain on light edges = 25.
-
-Theorem:
-
-* `weight_determines_breaking`: at threshold `C_max = 20`, light edges break first, even though they're the majority (6 vs 1).
-
-The second file explores how Hebbian plasticity responds:
-
-* `dominance_causes_strain_asymmetry`: if heavy dominates, light edges bear more strain.
-* `hebbian_favors_strained`: strained edges grow faster under plasticity.
-* `ratio_correction`: the light/heavy weight ratio increases each step.
-
-Interpretation: weighted optimization localizes contradiction onto low-weight edges. Hebbian dynamics provides a corrective - strain is attention, and attention builds capacity. The shape of contradiction shifts over time.
-
----
-
-### Observation as structural reinforcement
-
-#### `Diaspora/Models/ObserverEffect.lean`
-
-Uses the kite graph (triangle 0–1–2 with tail 0–3) to show how observation reinforces topology.
-
-* `observer_probe_potential`: a potential that strains the cycle but not the tail.
-* `observation_is_selective`: cycle edges strained > 0, tail edge strained = 0.
-* `attention_is_structural_reinforcement`: after one Hebbian step, cycle edges outweigh tail.
-
-Interpretation: repeated observation (probing with a potential) causes the observed structure to accumulate weight. Under fixed total capacity, unobserved edges atrophy. This is a topological **Zeno effect** - attention freezes the topology it touches.
-
----
-
-### False vacuum & protection
-
-#### `Diaspora/Models/FalseVacuum.lean`
-
-* A θ-graph (two loops sharing a pair of nodes).
-
-* Parameterized constraints:
-
-  * `Ft` (trap flux), `Fs` (smart edge flux), `Fa` (anchor tension).
-
-* `make_sigma`, `make_phi` construct constraints and relaxation potentials.
-
-Theorems:
-
-* `quenched_instability`: in a non-relaxing limit, the trap edge carries the largest strain.
-* `annealed_crossover`: there exists a relaxation magnitude `P` where the trap edge becomes *safer* than the smart edge, even if `Ft > Fs`.
-
-Interpretation: a toy model of **false vacuum protection** via relaxation.
-
----
-
-### Interaction & the handshake
-
-#### `Diaspora/Models/Interaction.lean`
-
-* Two disjoint triangles `{0,1,2}` and `{3,4,5}`:
-
-  * `disjoint_worlds`
-
-* One bridge → `bridged_worlds`
-
-* Two bridges → `fused_worlds`
-
-Using a simple Betti-number proxy, we prove:
-
-* `isolation_betti_number`: two disconnected triangles → total “b₁” = 2.
-* `contact_is_sterile`: adding a single bridge keeps the Betti number the same.
-* `fusion_creates_shared_reality`: adding a second bridge creates a new independent cycle that threads both worlds.
-
-Then we define a **communication cycle** and prove the “handshake theorem”:
-
-* There exists a harmonic γ on the fused graph with non-zero holonomy around the cross-world cycle.
-
-Interpretation: one bridge is just contact; two bridges create shared topology. Before fusion, the triangles are orthogonal (`disjoint_cycles_orthogonal`). Fusion creates a cycle sharing vertices with both, enabling coupling.
-
----
-
-### Quantum dynamics & Berry phase
-
-#### `Diaspora/Quantum/Evolution.lean`
-
-Quantum layer:
-
-* `SchrodingerEvolution`: a discrete Schrödinger equation with Hamiltonian `-Δ + V`.
-* `ParametricState`: ψ depending on a parameter index.
-* `DiscreteBerryConnection`: `A(R₁, R₂) = i ⟨ψ(R₁), ψ(R₂)⟩`.
-* `BerryPhase`: holonomy of the Berry connection along a discrete parameter-space cycle.
-* `GaugeTransform`: ψ ↦ `e^{iθ(R)} ψ`.
-
-This is Berry phase on a finite parameter graph.
 
 ---
 

@@ -143,7 +143,7 @@ Strain creates topology change. Topology change creates entropy.
 * `plasticity_atrophy_of_unstressed`: Zero-strain edges shrink.
 * `harmonic_cycle_resists_atrophy`: Harmonic content creates strain, hence reinforcement.
 
-### Gravity (`Gravity.lean`, `BoundStates.lean`, `ChargeConservation.lean`)
+### Gravity (`Gravity.lean`, `BoundStates.lean`, `ChargeConservation.lean`, `GravitationalStability.lean`)
 
 * `sharing_reduces_energy`: Opposite-direction edge sharing reduces combined energy.
 * `gravity_binding_energy`: Energy saved = 2k/(n₁·n₂) for k shared edges.
@@ -160,8 +160,12 @@ Strain creates topology change. Topology change creates entropy.
 * `signed_mass`: Charge = orientation × mass; reversed cycles carry opposite charge.
 * `charge_conserved_in_binding`: Binding changes energy but preserves total charge.
 * `CPT_symmetry`: Reversing a cycle negates its charge.
+* `shared_edge_combined_value`: Per-edge strain on shared opposite edges = 1/n₁ - 1/n₂.
+* `equal_cycle_strain_cancellation`: Equal-size cycles have zero strain on shared edges.
+* `schwarzschild_equal_masses`: Binding = rest mass ⟺ complete overlap (k = n).
+* `heavier_cycles_stronger_binding`: Smaller cycles (larger mass) bind more strongly.
 
-Interpretation: Cycles sharing edges in opposite directions cancel strain. Force is proportional to the product of masses. Same-direction repels; opposite-direction attracts. Bound pairs sit in potential wells; escape requires the binding energy. Orientation acts like electric charge: matter and antimatter are the same cycle traversed in opposite directions. Complete overlap annihilates to zero energy and zero charge.
+Interpretation: Cycles sharing edges in opposite directions cancel strain. Force is proportional to the product of masses. Same-direction repels; opposite-direction attracts. Bound pairs sit in potential wells; escape requires the binding energy. Orientation acts like electric charge: matter and antimatter are the same cycle traversed in opposite directions. Complete overlap annihilates to zero energy and zero charge. The Schwarzschild condition (binding = rest mass) occurs exactly at complete overlap.
 
 ### Simulation (`Sim.lean`)
 

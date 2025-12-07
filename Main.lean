@@ -47,6 +47,8 @@ import Diaspora.Dynamics.GirthStability
 import Diaspora.Quantum.Evolution
 import Diaspora.Quantum.Measurement
 import Diaspora.Quantum.Witness
+import Diaspora.Quantum.Witness
+import Diaspora.Quantum.AharonovBohm
 
 -- Models: Stories and Test Cases
 import Diaspora.Models.FalseVacuum

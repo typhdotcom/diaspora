@@ -143,7 +143,7 @@ Strain creates topology change. Topology change creates entropy.
 * `plasticity_atrophy_of_unstressed`: Zero-strain edges shrink.
 * `harmonic_cycle_resists_atrophy`: Harmonic content creates strain, hence reinforcement.
 
-### Gravity (`Gravity.lean`, `BoundStates.lean`, `ChargeConservation.lean`, `GravitationalStability.lean`, `GravitationalInteraction.lean`)
+### Gravity (`Gravity.lean`, `BoundStates.lean`, `ChargeConservation.lean`, `GravitationalStability.lean`, `GravitationalInteraction.lean`, `AsymmetricBinding.lean`)
 
 * `sharing_reduces_energy`: Opposite-direction edge sharing reduces combined energy.
 * `gravity_binding_energy`: Energy saved = 2k/(n₁·n₂) for k shared edges.
@@ -167,8 +167,12 @@ Strain creates topology change. Topology change creates entropy.
 * `gravitational_neutrality`: Annihilated pairs (zero combined form) have zero interaction with other cycles.
 * `reduced_mass_formula`: Two-body reduced mass μ = 1/(n₁ + n₂) for cycles of length n₁, n₂.
 * `max_shared_edges`: A cycle can share at most n edges total with another cycle.
+* `max_binding_unequal`: For n₁ ≤ n₂, maximum binding energy is 2/n₂ (twice the lighter mass).
+* `unequal_no_schwarzschild`: Unequal cycles cannot reach Schwarzschild; binding < rest mass when n₁ ≠ n₂.
+* `binding_efficiency_formula`: Efficiency = 2n₁/(n₁+n₂); equal masses achieve 100%.
+* `equal_optimal_for_schwarzschild`: Schwarzschild (binding = rest mass) ⟺ equal masses.
 
-Interpretation: Cycles sharing edges in opposite directions cancel strain. Force is proportional to the product of masses. Same-direction repels; opposite-direction attracts. Bound pairs sit in potential wells; escape requires the binding energy. Orientation acts like electric charge: matter and antimatter are the same cycle traversed in opposite directions. Complete overlap annihilates to zero energy and zero charge; the resulting "vacuum bubble" exerts no gravitational influence. The Schwarzschild condition (binding = rest mass) occurs exactly at complete overlap.
+Interpretation: Cycles sharing edges in opposite directions cancel strain. Force is proportional to the product of masses. Same-direction repels; opposite-direction attracts. Bound pairs sit in potential wells; escape requires the binding energy. Orientation acts like electric charge: matter and antimatter are the same cycle traversed in opposite directions. Complete overlap annihilates to zero energy and zero charge; the resulting "vacuum bubble" exerts no gravitational influence. The Schwarzschild condition (binding = rest mass) occurs exactly at complete overlap, and only for equal-mass pairs. Unequal masses leave residual mass equal to the difference; the heavier particle's excess cannot be canceled.
 
 ### Simulation (`Sim.lean`)
 

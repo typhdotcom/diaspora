@@ -217,8 +217,12 @@ Interpretation: Topological Zeno effect - attention freezes the topology it touc
 * `cycle_graph_all_flat`: Pure cycles have no triangular faces, so every connection is flat.
 * `aharonov_bohm`: Flat connection + non-trivial topology ⟹ walk phase equals holonomy.
 * `interference_phase_difference`: Phase ratio of two paths = phase around their enclosing loop.
+* `holonomy_gauge_invariant`: Local phase choices (gauge) don't affect holonomy.
+* `strainToConnection`: Maps a real 1-cochain σ to a U(1) connection via exp(i·σ).
+* `holonomy_eq_exp_winding`: Holonomy of exp(i·σ) equals exp(i · winding).
+* `exact_implies_trivial_holonomy`: Zero winding ⟹ trivial holonomy.
 
-Interpretation: A particle acquires phase from encircling a region, even when the field is zero on its path. Topology determines the phase shift.
+Interpretation: A particle acquires phase from encircling a region, even when the field is zero on its path. Gauge invariance of holonomy parallels the Hodge principle: local choices wash out, topology remains.
 
 ---
 

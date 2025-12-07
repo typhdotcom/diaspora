@@ -338,7 +338,205 @@ theorem fieldFree_phaseShift {n : ℕ} [Fintype (Fin n)] [DecidableEq (Fin n)] [
   rw [aharonov_bohm G _ cycle h_embedded (cycle_graph_all_flat G _ h_no_triangles) v h_orbit]
   exact uniform_holonomy θ cycle h_n_ge_3
 
-/-! ## 8. Interference and Measurement -/
+/-! ## 8. Gauge Transformations and Invariance -/
+
+/--
+A gauge transformation: a unit phase at each vertex.
+This represents a local choice of reference frame.
+-/
+structure GaugeTransformation (n : ℕ) where
+  /-- Phase at each vertex -/
+  phase : Fin n → ℂ
+  /-- Phases are unit complex numbers -/
+  unitary : ∀ i, ‖phase i‖ = 1
+
+/-- The trivial gauge transformation (identity) -/
+def GaugeTransformation.trivial (n : ℕ) : GaugeTransformation n where
+  phase := fun _ => 1
+  unitary := by intro i; simp
+
+/-- Apply a gauge transformation to a connection:
+    A'(i,j) = g(i) * A(i,j) * g(j)⁻¹
+    This is "rotating the reference frame" at each vertex. -/
+noncomputable def Connection.gaugeTransform {n : ℕ}
+    (A : Connection n) (g : GaugeTransformation n) : Connection n where
+  phase := fun i j => g.phase i * A.phase i j * (g.phase j)⁻¹
+  unitary := by
+    intro i j
+    simp only [norm_mul, norm_inv]
+    rw [g.unitary i, A.unitary i j, g.unitary j]
+    simp
+  hermitian := by
+    intro i j
+    -- Need: g(i) * A(i,j) * g(j)⁻¹ = star (g(j) * A(j,i) * g(i)⁻¹)
+    -- Use A.hermitian: A(i,j) = star A(j,i)
+    -- For unit z: z⁻¹ = star z
+    have h_i : (g.phase i)⁻¹ = star (g.phase i) := Complex.inv_eq_conj (g.unitary i)
+    have h_j : (g.phase j)⁻¹ = star (g.phase j) := Complex.inv_eq_conj (g.unitary j)
+    simp only [star_mul, A.hermitian i j, ← h_j]
+    -- Now: g(i) * star A(j,i) * g(j)⁻¹ = star (g(i)⁻¹) * (star A(j,i) * g(j)⁻¹)
+    -- star (g(i)⁻¹) = star(star g(i)) = g(i) using h_i
+    rw [h_i, star_star]
+    ring
+
+/--
+**Gauge Invariance of Holonomy**
+
+The holonomy around a cycle is invariant under gauge transformations.
+This is the fundamental principle of gauge theory: local choices of
+reference frame do not affect global observables.
+
+The proof: the gauge phases telescope around the cycle.
+g(v₀) * g(v₁)⁻¹ * g(v₁) * g(v₂)⁻¹ * ... * g(vₙ₋₁) * g(v₀)⁻¹ = 1
+-/
+theorem holonomy_gauge_invariant {n : ℕ} [Fintype (Fin n)]
+    (A : Connection n) (g : GaugeTransformation n) (cycle : SimpleCycle n) :
+    connectionHolonomy (A.gaugeTransform g) cycle = connectionHolonomy A cycle := by
+  unfold connectionHolonomy Connection.gaugeTransform
+  simp only
+  -- LHS = ∏ i, g(i) * A(i, next i) * g(next i)⁻¹
+  -- We'll show this equals ∏ i, A(i, next i) by telescoping the g factors
+  have h_bij := next_bijective cycle
+  -- The key: ∏ g(next i) = ∏ g(i) by reindexing (next is a bijection)
+  let e := Equiv.ofBijective cycle.next h_bij
+  have h_reindex : ∏ i : Fin n, g.phase (cycle.next i) = ∏ i : Fin n, g.phase i :=
+    Equiv.prod_comp e g.phase
+  -- Product of inverses
+  have h_inv_prod : ∏ i : Fin n, (g.phase (cycle.next i))⁻¹ = (∏ i : Fin n, g.phase i)⁻¹ := by
+    rw [← h_reindex, Finset.prod_inv_distrib]
+  -- Each g.phase is nonzero (has norm 1)
+  have h_each_ne : ∀ i : Fin n, g.phase i ≠ 0 := by
+    intro i h_zero
+    have h := g.unitary i
+    rw [h_zero, norm_zero] at h
+    exact one_ne_zero h.symm
+  -- Product is nonzero
+  have h_prod_ne : ∏ i : Fin n, g.phase i ≠ 0 :=
+    Finset.prod_ne_zero_iff.mpr (fun i _ => h_each_ne i)
+  -- Now compute: ∏ (g * A * g⁻¹) = ∏ g * ∏ A * ∏ g⁻¹ = ∏ g * ∏ A * (∏ g)⁻¹ = ∏ A
+  conv_lhs =>
+    arg 2
+    ext i
+    rw [mul_assoc]
+  rw [Finset.prod_mul_distrib, Finset.prod_mul_distrib]
+  rw [h_inv_prod]
+  field_simp [h_prod_ne]
+
+/--
+**Corollary: Trivial Gauge Leaves Phase Unchanged**
+-/
+theorem trivial_gauge_phase {n : ℕ} [Fintype (Fin n)] (A : Connection n) (i j : Fin n) :
+    (A.gaugeTransform (GaugeTransformation.trivial n)).phase i j = A.phase i j := by
+  simp [Connection.gaugeTransform, GaugeTransformation.trivial]
+
+/--
+The trivial connection has holonomy 1 (product of all 1s).
+-/
+theorem trivial_holonomy {n : ℕ} [Fintype (Fin n)] (cycle : SimpleCycle n) :
+    connectionHolonomy (Connection.trivial n) cycle = 1 := by
+  unfold connectionHolonomy Connection.trivial
+  simp
+
+/--
+**Pure Gauge ⟹ Trivial Holonomy**
+
+A "pure gauge" connection is one that can be obtained from the trivial
+connection by a gauge transformation. Such connections have holonomy 1.
+
+This is the discrete Stokes theorem: if A = dλ (pure gauge), then ∮A = 0.
+In the language of diaspora: if the constraint field is "exact", it has
+no topological content.
+-/
+theorem pure_gauge_trivial_holonomy {n : ℕ} [Fintype (Fin n)]
+    (g : GaugeTransformation n) (cycle : SimpleCycle n) :
+    connectionHolonomy ((Connection.trivial n).gaugeTransform g) cycle = 1 := by
+  rw [holonomy_gauge_invariant, trivial_holonomy]
+
+/--
+**Holonomy Detects Topology, Not Gauge**
+
+Two connections that differ only by a gauge transformation are
+physically equivalent - they describe the same physics. The holonomy
+is the gauge-invariant content: the topological phase.
+
+This mirrors the diaspora principle: harmonic forms capture the
+"irreducible" content that survives all relaxation attempts.
+-/
+theorem holonomy_classifies_physics {n : ℕ} [Fintype (Fin n)]
+    (A B : Connection n) (g : GaugeTransformation n) (cycle : SimpleCycle n)
+    (h : B = A.gaugeTransform g) :
+    connectionHolonomy A cycle = connectionHolonomy B cycle := by
+  rw [h, holonomy_gauge_invariant]
+
+/-! ## 9. The Holonomy-Winding Correspondence -/
+
+/--
+**From Strain to Phase: The Exponential Map**
+
+A real-valued 1-cochain σ (a "strain field" in diaspora terms) induces
+a U(1) connection via exp(i·σ). This is how classical configurations
+become quantum phases.
+-/
+noncomputable def strainToConnection {n : ℕ} (σ : C1 n) : Connection n where
+  phase := fun i j => cexp (I * σ.val i j)
+  unitary := by
+    intro i j
+    rw [Complex.norm_exp]
+    simp only [Complex.mul_re, Complex.I_re, Complex.I_im, Complex.ofReal_re, Complex.ofReal_im]
+    ring_nf
+    exact Real.exp_zero
+  hermitian := by
+    intro i j
+    -- Need: exp(i·σ(i,j)) = star(exp(i·σ(j,i)))
+    -- Using skew: σ(i,j) = -σ(j,i)
+    -- So LHS = exp(-i·σ(j,i))
+    -- For unit z = exp(iθ): star(z) = exp(-iθ)
+    rw [σ.skew i j]
+    simp only [Complex.ofReal_neg, mul_neg]
+    -- Now need: exp(-i·σ(j,i)) = star(exp(i·σ(j,i)))
+    -- Key: -(I * x) = star(I * x) for real x (since star I = -I, star (real) = real)
+    rw [show -(I * ↑(σ.val j i)) = star (I * ↑(σ.val j i)) by simp]
+    exact Complex.exp_conj _
+
+/--
+**The Quantization Theorem**
+
+The holonomy of exp(i·σ) equals exp(i · winding).
+
+This directly connects the diaspora picture (walk_sum, winding, harmonic content)
+to the Aharonov-Bohm picture (holonomy, phase, gauge equivalence).
+-/
+theorem holonomy_eq_exp_winding {n : ℕ} [Fintype (Fin n)]
+    (σ : C1 n) (cycle : SimpleCycle n) :
+    connectionHolonomy (strainToConnection σ) cycle =
+    cexp (I * ∑ i : Fin n, σ.val i (cycle.next i)) := by
+  unfold connectionHolonomy strainToConnection
+  rw [← Complex.exp_sum]
+  congr 1
+  -- Need: ∑ x, I * ↑(σ x (next x)) = I * ↑(∑ i, σ i (next i))
+  rw [Complex.ofReal_sum, Finset.mul_sum]
+
+/--
+**The Bridge: Exact ⟹ Trivial Holonomy**
+
+An exact 1-cochain (σ = d₀φ for some potential φ) has zero winding around
+any cycle. This corresponds to a pure gauge connection with holonomy 1.
+
+This is the Hodge-Aharonov-Bohm correspondence:
+
+- Hodge: exact forms have zero harmonic content (can be relaxed away)
+- A-B: pure gauge connections have trivial holonomy (no observable phase)
+
+Both are saying: "locally derivable" ⟹ "globally trivial".
+-/
+theorem exact_implies_trivial_holonomy {n : ℕ} [Fintype (Fin n)]
+    (σ : C1 n) (cycle : SimpleCycle n)
+    (h_exact : ∑ i : Fin n, σ.val i (cycle.next i) = 0) :
+    connectionHolonomy (strainToConnection σ) cycle = 1 := by
+  rw [holonomy_eq_exp_winding, h_exact]
+  simp
+
+/-! ## 10. Interference and Measurement -/
 
 /--
 Two paths from u to v that together form a cycle will have phase difference

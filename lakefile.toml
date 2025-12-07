@@ -1,13 +1,10 @@
 name = "Diaspora"
 version = "0.1.0"
-defaultTargets = ["Main"]
+defaultTargets = ["Diaspora"]
 
 [[lean_lib]]
 name = "Diaspora"
-
-[[lean_exe]]
-name = "diaspora"
-root = "Main"
+globs = ["Diaspora.+"]
 
 [[require]]
 name = "mathlib"

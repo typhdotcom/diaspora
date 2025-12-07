@@ -298,19 +298,21 @@ The core gravity formulas:
 
 Interpretation: Cycles sharing edges in opposite directions cancel strain. Force is proportional to the product of masses. Same-direction repels; opposite-direction attracts. Gravity is strictly bilinear: multi-body binding decomposes exactly into pairwise terms with no emergent N-body forces. Bound pairs sit in potential wells; escape requires the binding energy. Orientation acts like electric charge: matter and antimatter are the same cycle traversed in opposite directions. Complete overlap annihilates to zero energy and zero charge; the resulting "vacuum bubble" exerts no gravitational influence. The Schwarzschild condition (binding = rest mass) occurs exactly at complete overlap, and only for equal-mass pairs. Unequal masses leave residual mass equal to the difference; the heavier particle's excess cannot be canceled.
 
-### Wave-Particle Duality (`DeBroglie.lean`)
+### Wave-Particle Duality (`DeBroglie.lean`, `EnergyTime.lean`)
 
 * `deBroglie_product`: m × λ = 1, where λ = n is the cycle length.
 * `wavelength_from_mass`: λ = 1/m; mass determines wavelength and vice versa.
 * `heavier_shorter_wavelength`: Smaller cycles have more mass and shorter wavelength.
 * `heisenberg_uncertainty`: Δx × Δp = 1; position and momentum uncertainties are complementary.
+* `energy_time_uncertainty`: ΔE × Δt = 1; energy and time uncertainties are complementary.
+* `period_equals_wavelength`: T = λ; the period equals the wavelength (with c = 1).
 * `uncertainty_tradeoff`: Decreasing Δx increases Δp; you cannot minimize both.
 * `minimum_uncertainty_state`: The triangle (n=3) is the minimum uncertainty state.
 * `effective_mass_bound`: Bound systems have effective mass m₁ + m₂ - binding.
 * `binding_increases_wavelength`: Stronger binding lowers effective mass, increasing wavelength.
 * `annihilation_infinite_wavelength`: Complete annihilation gives zero effective mass.
 
-Interpretation: The cycle length n is the wavelength. A cycle of length n has mass 1/n and wavelength n, so m × λ = 1 in natural units. Shorter cycles are heavier with shorter wavelengths; longer cycles are lighter with longer wavelengths. The triangle is the most localized state. Bound systems have reduced effective mass and correspondingly longer effective wavelength; complete annihilation yields zero mass.
+Interpretation: The cycle length n is the wavelength. A cycle of length n has mass 1/n and wavelength n, so m × λ = 1 in natural units. Since frequency f = 1/n, the period T = n equals the wavelength; temporal and spatial scales coincide when c = 1. Both conjugate pairs satisfy exact uncertainty: Δx × Δp = 1 (spatial) and ΔE × Δt = 1 (temporal). Shorter cycles are heavier with shorter wavelengths and faster oscillation; longer cycles are lighter with longer wavelengths and slower oscillation. The triangle is the most localized state. Bound systems have reduced effective mass and correspondingly longer effective wavelength; complete annihilation yields zero mass.
 
 ### Simulation (`Sim.lean`)
 

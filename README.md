@@ -214,18 +214,11 @@ Interpretation: Topological Zeno effect - attention freezes the topology it touc
 
 ### Aharonov-Bohm (`AharonovBohm.lean`)
 
-U(1) gauge theory on discrete graphs. A connection assigns a phase e^{iθ} to each oriented edge.
-
-* `Connection`: Gauge connection with unitary (|phase| = 1) and hermitian (A_{ij} = A_{ji}*) properties.
-* `connectionHolonomy`: Product of phases around a cycle, the discrete ∮ A · dl.
-* `IsFlat`: Zero curvature on contractible loops.
-* `covariantLaplacian`: Δ_A with minimal coupling, replacing (ψ_j - ψ_i) with (ψ_j - A_{ij}ψ_i).
 * `cycle_graph_all_flat`: Pure cycles have no triangular faces, so every connection is flat.
 * `aharonov_bohm`: Flat connection + non-trivial topology ⟹ walk phase equals holonomy.
-* `fieldFree_phaseShift`: Uniform angle θ per edge gives total phase e^{inθ}.
 * `interference_phase_difference`: Phase ratio of two paths = phase around their enclosing loop.
 
-Interpretation: A particle acquires phase from encircling a region, even when the field is zero on its path. The "potential" (connection) has global content that the "field" (curvature) cannot see. Topology determines the phase shift.
+Interpretation: A particle acquires phase from encircling a region, even when the field is zero on its path. Topology determines the phase shift.
 
 ---
 

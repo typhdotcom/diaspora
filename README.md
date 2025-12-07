@@ -143,7 +143,7 @@ Strain creates topology change. Topology change creates entropy.
 * `plasticity_atrophy_of_unstressed`: Zero-strain edges shrink.
 * `harmonic_cycle_resists_atrophy`: Harmonic content creates strain, hence reinforcement.
 
-### Gravity (`Gravity.lean`)
+### Gravity (`Gravity.lean`, `BoundStates.lean`, `ChargeConservation.lean`)
 
 * `sharing_reduces_energy`: Opposite-direction edge sharing reduces combined energy.
 * `gravity_binding_energy`: Energy saved = 2k/(n₁·n₂) for k shared edges.
@@ -153,8 +153,15 @@ Strain creates topology change. Topology change creates entropy.
 * `mass_energy_equivalence`: Energy of a cycle equals its mass.
 * `repulsion_is_same_direction`: Same-direction sharing increases energy.
 * `mass_gap`: Mass spectrum is discrete: 1/3, 1/4, 1/5, ... with gaps 1/(n·(n+1)).
+* `IsBoundPair`: Cycles sharing opposite-direction edges form gravitationally bound pairs.
+* `escape_energy_equals_binding`: Separating a bound pair requires adding back the binding energy.
+* `gravitational_equilibrium_principle`: Maximum opposite overlap minimizes combined energy.
+* `total_annihilation_energy`: Complete annihilation releases energy equal to 2×mass.
+* `signed_mass`: Charge = orientation × mass; reversed cycles carry opposite charge.
+* `charge_conserved_in_binding`: Binding changes energy but preserves total charge.
+* `CPT_symmetry`: Reversing a cycle negates its charge.
 
-Interpretation: Cycles sharing edges in opposite directions cancel strain. Force is proportional to the product of masses. Same-direction repels; opposite-direction attracts.
+Interpretation: Cycles sharing edges in opposite directions cancel strain. Force is proportional to the product of masses. Same-direction repels; opposite-direction attracts. Bound pairs sit in potential wells; escape requires the binding energy. Orientation acts like electric charge: matter and antimatter are the same cycle traversed in opposite directions. Complete overlap annihilates to zero energy and zero charge.
 
 ### Simulation (`Sim.lean`)
 

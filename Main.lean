@@ -60,6 +60,7 @@ import Diaspora.Models.WeightedStrain
 import Diaspora.Models.StrainDynamics
 import Diaspora.Models.ObserverEffect
 import Diaspora.Models.Naming
+import Diaspora.Models.NamingStability
 
 -- Logic
 import Diaspora.Logic.Theory

@@ -152,7 +152,7 @@ Two graphs on 3 nodes: open line vs closed cycle.
 
 Interpretation: Closing the loop creates "irremovable frustration." Generic noise creates topology.
 
-### Naming (`Models/Naming.lean`)
+### Naming (`Models/Naming.lean`, `Models/NamingStability.lean`)
 
 Models naming as topological symmetry breaking.
 
@@ -160,7 +160,14 @@ Models naming as topological symmetry breaking.
 * Post-naming: Memory node creates cycle (b₁=1), stimuli distinguishable.
 * `exists_harmonic_discriminator`: Harmonic form "sees" named stimulus but not others.
 
-Interpretation: Naming creates mass - the harmonic content is frozen residue of the referential act.
+The stability layer connects naming to dynamics:
+
+* `mass_of_name`: The naming cycle has energy exactly 1/3.
+* `naming_stable_iff`: Names persist iff C_max ≥ 1/9.
+* `cost_stability_tradeoff`: Shorter referential loops cost more energy AND require higher tolerance.
+* `meaning_requires_tolerance`: The threshold determines the minimum cycle length that can exist.
+
+Interpretation: Naming creates mass (the harmonic content is frozen residue of the referential act). That mass requires tolerance to persist. A universe with low tolerance cannot sustain short references; as tolerance drops, only longer, "cheaper" names survive. At zero tolerance: no names, pure classical vacuum.
 
 ### Interaction (`Models/Interaction.lean`)
 

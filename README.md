@@ -30,7 +30,7 @@ This is formalized in three layers:
    In `Dynamics/Diffusion.lean`, we show that the system doesn't *need* a global solver to find this state. Nodes simply push against their neighbors (Heat Equation) to minimize local strain. Observers measure topology locally via **Holonomy** (walking in loops).
 
 3. **The Bridge (Index Theorem):**
-   In `Hodge/IndexTheorem.lean`, we prove these views are equivalent via the discrete **McKean-Singer formula**: `b₀ - b₁ = |V| - |E|`. The supertrace of the heat kernel is constant for all time - watching diffusion at *any* instant reveals the Euler characteristic.
+   In `Hodge/IndexTheorem.lean`, we prove these views are equivalent via the discrete **McKean-Singer formula**: `b₀ - b₁ = |V| - |E|`. The supertrace of the heat kernel is constant for all time - watching diffusion at *any* instant reveals the Euler characteristic. The proof uses **spectral pairing**: d and δ intertwine the Laplacians (discrete supersymmetry), so non-zero eigenvalues cancel in pairs. Only harmonic modes contribute.
 
 Then we prove a discrete **Hodge decomposition**:
 
@@ -55,6 +55,48 @@ Gravity emerges from edge-sharing. Two cycles traversing shared edges in opposit
 
 ---
 
+## Mathematical Foundations
+
+The codebase is built on discrete exterior calculus. Understanding these types is essential:
+
+### Cochains (the fields)
+
+| Type | Definition | Physical Meaning |
+| :--- | :--- | :--- |
+| `C0 n` | `Fin n → ℝ` | **Potential** on vertices (phase, voltage, belief) |
+| `C1 n` | Skew-symmetric `Fin n → Fin n → ℝ` | **Flux** on edges (constraint, current, tension) |
+| `d0 ϕ` | `(i,j) ↦ ϕ j - ϕ i` | **Gradient**: potential differences |
+| `ActiveForm G` | `{ σ : C1 // σ = 0 off G.active_edges }` | Flux respecting topology |
+
+### Chains (the geometry)
+
+| Type | Definition | Physical Meaning |
+| :--- | :--- | :--- |
+| `Chain1 n` | Skew-symmetric `Fin n → Fin n → ℤ` | Formal sum of oriented edges |
+| `SimpleCycle` | Connected cycle with `next`/`prev` | A single closed loop |
+| `GeneralCycle` | List of vertices forming a cycle | Arbitrary cycle (for overlap) |
+| `DynamicGraph n` | `{ active_edges : Finset, symmetric, no_loops }` | Graph with breakable edges |
+
+### Operators
+
+| Operator | Type | Meaning |
+| :--- | :--- | :--- |
+| `d_G` | `C0 n → ActiveForm G` | Gradient on active edges |
+| `δ_G` | `ActiveForm G → C0 n` | Divergence (sum of incoming flux) |
+| `Δ_G` | `C0 n → C0 n` | Graph Laplacian = δ ∘ d |
+| `holonomy σ c` | `C1 n → Chain1 n → ℝ` | Integral of flux around cycle |
+
+### Key Subspaces
+
+| Subspace | Definition | Physical Meaning |
+| :--- | :--- | :--- |
+| `ImGradient G` | `{ dϕ \| ϕ : C0 n }` | **Exact** forms (satisfiable constraints) |
+| `HarmonicSubspace G` | `(ImGradient G)^⊥` | **Harmonic** forms (irreducible frustration) |
+
+The **Hodge decomposition** says every `σ : ActiveForm G` splits uniquely as `σ = dϕ + γ` where `dϕ` is exact and `γ` is harmonic. The exact part can be "relaxed away" by choosing the right potential; the harmonic part cannot.
+
+---
+
 ## Logic: Constraints as Geometry
 
 The `Logic` layer proves an isomorphism between Constraint Satisfaction Problems (CSP) and Hodge Theory.
@@ -63,8 +105,20 @@ The `Logic` layer proves an isomorphism between Constraint Satisfaction Problems
 
 * **The Bridge Theorem** (`satisfiable_iff_exact_on_graph`): A theory is satisfiable iff its constraint cochain is Exact (`d_0 φ`).
 * **The Paradox Theorem** (`inconsistency_implies_topology`): Locally consistent but globally unsatisfiable theories have non-trivial Harmonic content.
-* **The Genesis Theorem** (`genesis_is_three_dehn`): The simplest paradox (triangle 0→1→2→0 with +1 strain) creates a harmonic form equal to exactly 3× the Dehn Twist.
+* **The Genesis Theorem** (`genesis_is_three_dehn`): The simplest paradox (triangle 0→1→2→0 with +1 strain) creates a harmonic form equal to exactly 3× the Dehn Twist. The Dehn twist has winding 1 and energy 1/3; genesis has winding 3 and energy 3.
 * **The Monodromy Theorem** (`monodromy_exact_iff`): Exactness ↔ zero walk_sum on all closed walks.
+
+### Universe.lean: The Causal Chain
+
+A `Universe` bundles Theory T, DynamicGraph G (from T), and potential ϕ. When T is locally consistent but globally unsatisfiable:
+
+1. `paradox_implies_deficit`: TopologicalDeficit > 0
+2. `paradox_creates_mass`: Non-zero harmonic component
+3. `matter_creates_gravity`: Irreducible strain energy > 0
+
+`the_diaspora_correspondence` chains: logical contradiction → information deficit → mass → gravitational strain.
+
+The key quantitative result (`harmonic_component_gives_energy_floor` in `Dynamics/Transition.lean`): if an ActiveForm has non-zero harmonic component γ, strain energy ≥ ‖γ‖² regardless of potential. Harmonic content is irreducible frustration.
 
 ### Universal Cover
 
@@ -80,18 +134,68 @@ The `Logic` layer proves an isomorphism between Constraint Satisfaction Problems
 
 ### Orthogonality & Overlap
 
-* `edge_disjoint_cycles_orthogonal`: Edge-disjoint cycles have orthogonal harmonic forms (energies add).
-* `signedOverlap`: Net shared edges (same-direction minus opposite-direction).
-* `cycle_inner_product_formula`: ⟨γ₁, γ₂⟩ = signedOverlap / (len₁ × len₂).
+This machinery is the foundation of gravity. The key concept is **signed overlap**:
+
+| Definition | Formula | Meaning |
+| :--- | :--- | :--- |
+| `sameDirectionEdges c₁ c₂` | count of edges in both, same direction | Constructive interference |
+| `oppositeDirectionEdges c₁ c₂` | count of edges in both, opposite direction | Destructive interference |
+| `signedOverlap c₁ c₂` | same - opposite | Net alignment |
+
+**The Inner Product Formula** (`cycle_inner_product_formula`):
+> ⟨γ₁, γ₂⟩ = signedOverlap(c₁, c₂) / (len₁ × len₂)
+
+This is the discrete analog of the electromagnetic field energy formula. Cycles sharing edges have non-zero inner product. The sign determines whether they attract (opposite direction) or repel (same direction).
+
+Key results:
+* `edge_disjoint_cycles_orthogonal`: Edge-disjoint cycles have orthogonal harmonic forms → energies add independently.
 * `reverse_negates_form`: Reversing a cycle negates its harmonic form.
 * `opposite_orientation_minimizes`: Overlapping cycles prefer opposite orientation (anti-ferromagnetic coupling).
+* `signedOverlap_symm`: The overlap is symmetric.
 
-### Information Theory
+### Information Theory (`Logic/Information.lean`)
 
-* `topological_deficit_eq_harmonic_dim`: Information lost when enforcing satisfiability = dim(HarmonicSubspace).
-* `matter_is_incompressible_complexity`: When topological deficit > 0, some states cannot be described by potentials alone.
-* `minimum_complexity_of_genesis_connected`: Creating deficit k requires program length ≥ n + k - 1.
-* `maximum_deficit_bound`: Program length m creates deficit ≤ m - n + 1.
+The central insight: **topology is incompressible data**.
+
+#### Capacity and Deficit
+
+| Quantity | Definition | Meaning |
+| :--- | :--- | :--- |
+| `RawCapacity G` | dim(ActiveForm G) | Degrees of freedom in arbitrary constraint field |
+| `ClassicalCapacity G` | dim(ImGradient G) | Degrees of freedom in satisfiable (exact) fields |
+| `TopologicalDeficit G` | RawCapacity - ClassicalCapacity | Information that *cannot* be compressed into potentials |
+
+**The Deficit Theorem** (`topological_deficit_eq_harmonic_dim`):
+> TopologicalDeficit = dim(HarmonicSubspace) = Betti number b₁
+
+When you force a constraint field to be satisfiable, you lose exactly dim(H) bits of information. This lost information *is* the harmonic content—the topology. Exact forms live in a smaller space; harmonic forms carry the residual complexity.
+
+#### Kolmogorov Complexity of Genesis
+
+How many constraints does it take to create topology?
+
+* **Lower bound** (`minimum_complexity_of_genesis_connected`): Creating deficit k on a connected graph requires program length ≥ n + k - 1.
+* **Upper bound** (`maximum_deficit_bound`): A program of length m creates deficit ≤ m - n + 1.
+
+**The triangle saturates both bounds**: n = 3 vertices, m = 3 constraints, k = 1 deficit. It is the algorithmically simplest non-trivial topology.
+
+#### Key Theorems
+
+* `matter_is_incompressible_complexity`: When TopologicalDeficit > 0, there exist states σ that cannot be written as dϕ for any potential ϕ.
+* `information_leak_is_inevitable`: As edge density grows (|E| > 2|V|), TopologicalDeficit > 0 is guaranteed. Dense graphs *must* carry mass.
+* `deficit_complexity_characterization`: The lower and upper bounds together characterize exactly which (deficit, program length) pairs are achievable.
+
+#### The Big Bang (`Logic/Limit.lean`)
+
+Growing universes inevitably develop topology:
+
+* `eventual_genesis`: Superlinear edge growth ⟹ eventually IsComplex (b₁ > 0).
+* `inevitable_genesis`: As n → ∞ with multiplicative growth, classicalRatio → 0. The probability of remaining classical vanishes.
+
+#### Fragility of the Void (`Logic/Probabilistic.lean`)
+
+* `genesis_is_generic`: Non-trivial topology ⟹ satisfiable constraints form a proper subspace.
+* `void_is_fragile`: A satisfiable theory with cycles is not robustly satisfiable—any single-constraint perturbation breaks it. The classical vacuum sits on a knife-edge.
 
 ---
 
@@ -117,6 +221,13 @@ We derive closed-form Betti numbers (b₁) for graph families. These confirm tha
 | **Cone** | cone(G) | \|E(G)\| | Observation crystallizes edges into cycles. |
 | **Suspension** | susp(G) | \|E(G)\|/2+(n-1) | Two isolated observers double the topology. |
 | **Petersen** | - | 6 | Democratic paradox; blame cannot be assigned. |
+
+### Topology Bounds (`MaximumTopology.lean`, `EdgeAddition.lean`)
+
+* `betti_one_le_complete`: For any connected graph G, b₁(G) ≤ b₁(K_n) = (n-1)(n-2)/2. Complete graphs maximize frustration.
+* `betti_monotone_in_edges`: G ⊆ H as edge sets ⟹ b₁(G) ≤ b₁(H). Topology is monotonic in connectivity.
+* `edge_addition_increases_betti`: Adding one edge to a connected graph increases b₁ by exactly 1. Genesis is quantized at the edge level.
+* `tree_characterization`: A connected graph is a tree iff |E| = n - 1.
 
 ---
 
@@ -144,6 +255,15 @@ Strain creates topology change. Topology change creates entropy.
 * `harmonic_cycle_resists_atrophy`: Harmonic content creates strain, hence reinforcement.
 
 ### Gravity (`Gravity.lean`, `BoundStates.lean`, `ChargeConservation.lean`, `GravitationalStability.lean`, `GravitationalInteraction.lean`, `AsymmetricBinding.lean`, `NBodyBinding.lean`)
+
+The core gravity formulas:
+
+| Quantity | Formula | Meaning |
+| :--- | :--- | :--- |
+| Mass | m = 1/n | Energy of n-cycle |
+| Binding energy | 2k/(n₁·n₂) | Energy saved by k opposite-overlap edges |
+| Force | F = 2·m₁·m₂ | Newton-like product law |
+| Combined energy | ‖γ₁‖² + ‖γ₂‖² + 2⟨γ₁,γ₂⟩ | Pythagorean + interaction |
 
 * `sharing_reduces_energy`: Opposite-direction edge sharing reduces combined energy.
 * `gravity_binding_energy`: Energy saved = 2k/(n₁·n₂) for k shared edges.
@@ -270,6 +390,10 @@ Interpretation: Topological Zeno effect - attention freezes the topology it touc
 * `zombie_cannot_see_self`: Exact σ ⟹ no observable holonomy.
 * `self_aware_detection`: Harmonic component ⟹ measurable phase shift.
 
+### The Local Witness Theorem (`Quantum/Witness.lean`)
+
+* `local_holonomy_predicts_global_energy`: A local observer walking around a cycle can determine the global energy of a topological defect. The proof uses Stokes' theorem for walks: exact fluctuations (dϕ) vanish on closed loops, leaving only the harmonic content visible.
+
 ### Aharonov-Bohm (`AharonovBohm.lean`)
 
 * `cycle_graph_all_flat`: Pure cycles have no triangular faces, so every connection is flat.
@@ -305,7 +429,47 @@ Diaspora/
 This project targets **Lean 4 + mathlib**.
 
 ```bash
-# Install Lean 4 & Lake (see leanprover-community docs)
-# Then from the project root:
 lake build
 ```
+
+---
+
+## Quick Reference: Proven Results
+
+### Dimension Formulas
+| Result | Formula | File |
+| :--- | :--- | :--- |
+| Betti number | b₁ = \|E\| - \|V\| + components | `Decomposition.lean` |
+| Complete graph | b₁(K_n) = (n-1)(n-2)/2 | `CompleteGraph.lean` |
+| Cycle | b₁(C_n) = 1 | `CycleGraph.lean` |
+| Wheel | b₁(W_n) = n | `WheelGraph.lean` |
+
+### Energy Formulas
+| Result | Formula | File |
+| :--- | :--- | :--- |
+| Cycle energy | ‖γ‖² = 1/n | `Harmonic.lean` |
+| Inner product | ⟨γ₁, γ₂⟩ = signedOverlap/(len₁·len₂) | `Orthogonality/InnerProduct.lean` |
+| Binding energy | 2k/(n₁·n₂) for k opposite edges | `Gravity.lean` |
+
+### Complexity Bounds
+| Result | Formula | File |
+| :--- | :--- | :--- |
+| Lower bound | deficit k requires length ≥ n + k - 1 | `Information.lean` |
+| Upper bound | length m gives deficit ≤ m - n + 1 | `Information.lean` |
+
+### Core Equivalences
+| Theorem | Statement | File |
+| :--- | :--- | :--- |
+| Bridge | satisfiable ↔ exact | `Theory.lean` |
+| Deficit | TopologicalDeficit = dim(Harmonic) | `Information.lean` |
+| Hodge-gauge | holonomy(σ) = holonomy(γ) | `AharonovBohm.lean` |
+| McKean-Singer | b₀ - b₁ = \|V\| - \|E\| | `IndexTheorem.lean` |
+| Edge addition | +1 edge ⟹ +1 Betti | `EdgeAddition.lean` |
+| Local witness | walk phase reveals global energy | `Witness.lean` |
+
+### Limit Theorems
+| Theorem | Statement | File |
+| :--- | :--- | :--- |
+| Eventual genesis | superlinear growth ⟹ IsComplex | `Limit.lean` |
+| Inevitable genesis | classicalRatio → 0 as n → ∞ | `Limit.lean` |
+| Void is fragile | satisfiable + cycles ⟹ not robust | `Probabilistic.lean` |

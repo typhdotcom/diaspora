@@ -390,6 +390,26 @@ Two scales characterize a particle: the Compton wavelength λ_C = ℏ/(mc) where
 
 Interpretation: The critical cycle length where gravitational and quantum scales meet is n = 2. But cycles require n ≥ 3. The discrete structure prevents gravitational collapse: you cannot pack enough topology into a small enough region to form a black hole. Even the triangle, the densest defect, has r_s/λ_C = 4/9 < 1/2.
 
+### Gravitational Time Dilation (`TimeDilation.lean`)
+
+Binding creates time dilation: bound systems "tick slower" than free systems.
+
+| Quantity | Formula | Meaning |
+| :--- | :--- | :--- |
+| Effective period | T_eff = 1/m_eff | Period of bound system |
+| Time dilation factor | γ = m_ref/m_eff | Ratio of bound to free period |
+| Redshift factor | z = m_eff/m_ref | Frequency ratio (reciprocal of γ) |
+
+* `binding_slows_clocks`: More binding → longer effective period (slower time).
+* `time_dilation_is_mass_ratio`: γ = (m₁ + m₂)/m_eff; dilation from mass deficit.
+* `redshift_times_dilation`: z × γ = 1; redshift and dilation are reciprocals.
+* `no_dilation_at_zero`: γ = 1 when k = 0; unbound particles experience no dilation.
+* `schwarzschild_time_freeze`: At complete overlap, m_eff = 0; time "freezes".
+* `schwarzschild_infinite_redshift`: At complete overlap, z = 0; infinite redshift.
+* `weak_field_dilation`: For small binding, γ ≈ 1 + binding/m_ref.
+
+Interpretation: Gravitational binding creates a "potential well" that slows proper time. For a free particle, period T = n = 1/m. For a bound system with effective mass m_eff = m₁ + m₂ - binding, the effective period T_eff = 1/m_eff > 1/(m₁ + m₂). The deeper the binding (more shared edges), the slower clocks run. At the Schwarzschild condition (complete overlap), effective mass vanishes and time stops entirely. This mirrors general relativity: time dilation near massive objects, gravitational redshift of escaping light, and time freeze at the event horizon. The duality z × γ = 1 connects time dilation (slower clocks) to redshift (lower frequency): they are two views of the same phenomenon.
+
 ### Simulation (`Sim.lean`)
 
 * `simulation_entropy_nondecreasing`: Time is irreversible.

@@ -336,6 +336,17 @@ Interpretation: The constancy of c emerges from the structure of the theory. For
 
 Interpretation: Every topological defect carries exactly one quantum of action: S = E × T = (1/n) × n = 1. The n's cancel—a triangle and a 1000-cycle both have S = 1. This is Diaspora's **Bohr-Sommerfeld condition**: action is quantized in integer multiples of ℏ = 1. The quantum of action is universal because it's the "cost" of creating a topological obstruction, independent of the obstruction's size. Since the Betti number b₁ counts independent cycles, the total topological action of a universe equals b₁. This explains why ℏ appears in all quantum relations: it's built into discrete spacetime as the irreducible unit of topological complexity.
 
+### Angular Momentum (`AngularMomentum.lean`)
+
+* `angular_momentum_quantized`: L ∈ ℤ; winding numbers are integers.
+* `rotator_energy`: E = L²/n; energy scales quadratically with angular momentum.
+* `minimum_nonzero_angular_momentum`: |L| ≥ 1 for L ≠ 0; no fractional winding.
+* `angular_momentum_additive`: L_total = L₁ + L₂; angular momentum is conserved.
+* `energy_level_spacing`: ΔE = (2L+1)/n; spacing grows linearly with L.
+* `classical_limit_angular_momentum`: ΔE/E → 0 as L → ∞; large quantum numbers approach continuity.
+
+Interpretation: The winding number around a cycle is an integer by construction. This is angular momentum quantization, the discrete Bohr condition. For a harmonic form with winding L on an n-cycle, each edge carries value L/n, giving total energy L²/n. The cycle length n acts as a moment of inertia: larger cycles hold more angular momentum with less energy. The Dehn twist (L=1) is the ground state; higher windings L=2,3,... are excited rotational states. Angular momentum adds when forms combine, and opposite windings cancel. The connection to action: one winding contributes one quantum of action (ℏ = 1).
+
 ### Simulation (`Sim.lean`)
 
 * `simulation_entropy_nondecreasing`: Time is irreversible.

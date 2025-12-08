@@ -347,6 +347,30 @@ Interpretation: Every topological defect carries exactly one quantum of action: 
 
 Interpretation: The winding number around a cycle is an integer by construction. This is angular momentum quantization, the discrete Bohr condition. For a harmonic form with winding L on an n-cycle, each edge carries value L/n, giving total energy L²/n. The cycle length n acts as a moment of inertia: larger cycles hold more angular momentum with less energy. The Dehn twist (L=1) is the ground state; higher windings L=2,3,... are excited rotational states. Angular momentum adds when forms combine, and opposite windings cancel. The connection to action: one winding contributes one quantum of action (ℏ = 1).
 
+### Planck Scale (`Planck.lean`)
+
+The three fundamental constants combine to define Planck units:
+
+| Constant | Value | Origin |
+| :--- | :--- | :--- |
+| Speed of light | c = 1 | λ/T = n/n |
+| Planck's constant | ℏ = 1 | S = E × T |
+| Gravitational constant | G = 2 | F = 2m₁m₂ |
+
+| Planck Unit | Formula | Value |
+| :--- | :--- | :--- |
+| Planck mass | m_P = √(ℏc/G) | 1/√2 ≈ 0.707 |
+| Planck length | l_P = √(ℏG/c³) | √2 ≈ 1.414 |
+| Planck time | t_P = √(ℏG/c⁵) | √2 ≈ 1.414 |
+
+* `sub_planckian_bound`: m_max < m_P; the maximum mass (1/3) is less than the Planck mass (1/√2).
+* `wavelength_exceeds_planck`: λ_min > l_P; the minimum wavelength (3) exceeds the Planck length (√2).
+* `density_bound`: Maximum achievable density is far below Planck density.
+* `fine_structure_of_diaspora`: (m_max/m_P)² = 2/9; a calculable dimensionless ratio.
+* `triangle_sets_all_bounds`: The triangle (n=3) determines all fundamental cutoffs.
+
+Interpretation: The discrete topology imposes bounds stricter than Planck physics. The triangle is the densest cycle, with mass 1/3, which falls below the Planck mass by a factor of √2/3 ≈ 0.47. The ratio (m_max/m_P)² = 2/9 plays a role analogous to the fine structure constant, but follows directly from the minimum cycle length (3) and the gravitational constant (2). All cutoffs trace back to the triangle: maximum mass, minimum wavelength, minimum period, maximum frequency.
+
 ### Simulation (`Sim.lean`)
 
 * `simulation_entropy_nondecreasing`: Time is irreversible.

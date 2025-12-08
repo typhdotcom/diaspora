@@ -314,6 +314,17 @@ Interpretation: Cycles sharing edges in opposite directions cancel strain. Force
 
 Interpretation: The cycle length n is the wavelength. A cycle of length n has mass 1/n and wavelength n, so m × λ = 1 in natural units. Since frequency f = 1/n, the period T = n equals the wavelength; temporal and spatial scales coincide when c = 1. Both conjugate pairs satisfy exact uncertainty: Δx × Δp = 1 (spatial) and ΔE × Δt = 1 (temporal). Shorter cycles are heavier with shorter wavelengths and faster oscillation; longer cycles are lighter with longer wavelengths and slower oscillation. The triangle is the most localized state. Bound systems have reduced effective mass and correspondingly longer effective wavelength; complete annihilation yields zero mass.
 
+### The Speed of Light (`SpeedOfLight.lean`)
+
+* `speed_of_light_eq_one`: c = λ/T = n/n = 1; the speed of light is exactly 1.
+* `speed_is_mass_independent`: c(n₁) = c(n₂); all defects propagate at the same speed.
+* `wave_equation`: f × λ = c = 1; the standard wave relation.
+* `spacetime_symmetry`: T = λ; period equals wavelength.
+* `natural_units`: c = ℏ = 1; both fundamental constants are unity.
+* `the_speed_of_light_correspondence`: Unifies wave equation, spacetime symmetry, and mass independence.
+
+Interpretation: The constancy of c emerges from the structure of the theory. For any cycle of length n, the wavelength λ = n and period T = n are identical, so c = λ/T = 1 regardless of mass. This is the discrete analog of special relativity's first postulate: the speed of light is universal. Heavy particles (small n) and light particles (large n) propagate at exactly the same speed. The identification λ = T is Diaspora's version of spacetime isotropy—space and time are measured in the same units (vertices), which is why c appears as a dimensionless 1.
+
 ### Simulation (`Sim.lean`)
 
 * `simulation_entropy_nondecreasing`: Time is irreversible.

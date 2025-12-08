@@ -329,7 +329,20 @@ Interpretation: The cycle length n is the wavelength. A cycle of length n has ma
 * `natural_units`: c = ℏ = 1; both fundamental constants are unity.
 * `the_speed_of_light_correspondence`: Unifies wave equation, spacetime symmetry, and mass independence.
 
-Interpretation: The constancy of c emerges from the structure of the theory. For any cycle of length n, the wavelength λ = n and period T = n are identical, so c = λ/T = 1 regardless of mass. This is the discrete analog of special relativity's first postulate: the speed of light is universal. Heavy particles (small n) and light particles (large n) propagate at exactly the same speed. The identification λ = T is Diaspora's version of spacetime isotropy—space and time are measured in the same units (vertices), which is why c appears as a dimensionless 1.
+Interpretation: The constancy of c emerges from the structure of the theory. For any cycle of length n, the wavelength λ = n and period T = n are identical, so c = λ/T = 1 regardless of mass. This is the discrete analog of special relativity's first postulate: the speed of light is universal. Heavy particles (small n) and light particles (large n) propagate at exactly the same speed. The identification λ = T is Diaspora's version of spacetime isotropy, with space and time measured in the same units (vertices), which is why c appears as a dimensionless 1.
+
+### Dispersion Relation (`Dispersion.lean`)
+
+* `dispersion_relation`: E = p for all cycles; the massless dispersion relation.
+* `all_cycles_lightlike`: E² = p²; cycles sit on the light cone.
+* `invariant_mass_squared_vanishes`: E² - p² = 0; the null condition.
+* `phase_velocity_is_c`: v_phase = E/p = 1 for all cycles.
+* `group_velocity_is_c`: v_group = ∂E/∂p = 1; non-dispersive propagation.
+* `no_rest_frame`: p > 0 always; topology cannot be at rest.
+* `topology_is_motion`: Nonzero winding implies nonzero momentum.
+* `the_dispersion_correspondence`: Unifies lightlike condition, velocity, and momentum.
+
+Interpretation: With E = m = 1/n and p = 1/λ = 1/n, all cycles satisfy E = p, the dispersion relation of massless particles. Yet cycles have nonzero mass 1/n. The resolution: the invariant mass √(E² - p²) = 0, so cycles are lightlike (null) in the relativistic sense. Diaspora's "mass" is energy content, not rest mass. Since p = 1/n > 0 for all valid cycles, topological defects cannot be stopped. The phase gradient around a cycle is intrinsic momentum; you cannot have topology without motion. This explains why all defects propagate at c regardless of their energy: E = p implies v = 1 universally.
 
 ### Action Quantization (`Action.lean`)
 

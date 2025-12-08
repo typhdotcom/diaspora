@@ -405,6 +405,24 @@ Binding affects energy but not momentum. For cycles with k shared opposite-direc
 
 Interpretation: Momentum p = (n₂ - n₁)/(n₁n₂) depends only on cycle lengths, not binding. Energy decreases with binding while momentum stays fixed, so v = p/E increases. For equal masses, p = 0, so v = 0 at any binding level. For unequal masses, stronger binding means faster motion. At maximum binding (k = min(n₁, n₂)), the smaller cycle is fully absorbed: m² = 0 and v = c. The system returns to lightlike, carrying only the mass difference. This is partial annihilation: the lighter particle disappears, leaving a lightlike remnant with energy |1/n₁ - 1/n₂|.
 
+### Scattering Theory (`ScatteringTheory.lean`)
+
+Elastic scattering of lightlike cycles is highly constrained. For opposite-direction pairs, energy and momentum conservation give:
+
+| Conservation | Equation |
+| :--- | :--- |
+| Energy | 1/n₁ + 1/n₂ = 1/n₁' + 1/n₂' |
+| Momentum | 1/n₁ - 1/n₂ = 1/n₁' - 1/n₂' |
+
+Adding these equations: 2/n₁ = 2/n₁', so n₁ = n₁'. Subtracting: 2/n₂ = 2/n₂', so n₂ = n₂'.
+
+* `opposite_direction_individual_preservation`: Opposite-direction scattering preserves individual cycle lengths.
+* `no_direction_flip`: Cannot convert opposite-direction to same-direction (charge conservation).
+* `elastic_scattering_is_identity`: For opposite-direction cycles, the only valid scattering is identity.
+* `scattering_vs_production`: Scattering preserves topology; only pair production can change it.
+
+Interpretation: The lightlike constraint E = p creates kinematic rigidity. Cycles cannot exchange energy through scattering. The discrete mass spectrum {1/3, 1/4, 1/5, ...} is protected against perturbation. Only pair production and annihilation can change the topological content of a system.
+
 ### Action Quantization (`Action.lean`)
 
 * `action_of_cycle`: S = E × T = 1; the action of any cycle is exactly 1.

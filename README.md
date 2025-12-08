@@ -385,6 +385,26 @@ Single cycles travel at c. Bound pairs of counter-propagating cycles are sublumi
 
 Interpretation: For opposite-direction pairs, momenta subtract while energies add. The velocity v = |n₂ - n₁|/(n₂ + n₁) is always less than 1. Equal masses give v = 0: the pair is at rest. Unequal masses give 0 < v < 1: subluminal but moving. The Lorentz factor γ = (n₁ + n₂)/(2√(n₁n₂)) satisfies the standard relativistic identity. This is how lightlike particles combine into massive objects that can stop.
 
+### Bound State Kinematics (`BoundStateKinematics.lean`)
+
+Binding affects energy but not momentum. For cycles with k shared opposite-direction edges:
+
+| Quantity | Formula |
+| :--- | :--- |
+| Energy | E = (n₁ + n₂ - 2k)/(n₁·n₂) |
+| Momentum | p = (n₂ - n₁)/(n₁·n₂) |
+| Invariant mass² | m² = 4(n₁ - k)(n₂ - k)/(n₁·n₂)² |
+| Velocity | v = \|n₂ - n₁\|/(n₁ + n₂ - 2k) |
+
+* `bound_invariant_mass_sq_correct`: The factored formula m² = 4(n₁-k)(n₂-k)/(n₁n₂)² equals E² - p².
+* `binding_increases_velocity`: For unequal masses with k > 0, bound velocity exceeds unbound velocity.
+* `max_binding_returns_lightlike`: At k = min(n₁, n₂), invariant mass m² = 0.
+* `max_binding_velocity_is_c`: At k = n₁ (with n₁ < n₂), velocity v = 1.
+* `bound_relativistic_identity`: γ² = 1/(1 - v²) for bound states.
+* `equal_mass_always_at_rest`: Equal masses have v = 0 regardless of binding.
+
+Interpretation: Momentum p = (n₂ - n₁)/(n₁n₂) depends only on cycle lengths, not binding. Energy decreases with binding while momentum stays fixed, so v = p/E increases. For equal masses, p = 0, so v = 0 at any binding level. For unequal masses, stronger binding means faster motion. At maximum binding (k = min(n₁, n₂)), the smaller cycle is fully absorbed: m² = 0 and v = c. The system returns to lightlike, carrying only the mass difference. This is partial annihilation: the lighter particle disappears, leaving a lightlike remnant with energy |1/n₁ - 1/n₂|.
+
 ### Action Quantization (`Action.lean`)
 
 * `action_of_cycle`: S = E × T = 1; the action of any cycle is exactly 1.

@@ -325,6 +325,17 @@ Interpretation: The cycle length n is the wavelength. A cycle of length n has ma
 
 Interpretation: The constancy of c emerges from the structure of the theory. For any cycle of length n, the wavelength λ = n and period T = n are identical, so c = λ/T = 1 regardless of mass. This is the discrete analog of special relativity's first postulate: the speed of light is universal. Heavy particles (small n) and light particles (large n) propagate at exactly the same speed. The identification λ = T is Diaspora's version of spacetime isotropy—space and time are measured in the same units (vertices), which is why c appears as a dimensionless 1.
 
+### Action Quantization (`Action.lean`)
+
+* `action_of_cycle`: S = E × T = 1; the action of any cycle is exactly 1.
+* `action_is_universal`: S(n₁) = S(n₂); all cycles have the same action regardless of size.
+* `planck_constant_eq_one`: ℏ = 1; Planck's constant is the action of one cycle.
+* `action_equals_planck`: S = ℏ for all elementary defects.
+* `additive_action`: k independent cycles have total action k.
+* `the_action_correspondence`: Unifies action, energy, period, and Planck's constant.
+
+Interpretation: Every topological defect carries exactly one quantum of action: S = E × T = (1/n) × n = 1. The n's cancel—a triangle and a 1000-cycle both have S = 1. This is Diaspora's **Bohr-Sommerfeld condition**: action is quantized in integer multiples of ℏ = 1. The quantum of action is universal because it's the "cost" of creating a topological obstruction, independent of the obstruction's size. Since the Betti number b₁ counts independent cycles, the total topological action of a universe equals b₁. This explains why ℏ appears in all quantum relations: it's built into discrete spacetime as the irreducible unit of topological complexity.
+
 ### Simulation (`Sim.lean`)
 
 * `simulation_entropy_nondecreasing`: Time is irreversible.

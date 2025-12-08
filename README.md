@@ -371,6 +371,25 @@ The three fundamental constants combine to define Planck units:
 
 Interpretation: The discrete topology imposes bounds stricter than Planck physics. The triangle is the densest cycle, with mass 1/3, which falls below the Planck mass by a factor of √2/3 ≈ 0.47. The ratio (m_max/m_P)² = 2/9 plays a role analogous to the fine structure constant, but follows directly from the minimum cycle length (3) and the gravitational constant (2). All cutoffs trace back to the triangle: maximum mass, minimum wavelength, minimum period, maximum frequency.
 
+### Schwarzschild Radius (`SchwarzschildRadius.lean`)
+
+Two scales characterize a particle: the Compton wavelength λ_C = ℏ/(mc) where quantum effects dominate, and the Schwarzschild radius r_s = 2Gm/c² where gravitational collapse occurs.
+
+| Scale | Formula | Value for n-cycle |
+| :--- | :--- | :--- |
+| Compton wavelength | λ_C = 1/m | n |
+| Schwarzschild radius | r_s = 4m | 4/n |
+| Ratio | r_s/λ_C = 4m² | 4/n² |
+
+* `quantum_dominance`: r_s < λ_C for all n ≥ 3.
+* `ratio_less_than_one`: r_s/λ_C = 4/n² < 1; all particles are quantum-dominated.
+* `no_black_holes`: ¬(r_s ≥ λ_C); classical black holes cannot form.
+* `triangle_ratio`: The triangle has r_s/λ_C = 4/9, the maximum.
+* `larger_more_quantum`: Larger cycles have smaller ratios (more quantum-dominated).
+* `critical_would_be_two`: r_s = λ_C would require n = 2, which is forbidden.
+
+Interpretation: The critical cycle length where gravitational and quantum scales meet is n = 2. But cycles require n ≥ 3. The discrete structure prevents gravitational collapse: you cannot pack enough topology into a small enough region to form a black hole. Even the triangle, the densest defect, has r_s/λ_C = 4/9 < 1/2.
+
 ### Simulation (`Sim.lean`)
 
 * `simulation_entropy_nondecreasing`: Time is irreversible.

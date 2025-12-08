@@ -254,7 +254,7 @@ Strain creates topology change. Topology change creates entropy.
 * `plasticity_atrophy_of_unstressed`: Zero-strain edges shrink.
 * `harmonic_cycle_resists_atrophy`: Harmonic content creates strain, hence reinforcement.
 
-### Gravity (`Gravity.lean`, `BoundStates.lean`, `ChargeConservation.lean`, `GravitationalStability.lean`, `GravitationalInteraction.lean`, `AsymmetricBinding.lean`, `NBodyBinding.lean`)
+### Gravity (`Gravity.lean`, `BoundStates.lean`, `PairProduction.lean`, `ChargeConservation.lean`, `GravitationalStability.lean`, `GravitationalInteraction.lean`, `AsymmetricBinding.lean`, `NBodyBinding.lean`)
 
 The core gravity formulas:
 
@@ -263,6 +263,8 @@ The core gravity formulas:
 | Mass | m = 1/n | Energy of n-cycle |
 | Binding energy | 2k/(n₁·n₂) | Energy saved by k opposite-overlap edges |
 | Force | F = 2·m₁·m₂ | Newton-like product law |
+| Pair threshold | 2/n | Energy to create n-cycle pair |
+| Genesis threshold | 2/3 | Minimum for any matter creation |
 | Combined energy | ‖γ₁‖² + ‖γ₂‖² + 2⟨γ₁,γ₂⟩ | Pythagorean + interaction |
 
 * `sharing_reduces_energy`: Opposite-direction edge sharing reduces combined energy.
@@ -281,6 +283,10 @@ The core gravity formulas:
 * `escape_energy_equals_binding`: Separating a bound pair requires adding back the binding energy.
 * `gravitational_equilibrium_principle`: Maximum opposite overlap minimizes combined energy.
 * `total_annihilation_energy`: Complete annihilation releases energy equal to 2×mass.
+* `pair_threshold`: Creating an n-cycle pair requires energy 2/n.
+* `genesis_threshold`: Minimum energy for any matter creation is 2/3 (triangle pair).
+* `genesis_is_minimum`: For all n ≥ 3, pair_threshold n ≤ genesis_threshold.
+* `genesis_below_planck_energy`: The genesis threshold (2/3) is below the Planck energy (1/√2).
 * `signed_mass`: Charge = orientation × mass; reversed cycles carry opposite charge.
 * `charge_conserved_in_binding`: Binding changes energy but preserves total charge.
 * `CPT_symmetry`: Reversing a cycle negates its charge.
@@ -296,7 +302,7 @@ The core gravity formulas:
 * `binding_efficiency_formula`: Efficiency = 2n₁/(n₁+n₂); equal masses achieve 100%.
 * `equal_optimal_for_schwarzschild`: Schwarzschild (binding = rest mass) ⟺ equal masses.
 
-Interpretation: Cycles sharing edges in opposite directions cancel strain. Force is proportional to the product of masses. Same-direction repels; opposite-direction attracts. Gravity is strictly bilinear: multi-body binding decomposes exactly into pairwise terms with no emergent N-body forces. Bound pairs sit in potential wells; escape requires the binding energy. Orientation acts like electric charge: matter and antimatter are the same cycle traversed in opposite directions. Complete overlap annihilates to zero energy and zero charge; the resulting "vacuum bubble" exerts no gravitational influence. The Schwarzschild condition (binding = rest mass) occurs exactly at complete overlap, and only for equal-mass pairs. Unequal masses leave residual mass equal to the difference; the heavier particle's excess cannot be canceled.
+Interpretation: Cycles sharing edges in opposite directions cancel strain. Force is proportional to the product of masses. Same-direction repels; opposite-direction attracts. Gravity is strictly bilinear: multi-body binding decomposes exactly into pairwise terms with no emergent N-body forces. Bound pairs sit in potential wells; escape requires the binding energy. Orientation acts like electric charge: matter and antimatter are the same cycle traversed in opposite directions. Complete overlap annihilates to zero energy and zero charge; the resulting "vacuum bubble" exerts no gravitational influence. The reverse process (pair production) requires energy 2m to create a cycle-anticycle pair. The triangle pair costs 2/3, the minimum for any matter creation. This genesis threshold is sub-Planckian: you can create topology without reaching the Planck scale. The Schwarzschild condition (binding = rest mass) occurs exactly at complete overlap, and only for equal-mass pairs. Unequal masses leave residual mass equal to the difference; the heavier particle's excess cannot be canceled.
 
 ### Wave-Particle Duality (`DeBroglie.lean`, `EnergyTime.lean`)
 

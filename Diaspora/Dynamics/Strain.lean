@@ -68,29 +68,29 @@ theorem strain_must_localize {n : ℕ} [Fintype (Fin n)] [NeZero n]
   rw [← h_norm] at h_half_bound
   linarith
 
-/-! ## No-Hair Theorem -/
+/-! ## Gauge Invariance of Holonomy -/
 
 /--
 External observers measuring holonomy see only the harmonic component γ.
-Local details (dϕ, the "hair") vanish on cycles by Stokes' theorem.
+Local details (the exact part dϕ) vanish on cycles by Stokes' theorem.
 -/
-theorem black_hole_has_no_hair {n : ℕ} [Fintype (Fin n)]
+theorem holonomy_sees_only_harmonic {n : ℕ} [Fintype (Fin n)]
     (σ : C1 n) (cycle : Chain1 n)
     (h_cycle : Chain1.IsCycle cycle) :
   ∃ γ : C1 n, IsHarmonic γ ∧ holonomy σ cycle = holonomy γ cycle := by
   obtain ⟨γ, h_harm, ϕ, _, h_holonomy⟩ := holonomy_factor_through_harmonic σ
   exact ⟨γ, h_harm, h_holonomy cycle h_cycle⟩
 
-/-! ## Black Hole Formation -/
+/-! ## Topological Defect Formation -/
 
 /--
-When Diaspora.Core.residual strain exceeds the threshold, localization forces some edge to break.
+When residual strain exceeds the threshold, localization forces some edge to break.
 The resulting topology contains a non-trivial harmonic component:
 - Energy: ||γ||² (irreducible frustration)
 - Topological charge: winding number m
 - Observable via holonomy, independent of local gauge choices
 -/
-theorem black_hole_formation
+theorem topological_defect_formation
     {n : ℕ} [Fintype (Fin n)] [NeZero n]
     (σ : C1 n) (C_max : ℝ) (h_pos : C_max > 0)
     (ϕ_opt : C0 n)
@@ -146,6 +146,6 @@ theorem black_hole_formation
     linarith
 
   · intro cycle h_cycle
-    exact black_hole_has_no_hair σ cycle h_cycle
+    exact holonomy_sees_only_harmonic σ cycle h_cycle
 
 end Diaspora.Dynamics

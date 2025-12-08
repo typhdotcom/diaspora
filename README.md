@@ -254,7 +254,7 @@ Strain creates topology change. Topology change creates entropy.
 * `plasticity_atrophy_of_unstressed`: Zero-strain edges shrink.
 * `harmonic_cycle_resists_atrophy`: Harmonic content creates strain, hence reinforcement.
 
-### Gravity (`Gravity.lean`, `BoundStates.lean`, `PairProduction.lean`, `ChargeConservation.lean`, `GravitationalStability.lean`, `GravitationalInteraction.lean`, `AsymmetricBinding.lean`, `NBodyBinding.lean`, `InvariantMass.lean`)
+### Gravity (`Gravity.lean`, `BoundStates.lean`, `PairProduction.lean`, `ChargeConservation.lean`, `GravitationalStability.lean`, `GravitationalInteraction.lean`, `AsymmetricBinding.lean`, `NBodyBinding.lean`, `InvariantMass.lean`, `Velocity.lean`)
 
 The core gravity formulas:
 
@@ -366,6 +366,24 @@ Single cycles are lightlike, yet they form bound states. The invariant mass m² 
 * `charge_determines_causality`: Same charge (direction) implies lightlike; opposite implies timelike.
 
 Interpretation: Orientation determines whether momenta add or cancel. Same-direction cycles are co-propagating: their momenta add, keeping the system lightlike. Opposite-direction cycles are counter-propagating: their momenta partially cancel, creating a timelike composite that can be at rest. For equal cycles with opposite orientation, momenta cancel completely (p = 0), and the invariant mass equals the total energy. Binding reduces this energy continuously from 2/n (unbound) to 0 (annihilated). The Schwarzschild condition (complete overlap) returns the system to the null state. This connects charge/orientation to relativistic causality: matter-antimatter pairs are timelike and can annihilate; matter-matter pairs are lightlike and cannot.
+
+### Bound State Velocity (`Velocity.lean`)
+
+Single cycles travel at c. Bound pairs of counter-propagating cycles are subluminal.
+
+| Configuration | v | γ |
+| :--- | :--- | :--- |
+| Single cycle | 1 | ∞ |
+| Equal opposite (n₁ = n₂) | 0 | 1 |
+| Unequal opposite | \|n₂ - n₁\|/(n₂ + n₁) | (n₁ + n₂)/(2√(n₁n₂)) |
+
+* `opposite_direction_subluminal`: Counter-propagating pairs have v < 1.
+* `equal_masses_at_rest`: When n₁ = n₂, velocity v = 0.
+* `lorentz_factor_ge_one`: γ ≥ 1 always (AM-GM inequality).
+* `relativistic_identity`: γ² = 1/(1 - v²).
+* `velocity_from_energy_momentum`: v = |p|/E connects to the standard formula.
+
+Interpretation: For opposite-direction pairs, momenta subtract while energies add. The velocity v = |n₂ - n₁|/(n₂ + n₁) is always less than 1. Equal masses give v = 0: the pair is at rest. Unequal masses give 0 < v < 1: subluminal but moving. The Lorentz factor γ = (n₁ + n₂)/(2√(n₁n₂)) satisfies the standard relativistic identity. This is how lightlike particles combine into massive objects that can stop.
 
 ### Action Quantization (`Action.lean`)
 

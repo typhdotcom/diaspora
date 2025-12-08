@@ -254,7 +254,7 @@ Strain creates topology change. Topology change creates entropy.
 * `plasticity_atrophy_of_unstressed`: Zero-strain edges shrink.
 * `harmonic_cycle_resists_atrophy`: Harmonic content creates strain, hence reinforcement.
 
-### Gravity (`Gravity.lean`, `BoundStates.lean`, `PairProduction.lean`, `ChargeConservation.lean`, `GravitationalStability.lean`, `GravitationalInteraction.lean`, `AsymmetricBinding.lean`, `NBodyBinding.lean`)
+### Gravity (`Gravity.lean`, `BoundStates.lean`, `PairProduction.lean`, `ChargeConservation.lean`, `GravitationalStability.lean`, `GravitationalInteraction.lean`, `AsymmetricBinding.lean`, `NBodyBinding.lean`, `InvariantMass.lean`)
 
 The core gravity formulas:
 
@@ -343,6 +343,29 @@ Interpretation: The constancy of c emerges from the structure of the theory. For
 * `the_dispersion_correspondence`: Unifies lightlike condition, velocity, and momentum.
 
 Interpretation: With E = m = 1/n and p = 1/λ = 1/n, all cycles satisfy E = p, the dispersion relation of massless particles. Yet cycles have nonzero mass 1/n. The resolution: the invariant mass √(E² - p²) = 0, so cycles are lightlike (null) in the relativistic sense. Diaspora's "mass" is energy content, not rest mass. Since p = 1/n > 0 for all valid cycles, topological defects cannot be stopped. The phase gradient around a cycle is intrinsic momentum; you cannot have topology without motion. This explains why all defects propagate at c regardless of their energy: E = p implies v = 1 universally.
+
+### Invariant Mass (`InvariantMass.lean`)
+
+Single cycles are lightlike, yet they form bound states. The invariant mass m² = E² - p² determines the causal character of composite systems.
+
+| Configuration | E | p | m² | Character |
+| :--- | :--- | :--- | :--- | :--- |
+| Single cycle | 1/n | 1/n | 0 | lightlike |
+| Same-direction pair | 1/n₁ + 1/n₂ | 1/n₁ + 1/n₂ | 0 | lightlike |
+| Opposite-direction pair | 1/n₁ + 1/n₂ | 1/n₁ - 1/n₂ | 4/(n₁·n₂) | timelike |
+| Equal opposite (unbound) | 2/n | 0 | 4/n² | timelike |
+| Equal opposite (bound, k edges) | 2/n - 2k/n² | 0 | (2/n - 2k/n²)² | timelike |
+| Complete annihilation | 0 | 0 | 0 | null/vacuum |
+
+* `single_cycle_invariant_mass_sq`: m² = 0 for single cycles.
+* `same_direction_no_binding_lightlike`: Same-direction pairs remain lightlike.
+* `opposite_direction_timelike`: Opposite-direction pairs have m² > 0.
+* `opposite_direction_equal_invariant_mass`: Equal opposite-direction cycles: m = 2/n.
+* `more_binding_less_mass`: More binding reduces invariant mass monotonically.
+* `annihilation_invariant_mass`: Complete annihilation gives m = 0.
+* `charge_determines_causality`: Same charge (direction) implies lightlike; opposite implies timelike.
+
+Interpretation: Orientation determines whether momenta add or cancel. Same-direction cycles are co-propagating: their momenta add, keeping the system lightlike. Opposite-direction cycles are counter-propagating: their momenta partially cancel, creating a timelike composite that can be at rest. For equal cycles with opposite orientation, momenta cancel completely (p = 0), and the invariant mass equals the total energy. Binding reduces this energy continuously from 2/n (unbound) to 0 (annihilated). The Schwarzschild condition (complete overlap) returns the system to the null state. This connects charge/orientation to relativistic causality: matter-antimatter pairs are timelike and can annihilate; matter-matter pairs are lightlike and cannot.
 
 ### Action Quantization (`Action.lean`)
 

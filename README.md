@@ -452,6 +452,22 @@ Under a Lorentz boost with velocity v, energy and momentum transform as:
 
 Interpretation: Different inertial observers see cycles with different energies and momenta, but all agree on the lightlike condition E = p and the zero invariant mass. A cycle that appears "heavy" (small n) to one observer appears "lighter" (larger effective wavelength) to a receding observer. The topology itself, the winding number and harmonic content, is frame-independent. Relativistic velocity composition preserves the subluminal bound: you cannot boost past c.
 
+### Lorentz Covariance (`LorentzCovariance.lean`)
+
+Conservation laws and scattering results are frame-independent.
+
+| Quantity | Formula |
+| :--- | :--- |
+| CM velocity (opposite-direction) | v_CM = (n₂ - n₁)/(n₁ + n₂) |
+
+* `energy_conservation_covariant`: If E₁ + E₂ = E₁' + E₂' in one frame, the boosted versions satisfy the same relation.
+* `scattering_validity_covariant`: Valid scattering in one frame implies valid scattering in all frames.
+* `cycle_length_is_lorentz_scalar`: The integer n is topological; all observers see the same cycle structure.
+* `opposite_direction_cm_frame_exists`: For any opposite-direction pair, a subluminal boost brings the system to rest.
+* `cm_frame_dichotomy`: Same-direction pairs have no CM frame; opposite-direction pairs do.
+
+Interpretation: Cycle lengths are topological invariants that do not transform under boosts. Conservation laws are linear in E and p, so they transform covariantly. The scattering conclusion "n₁ = n₁'" is a statement about topology, so all observers agree on it. The CM frame dichotomy follows from invariant mass: m² = 0 (lightlike) has no rest frame, m² > 0 (timelike) does.
+
 ### Action Quantization (`Action.lean`)
 
 * `action_of_cycle`: S = E × T = 1; the action of any cycle is exactly 1.

@@ -1,9 +1,3 @@
-/-
-# The Void
-
-Micro/macro observation framework and dimensional analysis.
--/
-
 import Diaspora.Hodge.Decomposition
 import Diaspora.Dynamics.Plasticity
 import Diaspora.Core.Weighted

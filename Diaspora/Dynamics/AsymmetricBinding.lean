@@ -3,32 +3,15 @@ import Diaspora.Dynamics.GravitationalInteraction
 /-!
 # Asymmetric Binding: Unequal Masses and Schwarzschild Limits
 
-This file proves fundamental bounds on gravitational binding for cycles of unequal size.
+Bounds on gravitational binding for cycles of unequal size.
 
 ## Main Results
 
-- `max_opposite_edges_bound`: For cycles of length n₁ ≤ n₂, at most n₁ edges can be shared
-- `max_binding_unequal`: Maximum binding energy = 2/n₂ (twice the smaller mass)
-- `unequal_no_schwarzschild`: Unequal cycles can NEVER reach Schwarzschild (binding = rest mass)
-- `binding_efficiency_ratio`: The ratio (max binding)/(rest mass) = 2n₁/(n₁+n₂)
-- `equal_optimal_for_schwarzschild`: Only equal-size cycles can achieve full annihilation
-
-## Physical Interpretation
-
-In classical gravity, two bodies can always form arbitrarily tight orbits (modulo quantum effects).
-In Diaspora's discrete topology, this is NOT true:
-
-- **Asymmetric systems are fundamentally limited**: A heavy particle (small n) binding with
-  a light particle (large n) can only reduce energy by at most 2× the light particle's mass.
-
-- **Equal masses are special**: Only m = m' systems can reach the Schwarzschild limit where
-  binding energy equals total rest mass, leading to complete annihilation.
-
-- **Binding efficiency decreases with asymmetry**: The more different the masses, the less
-  efficient the binding. In the extreme m₁ >> m₂, binding is negligible relative to m₁.
-
-This has cosmological implications: stable bound pairs prefer equal or similar masses.
-Extreme mass ratios (like a triangle bound to a 100-cycle) are gravitationally inefficient.
+- `max_opposite_edges_bound`: For cycles n₁ ≤ n₂, at most n₁ edges shared
+- `max_binding_unequal`: Maximum binding = 2/n₂
+- `unequal_no_schwarzschild`: Unequal cycles cannot reach Schwarzschild limit
+- `binding_efficiency_formula`: Efficiency = 2n₁/(n₁+n₂)
+- `equal_optimal_for_schwarzschild`: Only equal-size cycles achieve efficiency = 1
 -/
 
 namespace Diaspora.Dynamics.AsymmetricBinding
@@ -40,19 +23,17 @@ variable {n : ℕ} [DecidableEq (Fin n)] [Fintype (Fin n)] [NeZero n]
 /-! ## Maximum Shared Edges for Unequal Cycles -/
 
 omit [Fintype (Fin n)] [NeZero n] in
-/-- For cycles of length n₁ ≤ n₂, the maximum opposite-direction shared edges is n₁.
-    A cycle can only share as many edges as it has. -/
+/-- Maximum opposite-direction shared edges is bounded by cycle length. -/
 theorem max_opposite_edges_bound (c₁ c₂ : GeneralCycle n) :
     c₁.oppositeDirectionEdges c₂ ≤ c₁.len := by
   have h := GravitationalInteraction.max_shared_edges c₁ c₂
   omega
 
-/-- Maximum binding energy for cycles of length n₁, n₂ where n₁ ≤ n₂.
-    Since at most n₁ edges can be shared: max_binding = 2n₁/(n₁n₂) = 2/n₂ = 2·m₂ -/
+/-- Maximum binding energy for cycles of length n₁, n₂. -/
 noncomputable def max_binding_energy (n₁ n₂ : ℕ) : ℝ :=
   sharing_energy_reduction n₁ n₂ (min n₁ n₂)
 
-/-- The maximum binding energy for unequal cycles is 2/n_larger. -/
+/-- Maximum binding for unequal cycles is 2/n₂. -/
 theorem max_binding_unequal (n₁ n₂ : ℕ) (h₁ : n₁ ≥ 3) (h₂ : n₂ ≥ 3) (h_le : n₁ ≤ n₂) :
     max_binding_energy n₁ n₂ = 2 / n₂ := by
   unfold max_binding_energy sharing_energy_reduction
@@ -62,7 +43,7 @@ theorem max_binding_unequal (n₁ n₂ : ℕ) (h₁ : n₁ ≥ 3) (h₂ : n₂ �
   rw [Nat.min_eq_left h_le]
   field_simp
 
-/-- Maximum binding equals twice the mass of the smaller (higher-n) cycle. -/
+/-- Maximum binding equals 2 × mass of the lighter cycle. -/
 theorem max_binding_is_twice_smaller_mass (n₁ n₂ : ℕ) (h₁ : n₁ ≥ 3) (h₂ : n₂ ≥ 3) (h_le : n₁ ≤ n₂) :
     max_binding_energy n₁ n₂ = 2 * mass_of_cycle n₂ := by
   rw [max_binding_unequal n₁ n₂ h₁ h₂ h_le]
@@ -71,10 +52,7 @@ theorem max_binding_is_twice_smaller_mass (n₁ n₂ : ℕ) (h₁ : n₁ ≥ 3) 
 
 /-! ## Schwarzschild Impossibility for Unequal Masses -/
 
-/-- **Unequal masses cannot reach Schwarzschild**: For n₁ < n₂, the maximum
-    binding energy is strictly less than the total rest mass.
-
-    This is a fundamental asymmetry: only equal-mass cycles can fully annihilate. -/
+/-- Unequal masses cannot reach Schwarzschild limit. -/
 theorem unequal_no_schwarzschild (n₁ n₂ : ℕ) (h₁ : n₁ ≥ 3) (h₂ : n₂ ≥ 3) (h_lt : n₁ < n₂) :
     max_binding_energy n₁ n₂ < GravitationalStability.total_rest_mass n₁ n₂ := by
   rw [max_binding_unequal n₁ n₂ h₁ h₂ (le_of_lt h_lt)]
@@ -82,20 +60,16 @@ theorem unequal_no_schwarzschild (n₁ n₂ : ℕ) (h₁ : n₁ ≥ 3) (h₂ : n
   have hn₁ : (n₁ : ℝ) > 0 := Nat.cast_pos.mpr (by omega)
   have hn₂ : (n₂ : ℝ) > 0 := Nat.cast_pos.mpr (by omega)
   have h_lt' : (n₁ : ℝ) < n₂ := Nat.cast_lt.mpr h_lt
-  -- Goal: 2/n₂ < 1/n₁ + 1/n₂
-  -- Equivalent: 1/n₂ < 1/n₁
-  -- True since n₁ < n₂
   have h_inv : 1 / (n₂ : ℝ) < 1 / n₁ := (one_div_lt_one_div hn₂ hn₁).mpr h_lt'
   have h1 : 2 / (n₂ : ℝ) = 1 / n₂ + 1 / n₂ := by ring
   rw [h1]
   linarith
 
-/-- The binding deficit for unequal masses: how far from Schwarzschild.
-    Deficit = rest_mass - max_binding = 1/n₁ - 1/n₂ -/
+/-- Schwarzschild deficit: rest_mass - max_binding. -/
 noncomputable def schwarzschild_deficit (n₁ n₂ : ℕ) : ℝ :=
   GravitationalStability.total_rest_mass n₁ n₂ - max_binding_energy n₁ n₂
 
-/-- The Schwarzschild deficit equals the mass difference. -/
+/-- Schwarzschild deficit equals mass difference. -/
 theorem schwarzschild_deficit_is_mass_difference (n₁ n₂ : ℕ) (h₁ : n₁ ≥ 3) (h₂ : n₂ ≥ 3) (h_le : n₁ ≤ n₂) :
     schwarzschild_deficit n₁ n₂ = mass_of_cycle n₁ - mass_of_cycle n₂ := by
   unfold schwarzschild_deficit GravitationalStability.total_rest_mass
@@ -121,12 +95,11 @@ theorem schwarzschild_deficit_zero_iff_equal (n₁ n₂ : ℕ) (h₁ : n₁ ≥ 
 
 /-! ## Binding Efficiency -/
 
-/-- **Binding efficiency ratio**: The fraction of rest mass that can be converted to binding.
-    For cycles n₁ ≤ n₂: efficiency = (2/n₂) / (1/n₁ + 1/n₂) = 2n₁/(n₁+n₂) -/
+/-- Binding efficiency: fraction of rest mass convertible to binding. -/
 noncomputable def binding_efficiency (n₁ n₂ : ℕ) : ℝ :=
   max_binding_energy n₁ n₂ / GravitationalStability.total_rest_mass n₁ n₂
 
-/-- The binding efficiency formula. -/
+/-- Efficiency = 2n₁/(n₁+n₂). -/
 theorem binding_efficiency_formula (n₁ n₂ : ℕ) (h₁ : n₁ ≥ 3) (h₂ : n₂ ≥ 3) (h_le : n₁ ≤ n₂) :
     binding_efficiency n₁ n₂ = 2 * n₁ / (n₁ + n₂) := by
   unfold binding_efficiency
@@ -174,8 +147,7 @@ theorem binding_efficiency_symm (n₁ n₂ : ℕ) (h₁ : n₁ ≥ 3) (h₂ : n�
 
 /-! ## Asymmetry Effects -/
 
-/-- In the extreme asymmetric limit (n₂ → ∞), efficiency → 0.
-    Heavy particles (small n₁) cannot efficiently bind with massless particles (large n₂). -/
+/-- Efficiency decreases as mass ratio increases. -/
 theorem efficiency_decreases_with_asymmetry (n₁ n₂ n₂' : ℕ)
     (h₁ : n₁ ≥ 3) (h₂ : n₂ ≥ 3) (h₂' : n₂' ≥ 3)
     (h_le : n₁ ≤ n₂) (h_le' : n₁ ≤ n₂') (h_lt : n₂ < n₂') :
@@ -188,8 +160,6 @@ theorem efficiency_decreases_with_asymmetry (n₁ n₂ n₂' : ℕ)
   have h_lt' : (n₂ : ℝ) < n₂' := Nat.cast_lt.mpr h_lt
   have h_sum : (n₁ : ℝ) + n₂ > 0 := by linarith
   have h_sum' : (n₁ : ℝ) + n₂' > 0 := by linarith
-  -- Goal: 2n₁/(n₁+n₂) > 2n₁/(n₁+n₂')
-  -- Since n₂ < n₂', we have n₁+n₂ < n₁+n₂', so 1/(n₁+n₂) > 1/(n₁+n₂')
   have h_denom_lt : (n₁ : ℝ) + n₂ < n₁ + n₂' := by linarith
   have h_inv : 1 / ((n₁ : ℝ) + n₂') < 1 / (n₁ + n₂) := (one_div_lt_one_div h_sum' h_sum).mpr h_denom_lt
   have h_2n₁_pos : 2 * (n₁ : ℝ) > 0 := by linarith
@@ -198,8 +168,7 @@ theorem efficiency_decreases_with_asymmetry (n₁ n₂ n₂' : ℕ)
     _ > 2 * n₁ * (1 / (n₁ + n₂')) := by nlinarith
     _ = 2 * n₁ / (n₁ + n₂') := by ring
 
-/-- The residual mass after maximum binding for unequal cycles.
-    Residual = rest_mass - max_binding = 1/n₁ - 1/n₂ (the mass difference) -/
+/-- Residual mass after maximum binding. -/
 noncomputable def residual_mass_after_binding (n₁ n₂ : ℕ) : ℝ :=
   GravitationalStability.total_rest_mass n₁ n₂ - max_binding_energy n₁ n₂
 
@@ -227,10 +196,7 @@ theorem unequal_mass_positive_residual (n₁ n₂ : ℕ) (h₁ : n₁ ≥ 3) (h�
   have h_inv : 1 / (n₂ : ℝ) < 1 / n₁ := (one_div_lt_one_div hn₂ hn₁).mpr h_lt'
   linarith
 
-/-! ## Physical Interpretation Theorems -/
-
-/-- **Equal masses are optimal for annihilation**: Only equal-size cycles can achieve
-    the Schwarzschild limit where binding = rest mass. -/
+/-- Efficiency = 1 iff equal masses. -/
 theorem equal_optimal_for_schwarzschild (n₁ n₂ : ℕ) (h₁ : n₁ ≥ 3) (h₂ : n₂ ≥ 3) :
     binding_efficiency n₁ n₂ = 1 ↔ n₁ = n₂ := by
   constructor
@@ -249,9 +215,7 @@ theorem equal_optimal_for_schwarzschild (n₁ n₂ : ℕ) (h₁ : n₁ ≥ 3) (h
     rw [h_eq]
     exact equal_mass_perfect_efficiency n₂ h₂
 
-/-- **Heavier particle contributes more to residual mass**:
-    When n₁ < n₂ (so m₁ > m₂), the residual after binding is m₁ - m₂.
-    The heavy particle's excess mass cannot be canceled. -/
+/-- Residual mass equals mass difference. -/
 theorem heavy_particle_dominates_residual (n₁ n₂ : ℕ) (h₁ : n₁ ≥ 3) (h₂ : n₂ ≥ 3) (h_lt : n₁ < n₂) :
     residual_mass_after_binding n₁ n₂ = mass_of_cycle n₁ - mass_of_cycle n₂ ∧
     mass_of_cycle n₁ > mass_of_cycle n₂ := by

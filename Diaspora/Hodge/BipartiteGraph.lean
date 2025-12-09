@@ -1,30 +1,13 @@
-/-
-# Complete Bipartite Graph Betti Numbers
-
-The complete bipartite graph K_{m,n} has Betti number:
-  b₁(K_{m,n}) = (m-1)(n-1)
-
-This reveals beautiful structure:
-- K_{1,n} (star) is a tree: b₁ = 0
-- K_{2,2} is a 4-cycle: b₁ = 1
-- K_{m,n} with m,n ≥ 2 has cycles
-
-The formula (m-1)(n-1) counts independent cycles: each of the (m-1)(n-1)
-"fundamental squares" in the grid contributes one cycle mode.
--/
-
 import Diaspora.Hodge.IndexTheorem
 import Mathlib.LinearAlgebra.Dimension.Finrank
 
 open BigOperators Diaspora.Core Diaspora.Hodge
 
+/-! # Complete Bipartite Graph: b₁(K_{m,n}) = (m-1)(n-1) -/
+
 namespace Diaspora.Hodge.BipartiteGraph
 
-/-! ## Definition: Complete Bipartite Graph K_{m,n} -/
-
-/-- The complete bipartite graph K_{m,n} on m+n vertices.
-    Vertices 0..(m-1) form part A, vertices m..(m+n-1) form part B.
-    Every vertex in A is adjacent to every vertex in B. -/
+/-- K_{m,n}: vertices 0..(m-1) adjacent to all vertices m..(m+n-1). -/
 def completeBipartite (m n : ℕ) : DynamicGraph (m + n) where
   active_edges := Finset.filter
     (fun (i, j) =>
@@ -146,7 +129,6 @@ lemma bipartite_directed_edge_count (m n : ℕ) :
 
 /-! ## Connectivity of K_{m,n} -/
 
-/-- K_{m,n} is connected when m,n ≥ 1: the kernel of the gradient is 1-dimensional. -/
 lemma bipartite_kernel_dim (m n : ℕ) [NeZero m] [NeZero n] :
     Module.finrank ℝ (LinearMap.ker (d_G_linear (completeBipartite m n))) = 1 := by
   let one : Fin (m + n) → ℝ := fun _ => 1
@@ -222,7 +204,7 @@ lemma betti_algebra_bipartite (m n : ℕ) (hm : m ≥ 1) (hn : n ≥ 1) :
 
 /-! ## The Main Theorem -/
 
-/-- **Complete Bipartite Graph Betti Number**: b₁(K_{m,n}) = (m-1)(n-1) -/
+/-- b₁(K_{m,n}) = (m-1)(n-1). -/
 theorem bipartite_betti_1 (m n : ℕ) [NeZero m] [NeZero n] [DecidableEq (Fin (m + n))] :
     Module.finrank ℝ (HarmonicSubspace (completeBipartite m n)) = (m - 1) * (n - 1) := by
   have h_dim := harmonic_dimension_eq_cyclomatic (completeBipartite m n)
@@ -261,7 +243,6 @@ theorem K33_betti_four [DecidableEq (Fin 6)] :
   norm_num at this ⊢
   exact this
 
-/-- K_{m,n} with m,n ≥ 2 has at least one cycle. -/
 theorem bipartite_has_cycles (m n : ℕ) [NeZero m] [NeZero n] [DecidableEq (Fin (m + n))]
     (hm : m ≥ 2) (hn : n ≥ 2) :
     Module.finrank ℝ (HarmonicSubspace (completeBipartite m n)) ≥ 1 := by

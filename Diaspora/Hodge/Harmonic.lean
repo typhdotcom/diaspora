@@ -3,8 +3,6 @@
 
 Algebraic consequences of the Hodge decomposition: physical theorems about
 minimization, linearity, orthogonality, holonomy, and spectral properties.
-
-These are the "Lego blocks" of the physical theory.
 -/
 
 import Diaspora.Hodge.Decomposition
@@ -502,13 +500,7 @@ theorem quantum_exact_vanishes_on_cycles {n : ℕ} [Fintype (Fin n)]
 
 /-! ## Harmonic Forms on Simple Cycles -/
 
-/--
-A simple cycle is one where each node has exactly two neighbors in the cycle.
-This structure captures paths like 0→1→2→3→0 where each vertex appears exactly once.
-
-The key property is that the entire set forms a single connected cycle under `next`,
-meaning every element can be reached from any other by iterating `next`.
--/
+/-- A simple cycle where `next` defines a bijective successor function. -/
 structure SimpleCycle (n : ℕ) where
   /-- The successor function defining the cycle structure -/
   next : Fin n → Fin n
@@ -525,10 +517,7 @@ structure SimpleCycle (n : ℕ) where
   connected [Fintype (Fin n)] [Inhabited (Fin n)] :
     ∀ i j : Fin n, ∃ k : ℕ, next^[k] i = j
 
-/--
-A harmonic form is supported on a simple cycle if it's zero on all edges
-not in the cycle.
--/
+/-- A harmonic form is supported on a cycle if it's zero off the cycle edges. -/
 def SupportedOnCycle {n : ℕ} (cycle : SimpleCycle n) (γ : C1 n) : Prop :=
   ∀ i j : Fin n, j ≠ cycle.next i → γ.val i j = 0
 
@@ -551,10 +540,6 @@ lemma consecutive_edges_equal {n : ℕ} [Fintype (Fin n)]
   rw [h_prev_j] at h_transfer_j
   exact h_transfer_j
 
-/--
-On a simple cycle, if a harmonic form is supported on that cycle,
-then it has the same value on every edge of the cycle.
--/
 lemma next_surjective {n : ℕ} [Fintype (Fin n)] (cycle : SimpleCycle n) :
     Function.Surjective cycle.next := by
   intro j
@@ -645,10 +630,7 @@ def SimpleCycle.toChain1 {n : ℕ} (cycle : SimpleCycle n) : Chain1 n := {
     · split <;> ring
 }
 
-/--
-Holonomy calibration: if a harmonic form γ has constant value k on every edge
-of a simple cycle, then the holonomy equals n·k.
--/
+/-- Holonomy calibration: constant value k on every edge gives holonomy n·k. -/
 theorem holonomy_of_constant_harmonic {n : ℕ} [Fintype (Fin n)]
     (cycle : SimpleCycle n) (γ : C1 n) (k : ℝ)
     (h_const : ∀ i : Fin n, γ.val i (cycle.next i) = k) :

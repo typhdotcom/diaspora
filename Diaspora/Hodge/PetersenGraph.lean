@@ -1,66 +1,3 @@
-/-
-# The Petersen Graph: Democratic Paradox
-
-The Petersen graph is arguably the most famous small graph in mathematics.
-It appears as a counterexample to numerous plausible conjectures and serves
-as a touchstone for graph-theoretic intuitions.
-
-## Construction
-
-The Petersen graph has 10 vertices arranged as:
-- An outer pentagon (vertices 0-4)
-- An inner pentagram (vertices 5-9)
-- Each outer vertex connects to its corresponding inner vertex
-
-    0
-   / \
-  4   1
-  |\ /|
-  | X |     (outer pentagon 0-1-2-3-4-0)
-  |/ \|
-  3   2
-
-The inner vertices form a pentagram: 5-7-9-6-8-5 (skip by 2).
-
-## The Main Result
-
-  **b₁(Petersen) = 6**
-
-This is simply |E| - |V| + 1 = 15 - 10 + 1 = 6.
-
-## What Makes Petersen Special?
-
-1. **Vertex-transitive**: Every vertex "looks the same" - any vertex can be
-   mapped to any other by a graph automorphism. The 6 independent cycles are
-   uniformly distributed across all 10 vertices.
-
-2. **3-regular**: Every vertex has exactly 3 neighbors. No vertex is
-   more or less connected than any other.
-
-3. **No Hamilton cycle**: Despite being highly connected, you cannot visit
-   all vertices exactly once and return to start.
-
-## Philosophical Interpretation: Democratic Paradox
-
-In Diaspora's language, the Petersen graph represents **collective responsibility**.
-The 6-dimensional harmonic subspace cannot be "blamed" on any particular vertex
-or edge - the frustration is distributed uniformly across the entire structure.
-
-Compare this to:
-- **Wheel graph**: The hub is clearly special (creates all cycles)
-- **Friendship graph**: The central vertex is a junction for all triangles
-- **Complete graph**: High-degree vertices dominate the topology
-
-The Petersen graph is the archetypal example of a structure where paradox
-has no localized source. Every vertex participates equally in the irreducible
-frustration. This is a counterexample to the intuition that complexity must
-have a center - sometimes, complexity is genuinely distributed.
-
-In human terms: blame cannot always be assigned. Some paradoxes are truly
-collective, arising from the structure of relationships rather than from
-any individual participant.
--/
-
 import Diaspora.Hodge.Decomposition
 import Mathlib.LinearAlgebra.Dimension.Finrank
 
@@ -235,52 +172,8 @@ theorem petersen_cycle_efficiency : (6 : ℚ) / 15 = 2 / 5 := by norm_num
     Petersen: 6/10 = 0.6 cycles per vertex -/
 theorem petersen_vertex_coverage : (6 : ℚ) / 10 = 3 / 5 := by norm_num
 
-/-! ## The Democratic Paradox Principle
-
-The Petersen graph illustrates a key philosophical point: topological complexity
-can be genuinely distributed rather than localized.
-
-In many graphs, there's a "center of blame":
-- Wheel: the hub creates all cycles
-- Friendship: the central vertex hosts all triangles
-- Star: the center controls all connectivity
-
-The Petersen graph is different. Its automorphism group acts transitively on
-vertices, meaning every vertex is structurally equivalent. The 6 cycles of
-harmonic frustration cannot be attributed to any particular vertex - they are
-a property of the collective arrangement.
-
-This is the **Democratic Paradox**: a structure where blame cannot be assigned
-to individuals, only to the pattern of relationships as a whole.
--/
-
-/-- The Petersen graph's 3-regularity means every vertex participates
-    equally in the graph structure. -/
 theorem petersen_uniform_degree : ∀ v : Fin 10,
     (petersen.active_edges.filter (fun e => e.1 = v)).card = 3 :=
   petersen_is_3_regular
-
-/-! ## The Petersen Graph as a Counterexample Machine
-
-Historically, the Petersen graph has served as a counterexample to many
-plausible graph-theoretic conjectures:
-
-1. **Hamiltonicity**: The Petersen graph is 3-connected and 3-regular,
-   yet has no Hamilton cycle.
-
-2. **Edge-coloring**: It's the smallest 3-regular graph requiring
-   4 colors for proper edge-coloring (chromatic index = 4).
-
-3. **Various conjectures** about cycle covers, independent sets, etc.
-
-In Diaspora's interpretation, Petersen's role as a counterexample suggests
-that intuitions about "well-behaved" graphs fail precisely when topology
-is democratically distributed. The absence of a privileged center makes
-the graph resistant to many optimization strategies.
-
-This connects to a broader theme: systems without hierarchy are often
-harder to analyze, optimize, or control. The Petersen graph's uniform
-structure makes it locally simple but globally complex.
--/
 
 end Diaspora.Hodge.PetersenGraph

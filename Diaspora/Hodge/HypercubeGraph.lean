@@ -1,56 +1,3 @@
-/-
-# Hypercube Graph Betti Numbers
-
-The n-dimensional hypercube Q_n has 2^n vertices (binary strings of length n)
-and two vertices are adjacent iff they differ in exactly one bit.
-
-    Q_1:  0 — 1                     (path P_2, b₁ = 0)
-
-    Q_2:  00 — 01                   (square C_4, b₁ = 1)
-           |    |
-          10 — 11
-
-    Q_3:  000 — 001                 (cube, b₁ = 5)
-           |  ×  |
-          010 — 011
-           |     |
-          100 — 101
-           |  ×  |
-          110 — 111
-
-The recursive structure: Q_n = two copies of Q_{n-1} connected by 2^{n-1} edges.
-
-## The Main Result
-
-  **b₁(Q_n) = n·2^{n-1} - 2^n + 1 = 2^{n-1}(n - 2) + 1**
-
-Concrete values:
-- Q_1: 2^0(-1) + 1 = 0  (path, classical vacuum)
-- Q_2: 2^1(0) + 1 = 1   (square, single cycle)
-- Q_3: 2^2(1) + 1 = 5   (cube, same as Prism_4)
-- Q_4: 2^3(2) + 1 = 17  (tesseract)
-
-## The Dimensional Doubling Theorem
-
-Going from Q_{n-1} to Q_n:
-- Vertices double: 2^{n-1} → 2^n
-- Edges: (n-1)·2^{n-2} becomes n·2^{n-1}
-- The increase in b₁:
-
-  b₁(Q_n) - 2·b₁(Q_{n-1}) = number of NEW independent cycles
-
-This captures how connecting "parallel universes" creates new topology
-beyond what each universe had separately.
-
-## Physical Interpretation
-
-The hypercube is the discrete analog of a higher-dimensional torus.
-Each dimension contributes new wrapping cycles. The formula
-b₁ = 2^{n-1}(n-2) + 1 shows that topology grows exponentially
-with dimension - the "information capacity" of the universe
-explodes as you add dimensions.
--/
-
 import Diaspora.Hodge.PrismGraph
 import Mathlib.LinearAlgebra.Dimension.Finrank
 
@@ -457,37 +404,5 @@ theorem doubling_increment_pattern_4 :
     Module.finrank ℝ (HarmonicSubspace hypercube4) -
     2 * Module.finrank ℝ (HarmonicSubspace hypercube3) = 2^3 - 1 := by
   rw [hypercube4_betti_seventeen, hypercube3_betti_five]; native_decide
-
-/-! ## Philosophical Interpretation
-
-The hypercube represents the discrete analog of higher-dimensional space.
-
-**Exponential Topology**
-
-The formula b₁(Q_n) = 2^{n-1}(n-2) + 1 shows that topology grows
-exponentially with dimension. Each new dimension doesn't just add
-cycles linearly - it multiplies the existing complexity.
-
-**The Doubling Paradox**
-
-When we duplicate a universe and connect corresponding points,
-we get more topology than the sum of parts. The "handshake" between
-parallel universes creates 2^{n-1} - 1 new independent cycles.
-
-**Information Density**
-
-A hypercube on 2^n vertices has b₁ ≈ n·2^{n-1} cycles. The ratio
-b₁/|V| ≈ n/2 grows with dimension. Higher-dimensional spaces are
-"topologically denser" - more irreducible structure per vertex.
-
-**Classical vs Quantum**
-
-Q_1 (the path) is classical: b₁ = 0.
-Q_n for n ≥ 2 has cycles, hence irreducible frustration.
-The jump from Q_1 to Q_2 is the "genesis" - the first non-trivial
-topology. But unlike the cycle graph where this is a single cycle,
-the hypercube structure amplifies: each dimension contributes new
-channels for harmonic content.
--/
 
 end Diaspora.Hodge.HypercubeGraph

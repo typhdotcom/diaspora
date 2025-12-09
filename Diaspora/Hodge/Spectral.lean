@@ -43,11 +43,7 @@ def HasNontrivialCohomology {n : ℕ} [Fintype (Fin n)] (γ : C1 n) : Prop :=
 
 /-! ## Qualitative Spectral Gap -/
 
-/-- Spectral Gap (Qualitative): Non-trivial cohomology implies positive energy.
-
-  Proof: By contradiction. If ‖γ‖² = 0, then γ = 0 (by norm_sq_zero_iff_zero),
-  but then holonomy γ c = 0 for all chains, contradicting non-trivial cohomology.
--/
+/-- Non-trivial cohomology implies positive energy. -/
 theorem spectral_gap_qualitative {n : ℕ} [Fintype (Fin n)]
     (γ : C1 n) (h : HasNontrivialCohomology γ) : norm_sq γ > 0 := by
   by_contra h_not_pos
@@ -60,11 +56,7 @@ theorem spectral_gap_qualitative {n : ℕ} [Fintype (Fin n)]
 
 /-! ## Quantitative Spectral Gap -/
 
-/-- Spectral Gap (Quantitative): For cycle-supported harmonic forms with integer winding m ≠ 0,
-    energy is bounded below by 1/n.
-
-  Builds directly on quantized_energy_spectrum: ‖γ‖² = m²/n, and m² ≥ 1.
--/
+/-- For cycle-supported harmonic forms with integer winding m ≠ 0, energy ≥ 1/n. -/
 theorem spectral_gap_quantitative {n : ℕ} [Fintype (Fin n)] [NeZero n]
     (cycle : SimpleCycle n) (γ : C1 n)
     (h_harm : IsHarmonic γ)
@@ -97,12 +89,10 @@ theorem soliton_lower_bound {n : ℕ} [Fintype (Fin n)] [NeZero n]
     norm_sq γ = (m : ℝ)^2 / n ∧ norm_sq γ ≥ 1 / n := by
   have h_card : Fintype.card (Fin n) = n := by convert Fintype.card_fin n
   constructor
-  · -- Exact value from quantized_energy_spectrum
-    have h := quantized_energy_spectrum cycle γ h_harm h_support m h_winding h_n_ge_3
+  · have h := quantized_energy_spectrum cycle γ h_harm h_support m h_winding h_n_ge_3
     simp only [h_card] at h
     exact h
-  · -- Lower bound from spectral_gap_quantitative
-    have h := spectral_gap_quantitative cycle γ h_harm h_support m h_m_ne h_winding h_n_ge_3
+  · have h := spectral_gap_quantitative cycle γ h_harm h_support m h_m_ne h_winding h_n_ge_3
     simp only [h_card] at h
     exact h
 

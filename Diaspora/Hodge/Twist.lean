@@ -82,10 +82,8 @@ lemma dehn_twist_constant {n : ℕ} [Fintype (Fin n)] [NeZero n]
 /-- The Dehn twist is harmonic for n ≥ 3. -/
 theorem dehn_twist_is_harmonic {n : ℕ} [Fintype (Fin n)] [NeZero n]
     (cycle : SimpleCycle n) (h_n_ge_3 : n ≥ 3) : IsHarmonic (dehn_twist cycle) := by
-  -- IsHarmonic requires: ∀ i, ∑ j, val i j = 0 (sum over second index)
   intro i
   have h_ne := prev_ne_next_of_n_ge_3 cycle h_n_ge_3 i
-  -- For row i, non-zero entries are at j = next i (value 1/n) and j = prev i (value -1/n)
   have h_zero : ∀ k, k ≠ cycle.next i → k ≠ cycle.prev i → (dehn_twist cycle).val i k = 0 := by
     intro k hk_next hk_prev
     unfold dehn_twist
@@ -129,8 +127,7 @@ theorem dehn_twist_is_harmonic {n : ℕ} [Fintype (Fin n)] [NeZero n]
     intro k hk
     simp only [Finset.mem_filter, Finset.mem_univ, true_and] at hk
     exact h_zero k hk.1 hk.2
-  rw [h_first, h_second]
-  ring
+  rw [h_first, h_second]; ring
 
 /-- The Dehn twist has winding number 1 (for n ≥ 3). -/
 theorem dehn_twist_winding_one {n : ℕ} [Fintype (Fin n)] [NeZero n]

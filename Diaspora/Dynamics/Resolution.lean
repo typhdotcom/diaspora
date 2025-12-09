@@ -1,32 +1,12 @@
-/-
-# The Arrow of Resolution
-
-Every edge break in evolution potentially resolves one unit of paradox.
-
-This file proves the dual of the Edge Addition Theorem:
-  **Removing a non-bridge edge from a connected graph decreases b₁ by exactly 1.**
-
-## Philosophical Interpretation
-
-The evolution dynamics has two faces:
-1. **Thermodynamic**: Latent capacity (entropy) increases
-2. **Logical**: Topological deficit (paradox) decreases
-
-These are dual perspectives on the arrow of time. Every edge break:
-- Releases strain into the latent sector (irreversible)
-- Removes one mode of irreducible frustration (resolution)
-
-The bridge vs non-bridge distinction is crucial:
-- Breaking a **non-bridge** edge resolves paradox (b₁ decreases)
-- Breaking a **bridge** edge fragments the universe (components increase)
-
-In Diaspora's language: paradoxes can be resolved by breaking the edges
-that form the cycles of contradiction.
--/
-
 import Diaspora.Hodge.EdgeAddition
 import Diaspora.Dynamics.Transition
 import Diaspora.Logic.Information
+
+/-!
+# The Arrow of Resolution
+
+Removing a non-bridge edge from a connected graph decreases b₁ by exactly 1.
+-/
 
 open BigOperators Diaspora.Core Diaspora.Hodge Diaspora.Logic.Information
 
@@ -200,17 +180,5 @@ theorem betti_counts_nonbridge_edges [NeZero n] (G : DynamicGraph n)
   have h := Diaspora.Hodge.EdgeAddition.betti_counts_excess_edges G h_conn
   have h_n_pos : n ≥ 1 := Nat.one_le_iff_ne_zero.mpr (NeZero.ne n)
   omega
-
-/-! ## Interpretation
-
-**The Betti number counts excess edges beyond a spanning tree.**
-
-Each non-bridge break removes one cycle. When b₁ = 0, the graph is a tree,
-and every remaining edge is a bridge. Further breaks would disconnect
-rather than simplify.
-
-The theorem `topology_implies_nonbridge_exists` (b₁ > 0 ⟹ ∃ non-bridge)
-requires the bridge-forest correspondence: all bridges ⟹ acyclic ⟹ tree.
-This is left for future work when mathlib gains better graph connectivity theory. -/
 
 end Diaspora.Dynamics.Resolution

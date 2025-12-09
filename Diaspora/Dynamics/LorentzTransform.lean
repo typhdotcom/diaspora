@@ -2,47 +2,9 @@ import Diaspora.Dynamics.Velocity
 import Diaspora.Dynamics.Dispersion
 
 /-!
-# Lorentz Transformations: Covariance of Topological Kinematics
+# Lorentz Transformations
 
-This file proves that Diaspora's relativistic kinematics is Lorentz covariant:
-energy and momentum transform correctly under boosts, preserving all invariants.
-
-## The Core Result
-
-Under a Lorentz boost with velocity v:
-- E' = γ(E - vp)
-- p' = γ(p - vE)
-
-This transformation:
-1. Preserves the invariant mass: E'² - p'² = E² - p²
-2. Preserves lightlike condition: E = p ⟹ E' = p'
-3. Gives the relativistic Doppler effect for cycles
-
-## The Doppler Effect
-
-For lightlike particles (E = p), the boost simplifies to:
-- E' = γ(1 - v)E = E·D(v)
-
-where D(v) = √((1-v)/(1+v)) is the Doppler factor.
-
-For a cycle with frequency f = 1/n and wavelength λ = n:
-- f' = f·D(v) (redshifted if v > 0, blueshifted if v < 0)
-- λ' = λ/D(v) (stretched if v > 0, compressed if v < 0)
-
-## Physical Interpretation
-
-Different inertial observers see the same topological defect with different
-energies and momenta. A cycle that appears "heavy" (small n, large E) to one
-observer appears "lighter" (larger effective n, smaller E) to a receding observer.
-
-But all observers agree on:
-1. The lightlike nature: E = p
-2. The quantized spectrum: E ∈ {1/3, 1/4, 1/5, ...} up to Doppler shift
-3. The zero invariant mass: E² - p² = 0
-
-This is the relativistic version of Diaspora's "topology is motion" principle:
-you cannot stop a cycle, but you can change your frame to make it appear
-redshifted or blueshifted.
+Lorentz boosts preserve invariant mass and lightlike condition, yielding Doppler shifts.
 -/
 
 namespace Diaspora.Dynamics.LorentzTransform
@@ -99,23 +61,12 @@ theorem γ_squared (v : ℝ) (hv : |v| < 1) : (γ v)^2 = 1 / (1 - v^2) := by
 
 /-! ## Invariance of m² -/
 
-/-- **The Invariance Theorem**: Lorentz boosts preserve E² - p².
-
-    This is THE fundamental result of special relativity:
-    m² = E² - p² is a Lorentz scalar (invariant under boosts).
-
-    The proof is pure algebra: expanding E'² - p'² gives E² - p². -/
+/-- Lorentz boosts preserve E² - p² (invariant mass). -/
 theorem invariant_mass_preserved (E p v : ℝ) (hv : |v| < 1) :
     (boost_energy E p v)^2 - (boost_momentum E p v)^2 = E^2 - p^2 := by
   unfold boost_energy boost_momentum
   have h_pos := γ_defined v hv
   have h_gamma_sq := γ_squared v hv
-  -- E'² - p'² = γ²[(E - vp)² - (p - vE)²]
-  --           = γ²[(E² - 2vEp + v²p²) - (p² - 2vEp + v²E²)]
-  --           = γ²[E² + v²p² - p² - v²E²]
-  --           = γ²[E²(1 - v²) - p²(1 - v²)]
-  --           = γ²(1 - v²)(E² - p²)
-  --           = (E² - p²)  since γ² = 1/(1-v²)
   calc (γ v * (E - v * p))^2 - (γ v * (p - v * E))^2
       = (γ v)^2 * ((E - v * p)^2 - (p - v * E)^2) := by ring
     _ = (γ v)^2 * (E^2 - 2*v*E*p + v^2*p^2 - (p^2 - 2*v*E*p + v^2*E^2)) := by ring
@@ -127,10 +78,7 @@ theorem invariant_mass_preserved (E p v : ℝ) (hv : |v| < 1) :
 
 /-! ## Lightlike Condition Preserved -/
 
-/-- **Lightlike Preserved**: If E = p, then E' = p' under any boost.
-
-    This is crucial: a lightlike particle (E = p) remains lightlike
-    after a Lorentz transformation. The light cone is invariant. -/
+/-- Lightlike preserved: E = p ⟹ E' = p'. -/
 theorem lightlike_preserved (E p v : ℝ) (h_light : E = p) :
     boost_energy E p v = boost_momentum E p v := by
   unfold boost_energy boost_momentum
@@ -144,11 +92,7 @@ theorem cycle_lightlike_after_boost (n : ℕ) (h : n ≥ 3) (v : ℝ) (_hv : |v|
 
 /-! ## The Doppler Factor -/
 
-/-- The **Doppler factor** D(v) = √((1-v)/(1+v)).
-
-    For motion away (v > 0): D < 1 (redshift)
-    For motion toward (v < 0): D > 1 (blueshift)
-    At rest (v = 0): D = 1 (no shift) -/
+/-- Doppler factor D(v) = √((1-v)/(1+v)). -/
 noncomputable def doppler_factor (v : ℝ) : ℝ := Real.sqrt ((1 - v) / (1 + v))
 
 /-- D(0) = 1: no Doppler shift at rest. -/
@@ -182,10 +126,7 @@ theorem doppler_reciprocal (v : ℝ) (hv : |v| < 1) :
 
 /-! ## Doppler Effect for Lightlike Particles -/
 
-/-- **The Doppler Theorem for Lightlike Particles**:
-    For E = p, the boost gives E' = E × γ(1 - v) = E × D(v).
-
-    This is the relativistic Doppler effect. -/
+/-- Doppler for lightlike: E' = E × γ(1 - v). -/
 theorem lightlike_doppler (E : ℝ) (v : ℝ) :
     boost_energy E E v = E * γ v * (1 - v) := by
   unfold boost_energy
@@ -220,15 +161,10 @@ theorem cycle_doppler_energy (n : ℕ) (h : n ≥ 3) (v : ℝ) (hv : |v| < 1) :
 
 /-! ## Frequency and Wavelength Transform -/
 
-/-- **Doppler-shifted frequency**: f' = f × D(v).
-
-    For a receding source (v > 0), D < 1, so f' < f (redshift).
-    For an approaching source (v < 0), D > 1, so f' > f (blueshift). -/
+/-- Doppler-shifted frequency: f' = f × D(v). -/
 noncomputable def doppler_frequency (f v : ℝ) : ℝ := f * doppler_factor v
 
-/-- **Doppler-shifted wavelength**: λ' = λ / D(v).
-
-    Since f × λ = c = 1, if f' = f × D, then λ' = λ / D. -/
+/-- Doppler-shifted wavelength: λ' = λ / D(v). -/
 noncomputable def doppler_wavelength (wl v : ℝ) : ℝ := wl / doppler_factor v
 
 /-- Frequency-wavelength duality preserved: f' × λ' = f × λ = c = 1. -/
@@ -250,7 +186,7 @@ theorem cycle_wavelength_doppler (n : ℕ) (_h : n ≥ 3) (v : ℝ) (_hv : |v| <
 
 /-! ## Redshift and Blueshift -/
 
-/-- **Redshift**: For v > 0 (receding), D(v) < 1, so f' < f and λ' > λ. -/
+/-- Redshift: v > 0 ⟹ D(v) < 1. -/
 theorem redshift (v : ℝ) (hv : 0 < v) (hv' : v < 1) : doppler_factor v < 1 := by
   unfold doppler_factor
   have h1 : 1 - v > 0 := by linarith
@@ -265,7 +201,7 @@ theorem redshift (v : ℝ) (hv : 0 < v) (hv' : v < 1) : doppler_factor v < 1 := 
         exact h_ratio_lt_one
     _ = 1 := Real.sqrt_one
 
-/-- **Blueshift**: For v < 0 (approaching), D(v) > 1, so f' > f and λ' < λ. -/
+/-- Blueshift: v < 0 ⟹ D(v) > 1. -/
 theorem blueshift (v : ℝ) (hv : v < 0) (hv' : -1 < v) : doppler_factor v > 1 := by
   unfold doppler_factor
   have h1 : 1 - v > 0 := by linarith
@@ -282,7 +218,7 @@ theorem blueshift (v : ℝ) (hv : v < 0) (hv' : -1 < v) : doppler_factor v > 1 :
 
 /-! ## Velocity Composition -/
 
-/-- **Relativistic Velocity Composition**: Adding velocities u and v. -/
+/-- Relativistic velocity composition: (u + v) / (1 + uv). -/
 noncomputable def velocity_composition (u v : ℝ) : ℝ := (u + v) / (1 + u * v)
 
 /-- Composition with zero gives the original velocity. -/
@@ -318,33 +254,12 @@ theorem velocity_composition_subluminal (u v : ℝ)
 
 /-! ## The Lorentz Covariance Correspondence -/
 
-/-- **The Lorentz Covariance Correspondence** (Summary Theorem)
-
-    This theorem collects the key results about Lorentz transformations:
-
-    1. Invariant mass preserved: E'² - p'² = E² - p²
-    2. Lightlike preserved: E = p ⟹ E' = p'
-    3. Doppler effect: E' = E × D(v) for lightlike particles
-    4. Subluminal composition: |u| < 1 ∧ |v| < 1 ⟹ |u ⊕ v| < 1
-
-    Physical interpretation: Diaspora's kinematics is fully Lorentz covariant.
-    Different observers see different energies and momenta, but they all agree
-    on the invariant mass and the lightlike nature of single cycles.
-
-    The Doppler effect explains how topology "looks different" from different
-    frames: a heavy cycle (small n) to one observer appears lighter (larger
-    effective wavelength) to a receding observer. But the topology itself—
-    the winding number, the harmonic content—is frame-independent. -/
+/-- Lorentz covariance summary: γ properties, invariant mass, lightlike, Doppler. -/
 theorem the_lorentz_covariance_correspondence (v : ℝ) (hv : |v| < 1) :
-    -- 1. γ at rest is 1
     (γ 0 = 1) ∧
-    -- 2. γ ≥ 1 for all velocities
     (γ v ≥ 1) ∧
-    -- 3. Invariant mass preserved (example with E = p = 1)
     (boost_energy 1 1 v)^2 - (boost_momentum 1 1 v)^2 = 0 ∧
-    -- 4. Lightlike preserved
     (boost_energy 1 1 v = boost_momentum 1 1 v) ∧
-    -- 5. Doppler at rest is 1
     (doppler_factor 0 = 1) := by
   refine ⟨?_, ?_, ?_, ?_, ?_⟩
   · exact γ_at_zero

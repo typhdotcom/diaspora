@@ -1,20 +1,11 @@
-/-
-# Complete Graph Betti Numbers
-
-The complete graph K_n has a beautiful closed-form Betti number:
-  b₁(K_n) = (n-1)(n-2)/2
-
-This is the maximum possible first Betti number for any graph on n vertices.
--/
-
 import Diaspora.Hodge.IndexTheorem
 import Mathlib.LinearAlgebra.Dimension.Finrank
 
 open BigOperators Diaspora.Core Diaspora.Hodge
 
-namespace Diaspora.Hodge.CompleteGraph
+/-! # Complete Graph: b₁(K_n) = (n-1)(n-2)/2 -/
 
-/-! ## Edge Count of Complete Graph -/
+namespace Diaspora.Hodge.CompleteGraph
 
 /-- The complete graph K_n has n(n-1) directed edges. -/
 lemma complete_graph_directed_edge_count (n : ℕ) [DecidableEq (Fin n)] :
@@ -69,7 +60,6 @@ theorem complete_graph_undirected_edge_count (n : ℕ) [DecidableEq (Fin n)] :
 
 /-! ## Connectivity of Complete Graph -/
 
-/-- The gradient kernel on K_n is 1-dimensional. -/
 lemma complete_graph_kernel_dim (n : ℕ) [DecidableEq (Fin n)] [NeZero n] :
     Module.finrank ℝ (LinearMap.ker (d_G_linear (DynamicGraph.complete n))) = 1 := by
   let one : Fin n → ℝ := fun _ => 1
@@ -142,7 +132,7 @@ lemma betti_algebra_key (n : ℕ) (hn : n ≥ 1) : n * (n - 1) / 2 + 1 = (n - 1)
 
 variable {n : ℕ}
 
-/-- **Complete Graph Betti Number Theorem**: b₁(K_n) = (n-1)(n-2)/2 -/
+/-- b₁(K_n) = (n-1)(n-2)/2. -/
 theorem complete_graph_betti_1 [DecidableEq (Fin n)] [NeZero n] :
     Module.finrank ℝ (HarmonicSubspace (DynamicGraph.complete n)) = (n - 1) * (n - 2) / 2 := by
   have h_dim := harmonic_dimension_eq_cyclomatic (DynamicGraph.complete n)
@@ -151,7 +141,6 @@ theorem complete_graph_betti_1 [DecidableEq (Fin n)] [NeZero n] :
   have h_alg := betti_algebra_key n (NeZero.pos n)
   omega
 
-/-- For n ≥ 3, K_n has cycles. -/
 theorem complete_graph_has_cycles [DecidableEq (Fin n)] [NeZero n] (h : n ≥ 3) :
     Module.finrank ℝ (HarmonicSubspace (DynamicGraph.complete n)) ≥ 1 := by
   rw [complete_graph_betti_1]

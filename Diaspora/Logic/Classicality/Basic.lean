@@ -1,6 +1,3 @@
-/-
-Core definitions for Classicality.
--/
 import Diaspora.Core.Calculus
 import Diaspora.Hodge.Decomposition
 import Mathlib.Order.WellFounded

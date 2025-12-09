@@ -1,9 +1,5 @@
 /-
-Cycle orientation and optimal alignment.
-
-Reversing a cycle negates its harmonic form. When two cycles share edges,
-they can orient to minimize combined energy by aligning oppositely on
-shared edges (anti-ferromagnetic coupling).
+Cycle orientation: reversing negates harmonic form.
 -/
 import Diaspora.Logic.Classicality.Orthogonality.Energy
 
@@ -56,15 +52,13 @@ lemma GeneralCycle.reverse_vertex_mod {n : ℕ} (c : GeneralCycle n) (k : ℕ) :
   simp only [h_idx_mod]
   rw [List.get_reverse']
 
-/-- Helper: nextVertex of reversed cycle for general k.
-    c.reverse.nextVertex k = c.reverse.vertex (k + 1) = c.vertex (len - 1 - (k + 1) % len) -/
+/-- Helper: nextVertex of reversed cycle for general k. -/
 lemma GeneralCycle.reverse_nextVertex_eq {n : ℕ} (c : GeneralCycle n) (k : ℕ) :
     c.reverse.nextVertex k = c.vertex (c.verts.length - 1 - (k + 1) % c.verts.length) := by
   unfold GeneralCycle.nextVertex
   rw [c.reverse_vertex_mod]
 
-/-- Key lemma: forward edge of c.reverse corresponds to backward edge of c.
-    Specifically: (i, j) is forward in c.reverse ↔ (j, i) is forward in c. -/
+/-- Forward edge of c.reverse corresponds to backward edge of c. -/
 lemma reverse_edge_iff {n : ℕ} (c : GeneralCycle n) (i j : Fin n) :
     (∃ k : Fin c.reverse.verts.length, c.reverse.vertex k.val = i ∧ c.reverse.nextVertex k.val = j) ↔
     (∃ k : Fin c.verts.length, c.vertex k.val = j ∧ c.nextVertex k.val = i) := by
@@ -74,53 +68,34 @@ lemma reverse_edge_iff {n : ℕ} (c : GeneralCycle n) (i j : Fin n) :
   constructor
   · intro ⟨k, hk_v, hk_n⟩
     have hk_lt : k.val < c.verts.length := by rw [← h_len_eq]; exact k.isLt
-    -- c.reverse.vertex k = c.vertex (len - 1 - k)
     rw [c.reverse_vertex k.val hk_lt] at hk_v
-    -- c.reverse.nextVertex k = c.reverse.vertex (k + 1) = c.vertex (len - 1 - (k+1) % len)
     unfold GeneralCycle.nextVertex at hk_n
     rw [c.reverse_vertex_mod] at hk_n
-    -- Now we need to find m in c such that c.vertex m = j and c.nextVertex m = i
-    -- From hk_v: c.vertex (len - 1 - k) = i
-    -- From hk_n: c.vertex (len - 1 - (k+1) % len) = j
-    -- We need m with c.vertex m = j and c.vertex (m+1) = i
-    -- Case split on whether k + 1 < len
     by_cases h_k_small : k.val + 1 < c.verts.length
-    · -- k + 1 < len, so (k+1) % len = k + 1
-      have h_mod_eq : (k.val + 1) % c.verts.length = k.val + 1 := Nat.mod_eq_of_lt h_k_small
+    · have h_mod_eq : (k.val + 1) % c.verts.length = k.val + 1 := Nat.mod_eq_of_lt h_k_small
       rw [h_mod_eq] at hk_n
-      -- hk_n: c.vertex (len - 1 - (k + 1)) = j, i.e., c.vertex (len - 2 - k) = j
-      -- Let m = len - 2 - k
       let m := c.verts.length - 2 - k.val
       have hm_lt : m < c.verts.length := by show c.verts.length - 2 - k.val < c.verts.length; omega
       use ⟨m, hm_lt⟩
       constructor
-      · -- c.vertex m = j
-        rw [← hk_n, ← show m = c.verts.length - 1 - (k.val + 1) from by omega]
-      · -- c.nextVertex m = i
-        rw [← hk_v, ← show m + 1 = c.verts.length - 1 - k.val from by omega]
+      · rw [← hk_n, ← show m = c.verts.length - 1 - (k.val + 1) from by omega]
+      · rw [← hk_v, ← show m + 1 = c.verts.length - 1 - k.val from by omega]
         rfl
-    · -- k + 1 ≥ len, which means k = len - 1 (since k < len)
-      have h_k_eq : k.val = c.verts.length - 1 := by omega
+    · have h_k_eq : k.val = c.verts.length - 1 := by omega
       have h_mod_eq : (k.val + 1) % c.verts.length = 0 := by
         rw [h_k_eq]
         have : c.verts.length - 1 + 1 = c.verts.length := by omega
         rw [this, Nat.mod_self]
       rw [h_mod_eq] at hk_n
-      -- hk_n: c.vertex (len - 1 - 0) = j, i.e., c.vertex (len - 1) = j
       simp only [Nat.sub_zero] at hk_n
-      -- hk_v: c.vertex (len - 1 - k) = c.vertex 0 = i
       rw [h_k_eq] at hk_v
       simp only [Nat.sub_self] at hk_v
-      -- Let m = len - 1
       let m := c.verts.length - 1
       have hm_lt : m < c.verts.length := by omega
       use ⟨m, hm_lt⟩
       constructor
-      · -- c.vertex (len - 1) = j
-        exact hk_n
-      · -- c.nextVertex (len - 1) = c.vertex len = c.vertex 0 = i
-        -- m + 1 = len, so (m + 1) % len = 0
-        have hm1_mod : (m + 1) % c.verts.length = 0 := by
+      · exact hk_n
+      · have hm1_mod : (m + 1) % c.verts.length = 0 := by
           show (c.verts.length - 1 + 1) % c.verts.length = 0
           have : c.verts.length - 1 + 1 = c.verts.length := by omega
           rw [this, Nat.mod_self]
@@ -128,28 +103,18 @@ lemma reverse_edge_iff {n : ℕ} (c : GeneralCycle n) (i j : Fin n) :
         simp only [hm1_mod]
         exact hk_v
   · intro ⟨k, hk_v, hk_n⟩
-    -- k is in c with c.vertex k = j and c.nextVertex k = i
-    -- Need to find k' in c.reverse with c.reverse.vertex k' = i and c.reverse.nextVertex k' = j
     have hk_lt : k.val < c.verts.length := k.isLt
-    -- The formula: k' = len - 2 - k when k < len - 1, and k' = len - 1 when k = len - 1
     by_cases h_k_last : k.val = c.verts.length - 1
-    · -- k = len - 1: the wrap-around edge (v_{len-1}, v_0)
-      -- In c.reverse, this corresponds to edge (v_0, v_{len-1}) at position len - 1
-      let k' := c.verts.length - 1
+    · let k' := c.verts.length - 1
       have hk'_lt : k' < c.reverse.verts.length := by
         show c.verts.length - 1 < c.reverse.verts.length
         rw [h_len_eq]; omega
       use ⟨k', hk'_lt⟩
       constructor
-      · -- c.reverse.vertex (len-1) = c.vertex (len-1-(len-1)) = c.vertex 0
-        rw [c.reverse_vertex k' (by omega : k' < c.verts.length)]
+      · rw [c.reverse_vertex k' (by omega : k' < c.verts.length)]
         unfold GeneralCycle.nextVertex at hk_n
         rw [h_k_last] at hk_n
-        -- hk_n: c.vertex len = c.vertex 0 = i (mod arithmetic)
         unfold GeneralCycle.vertex at hk_n ⊢
-        -- Goal: c.verts.get ⟨(len - 1 - k') % len, _⟩ = i
-        -- k' = len - 1, so len - 1 - k' = 0
-        -- hk_n: c.verts.get ⟨len % len, _⟩ = i, i.e., c.verts.get ⟨0, _⟩ = i
         have h1 : (c.verts.length - 1 - k') % c.verts.length = 0 := by
           show (c.verts.length - 1 - (c.verts.length - 1)) % c.verts.length = 0
           simp only [Nat.sub_self, Nat.zero_mod]
@@ -158,42 +123,29 @@ lemma reverse_edge_iff {n : ℕ} (c : GeneralCycle n) (i j : Fin n) :
           rw [this, Nat.mod_self]
         simp only [h1, h2] at hk_n ⊢
         exact hk_n
-      · -- c.reverse.nextVertex (len-1) = c.reverse.vertex 0 = c.vertex (len-1) = j
-        unfold GeneralCycle.nextVertex
+      · unfold GeneralCycle.nextVertex
         rw [c.reverse_vertex_mod]
         rw [h_k_last] at hk_v
-        -- Goal: c.vertex (len - 1 - (k' + 1) % len) = j where k' = len - 1
-        -- (k' + 1) % len = len % len = 0
-        -- So: c.vertex (len - 1 - 0) = c.vertex (len - 1) = j
         have h_mod_0 : (k' + 1) % c.verts.length = 0 := by
           show (c.verts.length - 1 + 1) % c.verts.length = 0
           have : c.verts.length - 1 + 1 = c.verts.length := by omega
           rw [this, Nat.mod_self]
         simp only [h_mod_0, Nat.sub_zero]
-        -- Now goal is c.vertex (len - 1) = j, which is hk_v
         exact hk_v
-    · -- k < len - 1: use k' = len - 2 - k
-      have hk_small : k.val < c.verts.length - 1 := by omega
+    · have hk_small : k.val < c.verts.length - 1 := by omega
       let k' := c.verts.length - 2 - k.val
       have hk'_lt : k' < c.reverse.verts.length := by
         show c.verts.length - 2 - k.val < c.reverse.verts.length
         rw [h_len_eq]; omega
       use ⟨k', hk'_lt⟩
       constructor
-      · -- c.reverse.vertex k' = c.vertex (len-1-k') = c.vertex (k+1) = i
-        rw [c.reverse_vertex k' (by show c.verts.length - 2 - k.val < c.verts.length; omega)]
+      · rw [c.reverse_vertex k' (by show c.verts.length - 2 - k.val < c.verts.length; omega)]
         unfold GeneralCycle.nextVertex at hk_n
-        -- Goal: c.vertex (len - 1 - k') = i where k' = len - 2 - k
-        -- len - 1 - k' = len - 1 - (len - 2 - k) = k + 1
         have h_idx : c.verts.length - 1 - k' = k.val + 1 := by
           show c.verts.length - 1 - (c.verts.length - 2 - k.val) = k.val + 1; omega
         rw [h_idx]; exact hk_n
-      · -- c.reverse.nextVertex k' = c.reverse.vertex (k'+1) = c.vertex (len-1-(k'+1)) = c.vertex k = j
-        unfold GeneralCycle.nextVertex
+      · unfold GeneralCycle.nextVertex
         rw [c.reverse_vertex_mod]
-        -- Goal: c.vertex (len - 1 - (k' + 1) % len) = j where k' = len - 2 - k
-        -- k' + 1 = len - 1 - k, which is < len, so (k' + 1) % len = k' + 1
-        -- len - 1 - (k' + 1) = len - 1 - (len - 1 - k) = k
         have h_k'_plus_1_lt : k' + 1 < c.verts.length := by
           show c.verts.length - 2 - k.val + 1 < c.verts.length; omega
         have h_mod : (k' + 1) % c.verts.length = k' + 1 := Nat.mod_eq_of_lt h_k'_plus_1_lt
@@ -202,52 +154,33 @@ lemma reverse_edge_iff {n : ℕ} (c : GeneralCycle n) (i j : Fin n) :
           show c.verts.length - 1 - (c.verts.length - 2 - k.val + 1) = k.val; omega
         rw [h_idx]; exact hk_v
 
-/-- Reversing a cycle negates its harmonic form.
-    Forward edges of c.reverse are backward edges of c, so the form negates. -/
+/-- Reversing a cycle negates its harmonic form. -/
 theorem reverse_negates_form {n : ℕ} [DecidableEq (Fin n)] [Fintype (Fin n)] [NeZero n]
     (c : GeneralCycle n) :
     ∀ i j : Fin n, (general_cycle_form c.reverse).val i j = -(general_cycle_form c).val i j := by
   intro i j
   unfold general_cycle_form
   simp only
-  -- The key equivalences from reverse_edge_iff:
-  -- (i,j) forward in c.reverse ↔ (j,i) forward in c
-  -- (j,i) forward in c.reverse ↔ (i,j) forward in c
   have h_fwd : (∃ k : Fin c.reverse.verts.length, c.reverse.vertex k.val = i ∧ c.reverse.nextVertex k.val = j) ↔
                (∃ k : Fin c.verts.length, c.vertex k.val = j ∧ c.nextVertex k.val = i) := reverse_edge_iff c i j
   have h_bwd : (∃ k : Fin c.reverse.verts.length, c.reverse.vertex k.val = j ∧ c.reverse.nextVertex k.val = i) ↔
                (∃ k : Fin c.verts.length, c.vertex k.val = i ∧ c.nextVertex k.val = j) := reverse_edge_iff c j i
-  -- Case analysis on the four conditions
   by_cases h_ij_rev : ∃ k : Fin c.reverse.verts.length, c.reverse.vertex k.val = i ∧ c.reverse.nextVertex k.val = j
-  · -- (i,j) is forward in c.reverse, so (j,i) is forward in c
-    simp only [h_ij_rev, ↓reduceIte]
+  · simp only [h_ij_rev, ↓reduceIte]
     have h_ji_orig : ∃ k : Fin c.verts.length, c.vertex k.val = j ∧ c.nextVertex k.val = i := h_fwd.mp h_ij_rev
-    -- Now we need to check if (j,i) is forward in c.reverse (i.e., if (i,j) is forward in c)
     by_cases h_ji_rev : ∃ k : Fin c.reverse.verts.length, c.reverse.vertex k.val = j ∧ c.reverse.nextVertex k.val = i
-    · -- Both (i,j) and (j,i) are forward in c.reverse
-      -- This means both (j,i) and (i,j) are forward in c - impossible for len ≥ 3
-      have h_ij_orig : ∃ k : Fin c.verts.length, c.vertex k.val = i ∧ c.nextVertex k.val = j := h_bwd.mp h_ji_rev
-      -- Contradiction: i→j and j→i are both forward edges
+    · have h_ij_orig : ∃ k : Fin c.verts.length, c.vertex k.val = i ∧ c.nextVertex k.val = j := h_bwd.mp h_ji_rev
       exfalso
       obtain ⟨k1, hk1_v, hk1_n⟩ := h_ij_orig
       obtain ⟨k2, hk2_v, hk2_n⟩ := h_ji_orig
-      -- k1: i → j, k2: j → i
-      -- So vertex k1 = i = nextVertex k2, and vertex k2 = j = nextVertex k1
-      -- This means k1 and k2 are "adjacent" and cycle back in 2 steps
       have h_len_ge_3 := c.len_ge_3
       have h_nodup := c.nodup
       have h_len_pos : 0 < c.verts.length := Nat.lt_of_lt_of_le (by omega : 0 < 3) h_len_ge_3
-      -- From nodup: equal vertices means equal indices
       have hk1n_lt : (k1.val + 1) % c.verts.length < c.verts.length := Nat.mod_lt _ h_len_pos
       have hk2n_lt : (k2.val + 1) % c.verts.length < c.verts.length := Nat.mod_lt _ h_len_pos
-      -- Unfold vertex in all hypotheses
       unfold GeneralCycle.nextVertex GeneralCycle.vertex at hk1_n hk2_n hk1_v hk2_v
-      -- Now: hk1_n : c.verts.get ⟨(k1+1) % len, _⟩ = j
-      --      hk2_v : c.verts.get ⟨k2 % len, _⟩ = j
-      -- Since k2 < len, k2 % len = k2
       have hk2_mod : k2.val % c.verts.length = k2.val := Nat.mod_eq_of_lt k2.isLt
       have hk1_mod : k1.val % c.verts.length = k1.val := Nat.mod_eq_of_lt k1.isLt
-      -- So: c.verts.get at (k1+1) % len = c.verts.get at k2
       have h1 : c.verts.get ⟨(k1.val + 1) % c.verts.length, hk1n_lt⟩ = c.verts.get k2 := by
         have heq1 : c.verts.get ⟨(k1.val + 1) % c.verts.length, hk1n_lt⟩ = j := hk1_n
         have heq2 : c.verts.get k2 = j := by
@@ -259,7 +192,6 @@ theorem reverse_negates_form {n : ℕ} [DecidableEq (Fin n)] [Fintype (Fin n)] [
         have h_inj := h_nodup.get_inj_iff (i := ⟨(k1.val + 1) % c.verts.length, hk1n_lt⟩) (j := k2)
         have hfin := h_inj.mp h1
         exact congrArg Fin.val hfin
-      -- Similarly for the other direction
       have h2 : c.verts.get ⟨(k2.val + 1) % c.verts.length, hk2n_lt⟩ = c.verts.get k1 := by
         have heq1 : c.verts.get ⟨(k2.val + 1) % c.verts.length, hk2n_lt⟩ = i := hk2_n
         have heq2 : c.verts.get k1 = i := by
@@ -271,8 +203,6 @@ theorem reverse_negates_form {n : ℕ} [DecidableEq (Fin n)] [Fintype (Fin n)] [
         have h_inj := h_nodup.get_inj_iff (i := ⟨(k2.val + 1) % c.verts.length, hk2n_lt⟩) (j := k1)
         have hfin := h_inj.mp h2
         exact congrArg Fin.val hfin
-      -- Now: (k1 + 1) % len = k2 and (k2 + 1) % len = k1
-      -- So (k1 + 2) % len = ((k1 + 1) % len + 1) % len = (k2 + 1) % len = k1
       have hk1_lt : k1.val < c.verts.length := k1.isLt
       have h_1_lt_len : 1 < c.verts.length := by omega
       have h_1_mod : 1 % c.verts.length = 1 := Nat.mod_eq_of_lt h_1_lt_len
@@ -284,53 +214,34 @@ theorem reverse_negates_form {n : ℕ} [DecidableEq (Fin n)] [Fintype (Fin n)] [
           _ = ((k1.val + 1) % c.verts.length + 1) % c.verts.length := by rw [h_1_mod]
           _ = (k2.val + 1) % c.verts.length := by rw [hk1_next_eq_k2]
           _ = k1.val := hk2_next_eq_k1
-      -- From h_cycle: (k1 + 2) % len = k1, with k1 < len
-      -- If k1 + 2 < len, then k1 + 2 = k1, impossible
-      -- If k1 + 2 ≥ len, then k1 + 2 - len = k1 (since k1 + 2 < 2*len), so len = 2
-      -- But len ≥ 3, contradiction
       have hk1_2_lt_2len : k1.val + 2 < 2 * c.verts.length := by omega
       by_cases h : k1.val + 2 < c.verts.length
-      · -- k1 + 2 < len, so (k1 + 2) % len = k1 + 2 = k1, impossible
-        have := Nat.mod_eq_of_lt h
+      · have := Nat.mod_eq_of_lt h
         omega
-      · -- k1 + 2 ≥ len, so (k1 + 2) % len = k1 + 2 - len
-        push_neg at h
+      · push_neg at h
         have h_mod : (k1.val + 2) % c.verts.length = k1.val + 2 - c.verts.length := by
           rw [Nat.mod_eq_sub_mod h]
           have : k1.val + 2 - c.verts.length < c.verts.length := by omega
           exact Nat.mod_eq_of_lt this
         rw [h_mod] at h_cycle
-        -- k1 + 2 - len = k1, so len = 2
         have : c.verts.length = 2 := by omega
         omega
-    · -- (i,j) forward in c.reverse, (j,i) not forward in c.reverse
-      -- (j,i) forward in c, (i,j) not forward in c
-      -- So γ(i,j) = -1/len (it's backward), and γ_rev(i,j) = 1/len
-      -- Need: 1/len = -(-1/len) ✓
-      have h_ij_not_orig : ¬∃ k : Fin c.verts.length, c.vertex k.val = i ∧ c.nextVertex k.val = j := by
+    · have h_ij_not_orig : ¬∃ k : Fin c.verts.length, c.vertex k.val = i ∧ c.nextVertex k.val = j := by
         intro h; exact h_ji_rev (h_bwd.mpr h)
       simp only [h_ij_not_orig, ↓reduceIte, h_ji_orig, c.reverse_len]
       ring
-  · -- (i,j) is NOT forward in c.reverse
-    -- So (j,i) is NOT forward in c
-    have h_ji_not_orig : ¬∃ k : Fin c.verts.length, c.vertex k.val = j ∧ c.nextVertex k.val = i := by
+  · have h_ji_not_orig : ¬∃ k : Fin c.verts.length, c.vertex k.val = j ∧ c.nextVertex k.val = i := by
       intro h; exact h_ij_rev (h_fwd.mpr h)
     by_cases h_ji_rev : ∃ k : Fin c.reverse.verts.length, c.reverse.vertex k.val = j ∧ c.reverse.nextVertex k.val = i
-    · -- (j,i) is forward in c.reverse, so (i,j) is forward in c
-      have h_ij_orig : ∃ k : Fin c.verts.length, c.vertex k.val = i ∧ c.nextVertex k.val = j := h_bwd.mp h_ji_rev
-      -- Goal has ite about c.reverse, use h_ij_rev (¬forward) and h_ji_rev (backward)
+    · have h_ij_orig : ∃ k : Fin c.verts.length, c.vertex k.val = i ∧ c.nextVertex k.val = j := h_bwd.mp h_ji_rev
       simp only [h_ij_rev, h_ji_rev, ↓reduceIte, c.reverse_len]
-      -- Now RHS: need to show -(1/len) = -(1/len) using h_ij_orig, h_ji_not_orig
       simp only [h_ij_orig, ↓reduceIte]
-    · -- Neither direction is forward in c.reverse
-      -- So neither direction is forward in c
-      have h_ij_not_orig : ¬∃ k : Fin c.verts.length, c.vertex k.val = i ∧ c.nextVertex k.val = j := by
+    · have h_ij_not_orig : ¬∃ k : Fin c.verts.length, c.vertex k.val = i ∧ c.nextVertex k.val = j := by
         intro h; exact h_ji_rev (h_bwd.mpr h)
       simp only [h_ij_rev, h_ji_rev, ↓reduceIte, h_ij_not_orig, h_ji_not_orig]
       ring
 
-/-- Same-direction edges with c₂.reverse = opposite-direction edges with c₂.
-    Key insight: forward (i,j) in c.reverse ↔ forward (j,i) in c -/
+/-- Same-direction edges with c₂.reverse = opposite-direction edges with c₂. -/
 lemma sameDirectionEdges_reverse {n : ℕ} [DecidableEq (Fin n)] (c₁ c₂ : GeneralCycle n) :
     c₁.sameDirectionEdges c₂.reverse = c₁.oppositeDirectionEdges c₂ := by
   simp only [GeneralCycle.sameDirectionEdges, GeneralCycle.oppositeDirectionEdges]
@@ -563,7 +474,6 @@ lemma oppositeDirectionEdges_reverse {n : ℕ} [DecidableEq (Fin n)] (c₁ c₂ 
   have h_len_ge_3 := c₂.len_ge_3
   have h_fin_cast : ∀ k : Fin c₂.reverse.verts.length, k.val < c₂.verts.length := fun k => by
     rw [← h_len_eq]; exact k.isLt
-  -- Same bijection as sameDirectionEdges_reverse
   let bij : Fin c₂.reverse.verts.length → Fin c₂.verts.length := fun k =>
     ⟨c₂.verts.length - 1 - (k.val + 1) % c₂.verts.length, by
       have h := Nat.mod_lt (k.val + 1) h_len_pos
@@ -732,8 +642,7 @@ lemma oppositeDirectionEdges_reverse {n : ℕ} [DecidableEq (Fin n)] (c₁ c₂ 
     · simp only [Prod.mk.injEq]
       exact ⟨trivial, Fin.ext (bij_inv k₂)⟩
 
-/-- Reversing flips the sign of signedOverlap.
-    Same-direction edges become opposite-direction when one cycle is reversed. -/
+/-- Reversing flips the sign of signedOverlap. -/
 theorem reverse_flips_overlap {n : ℕ} [DecidableEq (Fin n)] [Fintype (Fin n)] [NeZero n]
     (c₁ c₂ : GeneralCycle n) :
     c₁.signedOverlap c₂.reverse = -c₁.signedOverlap c₂ := by
@@ -741,8 +650,7 @@ theorem reverse_flips_overlap {n : ℕ} [DecidableEq (Fin n)] [Fintype (Fin n)] 
   rw [sameDirectionEdges_reverse, oppositeDirectionEdges_reverse]
   ring
 
-/-- Opposite orientation minimizes energy when cycles share edges.
-    This is the anti-ferromagnetic coupling: overlapping cycles prefer opposite orientation. -/
+/-- Opposite orientation minimizes energy when cycles share edges. -/
 theorem opposite_orientation_minimizes {n : ℕ} [DecidableEq (Fin n)] [Fintype (Fin n)] [NeZero n]
     (c₁ c₂ : GeneralCycle n)
     (h_overlap_pos : c₁.signedOverlap c₂ > 0) :

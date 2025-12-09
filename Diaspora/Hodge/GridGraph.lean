@@ -1,51 +1,17 @@
-/-
-# Grid Graph Betti Numbers
-
-The m×n grid graph G_{m,n} arranges m·n vertices in a rectangular lattice:
-
-    Row 0:    0 — 1 — 2 — ... — (n-1)
-              |   |   |           |
-    Row 1:    n — n+1— n+2— ... — (2n-1)
-              |   |   |           |
-    ...
-              |   |   |           |
-    Row m-1: ...
-
-Vertices are numbered row-by-row: vertex at (row, col) has index row*n + col.
-
-## The Main Result
-
-  **b₁(G_{m,n}) = (m-1)(n-1)**
-
-This is a beautiful factored formula:
-- G_{1,n} = P_n (path): b₁ = 0 = (1-1)(n-1)
-- G_{m,1} = P_m (path): b₁ = 0 = (m-1)(1-1)
-- G_{2,n} = L_n (ladder): b₁ = n-1 = (2-1)(n-1)
-
-## The Bipartite Coincidence
-
-Remarkably, the grid graph has the **same Betti number as the complete bipartite graph**:
-
-  b₁(G_{m,n}) = b₁(K_{m,n}) = (m-1)(n-1)
-
-This is surprising because:
-- G_{m,n} has (m-1)n + m(n-1) = 2mn - m - n edges (sparse, local connectivity)
-- K_{m,n} has mn edges (dense, bipartite connectivity)
-
-Yet their cycle spaces have the same dimension! The grid achieves its topology
-through local structure (square lattice), while K_{m,n} achieves it through
-maximal cross-partition connectivity. Both create the same "amount of paradox."
-
-Physical interpretation: The grid represents a locally-coupled system where
-each node only talks to its neighbors, yet it generates the same topological
-complexity as a system where every node on one side talks to every node on
-the other. Local frustration can be just as rich as global frustration.
--/
-
 import Diaspora.Hodge.IndexTheorem
 import Diaspora.Hodge.BipartiteGraph
 import Diaspora.Hodge.LadderGraph
 import Mathlib.LinearAlgebra.Dimension.Finrank
+
+/-!
+# Grid Graph Betti Numbers
+
+G_{m,n} is an m×n rectangular lattice.
+
+**Main result**: b₁(G_{m,n}) = (m-1)(n-1)
+
+Coincides with K_{m,n} despite different edge structure.
+-/
 
 open BigOperators Diaspora.Core Diaspora.Hodge
 
@@ -53,9 +19,7 @@ namespace Diaspora.Hodge.GridGraph
 
 /-! ## Concrete Grid Graphs -/
 
-/-- The 2×3 grid graph on 6 vertices.
-    Row 0: 0-1-2, Row 1: 3-4-5
-    Vertical edges: 0-3, 1-4, 2-5 -/
+/-- G_{2,3}: 6 vertices in 2×3 layout. -/
 def grid2x3 : DynamicGraph 6 where
   active_edges := {
     -- Row 0: horizontal edges
@@ -122,14 +86,7 @@ lemma grid2x3_kernel_dim : Module.finrank ℝ (LinearMap.ker (d_G_linear grid2x3
   rw [h_ker_eq_span, finrank_span_singleton]
   intro h; have : (1 : ℝ) = 0 := congr_fun h 0; norm_num at this
 
-/-- **Grid 2×3 Betti Number**: b₁(G_{2,3}) = 2
-
-    The 2×3 grid has 2 independent cycles (the two "squares"):
-    - 0-1-4-3-0
-    - 1-2-5-4-1
-
-    This matches the formula (m-1)(n-1) = (2-1)(3-1) = 2.
--/
+/-- b₁(G_{2,3}) = 2 = (2-1)(3-1) -/
 theorem grid2x3_betti_two : Module.finrank ℝ (HarmonicSubspace grid2x3) = 2 := by
   have h_dim := harmonic_dimension_eq_cyclomatic grid2x3
   have h_ker := grid2x3_kernel_dim
@@ -140,9 +97,7 @@ theorem grid2x3_betti_two : Module.finrank ℝ (HarmonicSubspace grid2x3) = 2 :=
 
 /-! ## The 3×3 Grid -/
 
-/-- The 3×3 grid graph on 9 vertices.
-    Row 0: 0-1-2, Row 1: 3-4-5, Row 2: 6-7-8
-    Vertices arranged in a square lattice. -/
+/-- G_{3,3}: 9 vertices in 3×3 layout. -/
 def grid3x3 : DynamicGraph 9 where
   active_edges := {
     -- Row 0: horizontal edges
@@ -237,16 +192,7 @@ lemma grid3x3_kernel_dim : Module.finrank ℝ (LinearMap.ker (d_G_linear grid3x3
   rw [h_ker_eq_span, finrank_span_singleton]
   intro h; have : (1 : ℝ) = 0 := congr_fun h 0; norm_num at this
 
-/-- **Grid 3×3 Betti Number**: b₁(G_{3,3}) = 4
-
-    The 3×3 grid has 4 independent cycles (the four unit "squares"):
-    - 0-1-4-3-0 (top-left)
-    - 1-2-5-4-1 (top-right)
-    - 3-4-7-6-3 (bottom-left)
-    - 4-5-8-7-4 (bottom-right)
-
-    This matches the formula (m-1)(n-1) = (3-1)(3-1) = 4.
--/
+/-- b₁(G_{3,3}) = 4 = (3-1)(3-1) -/
 theorem grid3x3_betti_four : Module.finrank ℝ (HarmonicSubspace grid3x3) = 4 := by
   have h_dim := harmonic_dimension_eq_cyclomatic grid3x3
   have h_ker := grid3x3_kernel_dim
@@ -265,17 +211,7 @@ theorem grid2x3_pattern : Module.finrank ℝ (HarmonicSubspace grid2x3) = (2 - 1
 theorem grid3x3_pattern : Module.finrank ℝ (HarmonicSubspace grid3x3) = (3 - 1) * (3 - 1) := by
   rw [grid3x3_betti_four]
 
-/-! ## The Bipartite Coincidence
-
-The grid graph and complete bipartite graph have the same Betti number:
-  b₁(G_{m,n}) = b₁(K_{m,n}) = (m-1)(n-1)
-
-This is remarkable because they have very different edge structures:
-- G_{m,n} has 2mn - m - n edges (sparse, local)
-- K_{m,n} has mn edges (dense, bipartite)
-
-Yet they create the same "amount" of topological frustration.
--/
+/-! ## The Bipartite Coincidence: b₁(G_{m,n}) = b₁(K_{m,n}) -/
 
 /-- G_{2,3} and K_{2,3} have the same Betti number. -/
 theorem grid_bipartite_coincidence_2_3 :
@@ -286,12 +222,7 @@ theorem grid_bipartite_coincidence_2_3 :
   norm_num at h ⊢
   exact h.symm
 
-/-- G_{3,3} and K_{3,3} have the same Betti number.
-
-    The famous "utility graph" K_{3,3} and the 3×3 grid both have b₁ = 4.
-    K_{3,3} is famous for being non-planar (used in Kuratowski's theorem),
-    while the 3×3 grid is obviously planar.
--/
+/-- G_{3,3} and K_{3,3} have the same Betti number. -/
 theorem grid_bipartite_coincidence_3_3 :
     Module.finrank ℝ (HarmonicSubspace grid3x3) =
     Module.finrank ℝ (HarmonicSubspace (BipartiteGraph.completeBipartite 3 3)) := by
@@ -300,84 +231,26 @@ theorem grid_bipartite_coincidence_3_3 :
   norm_num at h ⊢
   exact h.symm
 
-/-! ## The Grid is Locally Efficient
+/-! ## Edge Comparisons -/
 
-Despite having fewer edges than K_{m,n}, the grid achieves the same Betti number.
-The grid uses local structure (square cells) to create independent cycles,
-while K_{m,n} uses global bipartite structure.
--/
-
-/-- The grid is sparser: G_{3,3} has fewer edges than K_{3,3}.
-
-    G_{3,3}: 12 edges (6 horizontal + 6 vertical)
-    K_{3,3}: 9 edges (3×3)
-
-    Wait, that's wrong! Let me recalculate...
-    K_{3,3} has 3×3 = 9 edges
-    G_{3,3} has 12 edges
-
-    So the grid is actually DENSER for 3×3! But has the same Betti number.
--/
+/-- G_{3,3} has more edges than K_{3,3}. -/
 theorem grid_denser_than_bipartite_3_3 :
     grid3x3.active_edges.card / 2 > (BipartiteGraph.completeBipartite 3 3).active_edges.card / 2 := by
   rw [grid3x3_edge_count, BipartiteGraph.bipartite_directed_edge_count 3 3]
   native_decide
 
-/-- For 2×3, the grid is sparser than K_{2,3}.
-
-    G_{2,3}: 7 edges
-    K_{2,3}: 6 edges
-
-    Actually grid is still denser!
--/
+/-- G_{2,3} has more edges than K_{2,3}. -/
 theorem grid_denser_than_bipartite_2_3 :
     grid2x3.active_edges.card / 2 > (BipartiteGraph.completeBipartite 2 3).active_edges.card / 2 := by
   rw [grid2x3_edge_count, BipartiteGraph.bipartite_directed_edge_count 2 3]
   native_decide
 
-/-! ## Connection to the Ladder Graph
-
-The 2×n grid IS the ladder graph! This connection shows that our formula
-is consistent with LadderGraph.lean.
-
-For a 2×n grid:
-- m = 2, so b₁ = (2-1)(n-1) = n-1
-
-This matches the ladder formula exactly.
--/
+/-! ## Connection to Ladder Graph: G_{2,n} = L_n -/
 
 /-- G_{2,3} = L_3 in terms of Betti number. -/
 theorem grid_is_ladder_2_3 :
     Module.finrank ℝ (HarmonicSubspace grid2x3) =
     Module.finrank ℝ (HarmonicSubspace LadderGraph.ladder3) := by
   rw [grid2x3_betti_two, LadderGraph.ladder3_betti_two]
-
-/-! ## Philosophical Interpretation
-
-The Grid-Bipartite Coincidence reveals something deep about topology:
-
-**Local vs Global Frustration**
-
-The grid creates its cycles through LOCAL structure - each unit cell
-(2×2 square) contributes one independent cycle. The frustration is
-distributed evenly across the lattice.
-
-The complete bipartite graph creates its cycles through GLOBAL structure -
-choosing any 2 vertices from each partition creates a 4-cycle. The frustration
-comes from the impossibility of satisfying all cross-partition constraints.
-
-Yet the total "amount of paradox" is the same: (m-1)(n-1) dimensions of
-harmonic space. This suggests that topology doesn't care about whether
-frustration is local or global - only about its total quantity.
-
-**Efficiency of Local Structure**
-
-The grid achieves maximum topological complexity for its local constraint
-structure. Each unit cell is a minimal cycle, and the cells tile perfectly
-to create exactly (m-1)(n-1) independent cycles. No redundancy, no waste.
-
-This is the topological analog of a perfect packing problem: the grid
-is the most efficient way to arrange local 4-cycles in an m×n region.
--/
 
 end Diaspora.Hodge.GridGraph

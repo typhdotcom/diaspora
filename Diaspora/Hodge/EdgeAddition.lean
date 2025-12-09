@@ -1,32 +1,12 @@
-/-
-# The Edge Addition Theorem: Genesis at the Atomic Scale
-
-Every graph transition is built from a single primitive operation: adding an edge.
-This file proves the fundamental theorem governing this operation:
-
-  **For a connected graph G, adding an edge increases b₁ by exactly 1.**
-
-This is the "atomic genesis" - the indivisible unit of topology creation.
-
-## Why This Matters
-
-The PathGraph to CycleGraph transition is the canonical example:
-- P_n has n-1 edges and b₁ = 0 (classical vacuum)
-- C_n has n edges and b₁ = 1 (one unit of topology)
-
-That single "genesis edge" connecting the endpoints is worth exactly one cycle.
-
-## Philosophical Interpretation
-
-In Diaspora's language:
-- Every new relationship within a connected system creates one unit of paradox
-- Genesis is quantized at the edge level
-- You cannot add "half a cycle" - topology comes in discrete units
--/
-
 import Diaspora.Hodge.Decomposition
 import Diaspora.Hodge.PathGraph
 import Diaspora.Hodge.CycleGraph
+
+/-!
+# The Edge Addition Theorem
+
+For a connected graph G, adding an edge increases b₁ by exactly 1.
+-/
 
 open BigOperators Diaspora.Core Diaspora.Hodge
 
@@ -193,14 +173,5 @@ theorem tree_characterization [DecidableEq (Fin n)] [NeZero n] (G : DynamicGraph
   -- h: finrank + (n - 1) = k, goal: finrank = 0 ↔ k = n - 1
   have h_n_pos : n ≥ 1 := Nat.one_le_iff_ne_zero.mpr (NeZero.ne n)
   omega
-
-/-! ## Interpretation
-
-The Edge Addition Theorem reveals the atomic structure of genesis:
-
-1. **Quantization**: Topology comes in discrete units.
-2. **The Genesis Moment**: Every cycle traces to one "genesis edge."
-3. **Accumulation**: K_n achieves (n-1)(n-2)/2 cycles via that many excess edges.
--/
 
 end Diaspora.Hodge.EdgeAddition

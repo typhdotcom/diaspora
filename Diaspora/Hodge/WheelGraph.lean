@@ -1,34 +1,13 @@
-/-
-# Wheel Graph Betti Numbers
-
-The wheel graph W_n (hub connected to n-cycle) has Betti number:
-  b₁(W_n) = n
-
-This is a striking result: adding a "central observer" to a cycle
-doesn't simplify topology—it multiplies it.
-
-The n-cycle alone has b₁ = 1 (one independent cycle).
-Adding a hub creates n independent cycles (each spoke forms a
-new cycle with part of the rim).
-
-Physical interpretation: An observer that "sees everything" creates
-n channels of irreducible frustration. Observation amplifies rather
-than resolves the harmonic content. The hub cannot relax the cycle
-because every shortcut it provides creates a new cycle.
--/
-
 import Diaspora.Hodge.IndexTheorem
 import Mathlib.LinearAlgebra.Dimension.Finrank
 
 open BigOperators Diaspora.Core Diaspora.Hodge
 
+/-! # Wheel Graph: b₁(W_n) = n -/
+
 namespace Diaspora.Hodge.WheelGraph
 
-/-! ## Definition: Wheel Graph W_n -/
-
-/-- Wheel adjacency predicate.
-    Vertex 0 is the hub; vertices 1..n form the rim.
-    Hub connects to all rim vertices; rim vertices connect cyclically. -/
+/-- Wheel adjacency: hub (0) connects to rim (1..n), rim is cyclic. -/
 def wheelAdj (n : ℕ) (i j : Fin (n + 1)) : Prop :=
   -- Spoke edges: hub (0) ↔ rim (1..n)
   (i.val = 0 ∧ 1 ≤ j.val) ∨ (1 ≤ i.val ∧ j.val = 0) ∨
@@ -294,11 +273,6 @@ lemma wheel_graph_directed_edge_count (n : ℕ) [NeZero n] (hn : n ≥ 3) :
 
 /-! ## Connectivity of W_n -/
 
-/-- W_n is connected: the gradient kernel is 1-dimensional.
-
-The hub connects directly to every rim vertex, so any two vertices
-are at most 2 edges apart. This means constant functions span the kernel.
--/
 lemma wheel_graph_kernel_dim (n : ℕ) [NeZero n] (hn : n ≥ 3) :
     Module.finrank ℝ (LinearMap.ker (d_G_linear (wheelGraph n hn))) = 1 := by
   let one : Fin (n+1) → ℝ := fun _ => 1
@@ -341,16 +315,7 @@ lemma wheel_graph_kernel_dim (n : ℕ) [NeZero n] (hn : n ≥ 3) :
 
 /-! ## The Main Theorem -/
 
-/-- **Wheel Graph Betti Number Theorem**: b₁(W_n) = n for n ≥ 3.
-
-    The wheel graph has n independent cycles. Each spoke creates a new
-    cycle with part of the rim, but these cycles overlap to form a basis
-    of exactly n independent modes.
-
-    Interpretation: A central observer that "sees everything" on a cycle
-    creates n times as much irreducible frustration as the cycle alone.
-    Observation amplifies topology rather than resolving it.
--/
+/-- b₁(W_n) = n. -/
 theorem wheel_graph_betti_1 (n : ℕ) [NeZero n] [DecidableEq (Fin (n+1))] (hn : n ≥ 3) :
     Module.finrank ℝ (HarmonicSubspace (wheelGraph n hn)) = n := by
   have h_dim := harmonic_dimension_eq_cyclomatic (wheelGraph n hn)
@@ -376,19 +341,11 @@ theorem W5_betti_five [DecidableEq (Fin 6)] :
     Module.finrank ℝ (HarmonicSubspace (wheelGraph 5 (by omega))) = 5 :=
   wheel_graph_betti_1 5 (by omega)
 
-/-! ## Philosophical Corollaries -/
-
-/-- Adding a hub to a cycle multiplies the Betti number by n.
-
-    The n-cycle has b₁ = 1. The wheel has b₁ = n.
-    Observation creates n times the frustration.
--/
 theorem observation_amplifies_topology (n : ℕ) [NeZero n] [DecidableEq (Fin (n+1))] (hn : n ≥ 3) :
     Module.finrank ℝ (HarmonicSubspace (wheelGraph n hn)) =
     n * 1 := by
   rw [wheel_graph_betti_1 n hn, mul_one]
 
-/-- The wheel graph always has non-trivial topology for n ≥ 3. -/
 theorem wheel_has_cycles (n : ℕ) [NeZero n] [DecidableEq (Fin (n+1))] (hn : n ≥ 3) :
     Module.finrank ℝ (HarmonicSubspace (wheelGraph n hn)) ≥ 1 := by
   rw [wheel_graph_betti_1 n hn]

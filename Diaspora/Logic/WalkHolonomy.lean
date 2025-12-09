@@ -45,24 +45,17 @@ lemma next_iterate_n [NeZero n] (cycle : SimpleCycle n) (v : Fin n) :
     cycle.next^[n] v = v := by
   have h_bij := next_bijective cycle
   let σ : Equiv.Perm (Fin n) := Equiv.ofBijective cycle.next h_bij
-  -- Show σ is a cycle on all of Fin n using IsCycleOn
   have h_cycle_on : σ.IsCycleOn (Finset.univ : Finset (Fin n)) := by
     refine ⟨⟨?_, ?_, ?_⟩, ?_⟩
-    · -- MapsTo
-      intro x _; exact Finset.mem_univ (σ x)
-    · -- InjOn
-      intro x _ y _ h; exact σ.injective h
-    · -- SurjOn
-      intro x _; exact ⟨σ.symm x, Finset.mem_univ _, σ.apply_symm_apply x⟩
-    · -- SameCycle: any two elements are in the same cycle (by connectedness)
-      intro x _ y _
+    · intro x _; exact Finset.mem_univ (σ x)
+    · intro x _ y _ h; exact σ.injective h
+    · intro x _; exact ⟨σ.symm x, Finset.mem_univ _, σ.apply_symm_apply x⟩
+    · intro x _ y _
       obtain ⟨k, hk⟩ := cycle.connected x y
       use k
       rw [zpow_natCast, perm_pow_eq_iterate cycle h_bij k x, hk]
-  -- Apply IsCycleOn.pow_card_apply: σ^(#univ) v = v
   have h_pow := h_cycle_on.pow_card_apply (Finset.mem_univ v)
   simp only [Finset.card_univ, σ] at h_pow
-  -- Fintype.card (Fin n) = n regardless of instance
   have h_card : Fintype.card (Fin n) = n := by convert Fintype.card_fin n
   rw [h_card] at h_pow
   rw [← perm_pow_eq_iterate cycle h_bij n v]
@@ -100,16 +93,13 @@ lemma walk_sum_cycle_aux (cycle : SimpleCycle n) (G : DynamicGraph n)
   induction k generalizing v with
   | zero => simp [cycle_walk_aux, walk_sum]
   | succ k ih =>
-    -- Unfold the definition
     have h_unfold : cycle_walk_aux cycle G h_embedded (k + 1) v =
         (SimpleGraph.Walk.cons (h_embedded v) (cycle_walk_aux cycle G h_embedded k (cycle.next v))).copy rfl
           (by simp only [Function.iterate_succ_apply']; rw [iterate_next_comm]) := rfl
     rw [h_unfold, walk_sum_copy]
-    -- walk_sum of cons
     conv_lhs => rw [walk_sum.eq_def]
     simp only
     rw [ih (cycle.next v)]
-    -- Reindex the sum
     have h_reindex : ∑ i ∈ Finset.range k, σ.val.val (cycle.next^[i] (cycle.next v)) (cycle.next^[i + 1] (cycle.next v)) =
                      ∑ i ∈ Finset.range k, σ.val.val (cycle.next^[i + 1] v) (cycle.next^[i + 2] v) := by
       apply Finset.sum_congr rfl
@@ -144,15 +134,12 @@ theorem walk_sum_eq_winding [NeZero n] (cycle : SimpleCycle n)
     ∑ i : Fin n, σ.val.val i (cycle.next i) := by
   rw [walk_holonomy_eq_sum]
   let e := Equiv.ofBijective _ h_bij
-  -- Convert sum over range to sum over Fin
   conv_lhs => rw [← Fin.sum_univ_eq_sum_range (fun i => σ.val.val (cycle.next^[i] v) (cycle.next^[i + 1] v))]
-  -- LHS is now ∑ i : Fin n, σ.val.val (e i) (cycle.next (e i))
   have h_lhs : (fun i : Fin n => σ.val.val (cycle.next^[i.val] v) (cycle.next^[i.val + 1] v)) =
                (fun i : Fin n => σ.val.val (e i) (cycle.next (e i))) := by
     ext i
     simp only [e, Equiv.ofBijective_apply, Function.iterate_succ_apply']
   simp only [h_lhs]
-  -- Reindex: ∑ i, f(e i) = ∑ j, f j (via bijective reindexing)
   symm
   convert Fintype.sum_bijective (M := ℝ) e.symm e.symm.bijective
     (fun i => σ.val.val i (cycle.next i))

@@ -9,23 +9,11 @@ open Diaspora.Core Diaspora.Hodge
 
 variable {n : ℕ} [Fintype (Fin n)]
 
-/-- **General Inner Product Formula for Cycle Forms**:
-    The inner product of two cycle forms equals their signed edge overlap,
-    normalized by the product of their lengths.
-
-    This generalizes edge_disjoint_cycles_orthogonal: when signedOverlap = 0,
-    the inner product is 0.
-
-    Physical interpretation:
-    - Positive overlap (same direction) → constructive interference
-    - Negative overlap (opposite direction) → destructive interference
--/
+/-- Inner product of cycle forms = signedOverlap / (len₁ × len₂). -/
 theorem cycle_inner_product_formula {n : ℕ} [DecidableEq (Fin n)] [Fintype (Fin n)] [NeZero n]
     (c₁ c₂ : GeneralCycle n) :
     inner_product_C1 (general_cycle_form c₁) (general_cycle_form c₂) =
     (c₁.signedOverlap c₂ : ℝ) / (c₁.len * c₂.len) := by
-  -- Key insight: each same-direction edge contributes 1/(len₁·len₂) after the (1/2) factor,
-  -- each opposite-direction edge contributes -1/(len₁·len₂).
   have h_len₁_pos : (c₁.len : ℝ) > 0 := by
     simp only [GeneralCycle.len]; exact Nat.cast_pos.mpr (Nat.lt_of_lt_of_le (by omega) c₁.len_ge_3)
   have h_len₂_pos : (c₂.len : ℝ) > 0 := by
@@ -36,7 +24,6 @@ theorem cycle_inner_product_formula {n : ℕ} [DecidableEq (Fin n)] [Fintype (Fi
 
   unfold inner_product_C1 GeneralCycle.signedOverlap
 
-  -- Forward edge value for c₁
   have h_c1_fwd : ∀ k : Fin c₁.verts.length,
       (general_cycle_form c₁).val (c₁.vertex k.val) (c₁.nextVertex k.val) = 1 / c₁.len := by
     intro k
@@ -45,7 +32,6 @@ theorem cycle_inner_product_formula {n : ℕ} [DecidableEq (Fin n)] [Fintype (Fi
                 c₁.nextVertex k'.val = c₁.nextVertex k.val := ⟨k, rfl, rfl⟩
     simp only [h_ex, ↓reduceIte]
 
-  -- Reverse edge value for c₁ (by skew-symmetry)
   have h_c1_rev : ∀ k : Fin c₁.verts.length,
       (general_cycle_form c₁).val (c₁.nextVertex k.val) (c₁.vertex k.val) = -(1 / c₁.len) := by
     intro k
@@ -53,7 +39,6 @@ theorem cycle_inner_product_formula {n : ℕ} [DecidableEq (Fin n)] [Fintype (Fi
     rw [h_c1_fwd] at h
     linarith
 
-  -- c₁ is zero off its edges
   have h_c1_zero : ∀ i j : Fin n,
       (¬∃ k : Fin c₁.verts.length, c₁.vertex k.val = i ∧ c₁.nextVertex k.val = j) →
       (¬∃ k : Fin c₁.verts.length, c₁.vertex k.val = j ∧ c₁.nextVertex k.val = i) →
@@ -61,15 +46,6 @@ theorem cycle_inner_product_formula {n : ℕ} [DecidableEq (Fin n)] [Fintype (Fi
     intro i j h1 h2
     unfold general_cycle_form
     simp only [h1, h2, ↓reduceIte]
-
-  -- Now we compute the sum
-  -- The sum is only nonzero on edges of c₁ (by h_c1_zero)
-  -- Each edge of c₁ indexed by k₁ contributes:
-  --   forward (i,j) + reverse (j,i) = 2 * (γ₁ * γ₂)
-  -- where the value depends on c₂'s relationship to that edge
-
-  -- We'll show the sum equals 2 * S⁺/(len₁·len₂) - 2 * S⁻/(len₁·len₂)
-  -- Then with the (1/2) factor, we get (S⁺ - S⁻)/(len₁·len₂)
 
   have h_sum_eq : ∑ i : Fin n, ∑ j : Fin n, (general_cycle_form c₁).val i j *
       (general_cycle_form c₂).val i j =

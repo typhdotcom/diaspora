@@ -1,36 +1,3 @@
-/-
-# The Suspension Graph Theorem
-
-The suspension of a graph G, denoted susp(G), adds two new vertices (north and
-south poles) both connected to all vertices of G but **not to each other**.
-
-This generalizes the cone construction: where cone(G) has one apex observing G,
-susp(G) has two apexes observing G from opposite sides.
-
-## The Main Result
-
-  **b₁(susp(G)) = |E(G)|/2 + n - 1**
-
-Equivalently:
-  **b₁(susp(G)) = b₁(cone(G)) + (n - 1)**
-
-Each pole contributes n - 1 new cycles (as in the cone theorem), and since
-the poles don't see each other, they contribute additively.
-
-## Physical Interpretation
-
-The suspension represents **dual observation**: two independent observers
-watching the same system from opposite vantage points. Unlike a single
-observer (cone), dual observers create twice as many new frustration
-channels. The poles can't communicate directly - they only "know" each
-other through the system they both observe.
-
-This models situations where two distinct perspectives on the same
-underlying reality create compounding rather than canceling topology.
-Each observer's measurement contributes its own irreducible frustration,
-and these frustrations don't interfere because the observers are isolated.
--/
-
 import Diaspora.Hodge.ConeGraph
 
 open BigOperators Diaspora.Core Diaspora.Hodge
@@ -516,14 +483,6 @@ theorem suspension_cycle_betti (n : ℕ) [NeZero n] [DecidableEq (Fin (n+2))] (h
   rw [h, h_cycle_edges]
   omega
 
-/-! ## Philosophical Corollaries -/
-
-/-- Dual observation theorem: two observers add double the topology.
-
-    A single observer (cone) adds n - 1 cycles.
-    Two isolated observers (suspension) add 2(n - 1) cycles.
-    Their contributions are perfectly additive because they can't communicate.
--/
 theorem dual_observation_additivity {n : ℕ} [NeZero n] [DecidableEq (Fin n)] [DecidableEq (Fin (n+1))] [DecidableEq (Fin (n+2))]
     (G : DynamicGraph n)
     (h_connected : Module.finrank ℝ (LinearMap.ker (d_G_linear G)) = 1) :
@@ -536,12 +495,6 @@ theorem dual_observation_additivity {n : ℕ} [NeZero n] [DecidableEq (Fin n)] [
   have h_n_pos : n ≥ 1 := NeZero.one_le
   omega
 
-/-- The poles can't see each other: they contribute independent frustration.
-
-    If the poles were connected, we'd have one fewer cycle (the triangle
-    through the two poles and any original vertex would become exact).
-    Their isolation is precisely what makes their observations additive.
--/
 theorem pole_isolation_maximizes_topology {n : ℕ} [NeZero n] [DecidableEq (Fin (n+2))]
     (G : DynamicGraph n)
     (_h_connected : Module.finrank ℝ (LinearMap.ker (d_G_linear G)) = 1) :

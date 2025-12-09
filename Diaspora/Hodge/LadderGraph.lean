@@ -1,41 +1,17 @@
-/-
-# Ladder Graph Betti Numbers
-
-The ladder graph L_n (rectangular ladder) consists of two parallel paths
-of n vertices, connected by n "rungs":
-
-    Top:    0 — 1 — 2 — ... — (n-1)
-            |   |   |           |
-    Bottom: n — n+1— n+2— ... — (2n-1)
-
-The Betti number is:
-  b₁(L_n) = n - 1
-
-This is the "open" version of the prism graph. While the prism closes
-both paths into cycles, the ladder leaves them open.
-
-**The Closure Theorem:** The difference between prism and ladder Betti
-numbers is exactly 2:
-  b₁(Prism_n) - b₁(Ladder_n) = (n + 1) - (n - 1) = 2
-
-This generalizes the "genesis gap" (path→cycle adds 1) to higher dimensions:
-closing TWO paths into TWO cycles adds 2 to the Betti number.
-
-Physical interpretation: The ladder is a "partially classical" structure.
-It has topology (n-1 independent cycles formed by the rungs and path segments),
-but less than its closed counterpart. Each closure (connecting the ends of
-a path to form a cycle) adds one unit of irreducible frustration.
-
-Philosophical reading: The prism's topology is "propped up" by its closure
-at both ends. Opening it (cutting the closing edges) releases 2 units of
-harmonic content. This is the topological analog of severing a loop of
-self-reference.
--/
-
 import Diaspora.Hodge.IndexTheorem
 import Diaspora.Hodge.PrismGraph
 import Diaspora.Hodge.PathGraph
 import Mathlib.LinearAlgebra.Dimension.Finrank
+
+/-!
+# Ladder Graph Betti Numbers
+
+L_n is two parallel n-paths connected by n rungs.
+
+**Main result**: b₁(L_n) = n - 1
+
+**Closure Theorem**: b₁(Prism_n) - b₁(L_n) = 2
+-/
 
 open BigOperators Diaspora.Core Diaspora.Hodge
 
@@ -43,8 +19,7 @@ namespace Diaspora.Hodge.LadderGraph
 
 /-! ## Concrete Ladder Graphs for small n -/
 
-/-- The 3-ladder (L_3) on 6 vertices.
-    Top path: 0-1-2, Bottom path: 3-4-5, Rungs: 0-3, 1-4, 2-5 -/
+/-- L_3: 6 vertices (3 top + 3 bottom). -/
 def ladder3 : DynamicGraph 6 where
   active_edges := {
     -- Top path (NOT a cycle - no edge from 2 to 0)
@@ -111,15 +86,7 @@ lemma ladder3_kernel_dim : Module.finrank ℝ (LinearMap.ker (d_G_linear ladder3
   rw [h_ker_eq_span, finrank_span_singleton]
   intro h; have : (1 : ℝ) = 0 := congr_fun h 0; norm_num at this
 
-/-- **Ladder_3 Betti Number**: b₁(L_3) = 2
-
-    The 3-ladder has 2 independent cycles:
-    - The "square" 0-1-4-3-0
-    - The "square" 1-2-5-4-1
-
-    Compare to Prism_3 which has 4 cycles. The difference is 2:
-    one for each closing edge (2-0 on top, 5-3 on bottom).
--/
+/-- b₁(L_3) = 2 -/
 theorem ladder3_betti_two : Module.finrank ℝ (HarmonicSubspace ladder3) = 2 := by
   have h_dim := harmonic_dimension_eq_cyclomatic ladder3
   have h_ker := ladder3_kernel_dim
@@ -130,8 +97,7 @@ theorem ladder3_betti_two : Module.finrank ℝ (HarmonicSubspace ladder3) = 2 :=
 
 /-! ## The 4-Ladder -/
 
-/-- The 4-ladder (L_4) on 8 vertices.
-    Top path: 0-1-2-3, Bottom path: 4-5-6-7, Rungs: 0-4, 1-5, 2-6, 3-7 -/
+/-- L_4: 8 vertices (4 top + 4 bottom). -/
 def ladder4 : DynamicGraph 8 where
   active_edges := {
     -- Top path (NOT a cycle - no edge from 3 to 0)
@@ -210,11 +176,7 @@ lemma ladder4_kernel_dim : Module.finrank ℝ (LinearMap.ker (d_G_linear ladder4
   rw [h_ker_eq_span, finrank_span_singleton]
   intro h; have : (1 : ℝ) = 0 := congr_fun h 0; norm_num at this
 
-/-- **Ladder_4 Betti Number**: b₁(L_4) = 3
-
-    The 4-ladder has 3 independent cycles (one for each "square" between rungs).
-    Compare to Prism_4 (cube) which has 5 cycles. Difference is 2.
--/
+/-- b₁(L_4) = 3 -/
 theorem ladder4_betti_three : Module.finrank ℝ (HarmonicSubspace ladder4) = 3 := by
   have h_dim := harmonic_dimension_eq_cyclomatic ladder4
   have h_ker := ladder4_kernel_dim
@@ -223,65 +185,21 @@ theorem ladder4_betti_three : Module.finrank ℝ (HarmonicSubspace ladder4) = 3 
   rw [h_edge_half, h_ker] at h_dim
   omega
 
-/-! ## The Closure Theorem
+/-! ## The Closure Theorem: b₁(Prism_n) - b₁(L_n) = 2 -/
 
-The fundamental relationship between ladders and prisms:
-  b₁(Prism_n) - b₁(Ladder_n) = 2
-
-This generalizes the "genesis gap" from PathGraph.lean:
-- Path P_n has b₁ = 0
-- Cycle C_n has b₁ = 1
-- Difference: 1 (closing one path adds one cycle)
-
-For ladders and prisms:
-- Ladder L_n has b₁ = n - 1
-- Prism_n has b₁ = n + 1
-- Difference: 2 (closing two paths adds two cycles)
-
-Each "closure" (connecting the endpoints of a path to form a cycle)
-contributes exactly one unit of harmonic content.
--/
-
-/-- **The Closure Theorem for n=3**: Closing the ladder into a prism adds 2 cycles.
-
-    Prism_3 = Ladder_3 + 2 closing edges (2-0 on top, 5-3 on bottom)
-    b₁(Prism_3) - b₁(Ladder_3) = 4 - 2 = 2
--/
+/-- Closing ladder into prism adds 2 cycles. -/
 theorem closure_theorem_3 :
     Module.finrank ℝ (HarmonicSubspace PrismGraph.prism3) -
     Module.finrank ℝ (HarmonicSubspace ladder3) = 2 := by
   rw [PrismGraph.prism3_betti_four, ladder3_betti_two]
 
-/-- **The Closure Theorem for n=4**: Closing the ladder into a prism adds 2 cycles.
-
-    Prism_4 = Ladder_4 + 2 closing edges (3-0 on top, 7-4 on bottom)
-    b₁(Prism_4) - b₁(Ladder_4) = 5 - 3 = 2
--/
+/-- Closure theorem for n=4. -/
 theorem closure_theorem_4 :
     Module.finrank ℝ (HarmonicSubspace PrismGraph.prism4) -
     Module.finrank ℝ (HarmonicSubspace ladder4) = 2 := by
   rw [PrismGraph.prism4_betti_five, ladder4_betti_three]
 
-/-! ## The Pattern: b₁(L_n) = n - 1
-
-The ladder graph has the pattern:
-- L_3: b₁ = 2 = 3 - 1
-- L_4: b₁ = 3 = 4 - 1
-
-General formula: b₁(L_n) = n - 1
-
-Proof (sketch):
-- Vertices: 2n
-- Edges: (n-1) top path + (n-1) bottom path + n rungs = 3n - 2
-- For connected graphs: b₁ = |E| - |V| + 1 = (3n-2) - 2n + 1 = n - 1
-
-This matches the fan graph F_n (cone of path), which also has b₁ = n - 1.
-The ladder and fan have the same Betti number but different structures:
-- Fan: apex connected to all vertices of a path
-- Ladder: two paths connected by rungs
-
-Both represent different ways to create n-1 independent cycles using 2n vertices.
--/
+/-! ## Pattern Verification: b₁(L_n) = n - 1 -/
 
 /-- L_3 follows the pattern b₁ = n - 1. -/
 theorem ladder3_pattern : Module.finrank ℝ (HarmonicSubspace ladder3) = 3 - 1 := by
@@ -291,34 +209,19 @@ theorem ladder3_pattern : Module.finrank ℝ (HarmonicSubspace ladder3) = 3 - 1 
 theorem ladder4_pattern : Module.finrank ℝ (HarmonicSubspace ladder4) = 4 - 1 := by
   rw [ladder4_betti_three]
 
-/-! ## Edge Difference: The Cost of Closure
+/-! ## Edge Difference: Prism has 2 more edges -/
 
-The edge count difference between prism and ladder is exactly 2:
-- Prism_n has 3n edges (n top + n bottom + n rungs)
-- Ladder_n has 3n - 2 edges ((n-1) top + (n-1) bottom + n rungs)
-- Difference: 2 edges
-
-These 2 edges are exactly the "closing" edges that connect the endpoints
-of each path to form a cycle. Each closing edge contributes 1 to the Betti number.
-
-This is a higher-dimensional analog of the genesis gap:
-- Path→Cycle: 1 edge → 1 cycle
-- Ladder→Prism: 2 edges → 2 cycles
--/
-
-/-- The edge count difference between Prism_3 and Ladder_3 is 2.
-    These are the "genesis edges" that close the paths into cycles. -/
+/-- Prism_3 has 2 more edges than L_3. -/
 theorem closure_edge_cost_3 :
     PrismGraph.prism3.active_edges.card / 2 - ladder3.active_edges.card / 2 = 2 := by
   rw [PrismGraph.prism3_edge_count, ladder3_edge_count]
 
-/-- The edge count difference between Prism_4 and Ladder_4 is 2. -/
+/-- Prism_4 has 2 more edges than L_4. -/
 theorem closure_edge_cost_4 :
     PrismGraph.prism4.active_edges.card / 2 - ladder4.active_edges.card / 2 = 2 := by
   rw [PrismGraph.prism4_edge_count, ladder4_edge_count]
 
-/-- **The Exchange Rate**: Each closing edge buys exactly one cycle.
-    For the ladder→prism transition: 2 edges → 2 cycles. -/
+/-- Exchange rate: 2 edges → 2 cycles. -/
 theorem closure_exchange_rate_3 :
     PrismGraph.prism3.active_edges.card / 2 - ladder3.active_edges.card / 2 =
     Module.finrank ℝ (HarmonicSubspace PrismGraph.prism3) -
@@ -332,27 +235,5 @@ theorem closure_exchange_rate_4 :
     Module.finrank ℝ (HarmonicSubspace ladder4) := by
   rw [PrismGraph.prism4_edge_count, ladder4_edge_count,
       PrismGraph.prism4_betti_five, ladder4_betti_three]
-
-/-! ## Philosophical Interpretation
-
-The ladder-prism relationship reveals a fundamental truth about closure:
-
-1. **The Cost of Self-Reference**: Closing a loop (making the end meet the
-   beginning) costs exactly 1 edge but creates exactly 1 unit of irreducible
-   frustration. The ladder→prism transition does this twice.
-
-2. **Partial Classicality**: The ladder has n-1 cycles - it's not classical
-   (like the path with 0 cycles), but it's "less topological" than the prism
-   (which has n+1). Opening a structure reduces its harmonic content.
-
-3. **Genesis is Additive**: If closing one path creates 1 cycle, closing two
-   paths creates 2 cycles. The topology creation is local and independent -
-   each closure acts on its own.
-
-4. **The Ladder as a Bridge State**: Between the fully classical (two disjoint
-   paths) and the fully non-classical (prism), the ladder represents a middle
-   ground. The rungs create topology, but the open ends prevent the full
-   "prism frustration" from manifesting.
--/
 
 end Diaspora.Hodge.LadderGraph

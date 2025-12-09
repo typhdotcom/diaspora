@@ -1,6 +1,3 @@
-/-
-Dimension bounds and spectral gap for cycle harmonic forms.
--/
 import Diaspora.Logic.Classicality.Orthogonality
 
 namespace Diaspora.Logic
@@ -103,12 +100,7 @@ lemma edge_disjoint_cycles_orthogonal_in_harmonic {n : ℕ} [DecidableEq (Fin n)
   unfold Diaspora.Core.ActiveForm.inner
   exact edge_disjoint_cycles_orthogonal c₁ c₂ h_disjoint
 
-/-- **Topological Dimension Bound**:
-    k pairwise edge-disjoint embedded cycles imply dim(HarmonicSubspace) ≥ k.
-
-    This connects cycle structure to topological dimension: each independent
-    cycle mode contributes at least one dimension to the harmonic subspace.
--/
+/-- k pairwise edge-disjoint embedded cycles imply dim(HarmonicSubspace) ≥ k. -/
 theorem edge_disjoint_cycles_dimension_bound {n : ℕ} [DecidableEq (Fin n)] [Fintype (Fin n)] [NeZero n]
     (G : DynamicGraph n) (cycles : List (GeneralCycle n))
     (h_embedded : ∀ i : Fin cycles.length, generalCycleEmbeddedIn (cycles.get i) G)
@@ -209,23 +201,14 @@ theorem general_cycle_form_winding_one {n : ℕ} [Fintype (Fin n)] [NeZero n] (c
     _ = c.verts.length * (1 / c.len) := by rw [Finset.sum_const, Finset.card_univ, Fintype.card_fin, nsmul_eq_mul]
     _ = 1 := by unfold GeneralCycle.len; field_simp
 
-/-- **Generalized Spectral Gap**: The general_cycle_form has minimum nonzero energy 1/k.
-
-For a cycle of length k, the canonical harmonic form has energy exactly 1/k.
-This is the minimum possible energy for any nonzero harmonic form on the cycle.
--/
+/-- The general_cycle_form has energy 1/k. -/
 theorem general_cycle_spectral_gap {n : ℕ} [Fintype (Fin n)] [NeZero n] (c : GeneralCycle n) :
     norm_sq (general_cycle_form c) = 1 / c.len ∧
     norm_sq (general_cycle_form c) ≥ 1 / c.len := by
   have h_energy := general_cycle_form_energy c
   exact ⟨h_energy, le_of_eq h_energy.symm⟩
 
-/-- Corollary: Shorter cycles have higher minimum energy.
-
-This gives a physical interpretation: creating a topological defect on a shorter
-cycle requires more energy. The triangle (k=3) has minimum energy 1/3, while a
-long cycle (k→∞) approaches zero minimum energy.
--/
+/-- Shorter cycles have higher energy. -/
 theorem shorter_cycle_higher_energy {n : ℕ} [Fintype (Fin n)] [NeZero n]
     (c₁ c₂ : GeneralCycle n)
     (h_shorter : c₁.verts.length < c₂.verts.length) :

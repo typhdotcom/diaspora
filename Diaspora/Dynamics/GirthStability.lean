@@ -1,33 +1,12 @@
-/-
+import Diaspora.Dynamics.Stability
+import Diaspora.Logic.Classicality.Dimension
+
+/-!
 # The Girth-Stability Correspondence
-
-This file extends the stability theory from simple cycles to general graphs,
-proving that the **girth** (length of the shortest cycle) determines the
-stability threshold.
-
-## Core Theorem
 
 For any connected graph G with girth g:
   G is stable under threshold C_max ⟺ C_max ≥ 1/g²
-
-This directly connects topology (girth) to dynamics (stability threshold).
-
-## Philosophical Interpretation
-
-The girth is the "granularity" of a graph's paradox structure. Just as
-the critical cycle length determines which cycles can exist stably,
-the girth determines whether a graph can exist stably at all.
-
-A graph with small girth (like K_n with girth 3) requires high tolerance
-to sustain its structure. A graph with large girth requires less tolerance.
-Trees (girth = ∞) are stable under any positive threshold.
-
-This connects the abstract topological property (girth) to the concrete
-physical property (breaking threshold) - topology determines dynamics.
 -/
-
-import Diaspora.Dynamics.Stability
-import Diaspora.Logic.Classicality.Dimension
 
 set_option linter.unusedSectionVars false
 

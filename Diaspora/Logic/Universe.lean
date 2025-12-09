@@ -11,21 +11,9 @@ open Diaspora.Core Diaspora.Hodge Diaspora.Logic Diaspora.Logic.Information Dias
 
 variable {n : ℕ} [Fintype (Fin n)] [DecidableEq (Fin n)]
 
-/-! # The Unified Theory of Diaspora
+/-! # Universe Structure -/
 
-This file demonstrates the "Grand Unification" of the project.
-It proves that in this universe, **Matter is not a primitive.**
-
-Matter is the physical symptom of a logical contradiction.
-Gravity (Strain) is the system's attempt to resolve that contradiction.
--/
-
-/--
-A `Universe` is a bundle of:
-1. A Logic (Constraints)
-2. A Geometry (Graph)
-3. A State (Potential)
--/
+/-- A Universe bundles logic (constraints), geometry (graph), and state (potential). -/
 structure Universe (n : ℕ) where
   -- The Logic Layer
   T : Theory n
@@ -38,22 +26,15 @@ structure Universe (n : ℕ) where
 def Universe.G (U : Universe n) : DynamicGraph n := theory_graph U.T
 noncomputable def Universe.σ (U : Universe n) : ActiveForm U.G := realize U.T
 
-/-! ## 1. The Logical Origin (Inconsistency) -/
+/-! ## Paradox -/
 
-/--
-We start with a "Paradox": A set of constraints that are locally valid
-but globally impossible.
--/
+/-- A paradox is a locally consistent but unsatisfiable theory. -/
 def IsParadox (U : Universe n) : Prop :=
   ¬ Satisfiable U.T
 
-/-! ## 2. The Informational Consequence (Deficit) -/
+/-! ## Information Deficit -/
 
-/--
-Theorem: Paradox creates an Information Deficit.
-If the universe contains a paradox, it forces the geometry to contain
-incompressible data (Topological Deficit > 0).
--/
+/-- Paradox implies positive topological deficit. -/
 theorem paradox_implies_deficit
     (U : Universe n)
     (h_paradox : IsParadox U) :
@@ -74,19 +55,13 @@ theorem paradox_implies_deficit
   rw [topological_deficit_eq_harmonic_dim]
   exact Nat.cast_pos.mpr h_dim_pos
 
-/-! ## 3. The Physical Manifestation (Mass) -/
+/-! ## Matter Content -/
 
-/--
-"Matter" is the harmonic component of the constraint field.
-It is the error term that remains after the potential ϕ has done its best.
--/
+/-- Matter is the harmonic component of the constraint field. -/
 noncomputable def matter_content (U : Universe n) : ActiveForm U.G :=
   (hodge_decomposition_graph U.G U.σ).choose_spec.choose
 
-/--
-Theorem: Paradox creates Matter.
-If the universe is a paradox, the matter content is non-zero.
--/
+/-- Paradox implies nonzero matter content. -/
 theorem paradox_creates_mass
     (U : Universe n)
     (h_paradox : IsParadox U) :
@@ -115,24 +90,13 @@ theorem paradox_creates_mass
   have h_sat := (satisfiable_iff_exact_on_graph U.T U.consistent).mpr h_exact
   exact h_paradox h_sat
 
-/-! ## 4. The Dynamical Consequence (Gravity/Strain) -/
+/-! ## Strain Energy -/
 
-/--
-"Strain" is the local tension on edges caused by the failure to satisfy constraints.
-This is the "Energy" of the system.
--/
+/-- Total strain energy of the universe. -/
 noncomputable def total_strain_energy (U : Universe n) : ℝ :=
   dynamic_strain_energy U.G U.ϕ U.σ.val
 
-/--
-Theorem: Matter creates Gravity.
-If there is matter (paradox), there *must* be strain in the system,
-no matter how we tune the potential ϕ. The paradox exerts a physical force.
-
-Physical interpretation: The harmonic component γ represents "irreducible frustration"
-that cannot be relaxed away. Even at the optimal potential (minimum energy state),
-the system must carry strain energy ‖γ‖² > 0.
--/
+/-- Paradox implies positive strain energy. -/
 theorem matter_creates_gravity
     (U : Universe n)
     (h_paradox : IsParadox U) :
@@ -156,22 +120,9 @@ theorem matter_creates_gravity
     _ ≥ E_min := h_bound U.ϕ
     _ > 0 := h_pos
 
-/-! ## 5. The Grand Unification -/
+/-! ## The Diaspora Correspondence -/
 
-/--
-**The Diaspora Correspondence**
-
-This theorem summarizes the entire project.
-It traces the causal chain from Logical Contradiction to Physical Strain.
-
-1. **Logic:** A contradiction exists (`IsParadox`).
-2. **Information:** This forces an information deficit (`TopologicalDeficit`).
-3. **Topology:** This deficit manifests as a non-trivial Betti number.
-4. **Mass:** This topology traps a non-zero harmonic form (`matter_content`).
-5. **Gravity:** This mass generates irreducible strain (`total_strain_energy`).
-
-We are living in the stress fracture of a logical inconsistency.
--/
+/-- Paradox implies positive deficit, nonzero matter, and positive strain. -/
 theorem the_diaspora_correspondence
     (U : Universe n) :
     IsParadox U →

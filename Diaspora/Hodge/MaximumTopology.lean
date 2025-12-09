@@ -1,35 +1,12 @@
-/-
-# The Maximum Topology Theorem
-
-Among all connected graphs on n vertices, the complete graph K_n achieves
-the maximum first Betti number:
-
-  **b₁(G) ≤ b₁(K_n) = (n-1)(n-2)/2**
-
-This theorem reveals a profound truth about the relationship between
-connectivity and "frozen paradox":
-
-  **Maximum connectivity creates maximum frustration.**
-
-In the language of Diaspora:
-- Every edge is a potential channel for constraint propagation
-- The complete graph has all possible channels
-- More channels = more opportunities for circular dependencies
-- Therefore K_n maximizes the dimension of the harmonic subspace
-
-The cycle C_n sits at the opposite extreme: it achieves the *minimum*
-non-zero Betti number (b₁ = 1) with the minimum possible edges (n).
-The cycle is the simplest genesis; the complete graph is the most complex.
-
-Physical interpretation: A fully connected network cannot avoid paradox.
-Every additional connection creates new potential for circular constraint
-dependencies. The "vacuum" (satisfiable, tree-like) phase becomes
-increasingly rare as connectivity increases.
--/
-
 import Diaspora.Hodge.CompleteGraph
 import Diaspora.Hodge.CycleGraph
 import Diaspora.Hodge.PathGraph
+
+/-!
+# The Maximum Topology Theorem
+
+b₁(G) ≤ b₁(K_n) = (n-1)(n-2)/2 for connected graphs on n vertices.
+-/
 
 open BigOperators Diaspora.Core Diaspora.Hodge
 
@@ -168,14 +145,6 @@ theorem betti_range_achievable_endpoints [DecidableEq (Fin n)] [NeZero n] (hn : 
   · use DynamicGraph.complete n
     exact ⟨CompleteGraph.complete_graph_kernel_dim n, CompleteGraph.complete_graph_betti_1⟩
 
-/-! ## Philosophical Corollaries -/
-
-/-- Maximum Frustration Principle: Full connectivity maximizes irreducible paradox.
-
-    In a fully connected universe, the harmonic subspace has the largest
-    possible dimension. Every additional connection creates new channels
-    for circular constraint dependencies.
--/
 theorem maximum_frustration_principle [DecidableEq (Fin n)] [NeZero n] (G : DynamicGraph n)
     (_h_conn : Module.finrank ℝ (LinearMap.ker (d_G_linear G)) = 1)
     (h_complete : G = DynamicGraph.complete n) :
@@ -185,21 +154,5 @@ theorem maximum_frustration_principle [DecidableEq (Fin n)] [NeZero n] (G : Dyna
   intro H h_H_conn
   rw [h_complete]
   exact betti_one_le_complete H h_H_conn
-
-/-! ## Topology Density
-
-The ratio b₁/|E| measures topological efficiency:
-
-- For K_n: b₁/|E| = (n-1)(n-2)/2 / (n(n-1)/2) = (n-2)/n → 1 as n → ∞
-- For C_n: b₁/|E| = 1/n → 0 as n → ∞
-
-Complete graphs are maximally efficient at creating topology per edge.
-Cycles are minimally efficient (but still non-classical).
-
-This asymptotic behavior reveals that as graphs grow, the complete graph
-approaches perfect efficiency: nearly every edge contributes to an
-independent cycle. Cycles, by contrast, become arbitrarily inefficient:
-adding more vertices to a cycle increases edges but not Betti number.
--/
 
 end Diaspora.Hodge.MaximumTopology

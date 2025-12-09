@@ -1,48 +1,13 @@
-/-
-# The Complete Tripartite Graph
-
-The complete tripartite graph K_{a,b,c} partitions vertices into three sets
-A, B, C of sizes a, b, c respectively, with edges between all pairs of vertices
-in different sets (but no edges within the same set).
-
-## The Main Result
-
-  **b₁(K_{a,b,c}) = ab + bc + ca - (a + b + c) + 1**
-
-Special cases:
-- K_{1,1,1} = K_3 (triangle): b₁ = 1
-- K_{2,2,2} (octahedron): b₁ = 7
-- K_{1,1,n} = double fan: b₁ = n
-
-## The Octahedron
-
-The octahedron K_{2,2,2} is the most symmetric complete tripartite graph.
-It has 6 vertices arranged as three pairs of antipodal points, with each
-vertex connected to the 4 vertices not in its pair. This creates 7
-independent cycles - maximum tripartite frustration.
-
-The octahedron is the dual of the cube (Q_3), which has b₁ = 5. Duality
-swaps vertices and faces, transforming the topology in a controlled way.
-
-## Physical Interpretation
-
-The complete tripartite structure represents **threefold opposition**:
-three groups where every member can see every member of the other groups,
-but cannot see their own kind. Each group is blind to itself but fully
-visible to others.
-
-This creates a rich space of circular dependencies. The formula shows that
-the topology grows quadratically with the sizes: doubling all parts gives
-roughly 4× the Betti number. Maximum frustration emerges from maximum
-cross-group visibility.
-
-Compared to the complete bipartite graph K_{m,n} with formula (m-1)(n-1),
-adding a third partition dramatically increases the cycle space. The third
-group creates new channels for paradox to flow.
--/
-
 import Diaspora.Hodge.Decomposition
 import Diaspora.Hodge.BipartiteGraph
+
+/-!
+# The Complete Tripartite Graph
+
+b₁(K_{a,b,c}) = ab + bc + ca - (a + b + c) + 1
+
+Special cases: K_{1,1,1} = K_3 has b₁ = 1, K_{2,2,2} (octahedron) has b₁ = 7.
+-/
 
 open BigOperators Diaspora.Core Diaspora.Hodge
 
@@ -190,19 +155,13 @@ theorem octahedron_vs_cube :
     Module.finrank ℝ (HarmonicSubspace octahedron) > 5 := by
   rw [octahedron_betti_seven]; omega
 
-/-! ## Physical Interpretation -/
-
-/-- The octahedron is 4-regular: every vertex has degree 4.
-    This reflects the tripartite structure: each vertex connects to all
-    vertices outside its pair (4 vertices). -/
+/-- The octahedron is 4-regular. -/
 lemma octahedron_is_4_regular :
     ∀ v : Fin 6, (octahedron.active_edges.filter (fun (i, _) => i = v)).card = 4 := by
   intro v
   fin_cases v <;> native_decide
 
-/-- The octahedron represents maximum tripartite frustration for equal-sized parts.
-    With 2 vertices per part, every possible cross-part edge is present,
-    creating the maximum harmonic dimension for this tripartite structure. -/
+/-- The octahedron achieves the maximum for K_{2,2,2}. -/
 theorem octahedron_is_maximum_tripartite_222 :
     Module.finrank ℝ (HarmonicSubspace octahedron) = 2*2 + 2*2 + 2*2 - 6 + 1 := by
   simp only [octahedron_betti_seven]
@@ -272,18 +231,11 @@ theorem triangle_formula :
     Module.finrank ℝ (HarmonicSubspace triangle_as_tripartite) = 1*1 + 1*1 + 1*1 - 3 + 1 := by
   simp only [triangle_betti_one]
 
-/-! ## Philosophical Corollaries -/
-
-/-- Tripartite opposition creates richer topology than bipartite.
-    K_{2,2,2} has b₁ = 7, while K_{3,3} has b₁ = 4.
-    Adding a third group of opposition creates 3 more independent cycles. -/
+/-- K_{2,2,2} has more cycles than K_{3,3}. -/
 theorem tripartite_vs_bipartite :
     Module.finrank ℝ (HarmonicSubspace octahedron) > 4 := by
   rw [octahedron_betti_seven]; omega
 
-/-- The octahedron is the 3D analogue of the complete bipartite's 2D "crossing".
-    Just as K_{2,2} (the square) creates a single cycle, K_{2,2,2} creates 7.
-    Each dimension of opposition multiplicatively contributes to the topology. -/
 theorem octahedron_is_tripartite_genesis :
     Module.finrank ℝ (HarmonicSubspace octahedron) =
     Module.finrank ℝ (HarmonicSubspace triangle_as_tripartite) + 6 := by

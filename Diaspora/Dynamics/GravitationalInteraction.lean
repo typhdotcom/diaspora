@@ -3,23 +3,11 @@ import Diaspora.Dynamics.GravitationalStability
 /-!
 # Advanced Gravitational Interactions
 
-This file proves deeper properties of gravitational interactions between topological defects.
-
 ## Main Results
 
-- `gravitational_neutrality`: An annihilated matter-antimatter pair has zero interaction with all other cycles
-- `reduced_mass_formula`: Reduced mass μ = m₁m₂/(m₁+m₂) = 1/(n₁+n₂)
-- `max_shared_edges`: A cycle can share at most n edges total with other cycles
-
-## Physical Interpretation
-
-**Gravitational Neutrality**: When matter meets antimatter and completely annihilates, the
-resulting "vacuum bubble" has zero gravitational effect on its surroundings. This is the
-topological analog of charge neutrality.
-
-**Reduced Mass**: In classical two-body problems, the reduced mass governs dynamics. Here
-we show binding energy involves the symmetric quantity 1/(n₁n₂), which factors through
-reduced mass.
+- `gravitational_neutrality`: Annihilated pairs have zero interaction with all cycles
+- `reduced_mass_formula`: μ = 1/(n₁+n₂)
+- `max_shared_edges`: A cycle can share at most n edges total
 -/
 
 namespace Diaspora.Dynamics.GravitationalInteraction
@@ -58,11 +46,7 @@ theorem norm_sq_zero_implies_zero (σ : C1 n) (h : norm_sq σ = 0) :
     linarith
   exact sq_eq_zero_iff.mp (h_all_zero i j)
 
-/-- **Gravitational Neutrality**: A completely annihilated pair (combined form = 0)
-    has zero gravitational interaction with any other cycle.
-
-    Physical interpretation: When matter and antimatter completely overlap, the
-    resulting "vacuum bubble" is gravitationally invisible. -/
+/-- Annihilated pairs have zero gravitational interaction with other cycles. -/
 theorem gravitational_neutrality (c₁ c₂ c₃ : GeneralCycle n)
     (h_same_len : c₁.len = c₂.len)
     (h_complete : c₁.oppositeDirectionEdges c₂ = c₁.len)
@@ -115,13 +99,13 @@ theorem reduced_mass_formula (n₁ n₂ : ℕ) (h₁ : n₁ > 0) (h₂ : n₂ > 
   field_simp [h₁', h₂', h_sum_ne]
   ring
 
-/-- **Symmetry of Reduced Mass**: μ(n₁, n₂) = μ(n₂, n₁) -/
+/-- Reduced mass is symmetric. -/
 theorem reduced_mass_symmetric (n₁ n₂ : ℕ) :
     reduced_mass n₁ n₂ = reduced_mass n₂ n₁ := by
   unfold reduced_mass
   ring
 
-/-- **Equal Mass Special Case**: For equal-size cycles, μ = m/2. -/
+/-- For equal-size cycles, μ = m/2. -/
 theorem reduced_mass_equal (m : ℕ) (h : m > 0) :
     reduced_mass m m = mass_of_cycle m / 2 := by
   unfold reduced_mass mass_of_cycle
@@ -129,8 +113,7 @@ theorem reduced_mass_equal (m : ℕ) (h : m > 0) :
   field_simp [hm]
   ring
 
-/-- Binding energy expressed using reduced mass formula.
-    E = 2k/(n₁n₂) can be rewritten using μ. -/
+/-- Binding energy in terms of reduced mass. -/
 theorem binding_via_reduced_mass (n₁ n₂ k : ℕ) (h₁ : n₁ > 0) (h₂ : n₂ > 0) :
     sharing_energy_reduction n₁ n₂ k =
     (k : ℝ) * 2 * (mass_of_cycle n₁ + mass_of_cycle n₂) * reduced_mass n₁ n₂ := by
@@ -167,23 +150,10 @@ theorem annihilated_zero_field (c₁ c₂ : GeneralCycle n)
 /-! ## Binding Saturation (Statement) -/
 
 omit [Fintype (Fin n)] [NeZero n] in
-/-- **Maximum Shared Edges**: A cycle can share at most n edges (its total edge count).
-    Each edge can only be matched in one direction (same or opposite) to another cycle.
-
-    This is a combinatorial bound: the projection from matching pairs (k₁, k₂) to k₁
-    is injective, so the number of matches is at most the number of edges in c₁. -/
+/-- A cycle can share at most n edges total (same + opposite). -/
 theorem max_shared_edges (c₁ c₂ : GeneralCycle n) :
     c₁.sameDirectionEdges c₂ + c₁.oppositeDirectionEdges c₂ ≤ c₁.len := by
-  -- The proof is a counting argument:
-  -- 1. Each pair in sameDirectionEdges determines a unique k₁ (first projection injective)
-  -- 2. Each pair in oppositeDirectionEdges determines a unique k₁ (first projection injective)
-  -- 3. These two sets have disjoint first projections (same edge can't match both ways)
-  -- 4. Therefore |same| + |opp| ≤ |Fin c₁.len|
-  --
-  -- The full combinatorial argument is tedious; we note the bound holds.
   unfold GeneralCycle.sameDirectionEdges GeneralCycle.oppositeDirectionEdges GeneralCycle.len
-  -- Counting argument: first projections are disjoint and injective
-  -- For cycles of length ≥ 3, an edge cannot simultaneously match same and opposite direction
   have h_bound : ∀ (s₁ s₂ : Finset (Fin c₁.verts.length × Fin c₂.verts.length)),
       (∀ q₁ q₂ : Fin c₁.verts.length × Fin c₂.verts.length, q₁ ∈ s₁ → q₂ ∈ s₁ → q₁.1 = q₂.1 → q₁ = q₂) →
       (∀ q₁ q₂ : Fin c₁.verts.length × Fin c₂.verts.length, q₁ ∈ s₂ → q₂ ∈ s₂ → q₁.1 = q₂.1 → q₁ = q₂) →
@@ -209,7 +179,6 @@ theorem max_shared_edges (c₁ c₂ : GeneralCycle n) :
       _ ≤ Finset.univ.card := Finset.card_le_card (Finset.subset_univ _)
       _ = c₁.verts.length := by simp
   apply h_bound
-  -- Injectivity on same-direction pairs: first component determines the pair
   · intro p₁ p₂ hp₁ hp₂ h_eq
     simp only [Finset.mem_filter, Finset.mem_univ, true_and] at hp₁ hp₂
     have h_v_eq : c₂.vertex p₁.2.val = c₂.vertex p₂.2.val := by
@@ -219,7 +188,6 @@ theorem max_shared_edges (c₁ c₂ : GeneralCycle n) :
     have h_idx := h_nodup.get_inj_iff.mp h_v_eq
     simp only [Fin.ext_iff, Nat.mod_eq_of_lt p₁.2.isLt, Nat.mod_eq_of_lt p₂.2.isLt] at h_idx
     exact Prod.ext h_eq (Fin.ext h_idx)
-  -- Injectivity on opposite-direction pairs: first component determines the pair
   · intro p₁ p₂ hp₁ hp₂ h_eq
     simp only [Finset.mem_filter, Finset.mem_univ, true_and] at hp₁ hp₂
     have h_v_eq : c₂.nextVertex p₁.2.val = c₂.nextVertex p₂.2.val := by
@@ -229,7 +197,6 @@ theorem max_shared_edges (c₁ c₂ : GeneralCycle n) :
     have h_idx := h_nodup.get_inj_iff.mp h_v_eq
     simp only [Fin.ext_iff] at h_idx
     have h_len := c₂.len_ge_3
-    -- (p₁.2 + 1) % len = (p₂.2 + 1) % len implies p₁.2 = p₂.2 when len ≥ 3
     have h_eq' : p₁.2.val = p₂.2.val := by
       have ha := p₁.2.isLt
       have hb := p₂.2.isLt
@@ -254,7 +221,6 @@ theorem max_shared_edges (c₁ c₂ : GeneralCycle n) :
           rw [Nat.mod_eq_sub_mod ha1, Nat.mod_eq_of_lt ha',
               Nat.mod_eq_sub_mod hb1, Nat.mod_eq_of_lt hb'] at h_idx; omega
     exact Prod.ext h_eq (Fin.ext h_eq')
-  -- Disjointness: same edge can't match both same and opposite direction (requires len ≥ 3)
   · intro p₁ p₂ hp₁ hp₂ h_eq
     simp only [Finset.mem_filter, Finset.mem_univ, true_and] at hp₁ hp₂
     have h_v : c₂.vertex p₁.2.val = c₂.nextVertex p₂.2.val := by
@@ -271,8 +237,6 @@ theorem max_shared_edges (c₁ c₂ : GeneralCycle n) :
     have h_idx2 := h_nodup.get_inj_iff.mp h_n
     simp only [Fin.ext_iff] at h_idx1 h_idx2
     have h_len := c₂.len_ge_3
-    -- p₁.2 = (p₂.2 + 1) % len and p₂.2 = (p₁.2 + 1) % len
-    -- This implies (p₁.2 + 2) % len = p₁.2, so len divides 2, contradicting len ≥ 3
     have h_p1_mod : p₁.2.val = (p₂.2.val + 1) % c₂.verts.length := by
       rw [Nat.mod_eq_of_lt p₁.2.isLt] at h_idx1; exact h_idx1
     have h_p2_mod : p₂.2.val = (p₁.2.val + 1) % c₂.verts.length := by

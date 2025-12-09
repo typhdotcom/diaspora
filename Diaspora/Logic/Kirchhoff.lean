@@ -1,11 +1,3 @@
-/-
-# Kirchhoff's Geometric Interpretation
-
-The genesis program creates constraints summing to 3 around a triangle.
-This file proves that the realized cochain equals exactly 3 times the Dehn twist,
-connecting the "logical obstruction" (constraint sum) with the "topological winding".
--/
-
 import Diaspora.Logic.Genesis
 import Diaspora.Logic.Classicality
 import Diaspora.Logic.WalkHolonomy

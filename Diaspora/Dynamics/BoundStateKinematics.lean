@@ -4,35 +4,8 @@ import Diaspora.Dynamics.Velocity
 /-!
 # Bound State Kinematics: Full Relativistic Treatment
 
-This file extends the velocity and invariant mass results to bound states with
-arbitrary binding energy. The key insight: binding affects energy but NOT momentum,
-leading to surprising kinematic consequences.
-
-## The Core Formula
-
-For two cycles of length n₁, n₂ with k shared opposite-direction edges:
-- E = (n₁ + n₂ - 2k)/(n₁·n₂)     (binding reduces energy)
-- p = (n₂ - n₁)/(n₁·n₂)          (momentum unchanged!)
-- m² = 4(n₁ - k)(n₂ - k)/(n₁·n₂)² (elegant factored form)
-
-## Main Results
-
-- `bound_invariant_mass_sq`: m² = 4(n₁ - k)(n₂ - k)/(n₁n₂)² for bound pairs
-- `bound_velocity`: v = |n₂ - n₁|/(n₁ + n₂ - 2k) for bound pairs
-- `binding_increases_velocity`: For unequal masses, more binding → faster motion
-- `bound_relativistic_identity`: γ² = 1/(1 - v²) for bound states
-- `max_binding_returns_lightlike`: At k = min(n₁, n₂), m² = 0 (back to lightlike)
-
-## Physical Interpretation
-
-Binding changes energy without changing momentum. Since v = p/E:
-- For equal masses (n₁ = n₂): p = 0, so v = 0 regardless of binding
-- For unequal masses: binding reduces E, increasing v = p/E
-
-At maximum binding (k = min(n₁, n₂)), the smaller cycle is fully absorbed.
-The system becomes lightlike again (v = c), with energy equal to the mass
-difference. This is "partial annihilation": the lighter particle disappears,
-leaving behind only the excess mass of the heavier one.
+Binding reduces energy E = (n₁ + n₂ - 2k)/(n₁·n₂) but NOT momentum p = (n₂ - n₁)/(n₁·n₂),
+giving m² = 4(n₁ - k)(n₂ - k)/(n₁·n₂)².
 -/
 
 namespace Diaspora.Dynamics.BoundStateKinematics
@@ -72,14 +45,7 @@ theorem bound_momentum_formula (n₁ n₂ : ℕ) (h₁ : n₁ > 0) (h₂ : n₂ 
 
 /-! ## Bound State Invariant Mass -/
 
-/-- **The Bound Invariant Mass Squared Formula**
-
-    m² = 4(n₁ - k)(n₂ - k) / (n₁·n₂)²
-
-    Key special cases:
-    - k = 0: m² = 4/(n₁·n₂) = 4·m₁·m₂ (unbound)
-    - k = n₁ (with n₁ ≤ n₂): m² = 0 (returns to lightlike!)
-    - n₁ = n₂ = n, k = n: m² = 0 (complete annihilation) -/
+/-- m² = 4(n₁ - k)(n₂ - k) / (n₁·n₂)². -/
 noncomputable def bound_invariant_mass_sq (n₁ n₂ k : ℕ) : ℝ :=
   4 * (n₁ - k : ℝ) * (n₂ - k) / ((n₁ : ℝ) * n₂)^2
 
@@ -94,8 +60,6 @@ theorem bound_invariant_mass_sq_correct (n₁ n₂ k : ℕ) (h₁ : n₁ ≥ 3) 
   rw [bound_momentum_formula n₁ n₂ (by omega) (by omega)]
   unfold bound_invariant_mass_sq
   have h_prod_ne : (n₁ : ℝ) * n₂ ≠ 0 := mul_ne_zero hn₁ hn₂
-  -- (E² - p²) = [(n₁+n₂-2k)² - (n₂-n₁)²] / (n₁n₂)²
-  -- numerator = (2n₂ - 2k)(2n₁ - 2k) = 4(n₁-k)(n₂-k)
   field_simp [h_prod_ne]
   ring
 
@@ -108,7 +72,7 @@ theorem bound_mass_sq_at_zero (n₁ n₂ : ℕ) (_h₁ : n₁ ≥ 3) (_h₂ : n�
   simp only [Nat.cast_zero, sub_zero]
   field_simp [hn₁, hn₂]
 
-/-- **Maximum Binding Returns to Lightlike**: When k = min(n₁, n₂), m² = 0. -/
+/-- When k = min(n₁, n₂), m² = 0. -/
 theorem max_binding_returns_lightlike (n₁ n₂ : ℕ) (_h₁ : n₁ ≥ 3) (_h₂ : n₂ ≥ 3)
     (_h_le : n₁ ≤ n₂) :
     bound_invariant_mass_sq n₁ n₂ n₁ = 0 := by
@@ -123,14 +87,7 @@ theorem equal_mass_annihilation (n : ℕ) (_h : n ≥ 3) :
 
 /-! ## Bound State Velocity -/
 
-/-- **Velocity of a bound opposite-direction pair**.
-
-    v = |p|/E = |n₂ - n₁|/(n₁ + n₂ - 2k)
-
-    Key insight: binding appears only in the denominator!
-    - At k = 0: v = |n₂ - n₁|/(n₁ + n₂) (matches unbound formula)
-    - For k > 0: denominator shrinks, so v increases
-    - At k = n₁ (with n₁ < n₂): v = 1 (returns to lightlike!) -/
+/-- v = |n₂ - n₁|/(n₁ + n₂ - 2k). -/
 noncomputable def bound_velocity (n₁ n₂ k : ℕ) : ℝ :=
   |(n₂ : ℝ) - n₁| / (n₁ + n₂ - 2 * k)
 
@@ -142,9 +99,7 @@ theorem bound_velocity_at_zero (n₁ n₂ : ℕ) :
   congr 1
   ring
 
-/-- **Binding Increases Velocity** for unequal masses.
-
-    When n₁ ≠ n₂ and k > 0, the bound velocity exceeds the unbound velocity. -/
+/-- When n₁ ≠ n₂ and k > 0, the bound velocity exceeds the unbound velocity. -/
 theorem binding_increases_velocity (n₁ n₂ k : ℕ) (_h₁ : n₁ ≥ 3) (_h₂ : n₂ ≥ 3)
     (h_ne : n₁ ≠ n₂) (hk_pos : k > 0) (hk_bound : 2 * k < n₁ + n₂) :
     bound_velocity n₁ n₂ k > opposite_pair_velocity n₁ n₂ := by
@@ -164,8 +119,6 @@ theorem binding_increases_velocity (n₁ n₂ k : ℕ) (_h₁ : n₁ ≥ 3) (_h�
   have h_denom_lt : (n₁ : ℝ) + n₂ - 2 * k < n₁ + n₂ := by
     have hk' : (k : ℝ) > 0 := Nat.cast_pos.mpr hk_pos
     linarith
-  -- |n₂ - n₁| / (n₁ + n₂ - 2k) > |n₂ - n₁| / (n₁ + n₂)
-  -- because smaller denominator with positive numerator
   rw [gt_iff_lt, ← sub_pos]
   have h_diff : |(n₂ : ℝ) - n₁| / (n₁ + n₂ - 2 * k) - |(n₂ : ℝ) - n₁| / (n₂ + n₁) =
       |(n₂ : ℝ) - n₁| * (2 * k) / ((n₁ + n₂ - 2 * k) * (n₂ + n₁)) := by
@@ -184,7 +137,7 @@ theorem equal_mass_always_at_rest (n k : ℕ) (_h : n ≥ 3) (_hk : 2 * k < 2 * 
   unfold bound_velocity
   simp only [sub_self, abs_zero, zero_div]
 
-/-- **At Maximum Binding, Velocity Equals c** (for unequal masses). -/
+/-- At k = n₁ with n₁ < n₂, v = 1. -/
 theorem max_binding_velocity_is_c (n₁ n₂ : ℕ) (_h₁ : n₁ ≥ 3) (_h₂ : n₂ ≥ 3)
     (h_lt : n₁ < n₂) :
     bound_velocity n₁ n₂ n₁ = 1 := by
@@ -202,7 +155,7 @@ theorem max_binding_velocity_is_c (n₁ n₂ : ℕ) (_h₁ : n₁ ≥ 3) (_h₂ 
 
 /-! ## Relativistic Identity for Bound States -/
 
-/-- **The Bound Lorentz Factor**: γ = E/m for bound states. -/
+/-- γ = E/m for bound states. -/
 noncomputable def bound_lorentz_factor (n₁ n₂ k : ℕ) : ℝ :=
   (n₁ + n₂ - 2 * k : ℝ) / (2 * Real.sqrt ((n₁ - k : ℝ) * (n₂ - k)))
 
@@ -212,7 +165,7 @@ theorem bound_lorentz_at_zero (n₁ n₂ : ℕ) :
   unfold bound_lorentz_factor lorentz_factor
   simp only [Nat.cast_zero, sub_zero, mul_zero]
 
-/-- **The Relativistic Identity for Bound States**: γ² = 1/(1 - v²). -/
+/-- γ² = 1/(1 - v²). -/
 theorem bound_relativistic_identity (n₁ n₂ k : ℕ) (h₁ : n₁ ≥ 3) (h₂ : n₂ ≥ 3)
     (hk : k < min n₁ n₂) :
     (bound_lorentz_factor n₁ n₂ k)^2 = 1 / (1 - (bound_velocity n₁ n₂ k)^2) := by
@@ -265,7 +218,6 @@ theorem bound_lorentz_ge_one (n₁ n₂ k : ℕ) (_h₁ : n₁ ≥ 3) (_h₂ : n
   have h_prod_pos : ((n₁ : ℝ) - k) * (n₂ - k) > 0 := mul_pos h_n₁_k_pos h_n₂_k_pos
   have h_sqrt_pos : Real.sqrt (((n₁ : ℝ) - k) * (n₂ - k)) > 0 := Real.sqrt_pos.mpr h_prod_pos
   have h_denom_pos : 2 * Real.sqrt (((n₁ : ℝ) - k) * (n₂ - k)) > 0 := by linarith
-  -- AM-GM: (n₁ - k) + (n₂ - k) ≥ 2√[(n₁ - k)(n₂ - k)]
   have h_sqrt_n₁k : Real.sqrt (n₁ - k : ℝ) ^ 2 = n₁ - k := Real.sq_sqrt (le_of_lt h_n₁_k_pos)
   have h_sqrt_n₂k : Real.sqrt (n₂ - k : ℝ) ^ 2 = n₂ - k := Real.sq_sqrt (le_of_lt h_n₂_k_pos)
   have h_sqrt_prod : Real.sqrt (((n₁ : ℝ) - k) * (n₂ - k)) =
@@ -287,13 +239,10 @@ theorem bound_lorentz_ge_one (n₁ n₂ k : ℕ) (_h₁ : n₁ ≥ 3) (_h₂ : n
 
 /-! ## The Kinematics Correspondence -/
 
-/-- **The Bound State Kinematics Correspondence** (Summary Theorem) -/
+/-- Collects key bound kinematics results for equal masses. -/
 theorem the_bound_kinematics_correspondence (n : ℕ) (h : n ≥ 3) :
-    -- 1. At k = 0, matches unbound velocity
     (bound_velocity n n 0 = opposite_pair_velocity n n) ∧
-    -- 2. Equal masses at rest regardless of binding
     (∀ k, 2 * k < 2 * n → bound_velocity n n k = 0) ∧
-    -- 3. Lorentz factor at zero matches unbound
     (bound_lorentz_factor n n 0 = lorentz_factor n n) := by
   refine ⟨?_, ?_, ?_⟩
   · exact bound_velocity_at_zero n n
@@ -301,7 +250,7 @@ theorem the_bound_kinematics_correspondence (n : ℕ) (h : n ≥ 3) :
     exact equal_mass_always_at_rest n k h hk
   · exact bound_lorentz_at_zero n n
 
-/-- **Partial Annihilation Energy**: When k = n₁ with n₁ < n₂, E = m₁ - m₂. -/
+/-- When k = n₁ with n₁ < n₂, E = m₁ - m₂. -/
 theorem partial_annihilation_energy (n₁ n₂ : ℕ) (_h₁ : n₁ ≥ 3) (_h₂ : n₂ ≥ 3)
     (_h_lt : n₁ < n₂) :
     bound_total_energy n₁ n₂ n₁ = mass_of_cycle n₁ - mass_of_cycle n₂ := by

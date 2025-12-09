@@ -1,37 +1,13 @@
-/-
-# Prism Graph Betti Numbers
-
-The prism graph (or circular ladder, n-prism) consists of two n-cycles
-connected by n "rungs" matching corresponding vertices:
-
-    Top:    0 — 1 — 2 — ... — (n-1) — 0
-            |   |   |           |
-    Bottom: n — n+1— n+2— ... — (2n-1)— n
-
-The Betti number is:
-  b₁(Prism_n) = n + 1
-
-This extends the Interaction.lean "handshake theorem" to complete fusion.
-Two isolated n-cycles have total b₁ = 2 (each contributes 1).
-Fusing them at all n vertices creates n-1 ADDITIONAL independent cycles,
-for a total of n+1.
-
-Physical interpretation: The shared frustration grows linearly with
-the interface size. Each point of contact (beyond connectivity) adds
-a new channel of irreducible constraint.
--/
-
 import Diaspora.Hodge.IndexTheorem
 import Mathlib.LinearAlgebra.Dimension.Finrank
 
 open BigOperators Diaspora.Core Diaspora.Hodge
 
+/-! # Prism Graphs: b₁(Prism_n) = n + 1 -/
+
 namespace Diaspora.Hodge.PrismGraph
 
-/-! ## Concrete Prism Graphs for small n -/
-
-/-- The triangular prism (Prism_3) on 6 vertices.
-    Top cycle: 0-1-2-0, Bottom cycle: 3-4-5-3, Rungs: 0-3, 1-4, 2-5 -/
+/-- Triangular prism on 6 vertices. -/
 def prism3 : DynamicGraph 6 where
   active_edges := {
     -- Top cycle
@@ -99,16 +75,7 @@ lemma prism3_kernel_dim : Module.finrank ℝ (LinearMap.ker (d_G_linear prism3))
   rw [h_ker_eq_span, finrank_span_singleton]
   intro h; have : (1 : ℝ) = 0 := congr_fun h 0; norm_num at this
 
-/-- **Prism_3 Betti Number**: b₁(Prism_3) = 4
-
-    The triangular prism has 4 independent cycles:
-    - The top triangle
-    - The bottom triangle
-    - 2 "ladder" cycles threading both
-
-    Two isolated triangles have total b₁ = 2.
-    Fusing them at 3 vertices creates 2 additional cycles.
--/
+/-- b₁(Prism_3) = 4. -/
 theorem prism3_betti_four : Module.finrank ℝ (HarmonicSubspace prism3) = 4 := by
   have h_dim := harmonic_dimension_eq_cyclomatic prism3
   have h_ker := prism3_kernel_dim
@@ -119,8 +86,7 @@ theorem prism3_betti_four : Module.finrank ℝ (HarmonicSubspace prism3) = 4 := 
 
 /-! ## Cube graph (Prism_4) -/
 
-/-- The cube graph (Prism_4) on 8 vertices.
-    Top square: 0-1-2-3-0, Bottom square: 4-5-6-7-4, Rungs: 0-4, 1-5, 2-6, 3-7 -/
+/-- Cube graph (Prism_4) on 8 vertices. -/
 def prism4 : DynamicGraph 8 where
   active_edges := {
     -- Top square
@@ -199,16 +165,7 @@ lemma prism4_kernel_dim : Module.finrank ℝ (LinearMap.ker (d_G_linear prism4))
   rw [h_ker_eq_span, finrank_span_singleton]
   intro h; have : (1 : ℝ) = 0 := congr_fun h 0; norm_num at this
 
-/-- **Cube Graph Betti Number**: b₁(Prism_4) = 5
-
-    The cube has 5 independent cycles:
-    - The top square
-    - The bottom square
-    - 3 "ladder" cycles threading both faces
-
-    Two isolated squares have total b₁ = 2.
-    Fusing them at 4 vertices creates 3 additional cycles.
--/
+/-- b₁(Prism_4) = 5. -/
 theorem prism4_betti_five : Module.finrank ℝ (HarmonicSubspace prism4) = 5 := by
   have h_dim := harmonic_dimension_eq_cyclomatic prism4
   have h_ker := prism4_kernel_dim
@@ -217,34 +174,12 @@ theorem prism4_betti_five : Module.finrank ℝ (HarmonicSubspace prism4) = 5 := 
   rw [h_edge_half, h_ker] at h_dim
   omega
 
-/-! ## Philosophical Interpretation -/
-
-/-- Fusion creates more topology than the sum of parts.
-
-    Two isolated triangles: total b₁ = 1 + 1 = 2
-    Prism_3 (fused at all 3 vertices): b₁ = 4
-
-    Two isolated squares: total b₁ = 1 + 1 = 2
-    Prism_4 (fused at all 4 vertices): b₁ = 5
-
-    The pattern: Prism_n has b₁ = n + 1 = 2 + (n - 1).
-    Fusion creates n - 1 ADDITIONAL independent cycles.
--/
 theorem fusion_amplifies_topology_3 : Module.finrank ℝ (HarmonicSubspace prism3) = 2 + (3 - 1) := by
   rw [prism3_betti_four]
 
 theorem fusion_amplifies_topology_4 : Module.finrank ℝ (HarmonicSubspace prism4) = 2 + (4 - 1) := by
   rw [prism4_betti_five]
 
-/-- The cost of mirroring: fusing two worlds at n points creates n-1 new cycles.
-
-    This generalizes the Interaction.lean "handshake theorem":
-    - 2 triangles + 2 bridges → 1 new cycle (from Interaction.lean)
-    - 2 triangles + 3 bridges (full fusion) → 2 new cycles (Prism_3)
-    - 2 squares + 4 bridges (full fusion) → 3 new cycles (Prism_4)
-
-    The shared frustration grows linearly with the interface size.
--/
 theorem mirror_world_topology_cost_3 :
     Module.finrank ℝ (HarmonicSubspace prism3) - 2 = 3 - 1 := by
   rw [prism3_betti_four]

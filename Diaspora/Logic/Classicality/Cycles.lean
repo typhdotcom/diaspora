@@ -1,9 +1,3 @@
-/-
-Cycle theorems for Classicality.
-
-SimpleCycle (full graph cycles) and GeneralCycle (embedded k-cycles).
-Both prove: embedded cycles create nonzero harmonic forms.
--/
 import Diaspora.Logic.Classicality.Basic
 import Diaspora.Hodge.Twist
 import Mathlib.Combinatorics.SimpleGraph.Acyclic
@@ -475,16 +469,7 @@ lemma general_cycle_form_harmonic {n : ℕ} [Fintype (Fin n)] [NeZero n] (c : Ge
       exact List.get_mem c.verts _
     simp only [h_no_fwd, h_no_rev, ↓reduceIte]
 
-/-- **Cycle Energy Theorem**: A cycle of length k has energy exactly 1/k.
-
-    This generalizes dehn_twist_energy (which requires SimpleCycle covering all n vertices)
-    to arbitrary embedded cycles. The energy depends only on cycle length, not on the
-    ambient graph size.
-
-    Physical interpretation: Smaller cycles have higher energy barriers. A triangle (k=3)
-    costs 1/3 units of energy; a square (k=4) costs 1/4. The "nucleation barrier" for
-    topology depends on the shortest cycle available, not the total vertex count.
--/
+/-- A cycle of length k has energy exactly 1/k. -/
 theorem general_cycle_form_energy {n : ℕ} [Fintype (Fin n)] [NeZero n] (c : GeneralCycle n) :
     norm_sq (general_cycle_form c) = 1 / c.len := by
   -- The general_cycle_form assigns ±1/k to cycle edges, 0 elsewhere.

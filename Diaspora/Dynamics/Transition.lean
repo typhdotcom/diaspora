@@ -1,11 +1,3 @@
-/-
-# Topology Dynamics
-
-Evolution of graph topology under strain. While TopologyChange.lean
-proves that edges must break under sufficient frustration, this file defines
-the step-by-step process of identifying and removing overstressed edges.
--/
-
 import Diaspora.Dynamics.Strain
 import Diaspora.Hodge.Spectral
 import Diaspora.Hodge.Twist

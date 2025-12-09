@@ -69,7 +69,6 @@ theorem signedOverlap_symm {n : ℕ} [DecidableEq (Fin n)] (c₁ c₂ : GeneralC
 theorem sameDirectionEdges_self {n : ℕ} [DecidableEq (Fin n)] (c : GeneralCycle n) :
     c.sameDirectionEdges c = c.len := by
   unfold GeneralCycle.sameDirectionEdges
-  -- The matching pairs are exactly (k, k) for k in Fin c.len
   have h_eq_diag : (Finset.univ.filter fun (p : Fin c.verts.length × Fin c.verts.length) =>
       c.vertex p.1.val = c.vertex p.2.val ∧
       c.nextVertex p.1.val = c.nextVertex p.2.val) =
@@ -79,7 +78,6 @@ theorem sameDirectionEdges_self {n : ℕ} [DecidableEq (Fin n)] (c : GeneralCycl
     constructor
     · intro ⟨h1, _⟩
       use p.1
-      -- p.1 = p.2 because vertices are distinct
       have h_nodup := c.nodup
       unfold GeneralCycle.vertex at h1
       have h_inj := h_nodup.get_inj_iff.mp h1
@@ -102,8 +100,6 @@ theorem oppositeDirectionEdges_self {n : ℕ} [DecidableEq (Fin n)] (c : General
   ext p
   simp only [Finset.mem_filter, Finset.mem_univ, true_and, Finset.notMem_empty, iff_false, not_and]
   intro h1 h2
-  -- This would mean vertex p.1 = nextVertex p.2 and nextVertex p.1 = vertex p.2
-  -- Which means (p.1, p.2) are adjacent in both directions - impossible in a simple cycle of length ≥ 3
   have h_len := c.len_ge_3
   have h_nodup := c.nodup
   unfold GeneralCycle.nextVertex GeneralCycle.vertex at h1 h2
@@ -116,8 +112,6 @@ theorem oppositeDirectionEdges_self {n : ℕ} [DecidableEq (Fin n)] (c : General
   have h_p2_mod : p.2.val = (p.1.val + 1) % c.verts.length := by
     rw [Nat.mod_eq_of_lt p.2.isLt] at h_idx2
     exact h_idx2.symm
-  -- Substituting: p.2 = (p.1 + 1) % len = ((p.2 + 1) % len + 1) % len
-  -- This means (p.2 + 2) % len = p.2, contradiction for len ≥ 3
   have h_len_pos : 0 < c.verts.length := by omega
   have h_cycle : (p.2.val + 2) % c.verts.length = p.2.val := by
     have h1_mod : 1 % c.verts.length = 1 := Nat.mod_eq_of_lt (by omega : 1 < c.verts.length)

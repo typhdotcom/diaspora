@@ -1,13 +1,3 @@
-/-
-# Discrete Calculus on Graphs
-
-Foundational definitions for discrete exterior calculus: chain complexes,
-cochains, inner products, and differential operators.
-
-This file contains only definitions and basic identities. Heavy proofs are
-delegated to HodgeDecomposition.lean.
--/
-
 import Mathlib.Algebra.BigOperators.Group.Finset.Basic
 import Mathlib.Algebra.BigOperators.Group.Finset.Sigma
 import Mathlib.Algebra.BigOperators.Ring.Finset

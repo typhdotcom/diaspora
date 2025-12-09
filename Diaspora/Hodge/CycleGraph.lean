@@ -1,29 +1,16 @@
-/-
-# Cycle Graph Betti Numbers
-
-The cycle graph C_n (n-cycle) has Betti number:
-  b₁(C_n) = 1
-
-This is the simplest graph with non-trivial topology: exactly one independent cycle.
-The proof uses the dimension formula: dim(H) + |V| = |E| + dim(Ker d).
-For C_n: n vertices, n edges, connected ⟹ b₁ = n - n + 1 = 1.
--/
-
 import Diaspora.Hodge.IndexTheorem
 import Mathlib.LinearAlgebra.Dimension.Finrank
 
 open BigOperators Diaspora.Core Diaspora.Hodge
 
+/-! # Cycle Graph: b₁(C_n) = 1 -/
+
 namespace Diaspora.Hodge.CycleGraph
 
-/-! ## Definition: Cycle Graph C_n -/
-
-/-- Adjacent in cycle: j = i + 1 (mod n). This is decidable. -/
 def cycleAdjPred {n : ℕ} [NeZero n] (i j : Fin n) : Bool :=
   j.val == (i.val + 1) % n
 
-/-- The cycle graph C_n on n vertices (requires n ≥ 2).
-    Vertex i is adjacent to vertices (i-1) mod n and (i+1) mod n. -/
+/-- Cycle graph C_n on n vertices (n ≥ 2). -/
 def cycleGraph (n : ℕ) [NeZero n] (hn : n ≥ 2 := by omega) : DynamicGraph n where
   active_edges := Finset.filter
     (fun (i, j) => cycleAdjPred i j || cycleAdjPred j i)
@@ -154,7 +141,6 @@ lemma cycle_graph_directed_edge_count (n : ℕ) [NeZero n] (hn : n ≥ 3) :
 
 /-! ## Connectivity of C_n -/
 
-/-- C_n is connected: the gradient kernel is 1-dimensional (constant functions). -/
 lemma cycle_graph_kernel_dim (n : ℕ) [NeZero n] (hn : n ≥ 2) :
     Module.finrank ℝ (LinearMap.ker (d_G_linear (cycleGraph n hn))) = 1 := by
   let one : Fin n → ℝ := fun _ => 1
@@ -214,11 +200,7 @@ lemma cycle_graph_kernel_dim (n : ℕ) [NeZero n] (hn : n ≥ 2) :
 
 /-! ## The Main Theorem -/
 
-/-- **Cycle Graph Betti Number Theorem**: b₁(C_n) = 1 for n ≥ 3.
-
-    The n-cycle is the simplest graph with non-trivial topology.
-    It has exactly one independent cycle, hence b₁ = 1.
--/
+/-- b₁(C_n) = 1. -/
 theorem cycle_graph_betti_1 (n : ℕ) [NeZero n] [DecidableEq (Fin n)] (hn : n ≥ 3) :
     Module.finrank ℝ (HarmonicSubspace (cycleGraph n (by omega))) = 1 := by
   have h_dim := harmonic_dimension_eq_cyclomatic (cycleGraph n (by omega))
@@ -244,7 +226,6 @@ theorem C5_betti_one [DecidableEq (Fin 5)] :
     Module.finrank ℝ (HarmonicSubspace (cycleGraph 5 (by omega))) = 1 :=
   cycle_graph_betti_1 5 (by omega)
 
-/-- C_n has exactly one independent cycle for any n ≥ 3. -/
 theorem cycle_graph_has_one_cycle (n : ℕ) [NeZero n] [DecidableEq (Fin n)] (hn : n ≥ 3) :
     Module.finrank ℝ (HarmonicSubspace (cycleGraph n (by omega))) = 1 :=
   cycle_graph_betti_1 n hn

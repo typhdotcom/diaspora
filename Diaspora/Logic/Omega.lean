@@ -11,10 +11,7 @@ variable {n : ℕ} [Fintype (Fin n)] [DecidableEq (Fin n)]
 
 /-! ## 1. Discretizing the Input (The "Coin Flips") -/
 
-/--
-To calculate a probability, we restrict our "Program Space" to a discrete set.
-Instead of Real values, our constraints can only be {-1, 1} (e.g., "Pull Left" or "Pull Right").
--/
+/-- Discrete constraint values: +1 or -1. -/
 inductive DiscreteVal
 | pos : DiscreteVal -- +1
 | neg : DiscreteVal -- -1
@@ -24,22 +21,14 @@ def val_to_real : DiscreteVal → ℝ
 | DiscreteVal.pos => 1
 | DiscreteVal.neg => -1
 
-/--
-A "Bit" of information in this universe is a choice of:
-1. A source node
-2. A destination node
-3. A polarity (positive or negative)
--/
+/-- An atomic constraint: source, destination, polarity. -/
 structure AtomicConstraint (n : ℕ) where
   src : Fin n
   dst : Fin n
   pol : DiscreteVal
 deriving Fintype, DecidableEq
 
-/--
-The "Alphabet Size" of our universe language.
-K = 2 * n * n
--/
+/-- Alphabet size: 2n². -/
 def alphabet_size (n : ℕ) : ℝ := 2 * (n : ℝ)^2
 
 /-! ## 2. The Program (The Theory) -/
@@ -53,30 +42,17 @@ def decode (P : Program n) : Theory n :=
 
 /-! ## 3. The Halting Condition -/
 
-/--
-"Does it Halt?"
-In Chaitin: Does the Turing machine stop?
-In Diaspora: Does the Energy relax to Zero? (Is it Satisfiable?)
-
-Note: We assume Decidable Satisfiability here (via Gaussian elimination),
-which is true for finite linear systems.
--/
+/-- Halting predicate: 1 if satisfiable, 0 otherwise. -/
 def Halts (P : Program n) [Decidable (Satisfiable (decode P))] : ℕ :=
   if Satisfiable (decode P) then 1 else 0
 
 /-! ## 4. Chaitin's Omega -/
 
-/--
-The probability weight of a specific program of length k.
-If we pick constraints uniformly at random, the probability of generating
-exactly program P is (1/AlphabetSize)^k.
--/
+/-- Probability weight of a program. -/
 noncomputable def program_weight (P : Program n) : ℝ :=
   (1 / alphabet_size n) ^ P.length
 
-/--
-All programs of a given length k (vectors of k atomic constraints).
--/
+/-- Programs of length k. -/
 abbrev ProgramsOfLength (n k : ℕ) := Fin k → AtomicConstraint n
 
 /-- Convert a fixed-length program to a list. -/

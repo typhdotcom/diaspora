@@ -1,32 +1,7 @@
-/-
-# The Cone Graph Theorem
-
-The cone of a graph G, denoted cone(G), adds a new vertex (apex) connected
-to all vertices of G. This file proves a fundamental theorem about coning:
-
-  **b₁(cone(G)) = |E(G)|**
-
-Equivalently: Coning a connected graph increases its Betti number by exactly
-|V(G)| - 1.
-
-This explains why the wheel graph W_n = cone(C_n) has b₁ = n:
-- C_n has |E| = n edges
-- Therefore cone(C_n) has b₁ = n
-
-The theorem reveals a deep truth about observation: an observer that connects
-to every vertex transforms the graph's edge count into its cycle count.
-Each original edge becomes the base of a triangle with the apex, and these
-triangles create |V| - 1 new independent cycles.
-
-Physical interpretation: Perfect observation doesn't simplify or resolve
-topology - it crystallizes the existing structure into new harmonic modes.
-The number of new frustration channels equals the number of "relationships"
-(edges) the observer witnesses, minus the tree-like connections that don't
-create cycles.
--/
-
 import Diaspora.Hodge.WheelGraph
 import Diaspora.Hodge.PathGraph
+
+/-! # Cone Graph: b₁(cone(G)) = |E(G)| -/
 
 open BigOperators Diaspora.Core Diaspora.Hodge
 
@@ -267,18 +242,7 @@ lemma cone_graph_kernel_dim {n : ℕ} [NeZero n] (G : DynamicGraph n) :
 
 /-! ## The Main Theorems -/
 
-/-- **The Cone Theorem**: b₁(cone(G)) = |E(G)|.
-
-    Coning a connected graph transforms its edge count into its Betti number.
-    The original edges become the bases of triangles with the apex, and these
-    triangles create |E(G)| independent cycles (minus the tree-like structure).
-
-    More precisely, since G has n vertices and is connected:
-      b₁(G) = |E| - n + 1
-      b₁(cone(G)) = (|E| + n) - (n + 1) + 1 = |E|
-
-    So coning adds n - 1 = |V(G)| - 1 independent cycles.
--/
+/-- b₁(cone(G)) = |E(G)| -/
 theorem cone_betti_eq_original_edges {n : ℕ} [NeZero n] [DecidableEq (Fin (n+1))] (G : DynamicGraph n) :
     Module.finrank ℝ (HarmonicSubspace (coneGraph G)) = G.active_edges.card / 2 := by
   have h_dim := harmonic_dimension_eq_cyclomatic (coneGraph G)
@@ -292,12 +256,7 @@ theorem cone_betti_eq_original_edges {n : ℕ} [NeZero n] [DecidableEq (Fin (n+1
   rw [h_edge_half, h_ker] at h_dim
   omega
 
-/-- Coning increases the Betti number by exactly |V| - 1.
-
-    Each of the n vertices becomes the base of a new triangle with the apex.
-    These triangles form n - 1 new independent cycles (the last one is
-    linearly dependent on the others).
--/
+/-- Coning increases b₁ by |V| - 1. -/
 theorem cone_betti_increase {n : ℕ} [NeZero n] [DecidableEq (Fin n)] [DecidableEq (Fin (n+1))]
     (G : DynamicGraph n)
     (h_connected : Module.finrank ℝ (LinearMap.ker (d_G_linear G)) = 1) :
@@ -314,16 +273,11 @@ theorem cone_betti_increase {n : ℕ} [NeZero n] [DecidableEq (Fin n)] [Decidabl
 
 /-! ## The Fan Graph: Cone of a Path -/
 
-/-- The fan graph is the cone of a path: an apex connected to all vertices of P_n.
-    This creates a "Chinese folding fan" shape. -/
+/-- Fan graph: cone of a path. -/
 def fanGraph (n : ℕ) [NeZero n] (hn : n ≥ 2 := by omega) : DynamicGraph (n + 1) :=
   coneGraph (PathGraph.pathGraph n hn)
 
-/-- The fan graph F_n has b₁ = n - 1.
-
-    The path has 0 cycles; coning adds n - 1 new cycles (one for each
-    "wedge" of the fan, except the last which is dependent).
--/
+/-- b₁(F_n) = n - 1. -/
 theorem fan_graph_betti (n : ℕ) [NeZero n] [DecidableEq (Fin (n+1))] (hn : n ≥ 2) :
     Module.finrank ℝ (HarmonicSubspace (fanGraph n hn)) = n - 1 := by
   have h := cone_betti_eq_original_edges (PathGraph.pathGraph n hn)
@@ -350,13 +304,9 @@ theorem fan4_betti_three [DecidableEq (Fin 5)] :
   have h := fan_graph_betti 4 (by omega)
   omega
 
-/-! ## Philosophical Corollaries -/
+/-! ## Corollaries -/
 
-/-- The wheel is the cone of a cycle.
-
-    This connects the cone theorem to the wheel graph result:
-    W_n = cone(C_n), and b₁(W_n) = |E(C_n)| = n.
--/
+/-- W_n = cone(C_n), so b₁(W_n) = n. -/
 theorem wheel_is_cone_of_cycle (n : ℕ) [NeZero n] (hn : n ≥ 3) :
     Module.finrank ℝ (HarmonicSubspace (WheelGraph.wheelGraph n hn)) =
     (CycleGraph.cycleGraph n (by omega)).active_edges.card / 2 := by
@@ -364,18 +314,7 @@ theorem wheel_is_cone_of_cycle (n : ℕ) [NeZero n] (hn : n ≥ 3) :
   rw [CycleGraph.cycle_graph_directed_edge_count n hn]
   omega
 
-/-- Observation amplification theorem (generalized).
-
-    For any connected graph G, adding a "perfect observer" (apex connected
-    to all vertices) increases the Betti number by |V| - 1.
-
-    This explains the wheel graph result: the cycle has 1 independent cycle,
-    and adding the hub creates n - 1 new ones, for a total of n.
-
-    Physical interpretation: Perfect observation crystallizes the graph's
-    structure into additional harmonic modes. The observer can't resolve
-    the existing frustration; it can only create new channels for it.
--/
+/-- Coning never decreases b₁. -/
 theorem observation_amplification {n : ℕ} [NeZero n] [DecidableEq (Fin n)] [DecidableEq (Fin (n+1))]
     (G : DynamicGraph n)
     (h_connected : Module.finrank ℝ (LinearMap.ker (d_G_linear G)) = 1) :
@@ -384,11 +323,7 @@ theorem observation_amplification {n : ℕ} [NeZero n] [DecidableEq (Fin n)] [De
   rw [cone_betti_increase G h_connected]
   omega
 
-/-- The cone operation is monotonic in Betti number.
-
-    Adding an observer never reduces topology - it can only preserve or
-    increase it. This is a special case of observation_amplification.
--/
+/-- b₁(cone(G)) > 0 iff b₁(G) > 0 or n ≥ 2. -/
 theorem coning_preserves_topology {n : ℕ} [NeZero n] [DecidableEq (Fin n)] [DecidableEq (Fin (n+1))]
     (G : DynamicGraph n)
     (h_connected : Module.finrank ℝ (LinearMap.ker (d_G_linear G)) = 1) :

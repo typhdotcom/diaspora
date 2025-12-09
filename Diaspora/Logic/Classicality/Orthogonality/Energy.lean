@@ -1,11 +1,5 @@
 /-
-Combined cycle energy formulas.
-
-The fundamental identity for combining two topological defects:
-  ‖γ₁ + γ₂‖² = ‖γ₁‖² + ‖γ₂‖² + 2⟨γ₁, γ₂⟩
-
-Combined with the inner product formula, this shows how sharing edges
-affects total energy.
+Combined cycle energy formulas: ‖γ₁ + γ₂‖² = ‖γ₁‖² + ‖γ₂‖² + 2⟨γ₁, γ₂⟩.
 -/
 import Diaspora.Logic.Classicality.Orthogonality.InnerProduct
 
@@ -35,7 +29,6 @@ theorem combined_cycle_energy {n : ℕ} [DecidableEq (Fin n)] [Fintype (Fin n)] 
       (general_cycle_form c₂).val i j * (general_cycle_form c₂).val i j := by
     intro i j; ring
   simp_rw [h_expand, Finset.sum_add_distrib]
-  -- Pull out factor of 2 from middle sum
   have h_factor : ∀ s : Finset (Fin n), ∀ t : Finset (Fin n),
       ∑ i ∈ s, ∑ j ∈ t, 2 * (general_cycle_form c₁).val i j * (general_cycle_form c₂).val i j =
       2 * ∑ i ∈ s, ∑ j ∈ t, (general_cycle_form c₁).val i j * (general_cycle_form c₂).val i j := by

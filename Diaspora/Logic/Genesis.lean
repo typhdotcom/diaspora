@@ -13,14 +13,7 @@ abbrev n_gen : ℕ := 3
 
 /-! ## 2. The Program: "Let there be Rotation" -/
 
-/--
-The "Genesis Program" is a simple sequence of 3 commands:
-1.  0 → 1 must rise (+1)
-2.  1 → 2 must rise (+1)
-3.  2 → 0 must rise (+1)
-
-It is the request for an Escher staircase.
--/
+/-- The genesis program: three rising edges forming a cycle. -/
 def rotational_program : Program n_gen := [
   { src := 0, dst := 1, pol := .pos },
   { src := 1, dst := 2, pol := .pos },
@@ -38,10 +31,7 @@ lemma decode_genesis : decode rotational_program = [
 
 /-! ## 3. The Proof of Impossibility (The Spark) -/
 
-/--
-This theorem proves that the Genesis Program contains a logical contradiction
-that cannot be resolved by scalar potentials.
--/
+/-- The genesis program is unsatisfiable (sum around loop is 3, not 0). -/
 theorem genesis_is_unsatisfiable :
   ¬ Satisfiable (decode rotational_program) := by
   intro h_sat
@@ -78,10 +68,7 @@ theorem genesis_is_unsatisfiable :
 
 /-! ## 4. The Existence of Mass -/
 
-/--
-The Program defines a consistent local graph (it forms a cycle 0-1-2).
-(Proof omitted for brevity, but trivial: 0!=1, 1!=2, 2!=0).
--/
+/-- The genesis program is locally consistent. -/
 lemma genesis_is_consistent : LocallyConsistent (decode rotational_program) := by
   unfold LocallyConsistent
   intro c1 h1 c2 h2
@@ -90,13 +77,7 @@ lemma genesis_is_consistent : LocallyConsistent (decode rotational_program) := b
   -- All cases: iterate cases until fixed point, then simp_all
   all_goals (cases h1 <;> cases h2 <;> (repeat' (rename_i h; cases h)) <;> simp_all)
 
-/--
-**THE GENESIS THEOREM**
-Because the Rotational Program does not Halt (is unsatisfiable),
-the Universe *must* generate a non-zero Harmonic Form.
-
-The logical contradiction (0 = 3) is converted into physical structure (γ).
--/
+/-- Unsatisfiability implies nonzero harmonic form. -/
 theorem structure_is_mandatory :
   ∃ γ, γ ∈ Diaspora.Hodge.HarmonicSubspace (theory_graph (decode rotational_program)) ∧ γ ≠ 0 := by
   apply inconsistency_implies_topology

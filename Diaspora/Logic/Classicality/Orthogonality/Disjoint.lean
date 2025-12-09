@@ -26,9 +26,8 @@ lemma disjoint_cycles_disjoint_support {n : ℕ} [Fintype (Fin n)] [NeZero n]
   intro i j h_c1_nonzero
   unfold general_cycle_form at h_c1_nonzero ⊢
   simp only at h_c1_nonzero ⊢
-  -- If c₁ has nonzero value on (i,j), then i or j is in c₁.verts
   split_ifs at h_c1_nonzero with h1 h2
-  · -- Forward edge of c₁: i is in c₁
+  ·
     obtain ⟨k, hk⟩ := h1
     have h_i_in_c1 : i ∈ c₁.verts := by
       rw [← hk.1]
@@ -40,7 +39,6 @@ lemma disjoint_cycles_disjoint_support {n : ℕ} [Fintype (Fin n)] [NeZero n]
       unfold GeneralCycle.nextVertex GeneralCycle.vertex
       exact List.get_mem c₁.verts _
     have h_j_not_in_c2 : j ∉ c₂.verts := h_disjoint j h_j_in_c1
-    -- Now show c₂ form is 0 on (i,j) since neither i nor j is in c₂
     split_ifs with h3 h4
     · exfalso
       obtain ⟨k2, hk2⟩ := h3
@@ -55,8 +53,7 @@ lemma disjoint_cycles_disjoint_support {n : ℕ} [Fintype (Fin n)] [NeZero n]
       unfold GeneralCycle.vertex
       exact List.get_mem c₂.verts _
     · rfl
-  · -- Reverse edge of c₁: j and i are in c₁
-    obtain ⟨k, hk⟩ := h2
+  · obtain ⟨k, hk⟩ := h2
     have h_j_in_c1 : j ∈ c₁.verts := by
       rw [← hk.1]
       unfold GeneralCycle.vertex
@@ -81,17 +78,10 @@ lemma disjoint_cycles_disjoint_support {n : ℕ} [Fintype (Fin n)] [NeZero n]
       unfold GeneralCycle.vertex
       exact List.get_mem c₂.verts _
     · rfl
-  · -- c₁ form is 0 at (i,j), contradiction
-    exfalso
+  · exfalso
     exact h_c1_nonzero rfl
 
-/-- **Independence of Topological Defects**:
-    Disjoint cycles have orthogonal harmonic forms.
-
-    Physical interpretation: topological defects localized in different regions
-    of the graph do not interact energetically. Their contributions to the
-    total energy are additive (Pythagorean).
--/
+/-- Vertex-disjoint cycles have orthogonal harmonic forms. -/
 theorem disjoint_cycles_orthogonal {n : ℕ} [Fintype (Fin n)] [NeZero n]
     (c₁ c₂ : GeneralCycle n)
     (h_disjoint : GeneralCycle.VertexDisjoint c₁ c₂) :
@@ -161,36 +151,19 @@ lemma edge_disjoint_cycles_disjoint_support {n : ℕ} [Fintype (Fin n)] [NeZero 
   unfold general_cycle_form at h_c1_nonzero ⊢
   simp only at h_c1_nonzero ⊢
   split_ifs at h_c1_nonzero with h1 h2
-  · -- Forward edge of c₁: (i, j) is an edge of c₁
-    have h_edge : (i, j) ∈ c₁.edges := h1
+  · have h_edge : (i, j) ∈ c₁.edges := h1
     have ⟨h_not_fwd, h_not_rev⟩ := h_disjoint i j h_edge
-    -- c₂ has no forward edge (i,j)
     have h_no_c2_fwd : ¬∃ k : Fin c₂.verts.length, c₂.vertex k.val = i ∧ c₂.nextVertex k.val = j := h_not_fwd
-    -- c₂ has no forward edge (j,i), so (i,j) is not a reverse edge of c₂
     have h_no_c2_rev : ¬∃ k : Fin c₂.verts.length, c₂.vertex k.val = j ∧ c₂.nextVertex k.val = i := h_not_rev
     simp only [h_no_c2_fwd, h_no_c2_rev, ↓reduceIte]
-  · -- Reverse edge of c₁: (j, i) is an edge of c₁
-    have h_edge : (j, i) ∈ c₁.edges := h2
+  · have h_edge : (j, i) ∈ c₁.edges := h2
     have ⟨h_not_fwd, h_not_rev⟩ := h_disjoint j i h_edge
-    -- c₂ has no forward edge (j,i)
     have h_no_c2_rev : ¬∃ k : Fin c₂.verts.length, c₂.vertex k.val = j ∧ c₂.nextVertex k.val = i := h_not_fwd
-    -- c₂ has no forward edge (i,j)
     have h_no_c2_fwd : ¬∃ k : Fin c₂.verts.length, c₂.vertex k.val = i ∧ c₂.nextVertex k.val = j := h_not_rev
     simp only [h_no_c2_fwd, h_no_c2_rev, ↓reduceIte]
-  · -- c₁ form is 0 at (i,j), contradiction
-    exfalso
-    exact h_c1_nonzero rfl
+  · exfalso; exact h_c1_nonzero rfl
 
-/-- **Generalized Independence of Topological Defects**:
-    Edge-disjoint cycles have orthogonal harmonic forms.
-
-    This generalizes disjoint_cycles_orthogonal: cycles that share vertices
-    but no edges still produce independent harmonic modes. What matters for
-    orthogonality is edge-disjointness, not vertex-disjointness.
-
-    Physical interpretation: Topological defects on different "channels" (edges)
-    don't interact, even if they share junction points (vertices).
--/
+/-- Edge-disjoint cycles have orthogonal harmonic forms. -/
 theorem edge_disjoint_cycles_orthogonal {n : ℕ} [Fintype (Fin n)] [NeZero n]
     (c₁ c₂ : GeneralCycle n)
     (h_disjoint : GeneralCycle.EdgeDisjoint c₁ c₂) :
@@ -221,16 +194,14 @@ theorem vertex_disjoint_implies_edge_disjoint {n : ℕ}
     exact List.get_mem c₁.verts _
   have h_i_not_in_c2 : i ∉ c₂.verts := h_vert i h_i_in_c1
   constructor
-  · -- (i, j) not an edge of c₂
-    intro h_c2
+  · intro h_c2
     simp only [GeneralCycle.edges, Set.mem_setOf_eq] at h_c2
     obtain ⟨k2, hk2_i, _⟩ := h_c2
     apply h_i_not_in_c2
     rw [← hk2_i]
     unfold GeneralCycle.vertex
     exact List.get_mem c₂.verts _
-  · -- (j, i) not an edge of c₂
-    intro h_c2
+  · intro h_c2
     simp only [GeneralCycle.edges, Set.mem_setOf_eq] at h_c2
     obtain ⟨k2, _, hk2_i⟩ := h_c2
     apply h_i_not_in_c2

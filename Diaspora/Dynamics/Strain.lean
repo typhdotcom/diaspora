@@ -1,10 +1,3 @@
-/-
-# Topology Change
-
-When edge strain exceeds a threshold, the edge breaks, changing the graph topology.
-Strain energy that cannot be absorbed by local potentials becomes topological.
--/
-
 import Diaspora.Hodge.Harmonic
 import Diaspora.Core.Phase
 
@@ -70,10 +63,7 @@ theorem strain_must_localize {n : ℕ} [Fintype (Fin n)] [NeZero n]
 
 /-! ## Gauge Invariance of Holonomy -/
 
-/--
-External observers measuring holonomy see only the harmonic component γ.
-Local details (the exact part dϕ) vanish on cycles by Stokes' theorem.
--/
+/-- Holonomy on cycles depends only on the harmonic component -/
 theorem holonomy_sees_only_harmonic {n : ℕ} [Fintype (Fin n)]
     (σ : C1 n) (cycle : Chain1 n)
     (h_cycle : Chain1.IsCycle cycle) :
@@ -83,13 +73,7 @@ theorem holonomy_sees_only_harmonic {n : ℕ} [Fintype (Fin n)]
 
 /-! ## Topological Defect Formation -/
 
-/--
-When residual strain exceeds the threshold, localization forces some edge to break.
-The resulting topology contains a non-trivial harmonic component:
-- Energy: ||γ||² (irreducible frustration)
-- Topological charge: winding number m
-- Observable via holonomy, independent of local gauge choices
--/
+/-- Excess strain implies localized breaking and non-trivial harmonic component -/
 theorem topological_defect_formation
     {n : ℕ} [Fintype (Fin n)] [NeZero n]
     (σ : C1 n) (C_max : ℝ) (h_pos : C_max > 0)

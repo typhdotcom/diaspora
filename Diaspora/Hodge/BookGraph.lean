@@ -1,58 +1,11 @@
-/-
-# The Book Graph (Stacked Pages)
-
-The book graph B_n consists of n triangles all sharing a common edge (the "spine").
-Each "page" is a triangle formed by the spine edge plus a page vertex.
-
-    Page 1:     2
-               /|\
-              / | \
-             /  |  \
-    Spine:  0---+---1
-             \  |  /
-              \ | /
-               \|/
-    Page 2:     3
-               ...
-
-## The Main Result
-
-  **b₁(B_n) = n**
-
-Each triangle contributes exactly one independent cycle. Despite sharing an
-edge (the spine), the triangles' remaining edges are disjoint, giving n
-independent harmonic modes.
-
-## Philosophical Interpretation: Channel Sharing
-
-This graph demonstrates a complementary principle to the friendship graph:
-
-**"n independent paradoxes can flow through a single communication channel."**
-
-- **Friendship graph**: n triangles share a VERTEX (junction)
-- **Book graph**: n triangles share an EDGE (channel)
-- **Wheel graph**: hub CREATES n cycles from an existing rim
-
-All three achieve b₁ = n but by different mechanisms:
-- Friendship: paradoxes colocate at a junction
-- Book: paradoxes share a transmission medium
-- Wheel: observation amplifies latent structure
-
-The book graph shows that even when paradoxes use the same communication
-channel (the spine), they remain independent. The shared edge doesn't create
-coupling between the triangles - only the page-specific edges matter for
-each triangle's harmonic content.
-
-## Graph-Theoretic Notes
-
-The book graph B_n is also known as:
-- The stacked triangles graph
-- n copies of K_3 sharing a single edge
-- The (n+2)-vertex graph with vertices 0, 1 (spine) and 2..n+1 (pages)
--/
-
 import Diaspora.Hodge.FriendshipGraph
 import Mathlib.LinearAlgebra.Dimension.Finrank
+
+/-!
+# The Book Graph
+
+B_n consists of n triangles sharing a common edge (the "spine"). b₁(B_n) = n.
+-/
 
 open BigOperators Diaspora.Core Diaspora.Hodge
 
@@ -289,57 +242,21 @@ theorem book3_betti_three : Module.finrank ℝ (HarmonicSubspace book3) = 3 := b
   rw [h_edge_half, h_ker] at h_dim
   omega
 
-/-! ## The Book Graph Formula: b₁(B_n) = n
-
-The pattern:
-- B_n has n + 2 vertices (2 spine + n pages)
-- B_n has 2n + 1 edges (1 spine + 2n page edges)
-- b₁ = (2n + 1) - (n + 2) + 1 = n
--/
-
 theorem book_formula_1 : Module.finrank ℝ (HarmonicSubspace book1) = 1 := book1_betti_one
 theorem book_formula_2 : Module.finrank ℝ (HarmonicSubspace book2) = 2 := book2_betti_two
 theorem book_formula_3 : Module.finrank ℝ (HarmonicSubspace book3) = 3 := book3_betti_three
 
-/-! ## Philosophical Corollaries: The Triad of b₁ = n -/
-
-/-- **The Channel Sharing Principle**: Sharing an edge doesn't create coupling.
-
-    B_2 has the same number of independent cycles as two isolated triangles.
-    The spine is a "shared channel" through which paradoxes flow independently.
--/
 theorem channel_is_transparent :
     Module.finrank ℝ (HarmonicSubspace book2) =
     Module.finrank ℝ (HarmonicSubspace book1) +
     Module.finrank ℝ (HarmonicSubspace book1) := by
   rw [book2_betti_two, book1_betti_one]
 
-/-- **The Triad Theorem**: Three mechanisms, same dimension.
-
-    Wheel W_3, Friendship F_3, and Book B_3 all achieve b₁ = 3 but represent
-    fundamentally different ways of assembling paradox:
-
-    - **Wheel**: Observation creates cycles (hub sees rim)
-    - **Friendship**: Junction hosts cycles (vertex touches triangles)
-    - **Book**: Channel transmits cycles (edge shared by triangles)
--/
 theorem triad_same_betti :
     Module.finrank ℝ (HarmonicSubspace book3) =
     Module.finrank ℝ (HarmonicSubspace FriendshipGraph.friendship3) := by
   rw [book3_betti_three, FriendshipGraph.friendship3_betti_three]
 
-/-- **Vertex vs Edge Sharing**: Both preserve independence.
-
-    The friendship graph shares a VERTEX among n triangles.
-    The book graph shares an EDGE among n triangles.
-    Both achieve b₁ = n, showing that neither creates coupling.
-
-    The harmonic modes are independent in both cases because:
-    - Friendship: triangles are edge-disjoint (share no channels)
-    - Book: each triangle has 2 unique edges (its page-to-spine connections)
-
-    What matters is that each triangle retains its own "private" edges.
--/
 theorem vertex_vs_edge_same_result :
     Module.finrank ℝ (HarmonicSubspace book3) =
     Module.finrank ℝ (HarmonicSubspace FriendshipGraph.friendship3) ∧
@@ -349,28 +266,11 @@ theorem vertex_vs_edge_same_result :
   · rw [book3_betti_three, FriendshipGraph.friendship3_betti_three]
   · rw [book2_betti_two, FriendshipGraph.friendship2_betti_two]
 
-/-- **The Edge Count Comparison**:
-
-    The book graph is more economical than the friendship graph:
-    - F_n has 2n + 1 vertices and 3n edges
-    - B_n has n + 2 vertices and 2n + 1 edges
-
-    Book achieves the same b₁ with fewer vertices and edges!
-    This reflects the efficiency of edge-sharing vs vertex-sharing.
--/
 theorem book_is_economical :
     book3.active_edges.card < FriendshipGraph.friendship3.active_edges.card := by
   rw [book3_edge_count, FriendshipGraph.friendship3_edge_count]
   omega
 
-/-- **Density Comparison**: Book is denser.
-
-    Let ρ = |E| / |V| be the edge density.
-    - F_3: 9 / 7 ≈ 1.29
-    - B_3: 7 / 5 = 1.40
-
-    The book graph packs more topology into less space.
--/
 theorem book_denser_than_friendship :
     (book3.active_edges.card : ℚ) / 2 / 5 >
     (FriendshipGraph.friendship3.active_edges.card : ℚ) / 2 / 7 := by

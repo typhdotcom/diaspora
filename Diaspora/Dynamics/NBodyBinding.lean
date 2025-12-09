@@ -3,9 +3,8 @@ import Diaspora.Dynamics.BoundStates
 /-!
 # N-Body Gravitational Binding
 
-This file proves that gravitational binding in Diaspora is strictly pairwise:
-there are no emergent N-body forces. The total binding energy of any collection
-of cycles decomposes exactly into the sum of pairwise binding energies.
+Gravitational binding is strictly pairwise: total binding energy decomposes
+exactly into pairwise terms (no emergent N-body forces).
 
 ## Main Results
 
@@ -13,20 +12,6 @@ of cycles decomposes exactly into the sum of pairwise binding energies.
 - `binding_energy_symm`: Binding energy is symmetric
 - `total_binding_is_pairwise_3`: Three-cycle binding decomposes into three pairwise terms
 - `disjoint_zero_binding`: Disjoint cycles have zero binding
-
-## Physical Interpretation
-
-In classical physics, 3-body (and higher) forces can emerge from quantum field theory
-or from non-linear interactions. Diaspora's gravitational model is simpler:
-**gravity is strictly bilinear**.
-
-This means:
-1. The total gravitational energy of N particles is exactly the sum of pairwise energies
-2. There are no "emergent" 3-body, 4-body, etc. forces
-3. Superposition holds exactly for gravitational interactions
-
-This is the discrete analog of Newtonian gravity's linearity: the gravitational
-field of multiple masses is the vector sum of individual fields.
 -/
 
 namespace Diaspora.Dynamics.NBodyBinding
@@ -55,16 +40,14 @@ theorem norm_sq_eq_inner (σ : C1 n) : norm_sq σ = inner_product_C1 σ σ := rf
 
 /-! ## Binding Energy and Inner Product -/
 
-/-- **Binding Energy is Negative Twice the Inner Product**
-
-This connects the binding_energy definition to the inner product formula. -/
+/-- Binding energy = -2 × inner product. -/
 theorem binding_energy_eq_neg_inner (c₁ c₂ : GeneralCycle n) :
     binding_energy c₁ c₂ = -2 * inner_product_C1 (general_cycle_form c₁) (general_cycle_form c₂) := by
   unfold binding_energy
   have h := combined_cycle_energy c₁ c₂
   linarith
 
-/-- **Binding Energy is Symmetric** -/
+/-- Binding energy is symmetric. -/
 theorem binding_energy_symm (c₁ c₂ : GeneralCycle n) :
     binding_energy c₁ c₂ = binding_energy c₂ c₁ := by
   rw [binding_energy_eq_neg_inner, binding_energy_eq_neg_inner]
@@ -104,8 +87,7 @@ theorem sum_pairwise_binding_eq_inner {N : ℕ} (cycles : Fin N → GeneralCycle
 
 /-! ## The Three-Cycle Case -/
 
-/-- The three-cycle case from Gravity.lean restated in binding energy language.
-    The total binding of three cycles equals the sum of the three pairwise bindings. -/
+/-- Total binding of three cycles equals sum of three pairwise bindings. -/
 theorem three_cycle_binding_is_pairwise (c₁ c₂ c₃ : GeneralCycle n) :
     binding_energy c₁ c₂ + binding_energy c₁ c₃ + binding_energy c₂ c₃ =
     (norm_sq (general_cycle_form c₁) + norm_sq (general_cycle_form c₂) + norm_sq (general_cycle_form c₃)) -
@@ -116,10 +98,7 @@ theorem three_cycle_binding_is_pairwise (c₁ c₂ c₃ : GeneralCycle n) :
   have h₂₃ := binding_energy_eq_neg_inner c₂ c₃
   linarith
 
-/-- **The Total Binding Decomposition Theorem (3-cycle case)**
-
-The total binding energy of 3 cycles equals the sum of all pairwise binding energies.
-This proves that gravity in Diaspora is strictly pairwise for 3 bodies. -/
+/-- Total binding decomposes into pairwise terms (3-cycle case). -/
 theorem total_binding_is_pairwise_3 (c₁ c₂ c₃ : GeneralCycle n) :
     (norm_sq (general_cycle_form c₁) + norm_sq (general_cycle_form c₂) + norm_sq (general_cycle_form c₃)) -
     norm_sq (cycle_sum3 c₁ c₂ c₃) =
@@ -132,9 +111,7 @@ theorem total_binding_is_pairwise_3 (c₁ c₂ c₃ : GeneralCycle n) :
 
 /-! ## Corollaries -/
 
-/-- **Corollary: Disjoint cycles have zero pairwise binding**
-
-If two cycles share no edges, their binding energy is zero. -/
+/-- Disjoint cycles have zero binding. -/
 theorem disjoint_zero_binding (c₁ c₂ : GeneralCycle n) (h : c₁.signedOverlap c₂ = 0) :
     binding_energy c₁ c₂ = 0 := by
   rw [binding_energy_eq_neg_inner]
@@ -143,9 +120,7 @@ theorem disjoint_zero_binding (c₁ c₂ : GeneralCycle n) (h : c₁.signedOverl
     simp
   linarith
 
-/-- **Corollary: Total binding of disjoint cycles is zero**
-
-If all cycles are pairwise disjoint, the total binding energy is zero. -/
+/-- Pairwise disjoint cycles have zero total binding. -/
 theorem all_disjoint_zero_total_binding {N : ℕ} (cycles : Fin N → GeneralCycle n)
     (h_disjoint : ∀ i j, i ≠ j → (cycles i).signedOverlap (cycles j) = 0) :
     sum_pairwise_binding cycles = 0 := by
@@ -159,10 +134,7 @@ theorem all_disjoint_zero_total_binding {N : ℕ} (cycles : Fin N → GeneralCyc
   · rfl
 
 omit [DecidableEq (Fin n)] in
-/-- **Physical Principle: Superposition of Gravitational Fields**
-
-The gravitational field (harmonic form) of a system of cycles is the sum of
-individual fields. This is the linearity that enables pairwise decomposition. -/
+/-- Gravitational fields superpose linearly. -/
 theorem gravitational_superposition (c₁ c₂ : GeneralCycle n) :
     ∀ i j : Fin n, (cycle_sum c₁ c₂).val i j =
       (general_cycle_form c₁).val i j + (general_cycle_form c₂).val i j := by
@@ -170,19 +142,14 @@ theorem gravitational_superposition (c₁ c₂ : GeneralCycle n) :
   rfl
 
 omit [DecidableEq (Fin n)] in
-/-- **Physical Principle: Three-Body Superposition**
-
-For three cycles, the combined field is the sum of three fields. -/
+/-- Three-body superposition. -/
 theorem gravitational_superposition_3 (c₁ c₂ c₃ : GeneralCycle n) :
     ∀ i j : Fin n, (cycle_sum3 c₁ c₂ c₃).val i j =
       (general_cycle_form c₁).val i j + (general_cycle_form c₂).val i j + (general_cycle_form c₃).val i j := by
   intro i j
   rfl
 
-/-- **Corollary: Binding energy is non-negative for opposite-direction sharing**
-
-When cycles share edges in opposite directions (no same-direction sharing),
-the binding energy is non-negative (attractive interaction). -/
+/-- Opposite-direction sharing yields non-negative (attractive) binding. -/
 theorem binding_nonneg_opposite (c₁ c₂ : GeneralCycle n)
     (h_same : c₁.sameDirectionEdges c₂ = 0) :
     binding_energy c₁ c₂ ≥ 0 := by
@@ -201,16 +168,7 @@ theorem binding_nonneg_opposite (c₁ c₂ : GeneralCycle n)
     · exact Nat.cast_nonneg _
   · linarith
 
-/-- **The No-Emergent-Forces Principle**
-
-This theorem states the fundamental principle: the energy of any gravitational
-interaction between cycles can be computed pairwise. There are no corrections
-from 3-body, 4-body, or higher-order interactions.
-
-Mathematically: The inner product is bilinear, so
-⟨∑ᵢ γᵢ, ∑ⱼ γⱼ⟩ = ∑ᵢⱼ ⟨γᵢ, γⱼ⟩
-
-This linearity is what makes gravity in Diaspora strictly pairwise. -/
+/-- No emergent forces: total binding equals sum of pairwise bindings. -/
 theorem no_emergent_forces_principle (c₁ c₂ c₃ : GeneralCycle n)
     (h₁₂ : c₁.sameDirectionEdges c₂ = 0)
     (h₁₃ : c₁.sameDirectionEdges c₃ = 0)

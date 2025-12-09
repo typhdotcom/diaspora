@@ -1,8 +1,3 @@
-/-
-Classical universe properties.
-
-Theorems about universes with trivial harmonic subspace.
--/
 import Diaspora.Logic.Classicality.Cycles
 import Mathlib.Combinatorics.SimpleGraph.Metric
 

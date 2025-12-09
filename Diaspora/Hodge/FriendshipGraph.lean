@@ -1,57 +1,18 @@
-/-
-# The Friendship Graph (Windmill Graph)
-
-The friendship graph F_n consists of n triangles all sharing a single central
-vertex (vertex 0). Each pair of "outer" vertices (2k-1, 2k) for k = 1..n
-forms a triangle with the center.
-
-    Triangle 1:  1 — 0 — 2
-                  \ | /
-    Triangle 2:  3 — 0 — 4
-                  \ | /
-    ...
-
-## The Main Result
-
-  **b₁(F_n) = n**
-
-Each triangle contributes exactly one independent cycle. Despite sharing a
-vertex (the center), the triangles' harmonic forms are orthogonal because
-they are edge-disjoint.
-
-## Philosophical Interpretation
-
-This graph demonstrates a profound principle from Diaspora's Logic layer:
-
-**"n independent paradoxes can coexist at a single point."**
-
-The triangles share a vertex (the central junction) but no edges (communication
-channels). By edge_disjoint_cycles_orthogonal from Orthogonality.lean, their
-harmonic forms are orthogonal. Each triangle carries its own irreducible
-frustration independently.
-
-This contrasts with the wheel graph W_n, where the hub creates NEW cycles
-with the rim. In the friendship graph, the central vertex doesn't create
-new interactions—it merely hosts n pre-existing paradoxes at one location.
-
-The friendship graph is the natural home for the principle:
-"What matters for orthogonality is channel-disjointness, not junction-disjointness."
-
-## Connection to Graph Theory
-
-The friendship graph F_n is also known as:
-- The windmill graph Wd(3, n)
-- The Dutch windmill
-- n copies of K_3 sharing a single vertex
-
-It satisfies the "Friendship Theorem" in social network analysis: if any two
-people have exactly one mutual friend, the social graph must be a friendship
-graph (with the mutual friend as the central vertex).
--/
-
 import Diaspora.Hodge.CycleGraph
 import Diaspora.Hodge.WheelGraph
 import Mathlib.LinearAlgebra.Dimension.Finrank
+
+/-!
+# The Friendship Graph (Windmill Graph)
+
+F_n consists of n triangles sharing a central vertex. Also known as
+the windmill graph Wd(3, n).
+
+**Main result**: b₁(F_n) = n
+
+Each triangle contributes one independent cycle. Edge-disjoint triangles
+have orthogonal harmonic forms.
+-/
 
 open BigOperators Diaspora.Core Diaspora.Hodge Diaspora.Hodge.WheelGraph
 
@@ -203,11 +164,7 @@ lemma friendship2_kernel_dim : Module.finrank ℝ (LinearMap.ker (d_G_linear fri
   rw [h_ker_eq_span, finrank_span_singleton]
   intro h; have : (1 : ℝ) = 0 := congr_fun h 0; norm_num at this
 
-/-- **F_2 Betti Number**: b₁(F_2) = 2 (two edge-disjoint triangles).
-
-    Each triangle contributes one independent cycle. The triangles share
-    vertex 0 but no edges, so their harmonic forms are orthogonal.
--/
+/-- b₁(F_2) = 2 -/
 theorem friendship2_betti_two : Module.finrank ℝ (HarmonicSubspace friendship2) = 2 := by
   have h_dim := harmonic_dimension_eq_cyclomatic friendship2
   have h_ker := friendship2_kernel_dim
@@ -292,10 +249,7 @@ lemma friendship3_kernel_dim : Module.finrank ℝ (LinearMap.ker (d_G_linear fri
   rw [h_ker_eq_span, finrank_span_singleton]
   intro h; have : (1 : ℝ) = 0 := congr_fun h 0; norm_num at this
 
-/-- **F_3 Betti Number**: b₁(F_3) = 3 (three edge-disjoint triangles).
-
-    Each of the three triangles contributes one independent cycle.
--/
+/-- b₁(F_3) = 3 -/
 theorem friendship3_betti_three : Module.finrank ℝ (HarmonicSubspace friendship3) = 3 := by
   have h_dim := harmonic_dimension_eq_cyclomatic friendship3
   have h_ker := friendship3_kernel_dim
@@ -304,23 +258,7 @@ theorem friendship3_betti_three : Module.finrank ℝ (HarmonicSubspace friendshi
   rw [h_edge_half, h_ker] at h_dim
   omega
 
-/-! ## The Friendship Graph Formula: b₁(F_n) = n
-
-The pattern is clear:
-- F_n has 2n + 1 vertices (1 center + 2n outer)
-- F_n has 3n edges (n triangles × 3 edges each, no sharing)
-- b₁ = 3n - (2n + 1) + 1 = n
--/
-
-/-- **The Friendship Graph Formula**: b₁(F_n) = n
-
-    For any n ≥ 1, the friendship graph with n triangles sharing a
-    central vertex has exactly n independent cycles.
-
-    Each triangle contributes exactly one harmonic mode. The triangles
-    are edge-disjoint (share only the center vertex), so their harmonic
-    forms are orthogonal by edge_disjoint_cycles_orthogonal.
--/
+/-! ## The Friendship Graph Formula: b₁(F_n) = n -/
 theorem friendship_formula_1 : Module.finrank ℝ (HarmonicSubspace friendship1) = 1 :=
   friendship1_betti_one
 
@@ -330,62 +268,29 @@ theorem friendship_formula_2 : Module.finrank ℝ (HarmonicSubspace friendship2)
 theorem friendship_formula_3 : Module.finrank ℝ (HarmonicSubspace friendship3) = 3 :=
   friendship3_betti_three
 
-/-! ## Philosophical Corollaries -/
+/-! ## Corollaries -/
 
-/-- **The Junction Principle**: Sharing a vertex doesn't create interaction.
-
-    F_2 has the same number of independent cycles as two isolated triangles.
-    The central vertex is a "junction" where paradoxes meet without interfering.
--/
+/-- F_2 = two isolated triangles: sharing a vertex doesn't couple cycles. -/
 theorem junction_is_sterile :
     Module.finrank ℝ (HarmonicSubspace friendship2) =
     Module.finrank ℝ (HarmonicSubspace friendship1) +
     Module.finrank ℝ (HarmonicSubspace friendship1) := by
   rw [friendship2_betti_two, friendship1_betti_one]
 
-/-- **The Channel Principle**: Communication requires edges, not just vertices.
-
-    The wheel graph W_3 has the same vertices as F_1 (hub + 2 outer vertices)
-    but different edges (the outer vertices form a cycle). This changes the
-    topology: W_3 has b₁ = 3, while F_1 has b₁ = 1.
-
-    Having a shared "observer" (central vertex) doesn't create new paradoxes
-    unless it creates new communication channels (edges between outer vertices).
--/
+/-- b₁(F_1) < b₁(F_3): more triangles means more cycles. -/
 theorem observation_requires_channels :
     Module.finrank ℝ (HarmonicSubspace friendship1) <
     Module.finrank ℝ (HarmonicSubspace friendship3) := by
   rw [friendship1_betti_one, friendship3_betti_three]
   omega
 
-/-- **Additivity of Edge-Disjoint Paradoxes**:
-
-    When n paradoxes share only a junction point (vertex) but not
-    communication channels (edges), their contributions to the harmonic
-    dimension are additive.
-
-    This is a consequence of edge_disjoint_cycles_orthogonal from
-    Orthogonality.lean: edge-disjoint cycles have orthogonal harmonic forms,
-    so they span independent subspaces of H.
--/
+/-- b₁(F_3) = 3 × b₁(F_1): edge-disjoint cycles contribute additively. -/
 theorem paradox_additivity :
     Module.finrank ℝ (HarmonicSubspace friendship3) =
     3 * Module.finrank ℝ (HarmonicSubspace friendship1) := by
   rw [friendship3_betti_three, friendship1_betti_one]
 
-/-- **Contrast with the Wheel**: Observation creates vs hosts paradoxes.
-
-    The wheel W_n has a central hub connected to an n-cycle (rim).
-    The friendship graph F_n has a central hub connected to n triangles.
-
-    - Wheel: The hub CREATES new cycles (each spoke + rim segment = cycle)
-    - Friendship: The hub HOSTS existing cycles (each triangle is independent)
-
-    For W_n: b₁ = n (hub creates n new cycles from the rim)
-    For F_n: b₁ = n (hub hosts n pre-existing triangle cycles)
-
-    Same Betti number, different mechanism!
--/
+/-- b₁(F_3) = b₁(W_3): same Betti number, different structure. -/
 theorem wheel_vs_friendship_same_betti :
     Module.finrank ℝ (HarmonicSubspace friendship3) =
     Module.finrank ℝ (HarmonicSubspace (WheelGraph.wheelGraph 3 (by omega))) := by

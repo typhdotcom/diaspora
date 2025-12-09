@@ -1,38 +1,16 @@
-/-
-# Path Graph Betti Numbers
-
-The path graph P_n (n vertices in a line) has Betti number:
-  b₁(P_n) = 0
-
-This is the archetype of the **classical universe** in Diaspora's language:
-no cycles, no paradoxes, no irreducible frustration. Every constraint
-is satisfiable; every 1-cochain is exact.
-
-The path graph is the "vacuum state" - the simplest connected structure
-with trivial topology. Adding one edge (closing into a cycle) creates
-the first unit of harmonic content. This file proves the vacuum has
-b₁ = 0, establishing the baseline from which all topology emerges.
-
-Philosophically: The path represents pure hierarchy without circularity.
-Information flows from one end to the other without getting trapped.
-There are no fossils of contradiction, no frozen paradoxes, no mass.
--/
-
 import Diaspora.Hodge.CycleGraph
 import Diaspora.Logic.Classicality
 
 open BigOperators Diaspora.Core Diaspora.Hodge
 
+/-! # Path Graph: b₁(P_n) = 0 -/
+
 namespace Diaspora.Hodge.PathGraph
 
-/-! ## Definition: Path Graph P_n -/
-
-/-- Adjacent in path: j = i + 1 or i = j + 1 (consecutive vertices). -/
 def pathAdjPred {n : ℕ} (i j : Fin n) : Bool :=
   (i.val + 1 = j.val) || (j.val + 1 = i.val)
 
-/-- The path graph P_n on n vertices (requires n ≥ 2).
-    Vertex i is adjacent to vertices i-1 and i+1 (when they exist). -/
+/-- Path graph P_n on n vertices (n ≥ 2). -/
 def pathGraph (n : ℕ) [NeZero n] (_hn : n ≥ 2 := by omega) : DynamicGraph n where
   active_edges := Finset.filter
     (fun (i, j) => pathAdjPred i j)
@@ -177,15 +155,7 @@ lemma path_graph_kernel_dim (n : ℕ) [NeZero n] (hn : n ≥ 2) :
 
 /-! ## The Main Theorem -/
 
-/-- **Path Graph Betti Number Theorem**: b₁(P_n) = 0 for n ≥ 2.
-
-    The path graph is the archetype of the classical universe:
-    - No cycles means no paradoxes
-    - Every 1-cochain is exact (satisfiable)
-    - Harmonic subspace is trivial
-
-    This is the "vacuum state" - the baseline with zero topology.
--/
+/-- b₁(P_n) = 0. -/
 theorem path_graph_betti_0 (n : ℕ) [NeZero n] [DecidableEq (Fin n)] (hn : n ≥ 2) :
     Module.finrank ℝ (HarmonicSubspace (pathGraph n hn)) = 0 := by
   have h_dim := harmonic_dimension_eq_cyclomatic (pathGraph n hn)
@@ -211,33 +181,18 @@ theorem P4_betti_zero [DecidableEq (Fin 4)] :
     Module.finrank ℝ (HarmonicSubspace (pathGraph 4 (by omega))) = 0 :=
   path_graph_betti_0 4 (by omega)
 
-/-! ## Philosophical Corollaries -/
-
-/-- The path graph is classical: it has no harmonic content. -/
 theorem path_graph_is_classical (n : ℕ) [NeZero n] [DecidableEq (Fin n)] (hn : n ≥ 2) :
     Diaspora.Logic.IsClassical (pathGraph n hn) := by
   unfold Diaspora.Logic.IsClassical
   exact path_graph_betti_0 n hn
 
-/-- On the path graph, every ActiveForm is exact (satisfiable). -/
 theorem path_graph_all_exact (n : ℕ) [NeZero n] [DecidableEq (Fin n)] (hn : n ≥ 2) :
     ∀ σ : ActiveForm (pathGraph n hn), σ ∈ ImGradient (pathGraph n hn) :=
   Diaspora.Logic.classical_universe_admits_no_paradoxes (pathGraph n hn) (path_graph_is_classical n hn)
 
-/-! ## The Genesis Gap: Path vs Cycle
+/-! ## Path vs Cycle -/
 
-The path graph P_n has n-1 edges and b₁ = 0.
-The cycle graph C_n has n edges and b₁ = 1.
-
-The difference is exactly ONE edge - the "genesis edge" that closes the loop.
-That single edge transforms the classical vacuum into a non-classical universe
-with irreducible harmonic content.
-
-Formally: P_n + one_edge ≅ C_n, and b₁ jumps from 0 to 1.
--/
-
-/-- The edge count difference between cycle and path is exactly 1.
-    This is the "cost of genesis" - one edge creates the first paradox. -/
+/-- C_n has one more edge than P_n. -/
 theorem genesis_costs_one_edge (n : ℕ) [NeZero n] (hn : n ≥ 3) :
     (CycleGraph.cycleGraph n (by omega)).active_edges.card / 2 -
     (pathGraph n (by omega)).active_edges.card / 2 = 1 := by
@@ -246,8 +201,7 @@ theorem genesis_costs_one_edge (n : ℕ) [NeZero n] (hn : n ≥ 3) :
   rw [h_cycle, h_path]
   omega
 
-/-- The Betti number jump from path to cycle is exactly 1.
-    Closing the loop creates precisely one unit of irreducible frustration. -/
+/-- b₁(C_n) - b₁(P_n) = 1. -/
 theorem genesis_creates_one_cycle (n : ℕ) [NeZero n] [DecidableEq (Fin n)] (hn : n ≥ 3) :
     Module.finrank ℝ (HarmonicSubspace (CycleGraph.cycleGraph n (by omega))) -
     Module.finrank ℝ (HarmonicSubspace (pathGraph n (by omega))) = 1 := by

@@ -423,6 +423,27 @@ Adding these equations: 2/n₁ = 2/n₁', so n₁ = n₁'. Subtracting: 2/n₂ =
 
 Interpretation: The lightlike constraint E = p creates kinematic rigidity. Cycles cannot exchange energy through scattering. The discrete mass spectrum {1/3, 1/4, 1/5, ...} is protected against perturbation. Only pair production and annihilation can change the topological content of a system.
 
+### Lorentz Transformations (`LorentzTransform.lean`)
+
+Under a Lorentz boost with velocity v, energy and momentum transform as:
+
+| Quantity | Transformation |
+| :--- | :--- |
+| Boosted energy | E' = γ(E - vp) |
+| Boosted momentum | p' = γ(p - vE) |
+| Lorentz factor | γ = 1/√(1 - v²) |
+| Doppler factor | D(v) = √((1-v)/(1+v)) |
+
+* `invariant_mass_preserved`: E'² - p'² = E² - p² under any boost.
+* `lightlike_preserved`: E = p implies E' = p'; cycles remain on the light cone.
+* `cycle_doppler_energy`: E' = E × D(v); boosted cycle energy follows relativistic Doppler.
+* `doppler_reciprocal`: D(v) × D(-v) = 1; approaching and receding cancel.
+* `redshift`: For v > 0 (receding), D(v) < 1.
+* `blueshift`: For v < 0 (approaching), D(v) > 1.
+* `velocity_composition_subluminal`: |u| < 1 and |v| < 1 imply |(u+v)/(1+uv)| < 1.
+
+Interpretation: Different inertial observers see cycles with different energies and momenta, but all agree on the lightlike condition E = p and the zero invariant mass. A cycle that appears "heavy" (small n) to one observer appears "lighter" (larger effective wavelength) to a receding observer. The topology itself, the winding number and harmonic content, is frame-independent. Relativistic velocity composition preserves the subluminal bound: you cannot boost past c.
+
 ### Action Quantization (`Action.lean`)
 
 * `action_of_cycle`: S = E × T = 1; the action of any cycle is exactly 1.

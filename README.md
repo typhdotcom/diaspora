@@ -405,9 +405,11 @@ Binding affects energy but not momentum. For cycles with k shared opposite-direc
 
 Interpretation: Momentum p = (n₂ - n₁)/(n₁n₂) depends only on cycle lengths, not binding. Energy decreases with binding while momentum stays fixed, so v = p/E increases. For equal masses, p = 0, so v = 0 at any binding level. For unequal masses, stronger binding means faster motion. At maximum binding (k = min(n₁, n₂)), the smaller cycle is fully absorbed: m² = 0 and v = c. The system returns to lightlike, carrying only the mass difference. This is partial annihilation: the lighter particle disappears, leaving a lightlike remnant with energy |1/n₁ - 1/n₂|.
 
-### Scattering Theory (`ScatteringTheory.lean`)
+### Scattering Theory (`ScatteringTheory.lean`, `SameDirectionNonInteraction.lean`)
 
-Elastic scattering of lightlike cycles is highly constrained. For opposite-direction pairs, energy and momentum conservation give:
+Elastic scattering of lightlike cycles is highly constrained.
+
+**Opposite-direction pairs** can collide (m² > 0, timelike). Energy and momentum conservation give:
 
 | Conservation | Equation |
 | :--- | :--- |
@@ -419,9 +421,15 @@ Adding these equations: 2/n₁ = 2/n₁', so n₁ = n₁'. Subtracting: 2/n₂ =
 * `opposite_direction_individual_preservation`: Opposite-direction scattering preserves individual cycle lengths.
 * `no_direction_flip`: Cannot convert opposite-direction to same-direction (charge conservation).
 * `elastic_scattering_is_identity`: For opposite-direction cycles, the only valid scattering is identity.
-* `scattering_vs_production`: Scattering preserves topology; only pair production can change it.
 
-Interpretation: The lightlike constraint E = p creates kinematic rigidity. Cycles cannot exchange energy through scattering. The discrete mass spectrum {1/3, 1/4, 1/5, ...} is protected against perturbation. Only pair production and annihilation can change the topological content of a system.
+**Same-direction pairs** cannot collide at all (m² = 0, lightlike). The system has no center-of-mass frame.
+
+* `same_direction_system_lightlike`: E² - p² = 0 for same-direction pairs.
+* `no_center_of_mass_frame`: No subluminal boost can bring the system to rest.
+* `same_direction_cm_velocity_is_c`: The "center of mass" travels at c.
+* `complete_scattering_correspondence`: Unifies opposite/same direction results.
+
+Interpretation: Opposite-direction scattering is kinematically forced to identity. Same-direction scattering cannot occur because parallel light rays have no rest frame. Together, these protect the discrete mass spectrum {1/3, 1/4, 1/5, ...} against perturbation. Only pair production and annihilation can change topological content.
 
 ### Lorentz Transformations (`LorentzTransform.lean`)
 

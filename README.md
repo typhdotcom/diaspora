@@ -536,7 +536,26 @@ Interpretation: Different inertial observers see different energies and momenta 
 * `additive_action`: k independent cycles have total action k.
 * `the_action_correspondence`: Unifies action, energy, period, and Planck's constant.
 
-Interpretation: Every topological defect carries exactly one quantum of action: S = E × T = (1/n) × n = 1. The n's cancel—a triangle and a 1000-cycle both have S = 1. This is Diaspora's **Bohr-Sommerfeld condition**: action is quantized in integer multiples of ℏ = 1. The quantum of action is universal because it's the "cost" of creating a topological obstruction, independent of the obstruction's size. Since the Betti number b₁ counts independent cycles, the total topological action of a universe equals b₁. This explains why ℏ appears in all quantum relations: it's built into discrete spacetime as the irreducible unit of topological complexity.
+Interpretation: Every topological defect carries exactly one quantum of action: S = E × T = (1/n) × n = 1. The n's cancel: a triangle and a 1000-cycle both have S = 1. This is Diaspora's **Bohr-Sommerfeld condition**: action is quantized in integer multiples of ℏ = 1. The quantum of action is universal because it's the "cost" of creating a topological obstruction, independent of the obstruction's size. Since the Betti number b₁ counts independent cycles, the total topological action of a universe equals b₁. This explains why ℏ appears in all quantum relations: it's built into discrete spacetime as the irreducible unit of topological complexity.
+
+### Action Topology (`ActionTopology.lean`)
+
+Action counts topology, not energy. In inelastic scattering, energy redistributes but action changes discretely with cycle count.
+
+| Configuration | Energy | Action |
+| :--- | :--- | :--- |
+| Two cycles (6, 6) | 1/6 + 1/6 = 1/3 | 2 |
+| After merger (3) | 1/3 | 1 |
+| Change | 0 | -1 |
+
+* `total_action_eq_cycle_count`: Total action = number of cycles = b₁.
+* `merger_energy_action_decoupling`: Merger conserves energy but decreases action by 1.
+* `split_increases_action`: Splitting increases action by 1.
+* `the_action_topology_correspondence`: ΔS = Δb₁; action change equals topology change.
+* `six_six_to_three_example`: 6+6→3 merger: E conserved at 1/3, action drops from 2 to 1.
+* `four_twelve_to_three_example`: 4+12→3 merger: E conserved at 1/3, action drops from 2 to 1.
+
+Interpretation: Energy tells you how much; action tells you how many. Merger combines two defects into one heavier defect (E conserved, S decreases). Splitting fragments one defect into two lighter defects (E conserved, S increases). The total action of a universe equals its cycle count b₁, so action tracks topological complexity rather than energy content. Planck's constant ℏ = 1 is the action quantum because it's the cost of one cycle, regardless of that cycle's energy.
 
 ### Angular Momentum (`AngularMomentum.lean`)
 

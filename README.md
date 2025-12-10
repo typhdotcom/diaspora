@@ -431,6 +431,35 @@ Adding these equations: 2/n₁ = 2/n₁', so n₁ = n₁'. Subtracting: 2/n₂ =
 
 Interpretation: Opposite-direction scattering is kinematically forced to identity. Same-direction scattering cannot occur because parallel light rays have no rest frame. Together, these protect the discrete mass spectrum {1/3, 1/4, 1/5, ...} against perturbation. Only pair production and annihilation can change topological content.
 
+### Inelastic Scattering (`InelasticScattering.lean`)
+
+Elastic scattering preserves cycle count. Inelastic processes change it: merger (2→1) and splitting (1→2).
+
+Same-direction cycles are both lightlike, and their combined system is also lightlike. A single cycle is lightlike too, so 2→1 merger is kinematically possible. Energy and momentum conservation give:
+
+| Quantity | Before | After |
+| :--- | :--- | :--- |
+| Energy | 1/n₁ + 1/n₂ | 1/n₃ |
+| Momentum | 1/n₁ + 1/n₂ | 1/n₃ |
+
+Solving: n₃ = n₁n₂/(n₁+n₂), the harmonic mean. This is only valid when the result is an integer ≥ 3.
+
+| Merger | n₃ | Valid? |
+| :--- | :--- | :--- |
+| 6 + 6 → 3 | 3 | ✓ |
+| 4 + 12 → 3 | 3 | ✓ |
+| 3 + 3 → 1.5 | 1.5 | ✗ (not integer) |
+| 4 + 4 → 2 | 2 | ✗ (below minimum) |
+| 5 + 5 → 2.5 | 2.5 | ✗ (not integer) |
+
+* `merger_wavelength`: n₃ = n₁n₂/(n₁+n₂); the harmonic mean formula.
+* `merger_energy_conservation`: Before and after energies match.
+* `merger_creates_heavier`: n₃ < min(n₁, n₂); the merged cycle is always shorter (heavier).
+* `split_conservation`: Splitting (1→2) conserves energy; it is the time-reverse of merger.
+* `split_creates_lighter`: Products are lighter than the parent.
+
+Interpretation: Two co-propagating cycles can coalesce into one heavier cycle. The harmonic mean formula severely restricts which mergers are allowed. Most pairs cannot merge: the result is either non-integer or below the minimum cycle length 3. The 6+6→3 and 4+12→3 cases are among the simplest valid mergers. Splitting is the reverse: a heavy cycle can decay into two lighter co-propagating fragments. The integrality constraint means topology change is rare. Unlike elastic scattering (which is trivial), inelastic processes can actually redistribute mass, but only when the arithmetic works out.
+
 ### Spectral Conservation (`SpectralConservation.lean`)
 
 The mass spectrum is protected by a superselection rule. Define the signed mass distribution: for each cycle length n, count cycles with orientation +1, subtract cycles with orientation -1. This distribution is conserved under all allowed processes:

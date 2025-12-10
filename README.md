@@ -431,6 +431,22 @@ Adding these equations: 2/n₁ = 2/n₁', so n₁ = n₁'. Subtracting: 2/n₂ =
 
 Interpretation: Opposite-direction scattering is kinematically forced to identity. Same-direction scattering cannot occur because parallel light rays have no rest frame. Together, these protect the discrete mass spectrum {1/3, 1/4, 1/5, ...} against perturbation. Only pair production and annihilation can change topological content.
 
+### Spectral Conservation (`SpectralConservation.lean`)
+
+The mass spectrum is protected by a superselection rule. Define the signed mass distribution: for each cycle length n, count cycles with orientation +1, subtract cycles with orientation -1. This distribution is conserved under all allowed processes:
+
+* `pair_creation_preserves_distribution`: Creating a matter-antimatter pair adds (+1, -1) at length n, net zero change.
+* `pair_annihilation_conserves`: Annihilating opposite orientations removes (+1, -1), net zero.
+* `elastic_scattering_conserves`: Scattering preserves individual lengths (kinematic rigidity).
+* `the_spectral_conservation_principle`: Unifies all three cases.
+
+Corollaries define topological sectors:
+
+* `IsVacuumSector`: Configurations with zero total signed energy.
+* `vacuum_pair_stays_vacuum`: Pair production from vacuum stays in vacuum.
+
+Interpretation: Universes partition into superselection sectors labeled by their signed mass distribution. A universe that starts in the vacuum sector (empty, or equal matter-antimatter at each mass) stays there forever. The generating function Z(t) = Σᵢ σᵢ·t^(1/nᵢ) is a topological invariant of the universe's history.
+
 ### Lorentz Transformations (`LorentzTransform.lean`)
 
 Under a Lorentz boost with velocity v, energy and momentum transform as:

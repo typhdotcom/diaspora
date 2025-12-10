@@ -468,21 +468,35 @@ Under a Lorentz boost with velocity v, energy and momentum transform as:
 
 Interpretation: Different inertial observers see cycles with different energies and momenta, but all agree on the lightlike condition E = p and the zero invariant mass. A cycle that appears "heavy" (small n) to one observer appears "lighter" (larger effective wavelength) to a receding observer. The topology itself, the winding number and harmonic content, is frame-independent. Relativistic velocity composition preserves the subluminal bound: you cannot boost past c.
 
-### Lorentz Covariance (`LorentzCovariance.lean`)
+### Lorentz Covariance (`LorentzCovariance.lean`, `HolonomyInvariance.lean`)
 
-Conservation laws and scattering results are frame-independent.
+Conservation laws and scattering results are frame-independent. The winding number m is the topological quantum number that all observers agree upon.
 
 | Quantity | Formula |
 | :--- | :--- |
 | CM velocity (opposite-direction) | v_CM = (n₂ - n₁)/(n₁ + n₂) |
+| Winding number | m ∈ ℤ (invariant) |
+| Energy from winding | E = m²/n |
+| Spectral sector | σ × m (orientation × winding) |
 
 * `energy_conservation_covariant`: If E₁ + E₂ = E₁' + E₂' in one frame, the boosted versions satisfy the same relation.
 * `scattering_validity_covariant`: Valid scattering in one frame implies valid scattering in all frames.
 * `cycle_length_is_lorentz_scalar`: The integer n is topological; all observers see the same cycle structure.
 * `opposite_direction_cm_frame_exists`: For any opposite-direction pair, a subluminal boost brings the system to rest.
 * `cm_frame_dichotomy`: Same-direction pairs have no CM frame; opposite-direction pairs do.
+* `winding_number_is_lorentz_scalar`: The winding number m is invariant under Lorentz boosts.
+* `winding_invariant_energy_transforms`: Energy transforms via Doppler, but m stays fixed.
+* `energy_from_holonomy`: E = m²/n; energy is determined by winding and cycle length.
+* `minimum_holonomy_energy`: Energy ≥ 1/n for any nonzero winding.
+* `energy_quantization`: E(m) = m² × E(1); energy levels are quantized by winding squared.
+* `holonomy_determines_sector`: Winding × orientation determines the superselection sector.
+* `matter_antimatter_opposite_sectors`: Same |m|, opposite orientation implies distinct sectors.
+* `pair_creation_preserves_sector`: Net winding is zero for pair production.
+* `scattering_preserves_winding`: Elastic scattering preserves winding numbers.
+* `boost_changes_energy_unless_at_rest`: D(v) = 1 iff v = 0; the Doppler factor is injective.
+* `energy_ratio_is_doppler_ratio`: Different observers' energies differ by their Doppler ratio.
 
-Interpretation: Cycle lengths are topological invariants that do not transform under boosts. Conservation laws are linear in E and p, so they transform covariantly. The scattering conclusion "n₁ = n₁'" is a statement about topology, so all observers agree on it. The CM frame dichotomy follows from invariant mass: m² = 0 (lightlike) has no rest frame, m² > 0 (timelike) does.
+Interpretation: Different inertial observers see different energies and momenta related by Doppler shifts, but all agree on two quantities: the cycle length n and the winding number m. Cycle length is the wavelength; winding is the angular momentum quantum number. While energy transforms as E' = E × D(v), the integers n and m are topological and frame-independent. The spectral sector σ × m (orientation times winding) is conserved under all processes: elastic scattering preserves it kinematically, and pair production adds (+m, -m) pairs that sum to zero. Observers can disagree on how much energy a cycle carries but agree on which superselection sector it belongs to.
 
 ### Action Quantization (`Action.lean`)
 

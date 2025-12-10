@@ -460,7 +460,7 @@ Solving: n₃ = n₁n₂/(n₁+n₂), the harmonic mean. This is only valid when
 
 Interpretation: Two co-propagating cycles can coalesce into one heavier cycle. The harmonic mean formula severely restricts which mergers are allowed. Most pairs cannot merge: the result is either non-integer or below the minimum cycle length 3. The 6+6→3 and 4+12→3 cases are among the simplest valid mergers. Splitting is the reverse: a heavy cycle can decay into two lighter co-propagating fragments. The integrality constraint means topology change is rare. Unlike elastic scattering (which is trivial), inelastic processes can actually redistribute mass, but only when the arithmetic works out.
 
-### Momentum Spectrum (`MomentumSpectrum.lean`)
+### Momentum Spectrum (`MomentumSpectrum.lean`, `MergerGCD.lean`)
 
 The discrete mass spectrum {1/3, 1/4, 1/5, ...} induces selection rules on merger via number theory.
 
@@ -472,12 +472,13 @@ The discrete mass spectrum {1/3, 1/4, 1/5, ...} induces selection rules on merge
 | Mass gap | Δm(n) = 1/(n(n+1)) |
 | Largest gap | 1/12 (between n=3 and n=4) |
 
-The merger condition n₃ = n₁n₂/(n₁+n₂) requires (n₁+n₂) | n₁n₂. This divisibility has a number-theoretic obstruction:
+The merger condition n₃ = n₁n₂/(n₁+n₂) requires (n₁+n₂) | n₁n₂. This divisibility has a number-theoretic characterization in terms of the gcd. Write n₁ = g·a, n₂ = g·b where g = gcd(n₁,n₂) and gcd(a,b) = 1. Then:
 
-* `coprime_no_divisibility`: For coprime n₁, n₂: (n₁+n₂) ∤ n₁n₂.
-* `coprime_cycles_cannot_merge`: Coprime cycles cannot merge.
+* `gcd_merger_criterion`: (n₁+n₂) | n₁n₂ iff (a+b) | g.
+* `merger_requires_gcd_bound`: Merger requires g ≥ a+b.
+* `coprime_cycles_cannot_merge`: When gcd(n₁,n₂) = 1, we have g = 1 and a+b ≥ 6, so merger is impossible.
 
-Proof sketch: If (n₁+n₂) | n₁n₂ and gcd(n₁,n₂)=1, then (n₁+n₂) | n₁² and (n₁+n₂) | n₂², so (n₁+n₂) | gcd(n₁²,n₂²) = 1. Contradiction since n₁+n₂ ≥ 6.
+Proof of coprime case: If gcd(n₁,n₂) = 1 and (n₁+n₂) | n₁n₂, then (n₁+n₂) | n₁² and (n₁+n₂) | n₂², so (n₁+n₂) | gcd(n₁²,n₂²) = 1. Contradiction since n₁+n₂ ≥ 6.
 
 | Merger | n₃ | Valid? | Reason |
 | :--- | :--- | :--- | :--- |
@@ -485,10 +486,16 @@ Proof sketch: If (n₁+n₂) | n₁n₂ and gcd(n₁,n₂)=1, then (n₁+n₂) |
 | 3 + 5 | 15/8 | ✗ | coprime |
 | 4 + 5 | 20/9 | ✗ | coprime |
 | 3 + 6 | 2 | ✗ | below minimum |
-| 4 + 12 | 3 | ✓ | gcd=4, divisible |
-| 6 + 6 | 3 | ✓ | gcd=6, divisible |
+| 4 + 12 | 3 | ✓ | gcd=4, (a+b)=4 divides g=4 |
+| 6 + 6 | 3 | ✓ | gcd=6, (a+b)=2 divides g=6 |
 
-Interpretation: The discrete momentum spectrum creates arithmetic selection rules. Coprime pairs (like 3+4, 3+5, 4+5) are kinematically forbidden from merging. The momentum result must land in the allowed spectrum {1/n : n ≥ 3}, which imposes divisibility constraints beyond simple energy-momentum conservation. This is why most pairs cannot interact inelastically: the arithmetic rarely works out.
+The triangle (n=3) is the heaviest cycle, so triangle production is the most constrained merger. Which pairs can produce a triangle?
+
+* `triangle_requires_specific_pairs`: For n₁ ≤ n₂ with valid merger to n₃=3, exactly (4,12) or (6,6).
+
+Proof: n₁n₂/(n₁+n₂) = 3 implies n₁n₂ = 3(n₁+n₂), which factors as (n₁-3)(n₂-3) = 9. The factorizations of 9 with n₁-3 ≤ n₂-3 are (1,9) and (3,3), giving (n₁,n₂) = (4,12) or (6,6).
+
+Interpretation: The discrete momentum spectrum creates arithmetic selection rules. Coprime pairs (like 3+4, 3+5, 4+5) are kinematically forbidden from merging. The momentum result must land in the allowed spectrum {1/n : n ≥ 3}, which imposes divisibility constraints beyond simple energy-momentum conservation. The gcd measures structural compatibility: cycles can merge only when their shared divisor structure is large enough relative to their reduced parts.
 
 ### Spectral Conservation (`SpectralConservation.lean`)
 

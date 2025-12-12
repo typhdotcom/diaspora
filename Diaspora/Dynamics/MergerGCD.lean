@@ -13,10 +13,6 @@ in terms of the greatest common divisor.
 - `merged_length_gcd_formula`: n₃ = g·a·b / (a+b) when merger is valid
 - `minimum_gcd_merger`: When g = a+b exactly, n₃ = a·b
 - `triangle_producers`: Complete characterization of pairs that produce n₃ = 3
-
-The physical interpretation: heavier particles (smaller n) can only form from lighter
-particles (larger n) when those particles share enough "common structure" (large gcd).
-The gcd measures structural compatibility for fusion.
 -/
 
 namespace Diaspora.Dynamics.MergerGCD
@@ -232,17 +228,7 @@ def six_six_triangle : TriangleProducer where
   h₂ := by omega
   h_valid := six_six_merger
 
-/-- The triangle is the simplest product, requiring specific gcd conditions.
-    n₃ = 3 means g·ab / (a+b) = 3.
-    Since gcd(ab, a+b) = 1, we need (a+b) | g and g/(a+b) · ab = 3.
-    So ab ∈ {1, 3} and g/(a+b) ∈ {3, 1} respectively.
-
-    Case ab = 1: a = b = 1, coprime ✓, need g = 3(a+b) = 6
-      → n₁ = 6·1 = 6, n₂ = 6·1 = 6. Check: 36/12 = 3 ✓
-
-    Case ab = 3: (a,b) ∈ {(1,3), (3,1)}, coprime ✓, need g = a+b = 4
-      → n₁ = 4·1 = 4, n₂ = 4·3 = 12. Check: 48/16 = 3 ✓
--/
+/-- The two fundamental triangle-producing pairs are (6,6) and (4,12). -/
 theorem triangle_production_characterization :
     -- The two fundamental triangle-producing pairs
     (merger_valid 6 6 3) ∧
@@ -252,8 +238,7 @@ theorem triangle_production_characterization :
     True := by
   refine ⟨six_six_merger, four_twelve_merger, trivial⟩
 
-/-- For merger to produce n₃ = 3, we need m · ab = 3 where m = g/(a+b).
-    This factors as (1,3) or (3,1), giving exactly (6,6) and (4,12). -/
+/-- Merger to n₃ = 3 requires (n₁, n₂) ∈ {(4, 12), (6, 6)} (up to ordering). -/
 theorem triangle_requires_specific_pairs (n₁ n₂ : ℕ) (h₁ : n₁ ≥ 3) (h₂ : n₂ ≥ 3)
     (h₁_le : n₁ ≤ n₂) (h_valid : merger_valid n₁ n₂ 3) :
     (n₁ = 4 ∧ n₂ = 12) ∨ (n₁ = 6 ∧ n₂ = 6) := by
@@ -335,16 +320,7 @@ theorem triangle_requires_specific_pairs (n₁ n₂ : ℕ) (h₁ : n₁ ≥ 3) (
 
 /-! ## The Merger GCD Correspondence -/
 
-/-- Summary of the GCD characterization of merger.
-
-The key insight: Merger compatibility is determined entirely by
-the common divisor structure. Two cycles can merge iff their gcd
-is large enough relative to their "reduced" parts.
-
-Physical interpretation: The gcd measures how much "common structure"
-two particles share. Merger requires enough commonality (large gcd)
-relative to their differences (small a, b).
--/
+/-- Summary of the GCD characterization of merger. -/
 theorem the_merger_gcd_correspondence (n₁ n₂ : ℕ) (h₁ : n₁ ≥ 3) (h₂ : n₂ ≥ 3) :
     let d := gcd_decomp n₁ n₂ (by omega) (by omega)
     -- Divisibility criterion in GCD form

@@ -15,9 +15,6 @@ same-direction), inelastic processes may allow topology change.
 - `coprime_forbids_merger`: Coprime cycles cannot merge (result would be < 3)
 - `equal_cycles_merger`: Two equal n-cycles merge to n/2 (only if n even and n/2 ≥ 3)
 - `merger_creates_heavier`: Merged cycle is always heavier (shorter wavelength)
-
-The key physical insight: same-direction cycles can potentially merge because their
-combined system is lightlike (E = p), and a single cycle is also lightlike.
 -/
 
 namespace Diaspora.Dynamics.InelasticScattering
@@ -263,12 +260,7 @@ theorem split_creates_lighter (n₃ n₁ n₂ : ℕ) (h₁ : n₁ ≥ 3) (h₂ :
 
 /-! ## Main Correspondence Theorem -/
 
-/-- The inelastic scattering correspondence:
-    - Merger 2→1 conserves E and p
-    - Requires integrality: n₁n₂/(n₁+n₂) ∈ ℕ
-    - Requires validity: result ≥ 3
-    - Creates heavier (higher mass) cycle
-    - Splitting is the reverse process -/
+/-- Summary of inelastic scattering constraints. -/
 theorem the_inelastic_scattering_correspondence (n₁ n₂ : ℕ) (h₁ : n₁ ≥ 3) (h₂ : n₂ ≥ 3) :
     -- Energy conservation formula
     (same_direction_energy n₁ n₂ = 1 / merger_wavelength n₁ n₂) ∧

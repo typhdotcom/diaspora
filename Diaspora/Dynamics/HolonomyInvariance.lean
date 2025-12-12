@@ -169,7 +169,7 @@ theorem topological_invariants (n : ℕ) (m : ℤ) (_h : n ≥ 3) (v : ℝ) (hv 
 
 /-! ## The Holonomy Invariance Correspondence -/
 
-/-- Summary: Holonomy is Lorentz invariant, determines sectors, and quantizes energy. -/
+/-- Summary of holonomy invariance. -/
 theorem the_holonomy_invariance_correspondence (n : ℕ) (m : ℤ) (h : n ≥ 3) (hm : m ≠ 0) :
     -- Winding is a Lorentz scalar
     (∀ v : ℝ, |v| < 1 → winding_number n m = m) ∧
@@ -234,9 +234,7 @@ theorem scattering_preserves_winding (n₁ n₂ n₁' n₂' : ℕ) (m₁ m₂ : 
     · rw [h_lengths.1]
     · rw [h_lengths.2]
 
-/-! ## Winding as the Bridge Between Observers -/
-
-/-- All observers agree that the same cycle has the same winding number m. -/
+/-- Winding number is frame-independent. -/
 theorem observer_agreement_on_topology (n : ℕ) (m : ℤ) (v₁ v₂ : ℝ) (_hv₁ : |v₁| < 1) (_hv₂ : |v₂| < 1) :
     winding_number n m = winding_number n m := rfl
 
@@ -254,7 +252,7 @@ theorem energy_ratio_is_doppler_ratio (n : ℕ) (h : n ≥ 3) (v₁ v₂ : ℝ) 
   have h_D₂_ne : doppler_factor v₂ ≠ 0 := ne_of_gt h_D₂_pos
   field_simp [h_m_ne, h_D₂_ne]
 
-/-- While observers disagree on energy, they can compute each other's measurements. -/
+/-- Observers can compute each other's measurements via Doppler factor. -/
 theorem observer_translations (n : ℕ) (h : n ≥ 3) (v : ℝ) (hv : |v| < 1) :
     -- Moving observer's energy is Doppler shifted
     boost_energy (mass_of_cycle n) (momentum n) v = mass_of_cycle n * doppler_factor v ∧

@@ -12,11 +12,6 @@ This file explores the number-theoretic constraints on allowed reactions.
 - `coprime_no_divisibility`: gcd(n₁, n₂) = 1 ⟹ (n₁+n₂) ∤ (n₁·n₂)
 - `coprime_cycles_cannot_merge`: coprime cycles cannot merge
 - `mass_gap_formula`: gap between levels = 1/(n(n+1))
-
-The physical interpretation: momentum quantization imposes selection rules on
-particle reactions. Unlike continuous momentum, where any reaction conserving
-total momentum is kinematically allowed, discrete momentum requires that the
-"result" also lie in the allowed spectrum.
 -/
 
 namespace Diaspora.Dynamics.MomentumSpectrum

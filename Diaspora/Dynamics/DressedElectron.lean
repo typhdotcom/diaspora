@@ -4,32 +4,14 @@ import Diaspora.Dynamics.Velocity
 /-!
 # The Dressed Electron
 
-A single triangle is lightlike: E = p, invariant mass zero, always traveling at c.
-Yet we observe electrons "at rest." This file resolves the paradox.
-
-## The Core Insight
-
-The "bare" electron (isolated triangle) has no rest frame. What we observe as an
-"electron at rest" is a **dressed** electron: the triangle bound with opposite-
-orientation vacuum structure. The dressing creates invariant mass and a rest frame.
-
-This mirrors QED: the bare electron is massless; observed mass comes from self-
-interaction with the photon field. In Diaspora: bare topology is lightlike;
-rest mass emerges from interaction with opposite-orientation partners.
+A single triangle is lightlike: E = p, m² = 0. Observed electrons "at rest"
+must be dressed: triangle + opposite-orientation structure creates m² > 0.
 
 ## Main Results
 
 - `bare_electron_lightlike`: Single triangles have m² = 0
-- `bare_electron_no_rest_frame`: Bare electrons always travel at c
 - `dressed_electron_timelike`: Dressed electrons have m² > 0
-- `observable_at_rest_implies_dressed`: The central theorem
-
-## Physical Interpretation
-
-The electron's "mass" is not intrinsic to the triangle. It's relational—emerging
-from the triangle's entanglement with its environment. An isolated triangle racing
-through the void at c is the "true" electron. The ponderous electron we weigh in
-labs is that same triangle, dressed by its dance with the vacuum.
+- `observable_at_rest_implies_dressed`: Rest frame implies dressing
 -/
 
 namespace Diaspora.Dynamics.DressedElectron
@@ -202,11 +184,7 @@ noncomputable def ElectronConfig.massSq : ElectronConfig → ℝ
   | .bare _ => invariant_mass_sq bareEnergy bareMomentum
   | .dressed e => e.massSq
 
-/-- THE CENTRAL THEOREM: An electron observable at rest must be dressed.
-
-    Physical interpretation: You cannot observe a bare triangle "at rest."
-    The act of establishing a rest frame requires interaction with something
-    of opposite orientation. The "electron" in your lab is always dressed. -/
+/-- An electron observable at rest must be dressed. -/
 theorem observable_at_rest_implies_dressed (config : ElectronConfig) :
     HasRestFrame config.massSq → ∃ e : Dressed, config = .dressed e := by
   intro h_rest
@@ -280,14 +258,7 @@ theorem larger_dressing_smaller_mass (n₁ n₂ : ℕ) (h₁ : n₁ ≥ 3) (h₂
 
 /-! ## The Dressed Electron Correspondence -/
 
-/-- Summary of the dressed electron theory.
-
-    The bare electron (single triangle) is a mathematical idealization—lightlike,
-    always at c, never observable at rest. The physical electron is dressed:
-    entangled with opposite-orientation structure, timelike, ponderous.
-
-    The "mass" of the electron is not intrinsic but relational. It measures
-    the strength of the electron's coupling to its environment. -/
+/-- Summary of the dressed electron theory. -/
 theorem the_dressed_electron_correspondence :
     -- Bare electrons are lightlike
     (invariant_mass_sq bareEnergy bareMomentum = 0) ∧

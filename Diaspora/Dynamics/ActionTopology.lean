@@ -14,10 +14,6 @@ Inelastic processes that change topology must change total action.
 - `split_increases_action`: 1→2 splitting increases total action by 1
 - `action_topology_correspondence`: Action change = topology change = Δb₁
 - `action_energy_decoupling`: Energy is conserved but action is not
-
-The physical interpretation: action counts topological defects, not energy.
-Energy can redistribute among defects (merger/splitting), but every defect
-carries exactly one quantum of action S = ℏ = 1.
 -/
 
 namespace Diaspora.Dynamics.ActionTopology
@@ -214,14 +210,7 @@ theorem inelastic_changes_action :
   · intro n₃ n₁ n₂ h₁ h₂ h₃ h_valid
     exact split_increases_action n₃ n₁ n₂ h₁ h₂ h₃ h_valid
 
-/-- The fundamental correspondence: action = topology = cycle count.
-
-Energy conservation tells us E_before = E_after.
-Action conservation tells us S_before ≠ S_after iff topology changed.
-
-Merger: Δb₁ = -1, ΔS = -1, ΔE = 0
-Split:  Δb₁ = +1, ΔS = +1, ΔE = 0
--/
+/-- The fundamental correspondence: action = topology = cycle count. -/
 theorem the_action_topology_correspondence :
     -- Each cycle carries exactly one quantum of action
     (∀ n : ℕ, n ≥ 3 → action n = 1) ∧
@@ -245,10 +234,7 @@ theorem the_action_topology_correspondence :
     · exact (merger_energy_action_decoupling n₁ n₂ n₃ h₁ h₂ h₃ h_valid).1
   · exact planck_constant_eq_one
 
-/-! ## Physical Interpretation -/
-
-/-- Action quantization implies topology quantization.
-    You cannot have half a cycle, therefore you cannot have half an action quantum. -/
+/-- Action quantization implies topology quantization. -/
 theorem action_quantization_is_topology_quantization :
     ∀ n : ℕ, n ≥ 3 →
     action n = 1 ∧
@@ -287,10 +273,7 @@ theorem four_twelve_to_three_example :
   · unfold total_action; simp
   · unfold total_action; simp
 
-/-! ## Action and the Second Law -/
-
-/-- Splitting increases action (and hence topological complexity).
-    This suggests entropy production in topology-creating processes. -/
+/-- Splitting increases action. -/
 theorem splitting_increases_complexity (n₃ n₁ n₂ : ℕ)
     (_h₁ : n₁ ≥ 3) (_h₂ : n₂ ≥ 3) (_h₃ : n₃ ≥ 3)
     (_h_valid : split_valid n₃ n₁ n₂) :
@@ -299,8 +282,7 @@ theorem splitting_increases_complexity (n₃ n₁ n₂ : ℕ)
   simp only [List.length_cons, List.length_nil, Nat.cast_add, Nat.cast_one]
   norm_num
 
-/-- Merger decreases action (and hence topological complexity).
-    This represents information loss when structure merges. -/
+/-- Merger decreases action. -/
 theorem merger_decreases_complexity (n₁ n₂ n₃ : ℕ)
     (_h₁ : n₁ ≥ 3) (_h₂ : n₂ ≥ 3) (_h₃ : n₃ ≥ 3)
     (_h_valid : merger_valid n₁ n₂ n₃) :

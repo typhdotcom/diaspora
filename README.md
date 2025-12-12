@@ -385,6 +385,27 @@ Single cycles travel at c. Bound pairs of counter-propagating cycles are sublumi
 
 Interpretation: For opposite-direction pairs, momenta subtract while energies add. The velocity v = |n₂ - n₁|/(n₂ + n₁) is always less than 1. Equal masses give v = 0: the pair is at rest. Unequal masses give 0 < v < 1: subluminal but moving. The Lorentz factor γ = (n₁ + n₂)/(2√(n₁n₂)) satisfies the standard relativistic identity. This is how lightlike particles combine into massive objects that can stop.
 
+### The Dressed Electron (`DressedElectron.lean`)
+
+Single triangles are lightlike: E = p = 1/3, invariant mass zero, velocity c. They have no rest frame. Yet electrons are observed at rest. The resolution: observable electrons are dressed.
+
+| Configuration | E | p | m² | v |
+| :--- | :--- | :--- | :--- | :--- |
+| Bare electron (triangle) | 1/3 | 1/3 | 0 | 1 |
+| Dressed (triangle + n-cycle) | 1/3 + 1/n | \|1/3 - 1/n\| | 4/(3n) | < 1 |
+| Symmetric (triangle + anti-triangle) | 2/3 | 0 | 4/9 | 0 |
+
+* `bare_electron_lightlike`: Single triangles have m² = 0.
+* `bare_electron_has_momentum`: p > 0; bare electrons cannot be at rest.
+* `dressed_electron_timelike`: Triangle + opposite-orientation cycle has m² > 0.
+* `dressed_mass_sq_formula`: m² = 4/(3n) for triangle dressed by n-cycle.
+* `observable_at_rest_implies_dressed`: Rest frame requires dressing.
+* `symmetric_dressing_at_rest`: Equal dressing (n = 3) gives v = 0.
+* `dressed_subluminal`: All dressed electrons have v < 1.
+* `larger_dressing_smaller_mass`: Larger dressing cycle means smaller invariant mass.
+
+Interpretation: A bare triangle always travels at c. To observe an electron at rest requires pairing it with an opposite-orientation cycle. The dressing creates invariant mass and a subluminal velocity. Symmetric dressing (triangle + anti-triangle) produces a system at rest with m = 2/3. This mirrors QED renormalization: the bare electron is massless; observed mass emerges from interaction with the field.
+
 ### Bound State Kinematics (`BoundStateKinematics.lean`)
 
 Binding affects energy but not momentum. For cycles with k shared opposite-direction edges:

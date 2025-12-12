@@ -230,13 +230,8 @@ def six_six_triangle : TriangleProducer where
 
 /-- The two fundamental triangle-producing pairs are (6,6) and (4,12). -/
 theorem triangle_production_characterization :
-    -- The two fundamental triangle-producing pairs
-    (merger_valid 6 6 3) ∧
-    (merger_valid 4 12 3) ∧
-    -- These correspond to the two factorizations of 3
-    -- 3 = 3 × 1 (from ab = 1, m = 3) and 3 = 1 × 3 (from ab = 3, m = 1)
-    True := by
-  refine ⟨six_six_merger, four_twelve_merger, trivial⟩
+    (merger_valid 6 6 3) ∧ (merger_valid 4 12 3) := by
+  exact ⟨six_six_merger, four_twelve_merger⟩
 
 /-- Merger to n₃ = 3 requires (n₁, n₂) ∈ {(4, 12), (6, 6)} (up to ordering). -/
 theorem triangle_requires_specific_pairs (n₁ n₂ : ℕ) (h₁ : n₁ ≥ 3) (h₂ : n₂ ≥ 3)

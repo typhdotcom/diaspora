@@ -364,21 +364,11 @@ This represents the graph becoming more tree-like.
 Assumes the graph stays connected after removal.
 -/
 theorem cyclomatic_decreases_on_edge_removal {n : ℕ} (G : DynamicGraph n) (i j : Fin n)
-    (h_active : (i, j) ∈ G.active_edges)
-    (h_ne : i ≠ j)
-    (_h_connected : True) : -- Graph stays connected after removal
-  cyclomatic_number (remove_edge G i j) + 1 = cyclomatic_number G := by
+    (h_active : (i, j) ∈ G.active_edges) (h_ne : i ≠ j) :
+    cyclomatic_number (remove_edge G i j) + 1 = cyclomatic_number G := by
   unfold cyclomatic_number
   have h_edge := edge_count_decreases_by_one G i j h_active h_ne
   omega
-
-/--
-Evolution preserves vertex count (locations don't disappear).
-The type system guarantees this: DynamicGraph n → DynamicGraph n.
--/
-theorem evolve_preserves_vertices {n : ℕ} [Fintype (Fin n)]
-    (_ : DynamicGraph n) (_ : C0 n) (_ : C1 n) (_ : ℝ) :
-  True := by trivial
 
 /--
 If evolution changes the graph, it's because an edge was overstressed.

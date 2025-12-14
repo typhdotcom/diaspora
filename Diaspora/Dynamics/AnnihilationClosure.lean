@@ -1,25 +1,12 @@
-import Diaspora.Dynamics.BoundDressedElectron
+import Diaspora.Dynamics.BoundLightlikeDressing
 import Diaspora.Dynamics.InelasticScattering
 
 /-!
 # Annihilation Kinematic Closure
 
-When a symmetric dressed electron (triangle + anti-triangle, E=2/3, p=0) radiates,
-the discrete mass spectrum constrains what it can emit. We prove that any valid
-2-body emission must produce another triangle pair—the process is kinematically closed.
-
-## Physical Interpretation
-
-The symmetric dressed electron is a "fixed point" of radiative processes: it can only
-decay into copies of itself. This provides a kinematic explanation for why the
-electron configuration is stable against radiative decay, beyond just binding dynamics.
-
-## Main Results
-
-- `two_body_forces_equal_energies`: p₁+p₂=0 with lightlike products implies E₁=E₂
-- `annihilation_energy_determines_mass`: E=1/3 for each product means triangles
-- `annihilation_closure_two_body`: Symmetric dressed electron radiation → triangle pair
-- `symmetric_electron_is_radiative_fixed_point`: The configuration reproduces itself
+When a symmetric pair (triangle + anti-triangle, E=2/3, p=0) radiates, the discrete
+mass spectrum constrains what it can emit. Any valid 2-body emission must produce
+another triangle pair. The process is kinematically closed.
 -/
 
 namespace Diaspora.Dynamics.AnnihilationClosure
@@ -27,8 +14,8 @@ namespace Diaspora.Dynamics.AnnihilationClosure
 open Diaspora.Core Diaspora.Logic Diaspora.Hodge Diaspora.Dynamics
 open Diaspora.Dynamics.DeBroglie
 open Diaspora.Dynamics.InvariantMass
-open Diaspora.Dynamics.DressedElectron
-open Diaspora.Dynamics.BoundDressedElectron
+open Diaspora.Dynamics.LightlikeDressing
+open Diaspora.Dynamics.BoundLightlikeDressing
 
 /-! ## Radiative Decay Structure -/
 
@@ -61,7 +48,7 @@ noncomputable def TwoBodyDecay.totalMomentum (d : TwoBodyDecay) : ℝ :=
 
 /-! ## Conservation Constraints -/
 
-/-- A decay from symmetric dressed electron: E_total = 2/3, p_total = 0. -/
+/-- A decay from symmetric pair: E_total = 2/3, p_total = 0. -/
 def IsSymmetricAnnihilationDecay (d : TwoBodyDecay) : Prop :=
   d.totalEnergy = 2/3 ∧ d.totalMomentum = 0
 
@@ -147,8 +134,7 @@ theorem annihilation_requires_opposite_orientations (d : TwoBodyDecay)
 
 /-! ## The Main Closure Theorem -/
 
-/-- **Annihilation Kinematic Closure**: Any valid 2-body decay of a symmetric dressed
-    electron (E=2/3, p=0) must produce another triangle-antitriangle pair. -/
+/-- Any valid 2-body decay of a symmetric pair must produce another triangle-antitriangle pair. -/
 theorem annihilation_closure_two_body (d : TwoBodyDecay) (h : IsSymmetricAnnihilationDecay d) :
     d.n₁ = 3 ∧ d.n₂ = 3 ∧ d.σ₁ = -d.σ₂ := by
   have ⟨h₁, h₂⟩ := annihilation_produces_triangles d h
@@ -156,7 +142,7 @@ theorem annihilation_closure_two_body (d : TwoBodyDecay) (h : IsSymmetricAnnihil
 
 /-! ## The Fixed Point Interpretation -/
 
-/-- The symmetric dressed electron configuration. -/
+/-- The symmetric pair configuration. -/
 def trianglePairConfig : TwoBodyDecay where
   n₁ := 3
   n₂ := 3
@@ -179,9 +165,8 @@ theorem trianglePair_is_valid_decay : IsSymmetricAnnihilationDecay trianglePairC
     unfold trianglePairConfig momentum mass_of_cycle
     norm_num
 
-/-- **Radiative Fixed Point**: The symmetric dressed electron is the unique valid
-    2-body decay product of symmetric dressed electron annihilation (up to orientation flip). -/
-theorem symmetric_electron_is_radiative_fixed_point (d : TwoBodyDecay)
+/-- The symmetric pair is a radiative fixed point (up to orientation flip). -/
+theorem symmetric_pair_is_radiative_fixed_point (d : TwoBodyDecay)
     (h : IsSymmetricAnnihilationDecay d) :
     -- The decay produces triangles with opposite orientation (up to sign flip)
     d.n₁ = 3 ∧ d.n₂ = 3 ∧

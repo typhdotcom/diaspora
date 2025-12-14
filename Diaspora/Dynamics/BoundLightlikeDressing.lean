@@ -1,37 +1,29 @@
-import Diaspora.Dynamics.DressedElectron
+import Diaspora.Dynamics.LightlikeDressing
 import Diaspora.Dynamics.BoundStateKinematics
 
 /-!
-# Bound Dressed Electron Theory
+# Bound Lightlike Dressing
 
-The DressedElectron theory treats dressing as unbound (no shared edges). But what happens
-when the core triangle and its dressing cycle share edges? Binding reduces energy while
-preserving momentum, leading to:
+Extends LightlikeDressing to include binding (shared edges). Binding reduces energy
+while preserving momentum:
 
 1. Partial binding: Reduced invariant mass, still timelike
 2. Complete binding (symmetric case): Annihilation to the null state
-
-## Main Results
-
-- `BoundDressed.massSq`: m² = 4(3-k)(n-k)/(3n)² for k shared edges
-- `symmetric_annihilation`: Triangle + anti-triangle with k=3 gives m² = 0
-- `dressed_electron_metastable`: Symmetric dressing can annihilate with enough binding
-- `partial_binding_still_timelike`: For k < min(3,n), bound dressed electron has m² > 0
 -/
 
-namespace Diaspora.Dynamics.BoundDressedElectron
+namespace Diaspora.Dynamics.BoundLightlikeDressing
 
 open Diaspora.Core Diaspora.Logic Diaspora.Hodge Diaspora.Dynamics
 open Diaspora.Dynamics.DeBroglie
 open Diaspora.Dynamics.Dispersion
 open Diaspora.Dynamics.InvariantMass
 open Diaspora.Dynamics.BoundStateKinematics
-open Diaspora.Dynamics.DressedElectron
+open Diaspora.Dynamics.LightlikeDressing
 
-/-! ## Bound Dressed Electron Structure -/
+/-! ## Bound Pair Structure -/
 
-/-- A bound dressed electron: triangle + opposite-orientation n-cycle sharing k edges. -/
-structure BoundDressed where
+/-- Triangle + opposite-orientation n-cycle sharing k edges. -/
+structure BoundPair where
   core_orientation : ℤ
   h_core : core_orientation = 1 ∨ core_orientation = -1
   dressing_n : ℕ
@@ -39,8 +31,8 @@ structure BoundDressed where
   shared_edges : ℕ
   h_shared_bound : shared_edges ≤ min 3 dressing_n
 
-/-- The unbound dressed electron is the k=0 case. -/
-def unboundDressed (d : Dressed) : BoundDressed where
+/-- The unbound case (k=0). -/
+def unboundPair (d : DressedPair) : BoundPair where
   core_orientation := d.core_orientation
   h_core := d.h_core
   dressing_n := d.dressing_n
@@ -48,23 +40,23 @@ def unboundDressed (d : Dressed) : BoundDressed where
   shared_edges := 0
   h_shared_bound := Nat.zero_le _
 
-/-- Total energy of bound dressed electron. -/
-noncomputable def BoundDressed.totalEnergy (e : BoundDressed) : ℝ :=
+/-- Total energy. -/
+noncomputable def BoundPair.totalEnergy (e : BoundPair) : ℝ :=
   bound_total_energy 3 e.dressing_n e.shared_edges
 
-/-- Net momentum of bound dressed electron (independent of binding!). -/
-noncomputable def BoundDressed.netMomentum (e : BoundDressed) : ℝ :=
+/-- Net momentum (independent of binding). -/
+noncomputable def BoundPair.netMomentum (e : BoundPair) : ℝ :=
   |bound_total_momentum 3 e.dressing_n|
 
-/-- Invariant mass squared using the bound state formula. -/
-noncomputable def BoundDressed.massSq (e : BoundDressed) : ℝ :=
+/-- Invariant mass squared. -/
+noncomputable def BoundPair.massSq (e : BoundPair) : ℝ :=
   bound_invariant_mass_sq 3 e.dressing_n e.shared_edges
 
-/-- At k=0, we recover the unbound DressedElectron formula. -/
-theorem bound_at_zero_is_unbound (d : Dressed) :
-    (unboundDressed d).massSq = d.massSq := by
-  unfold unboundDressed BoundDressed.massSq Dressed.massSq
-  unfold Dressed.totalEnergy Dressed.netMomentum
+/-- At k=0, recovers unbound formula. -/
+theorem bound_at_zero_is_unbound (d : DressedPair) :
+    (unboundPair d).massSq = d.massSq := by
+  unfold unboundPair BoundPair.massSq DressedPair.massSq
+  unfold DressedPair.totalEnergy DressedPair.netMomentum
   unfold bound_invariant_mass_sq mass_of_cycle
   simp only [Nat.cast_zero, sub_zero]
   have h_ge := d.h_valid
@@ -75,19 +67,19 @@ theorem bound_at_zero_is_unbound (d : Dressed) :
   field_simp [hn, h3, h_prod]
   ring
 
-/-! ## Bound Dressed Electron Mass Formula -/
+/-! ## Mass Formula -/
 
-/-- The bound dressed electron mass formula: m² = 4(3-k)(n-k)/(3n)². -/
-theorem bound_dressed_mass_formula (e : BoundDressed) :
+/-- m² = 4(3-k)(n-k)/(3n)². -/
+theorem bound_pair_mass_formula (e : BoundPair) :
     e.massSq = 4 * (3 - e.shared_edges : ℝ) * (e.dressing_n - e.shared_edges) /
                ((3 : ℝ) * e.dressing_n)^2 := by
-  unfold BoundDressed.massSq bound_invariant_mass_sq
+  unfold BoundPair.massSq bound_invariant_mass_sq
   ring
 
-/-! ## Symmetric Dressed Electron: The Metastable Case -/
+/-! ## Symmetric Case -/
 
-/-- Symmetric bound dressed: triangle + anti-triangle sharing k edges. -/
-def symmetricBound (k : ℕ) (hk : k ≤ 3) : BoundDressed where
+/-- Triangle + anti-triangle sharing k edges. -/
+def symmetricBound (k : ℕ) (hk : k ≤ 3) : BoundPair where
   core_orientation := 1
   h_core := Or.inl rfl
   dressing_n := 3
@@ -95,21 +87,21 @@ def symmetricBound (k : ℕ) (hk : k ≤ 3) : BoundDressed where
   shared_edges := k
   h_shared_bound := by simp only [Nat.min_self]; exact hk
 
-/-- At k=0, symmetric bound has m² = 4/9 (matches symmetric_dressing_mass_sq). -/
+/-- At k=0, m² = 4/9. -/
 theorem symmetric_bound_zero_mass_sq :
     (symmetricBound 0 (by omega)).massSq = 4/9 := by
-  unfold symmetricBound BoundDressed.massSq bound_invariant_mass_sq
+  unfold symmetricBound BoundPair.massSq bound_invariant_mass_sq
   simp only [Nat.cast_zero, sub_zero]
   norm_num
 
-/-- At k=3, symmetric bound annihilates: m² = 0. -/
+/-- At k=3, annihilation: m² = 0. -/
 theorem symmetric_annihilation :
     (symmetricBound 3 (by omega)).massSq = 0 := by
-  unfold symmetricBound BoundDressed.massSq bound_invariant_mass_sq
+  unfold symmetricBound BoundPair.massSq bound_invariant_mass_sq
   simp only [sub_self, mul_zero, zero_div]
 
-/-- The symmetric dressed electron is metastable: it can annihilate with enough binding. -/
-theorem dressed_electron_metastable :
+/-- Symmetric pair is metastable: can annihilate with enough binding. -/
+theorem symmetric_pair_metastable :
     (symmetricBound 0 (by omega)).massSq > 0 ∧
     (symmetricBound 3 (by omega)).massSq = 0 := by
   constructor
@@ -117,13 +109,13 @@ theorem dressed_electron_metastable :
     norm_num
   · exact symmetric_annihilation
 
-/-! ## Partial Binding: Still Timelike -/
+/-! ## Partial Binding -/
 
-/-- For k < min(3, n), bound dressed electron remains timelike (m² > 0). -/
-theorem partial_binding_still_timelike (e : BoundDressed)
+/-- For k < min(3, n), bound pair remains timelike. -/
+theorem partial_binding_still_timelike (e : BoundPair)
     (h_partial : e.shared_edges < min 3 e.dressing_n) :
     e.massSq > 0 := by
-  unfold BoundDressed.massSq bound_invariant_mass_sq
+  unfold BoundPair.massSq bound_invariant_mass_sq
   have h_ge := e.h_valid
   have h3 : (3 : ℝ) > 0 := by norm_num
   have hn : (e.dressing_n : ℝ) > 0 := Nat.cast_pos.mpr (by omega : e.dressing_n > 0)
@@ -140,14 +132,14 @@ theorem partial_binding_still_timelike (e : BoundDressed)
   have h_prod_sq_pos : ((3 : ℝ) * e.dressing_n)^2 > 0 := by positivity
   positivity
 
-/-- The binding spectrum for symmetric dressing: m² decreases with k. -/
+/-- Mass spectrum for symmetric binding. -/
 theorem symmetric_mass_spectrum (k : ℕ) (hk : k ≤ 3) :
     (symmetricBound k hk).massSq = 4 * (3 - k : ℝ)^2 / 81 := by
-  unfold symmetricBound BoundDressed.massSq bound_invariant_mass_sq
+  unfold symmetricBound BoundPair.massSq bound_invariant_mass_sq
   simp only [Nat.cast_ofNat]
   ring
 
-/-- Each binding level has a specific mass. -/
+/-- Explicit mass values at each binding level. -/
 theorem symmetric_mass_values :
     (symmetricBound 0 (by omega)).massSq = 4/9 ∧
     (symmetricBound 1 (by omega)).massSq = 16/81 ∧
@@ -163,52 +155,47 @@ theorem symmetric_mass_values :
     norm_num
   · exact symmetric_annihilation
 
-/-! ## Bound Dressed Velocity -/
+/-! ## Velocity -/
 
-/-- Velocity of a bound dressed electron. -/
-noncomputable def BoundDressed.velocity (e : BoundDressed) : ℝ :=
+/-- Velocity of a bound pair. -/
+noncomputable def BoundPair.velocity (e : BoundPair) : ℝ :=
   e.netMomentum / e.totalEnergy
 
-/-- Symmetric bound dressing is always at rest (equal masses). -/
+/-- Symmetric bound pair is at rest. -/
 theorem symmetric_bound_at_rest (k : ℕ) (hk : k ≤ 3) (_hk_lt : k < 3) :
     (symmetricBound k hk).velocity = 0 := by
-  unfold BoundDressed.velocity BoundDressed.netMomentum BoundDressed.totalEnergy
+  unfold BoundPair.velocity BoundPair.netMomentum BoundPair.totalEnergy
   unfold symmetricBound bound_total_momentum
   simp only [mass_of_cycle, sub_self, abs_zero, zero_div]
 
-/-! ## The Annihilation Energy Barrier -/
+/-! ## Energy Barrier -/
 
-/-- Energy released in going from binding k to binding k+1. -/
-noncomputable def binding_energy_step (e : BoundDressed) : ℝ :=
+/-- Energy released per binding step. -/
+noncomputable def binding_energy_step (e : BoundPair) : ℝ :=
   2 / (3 * e.dressing_n)
 
-/-- Total energy released by complete annihilation of symmetric dressed electron. -/
+/-- Total annihilation energy for symmetric pair. -/
 theorem symmetric_annihilation_energy :
     (symmetricBound 0 (by omega)).totalEnergy - (symmetricBound 3 (by omega)).totalEnergy = 2/3 := by
-  unfold symmetricBound BoundDressed.totalEnergy bound_total_energy
+  unfold symmetricBound BoundPair.totalEnergy bound_total_energy
   unfold mass_of_cycle sharing_energy_reduction
   simp only [Nat.cast_zero, mul_zero, Nat.cast_ofNat]
   norm_num
 
-/-! ## The Bound Dressed Electron Correspondence -/
+/-! ## Summary -/
 
-/-- Summary: The complete bound dressed electron theory. -/
-theorem the_bound_dressed_electron_correspondence :
-    -- k=0 recovers unbound theory
-    (∀ d : Dressed, (unboundDressed d).massSq = d.massSq) ∧
-    -- Partial binding is still timelike
-    (∀ e : BoundDressed, e.shared_edges < min 3 e.dressing_n → e.massSq > 0) ∧
-    -- Symmetric dressing can annihilate
+/-- Bound lightlike dressing correspondence. -/
+theorem the_bound_lightlike_dressing_correspondence :
+    (∀ d : DressedPair, (unboundPair d).massSq = d.massSq) ∧
+    (∀ e : BoundPair, e.shared_edges < min 3 e.dressing_n → e.massSq > 0) ∧
     ((symmetricBound 0 (by omega)).massSq > 0 ∧ (symmetricBound 3 (by omega)).massSq = 0) ∧
-    -- Symmetric is always at rest (until annihilation)
     (∀ k : ℕ, ∀ hk : k ≤ 3, k < 3 → (symmetricBound k hk).velocity = 0) ∧
-    -- Annihilation releases energy 2/3
     ((symmetricBound 0 (by omega)).totalEnergy - (symmetricBound 3 (by omega)).totalEnergy = 2/3) := by
   refine ⟨?_, ?_, ?_, ?_, ?_⟩
   · exact bound_at_zero_is_unbound
   · exact partial_binding_still_timelike
-  · exact dressed_electron_metastable
+  · exact symmetric_pair_metastable
   · exact symmetric_bound_at_rest
   · exact symmetric_annihilation_energy
 
-end Diaspora.Dynamics.BoundDressedElectron
+end Diaspora.Dynamics.BoundLightlikeDressing

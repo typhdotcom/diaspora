@@ -182,7 +182,8 @@ How many constraints does it take to create topology?
 #### Key Theorems
 
 * `matter_is_incompressible_complexity`: When TopologicalDeficit > 0, there exist states σ that cannot be written as dϕ for any potential ϕ.
-* `information_leak_is_inevitable`: As edge density grows (|E| > 2|V|), TopologicalDeficit > 0 is guaranteed. Dense graphs *must* carry mass.
+* `information_leak_tight`: For connected graphs, |E| ≥ |V| suffices for positive deficit. This is the tight threshold—the first independent cycle forces topology.
+* `information_leak_is_inevitable`: Conservative bound (|E| > 2|V|) that doesn't require connectedness.
 * `deficit_complexity_characterization`: The lower and upper bounds together characterize exactly which (deficit, program length) pairs are achievable.
 
 #### The Big Bang (`Logic/Limit.lean`)

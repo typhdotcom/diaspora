@@ -79,6 +79,22 @@ theorem information_leak_is_inevitable
   have h_harmonic_pos : Module.finrank ℝ (HarmonicSubspace G) > 0 := by omega
   exact Nat.cast_pos.mpr h_harmonic_pos
 
+omit [DecidableEq (Fin n)] in
+/-- Tight bound: for connected graphs, |E| ≥ |V| suffices for positive deficit.
+This improves `information_leak_is_inevitable` by a factor of 2 when connectedness is known. -/
+theorem information_leak_tight
+    (h_edges : edge_count G ≥ n)
+    (h_connected : Module.finrank ℝ (LinearMap.ker (d_G_linear G)) = 1) :
+    TopologicalDeficit G > 0 := by
+  rw [topological_deficit_eq_harmonic_dim]
+  have h_formula := harmonic_dimension_eq_cyclomatic G
+  rw [h_connected] at h_formula
+  unfold edge_count at h_edges
+  -- h_formula: dim(Harmonic) + n = |E| + 1
+  -- So: dim(Harmonic) = |E| - n + 1 ≥ 1 when |E| ≥ n
+  have h_pos : Module.finrank ℝ (HarmonicSubspace G) ≥ 1 := by omega
+  exact Nat.cast_pos.mpr (Nat.lt_of_lt_of_le Nat.zero_lt_one h_pos)
+
 /-! ## State Description -/
 
 /-- A state description is (potential, harmonic_part). -/
